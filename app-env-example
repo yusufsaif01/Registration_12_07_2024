@@ -1,0 +1,21 @@
+export APP_NAME=
+export APP_VERSION=
+export APP_BASE_URL=
+export APP_ENVIRONMENT=
+export APP_CLIENT_URLS=
+
+export MONGO_HOST_URL=
+export DB_NAME=
+
+export JWT_SECRET=
+export JWT_EXPIRY_IN=
+
+export MAILER_USER=
+export MAILER_USER_PASSWORD=
+export MAILER_FROM_EMAIL=
+export MAILER_HOST=
+export MAILER_PORT=
+export MAILER_IS_SECURE=
+
+export SERVER_HOST=
+export SERVER_PORT=

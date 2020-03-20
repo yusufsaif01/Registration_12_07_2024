@@ -1,0 +1,37 @@
+{
+	"name": {
+		"doc": "Application name .",
+		"format": "String",
+		"default": "LMS",
+		"env": "APP_NAME",
+		"arg": "app_name"
+	},
+	"version": {
+		"doc": "Version of application",
+		"format": "String",
+		"default": "1.0.0",
+		"env": "APP_VERSION",
+		"arg": "app_version"
+	},
+	"baseURL": {
+		"doc": "For setting down the base url of app.",
+		"format": "url",
+		"default": "http://localhost:3000/",
+		"env": "APP_BASE_URL",
+		"arg": "app_base_url"
+	},
+	"environment": {
+		"doc": "environment (dev, prod)",
+		"format": "String",
+		"default": "dev",
+		"env": "APP_ENVIRONMENT",
+		"arg": "app_environment"
+	},
+	"client_domains":{
+		"doc": "For setting down the client urls of app.",
+		"default": "http://localhost,https://localhost,http://localhost:4200",
+		"env": "APP_CLIENT_URLS",
+		"arg": "app_client_urls"
+	}
+
+}

@@ -1,0 +1,36 @@
+{
+  "name": "yftchain-middleware",
+  "version": "1.0.0",
+  "description": "YFTChain",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "gen-api-docs": "./node_modules/.bin/apidoc -i ./routes -o apidocs/doc",
+    "dev": "DEBUG=* npm start",
+    "start": "npm run gen-api-docs && node app.js"
+  },
+  "dependencies": {
+    "@hapi/joi": "^15.1.1",
+    "aws-sdk": "^2.524.0",
+    "bcrypt": "^3.0.6",
+    "bluebird": "^3.5.5",
+    "convict": "^5.1.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-fileupload": "^1.1.6",
+    "fast-csv": "^4.1.3",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.4",
+    "morgan": "~1.9.1",
+    "nodemailer": "^6.3.0",
+    "prompts": "^2.2.1",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.1.0"
+  },
+  "devDependencies": {
+    "apidoc": "^0.17.7"
+  }
+}

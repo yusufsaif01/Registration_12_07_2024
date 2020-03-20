@@ -1,0 +1,37 @@
+{
+    "enable": {
+        "doc": "to enable app logger",
+        "format": "Boolean",
+        "default": false,
+        "env": "ENABLE_LOGGER",
+        "arg": "enable_logger"
+    },
+    "level": {
+        "doc": "Logging level(debug, info)",
+        "format": "String",
+        "default": "debug",
+        "env": "LOGGER_LEVEL",
+        "arg": "logger_level"
+    },
+    "filesLogger": {
+        "doc": "set true to enable file logging",
+        "format": "Boolean",
+        "default": false,
+        "env": "LOGGER_FILES_LOGGING",
+        "arg": "logger_files_logging"
+    },
+    "filesPath": {
+        "doc": "Logging files path",
+        "format": "String",
+        "default": "./logs",
+        "env": "LOGGER_FILES_PATH",
+        "arg": "logger_files_path"
+    },
+    "json": {
+        "doc": "set true to enable file logging",
+        "format": "Boolean",
+        "default": false,
+        "env": "LOGGER_JSON_LOGGING",
+        "arg": "logger_json_logging"
+    }
+}

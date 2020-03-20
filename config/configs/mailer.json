@@ -1,0 +1,45 @@
+{
+    "email": {
+        "doc": "crediential for google authentication",
+        "format": "String",
+        "default": "xxx",
+        "env": "MAILER_USER",
+        "arg": "mailer_user"
+    },
+    "password": {
+        "doc": "crediential for google authentication",
+        "format": "String",
+        "default": "XXX",
+        "env": "MAILER_USER_PASSWORD",
+        "arg": "mailer_user_password"
+    },
+    "fromEmail": {
+        "doc": "email",
+        "format": "String",
+        "default": "test@demo.com",
+        "env": "MAILER_FROM_EMAIL",
+        "arg": "mailer_from_email"
+    },
+    "host": {
+        "doc": "mailer host",
+        "format": "String",
+        "default": "XXX",
+        "env": "MAILER_HOST",
+        "arg": "mailer_host"
+    },
+    "port": {
+        "doc": "mailer port",
+        "format": "Number",
+        "default": 587,
+        "env": "MAILER_PORT",
+        "arg": "mailer_port"
+    },
+    "secure": {
+        "doc": "mailer secure",
+        "format": "Boolean",
+        "default": false,
+        "env": "MAILER_IS_SECURE",
+        "arg": "mailer_is_secure"
+    }
+}
+

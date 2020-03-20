@@ -1,0 +1,17 @@
+{
+    "jwt_secret": {
+        "doc": "JWT secret for signed token",
+        "format": "String",
+        "default": "lms",
+        "env": "JWT_SECRET",
+        "arg": "jwt_secret"
+    },
+
+    "expiry_in" : {
+        "doc": "expiry time for signed token",
+        "format": "String",
+        "default": "1h",
+        "env": "JWT_EXPIRY_IN",
+        "arg": "jwt_expiry_in"
+    }
+}
