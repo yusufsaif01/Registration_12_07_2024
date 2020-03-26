@@ -1,9 +1,6 @@
 const express = require('express');
 const authRoutes = require('./auth.rest');
-const warehouseRoutes = require('./warehouse.rest');
 const userRoutes = require('./user.rest');
-const KnowledgeRepositoryRoutes = require('./knowledgeRepository.rest');
-const departmentRoutes = require('./department.rest');
 const userProfileRoutes = require('./userProfile.rest');
 
 class Route {
@@ -11,9 +8,6 @@ class Route {
 		const apiRouter = express.Router();
 
 		authRoutes(apiRouter);
-		warehouseRoutes(apiRouter);
-		KnowledgeRepositoryRoutes(apiRouter);
-		departmentRoutes(apiRouter);
 		userProfileRoutes(apiRouter);
 
 		userRoutes(apiRouter);

@@ -3,7 +3,6 @@ const errors = require('../errors');
 const config = require('../config');
 
 const ActivityService = require('./ActivityService');
-const NotificationService = require('./NotificationService');
 
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
