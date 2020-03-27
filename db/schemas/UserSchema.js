@@ -85,7 +85,7 @@ module.exports = {
 		},
 		password: {
 			required: true,
-			type: String,
+			type: String
 		},
 		username: {
 			type: String,
@@ -93,31 +93,36 @@ module.exports = {
 			unique: true
 		},
 		token: {
-			type: String,
+			type: String
 		},
 		forget_password_token: {
-			type: String,
+			type: String
 		},
 		avatar_url: {
-			type: String,
+			type: String
 		},
 		state: {
-			type: String,
+			type: String
 		},
 		country: {
-			type: String,
+			type: String
 		},
 		city: {
-			type: String,
+			type: String
 		},
 		phone: {
-			type: String,
+			type: String
 		},
 		member_type: {
 			type: String,
+			enum:["player","club","academy"]
 		},
 		social_profiles: {
-			type: String,
+			facebook: String,
+			youtube: String,
+			twitter: String,
+			instagram: String,
+			github: String
 		},
 
 		is_first_time_login: {

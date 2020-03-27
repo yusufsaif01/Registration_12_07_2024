@@ -14,7 +14,7 @@ module.exports = (router) => {
     router.post('/register', authValidator.userRegisterValidation,function(req, res, next){
         const serviceInst = new UserRegistrationService();
         const { user_id , name,dob,email,password,username,state,country,phone} = req.body;
-        responseHandler(req, res, serviceInst.employeeRegistration({ user_id , name,dob,email,password,username,state,country,phone }).then(serviceInst.toAPIResponse));
+        responseHandler(req, res, serviceInst.memberRegistration({ user_id , name,dob,email,password,username,state,country,phone }).then(serviceInst.toAPIResponse));
     });
 
     router.post('/login', function(req, res, next){
@@ -37,7 +37,7 @@ module.exports = (router) => {
 
     router.post('/change-password', checkAuthToken, function(req, res, next){        
         const authServiceInst = new AuthService();
-        responseHandler(req, res, authServiceInst.resetPassword(req.authUser , req.body.new_password));
+        responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.old_password, req.body.new_password));
     });
 
 };

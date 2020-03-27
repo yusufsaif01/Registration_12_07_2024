@@ -123,34 +123,8 @@ class AuthService {
                     });
             })
     }
-
-    resetPassword(tokenData, newPassword) {
-        return this.validateResetPassword(tokenData, newPassword)
-            .then(() => {
-                let User;
-
-                // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
-
-                return this.userUtilityInst.findOne({ email: tokenData.email })
-                    .then((user) => {
-                        if (!user) {
-                            return Promise.reject(new errors.NotFound("User not found"));
-                        }
-                        User = user;
-                        return this.authUtilityInst.bcryptToken(newPassword);
-                    })
-                    .then((password) => {
-                        return this.updateUserPassword(tokenData, password);
-                    })
-                    .catch(err => { return Promise.reject(err); })
-                    .then(() => {
-                        return Promise.resolve();
-                    });
-            })
-
-    }
-    validateResetPassword(token, newPassword) {
-        if (!token) {
+    async resetPassword(tokenData, oldPassword, newPassword) {
+        if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
             ));
@@ -161,8 +135,75 @@ class AuthService {
                 "newPassword is required"
             ));
         }
-        return Promise.resolve(token, newPassword)
+        if (!oldPassword) {
+            return Promise.reject(new errors.ValidationFailed(
+                "Old password is required"
+            ));
+        }
+        
+        try {
+            let user = await this.userUtilityInst.findOne({ email: tokenData.email })
+            if (!user) {
+                return Promise.reject(new errors.NotFound("User not found."));
+            }
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(oldPassword, user.password);
+            if (!checkPassword) {
+                return Promise.reject(new errors.BadRequest("Old assword is incorrect", { field_name: "old_password"}));
+            }
+            let password = await this.authUtilityInst.bcryptToken(newPassword);
+            await this.updateUserPassword(tokenData, password);
+            return Promise.resolve();
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
     }
+
+    // resetPassword(tokenData,oldPassword, newPassword) {
+    //     return this.validateResetPassword(tokenData,oldPassword, newPassword)
+    //         .then(() => {
+    //             let User;
+
+    //             // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
+
+    //             return this.userUtilityInst.findOne({ email: tokenData.email })
+    //                 .then((user) => {
+    //                     if (!user) {
+    //                         return Promise.reject(new errors.NotFound("User not found"));
+    //                     }
+    //                     User = user;
+                        
+    //                     return this.authUtilityInst.bcryptToken(newPassword);
+    //                 })
+    //                 .then((password) => {
+    //                     return this.updateUserPassword(tokenData, password);
+    //                 })
+    //                 .catch(err => { return Promise.reject(err); })
+    //                 .then(() => {
+    //                     return Promise.resolve();
+    //                 });
+    //         })
+
+    // }
+    // validateResetPassword(token,oldPassword,newPassword) {
+    //     if (!token) {
+    //         return Promise.reject(new errors.ValidationFailed(
+    //             "token is required"
+    //         ));
+    //     }
+
+    //     if (!newPassword) {
+    //         return Promise.reject(new errors.ValidationFailed(
+    //             "newPassword is required"
+    //         ));
+    //     }
+    //     if (!oldPassword) {
+    //         return Promise.reject(new errors.ValidationFailed(
+    //             "Old password is required"
+    //         ));
+    //     }
+    //     return Promise.resolve(token,oldPassword, newPassword)
+    // }
 
     updateUserPassword(user, password) {
         return this.userUtilityInst.updateOne({ email: user.email }, { password: password });

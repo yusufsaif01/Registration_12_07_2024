@@ -28,7 +28,7 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    validateEmployeeRegistration(registerUser) {
+    validateMemberRegistration(registerUser) {
         
         if (!registerUser.user_id) {
             return Promise.reject(new errors.ValidationFailed(
@@ -87,7 +87,7 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    employeeRegistration(userData) {
+    memberRegistration(userData) {
         // let password = this.dateToPassword(userData.dob);
 
         let user = {
@@ -103,7 +103,7 @@ class UserRegistrationService extends UserService {
             password:userData.password,
             avatar_url: 'user-avatar.jpg' // default avatar url
         };
-        return this.validateEmployeeRegistration(user)
+        return this.validateMemberRegistration(user)
         .then(() => {
             return this.create(user)
             .then(this.toAPIResponse);
@@ -134,7 +134,7 @@ class UserRegistrationService extends UserService {
             user.password = this.dateToPassword(user.dob);
 
             try {
-                await this.validateEmployeeRegistration(user);
+                await this.validateMemberRegistration(user);
             } catch(err) {
                 invalidRows.push({
                     error: err.message,
@@ -260,7 +260,7 @@ class UserRegistrationService extends UserService {
             password,
             avatar_url: 'user-avatar.jpg' // default avatar url
         };
-        return this.validateEmployeeRegistration(user)
+        return this.validateMemberRegistration(user)
         .then(() => {
             return this.create(user)
             .then(this.toAPIResponse);
