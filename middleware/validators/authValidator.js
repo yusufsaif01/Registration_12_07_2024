@@ -30,12 +30,13 @@ class AuthValidator {
         const schema = Joi.object().keys({
 
            
-            dob : Joi.string().required(),
+            
             role : Joi.string(),
             state : Joi.string(),
             country : Joi.string(),
             phone : Joi.string(),
             user_id : Joi.string().alphanum().min(5).max(30).required(),
+            dob : Joi.string().required(),
             name : Joi.string().alphanum().min(3).max(30).required(),
             password : Joi.string().alphanum().min(3).max(30).required(),
             email      : Joi.string().email({ minDomainSegments: 2 }).required(),

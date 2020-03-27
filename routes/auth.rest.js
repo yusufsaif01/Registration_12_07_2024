@@ -1,4 +1,5 @@
 const authValidator      = require('../middleware/validators/authValidator');
+const userValidator = require("../middleware/validators").userValidator;
 const UserRegistrationService     = require('../services/UserRegistrationService');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
@@ -11,7 +12,7 @@ const AuthService = require('../services/AuthService');
  */
 module.exports = (router) => {    
 
-    router.post('/register', authValidator.userRegisterValidation,function(req, res, next){
+    router.post('/register', userValidator.createAPIValidation,function(req, res, next){
         const serviceInst = new UserRegistrationService();
         const { user_id , name,dob,email,password,username,state,country,phone} = req.body;
         responseHandler(req, res, serviceInst.memberRegistration({ user_id , name,dob,email,password,username,state,country,phone }).then(serviceInst.toAPIResponse));
