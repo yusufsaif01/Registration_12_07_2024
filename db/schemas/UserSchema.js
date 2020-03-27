@@ -15,35 +15,68 @@ module.exports = {
 			required: true,
 			unique: true,
 		},
-		name: {
+		first_name: {
 			type: String,
 		},
-		warehouse: {
+		last_name: {
 			type: String,
 		},
-		location: {
+		height: {
 			type: String,
 		},
-		department: {
+		weight: {
 			type: String,
 		},
+
 		dob: {
-			type: Date,
+			type: String,
 			required: true,
 		},
-		doj: {
-			type: Date,
-			required: true,
+		institute: {
+			type: String
+		},
+		document_links: {
+			type: String
+		},
+		about: {
+			type: String
+		},
+		bio: {
+			type: String
+		},
+		position: {
+			type: String
+		},
+		strong_foot: {
+			type: String
+		},
+		weak_foot: {
+			type: String
+		},
+		club: {
+			type: String
+		},
+		academy: {
+			type: String
+		},
+		former_club: {
+			type: String
+		},
+		former_academy: {
+			type: String
+		},
+		specialization: {
+			type: String
+		},
+		player_type: {
+			type: String
 		},
 		role: {
 			type: String,
 			enum: [
-				"super-admin",
-				"admin",
-				"manager",
-				"employee",
+				"admin"
 			],
-			default: 'employee'
+			default: 'admin'
 		},
 		email: {
 			type: String,
@@ -59,10 +92,10 @@ module.exports = {
 			required: true,
 			unique: true
 		},
-		vendor_id: {
+		token: {
 			type: String,
 		},
-		token: {
+		forget_password_token: {
 			type: String,
 		},
 		avatar_url: {
@@ -74,10 +107,28 @@ module.exports = {
 		country: {
 			type: String,
 		},
+		city: {
+			type: String,
+		},
 		phone: {
 			type: String,
 		},
-		is_logged_in: {
+		member_type: {
+			type: String,
+		},
+		social_profiles: {
+			type: String,
+		},
+
+		is_first_time_login: {
+			type: Boolean,
+			default: true
+		},
+		is_email_verified: {
+			type: Boolean,
+			default: false
+		},
+		is_deleted: {
 			type: Boolean,
 			default: false
 		},

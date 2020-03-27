@@ -40,36 +40,17 @@ class UserRegistrationService extends UserService {
                 "name is required", { field_name: "name" }
             ));
         }
-        if (!registerUser.warehouse) {
-            return Promise.reject(new errors.ValidationFailed(
-                "warehouse is required", { field_name: "warehouse" }
-            ));
-        }
-        if (!registerUser.location) {
-            return Promise.reject(new errors.ValidationFailed(
-                "location is required", { field_name: "location" }
-            ));
-        }
-        if (!registerUser.department) {
-            return Promise.reject(new errors.ValidationFailed(
-                "department is required", { field_name: "department" }
-            ));
-        }
+      
         if (!registerUser.dob) {
             return Promise.reject(new errors.ValidationFailed(
                 "dob is required", { field_name: "dob" }
             ));
         }
-        if (!registerUser.doj) {
-            return Promise.reject(new errors.ValidationFailed(
-                "doj is required", { field_name: "doj" }
-            ));
-        }
-        if (!registerUser.role) {
-            return Promise.reject(new errors.ValidationFailed(
-                "role is required", { field_name: "role" }
-            ));
-        }
+        // if (!registerUser.role) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "role is required", { field_name: "role" }
+        //     ));
+        // }
         if (!registerUser.password) {
             return Promise.reject(new errors.ValidationFailed(
                 "password is required", { field_name: "password" }
@@ -107,24 +88,19 @@ class UserRegistrationService extends UserService {
      * @memberof UserRegistrationService
      */
     employeeRegistration(userData) {
-        let password = this.dateToPassword(userData.dob);
+        // let password = this.dateToPassword(userData.dob);
 
         let user = {
-            username: userData.user_id,
+            username: userData.username,
             user_id: userData.user_id ,
             name: userData.name,
-            warehouse: userData.warehouse,
-            location: userData.location,
-            department: userData.department,
             dob: userData.dob,
-            doj: userData.doj,
             email: userData.email,
-            vendor_id: userData.vendor_id,
             state: userData.state,
             country: userData.country,
             phone: userData.phone,
-            role: userData.role,
-            password,
+            // role: userData.role,
+            password:userData.password,
             avatar_url: 'user-avatar.jpg' // default avatar url
         };
         return this.validateEmployeeRegistration(user)
@@ -212,11 +188,11 @@ class UserRegistrationService extends UserService {
             ));
         }
 
-        if (!adminData.doj) {
-            return Promise.reject(new errors.ValidationFailed(
-                "doj is required", { field_name: "doj" }
-            ));
-        }
+        // if (!adminData.doj) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "doj is required", { field_name: "doj" }
+        //     ));
+        // }
 
         return Promise.resolve(adminData);
     }
@@ -302,15 +278,10 @@ class UserRegistrationService extends UserService {
     toAPIResponse({
         user_id,
         name,
-        warehouse,
-        location,
-        department,
         dob,
-        doj,
         role,
         email,
         username,
-        vendor_id,
         avatar_url,
         state,
         country,
@@ -320,15 +291,10 @@ class UserRegistrationService extends UserService {
         return {
             user_id,
             name,
-            warehouse,
-            location,
-            department,
             dob,
-            doj,
             role,
             email,
             username,
-            vendor_id,
             avatar_url,
             state,
             country,

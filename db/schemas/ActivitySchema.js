@@ -3,7 +3,7 @@ const uuid4 = require("uuid/v4");
 module.exports = {
 	fields: {
 
-		emp_id       : {
+		user_id       : {
 			type     : String,
 			required : true
 		},

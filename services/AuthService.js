@@ -7,6 +7,7 @@ const ActivityService = require('./ActivityService');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
+const NotificationService = require('./NotificationService');
 
 class AuthService {
 
@@ -25,14 +26,14 @@ class AuthService {
                 return this.findByCredentials(username, password)
                     .then((user) => {
                         User = user;
-                        ActivityService.loginActivity(User.emp_id, "login");
-                        this.userUtilityInst.updateOne({ emp_id: User.emp_id }, { is_login: true });
-                        return this.authUtilityInst.getAuthToken(user.id, user.emp_id , user.email, username)
+                        ActivityService.loginActivity(User.user_id, "login");
+                        this.userUtilityInst.updateOne({ user_id: User.user_id }, { is_login: true });
+                        return this.authUtilityInst.getAuthToken(user.id, user.email, username)
                     })
-                    .then(async (Token) => {                                     
-                        await this.userUtilityInst.updateOne({ emp_id: User.emp_id }, { token : Token });
-                        let { id, emp_id, email, username} = User;
-                        return { id, emp_id, email, username , token : Token};
+                    .then(async (Token) => {
+                        await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
+                        let { id, emp_id, email, username } = User;
+                        return { id, emp_id, email, username, token: Token };
                     })
             })
     }
@@ -52,28 +53,31 @@ class AuthService {
         return Promise.resolve(username, password);
     }
 
-    findByCredentials(username, password) {
-        return this.userUtilityInst.findOne({ $or: [{ username : username } , { vendor_id : username} ]})
-            .then((user) => {
-                if (user) {
-                    if (this.authUtilityInst.tokenCompare(password, user.password)) {
-                        return Promise.resolve(user);
-                    } else {
-                        return Promise.reject(new errors.InvalidCredentials());
-                    }
-                } else {
-                    return Promise.reject(new errors.InvalidCredentials());
-                }
-            })
+
+    async findByCredentials(username, password) {
+        try {
+            let user = await this.userUtilityInst.findOne({ $or: [{ username: username }] });
+            if (!user) {
+                return Promise.reject(new errors.InvalidCredentials());
+            }
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(password, user.password);
+            if (!checkPassword) {
+                return Promise.reject(new errors.InvalidCredentials());
+            }
+            return user;
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
     }
 
     logout(data) {
-        return  this.userUtilityInst.updateOne({ emp_id: data.emp_id }, { is_login: false }).then((status)=>{
+        return this.userUtilityInst.updateOne({ user_id: data.user_id }, { is_login: false }).then((status) => {
             return Promise.resolve(status)
-        }).then(()=>{
-            return ActivityService.loginActivity(data.emp_id, "logout");
-        }).then(()=>{
-            return Promise.resolve({"Success " : true});
+        }).then(() => {
+            return ActivityService.loginActivity(data.user_id, "logout");
+        }).then(() => {
+            return Promise.resolve({ "Success ": true });
         })
     }
 
@@ -90,61 +94,62 @@ class AuthService {
     forgotPassword(email) {
 
         return this.passwordValidator(email)
-        .then(()=>{
-            let User ;
-            let randomString
-
-            const roleList = ["super-admin", "admin"]; //Make It as dynamic list
-
-            return this.userUtilityInst.findOne({ email : email  , role : { "$in": roleList } })
-            .then((user) => {
-                if (!user) {
-
-                    return Promise.reject(new errors.NotFound("User not found or you are permitted."));
-                }
-                User = user;
-                randomString = this.authUtilityInst.randomBytes(4);                
-                return this.authUtilityInst.bcryptToken(randomString);
-            })
-            .then(async (password) => {
-
-                await this.updateUserPassword(User, password);
-                
-                let notifyInst = new NotificationService();
-                return notifyInst.forgotPassword(User, { randomString })
-            })
             .then(() => {
-                return User;
-            });
-        })
-    }   
+                let User;
+                let randomString
 
-    resetPassword( tokenData , newPassword) {
-        return this.validateResetPassword(tokenData, newPassword)
-        .then(()=>{
-            let User ;
+                // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
 
-            const roleList = ["super-admin", "admin"]; //Make It as dynamic list
+                // return this.userUtilityInst.findOne({ email: email, role: { "$in": roleList } })
+                return this.userUtilityInst.findOne({ email: email })
+                    .then((user) => {
+                        if (!user) {
 
-            return this.userUtilityInst.findOne({ email : tokenData.email  , role : { "$in": roleList } })
-            .then((user) => {
-                if (!user) {
-                    return Promise.reject(new errors.NotFound("User not found or you have not permitted."));
-                }
-                User = user;
-                return this.authUtilityInst.bcryptToken(newPassword);
+                            return Promise.reject(new errors.NotFound("User not found"));
+                        }
+                        User = user;
+                        randomString = this.authUtilityInst.randomBytes(4);
+                        return this.authUtilityInst.bcryptToken(randomString);
+                    })
+                    .then(async (password) => {
+
+                        await this.updateUserPassword(User, password);
+
+                        let notifyInst = new NotificationService();
+                        return notifyInst.forgotPassword(User, { randomString })
+                    })
+                    .then(() => {
+                        return User;
+                    });
             })
-            .then((password) => {
-                return this.updateUserPassword(tokenData, password);
-            })
-            .catch(err=> {return Promise.reject(err);})
-            .then(() => {
-                return Promise.resolve();
-            });
-        })
-        
     }
-    validateResetPassword(token , newPassword) {
+
+    resetPassword(tokenData, newPassword) {
+        return this.validateResetPassword(tokenData, newPassword)
+            .then(() => {
+                let User;
+
+                // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
+
+                return this.userUtilityInst.findOne({ email: tokenData.email })
+                    .then((user) => {
+                        if (!user) {
+                            return Promise.reject(new errors.NotFound("User not found"));
+                        }
+                        User = user;
+                        return this.authUtilityInst.bcryptToken(newPassword);
+                    })
+                    .then((password) => {
+                        return this.updateUserPassword(tokenData, password);
+                    })
+                    .catch(err => { return Promise.reject(err); })
+                    .then(() => {
+                        return Promise.resolve();
+                    });
+            })
+
+    }
+    validateResetPassword(token, newPassword) {
         if (!token) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
@@ -159,9 +164,9 @@ class AuthService {
         return Promise.resolve(token, newPassword)
     }
 
-    updateUserPassword(user , password) {
-        return this.userUtilityInst.updateOne({ email: user.email }, { password : password });
-    }    
+    updateUserPassword(user, password) {
+        return this.userUtilityInst.updateOne({ email: user.email }, { password: password });
+    }
 
 }
 

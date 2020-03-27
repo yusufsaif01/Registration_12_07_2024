@@ -78,16 +78,11 @@ class UserService extends BaseService {
     create({
         user_id,
         name,
-        warehouse,
-        location,
         dob,
-        doj,
         role,
         email,
         username,
-        department,
         password,
-        vendor_id,
         avatar_url,
         state,
         country,
@@ -103,29 +98,34 @@ class UserService extends BaseService {
         if (email) {
             user.push({ 'email': email });
         }
-
-        if (role == "super-admin" || role == "admin") {
-            username = email.toLowerCase();
+        if (username) {
             user.push({ 'username': username });
         }
+        
 
-        if (role == "manager" || role == "employee") {
-            username = user_id;
-            user.push({ 'username': username });
-        }
+        // if (role == "super-admin" || role == "admin") {
+        //     // username = email.toLowerCase();
+        //     user.push({ 'username': username });
+        // }
 
-        if (vendor_id) {
-            user.push({ 'vendor_id': vendor_id });
-        }
+        // if (role == "manager" || role == "member") {
+        //     // username = user_id;
+        //     user.push({ 'username': username });
+        // }
+
+        // if (vendor_id) {
+        //     user.push({ 'vendor_id': vendor_id });
+        // }
 
         return this.utilityInst.findOne({ $or: user })
             .then(async (user) => {
                 if (user) {
                     return Promise.reject(new errors.Conflict("User already exist."));
                 }
-
+                console.log('password',password)
+ 
                 password = await this.authUtilityInst.bcryptToken(password);
-                return this._create({ user_id, name, warehouse, location, dob, doj, role, email, department, password, username, vendor_id, avatar_url, state, country, phone })
+                return this._create({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone })
 
             })
     }
@@ -137,9 +137,9 @@ class UserService extends BaseService {
      * @returns
      * @memberof UserRegistrationService
      */
-    _create({ user_id, name, warehouse, location, department, dob, doj, role, email, password, username, vendor_id, avatar_url, state, country, phone }) {
+    _create({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone }) {
         email = email && email.toLowerCase();
-        return this.utilityInst.insert({ user_id, name, warehouse, location, department, dob, doj, role, email, password, username, vendor_id, avatar_url, state, country, phone })
+        return this.utilityInst.insert({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone })
             .catch((err) => {
                 // .catch(errors.Conflict, (err) => {
                 console.log(err)

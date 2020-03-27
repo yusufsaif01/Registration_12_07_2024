@@ -13,14 +13,8 @@ module.exports = (router) => {
 
     router.post('/register', authValidator.userRegisterValidation,function(req, res, next){
         const serviceInst = new UserRegistrationService();
-        const { user_id , name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,state,country,phone} = req.body;
-        responseHandler(req, res, serviceInst.employeeRegistration({ user_id , name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,state,country,phone }).then(serviceInst.toAPIResponse));
-    });
-
-    router.post('/wa/register', authValidator.warehouseAdminRegisterValidation,function(req, res, next){
-        const serviceInst = new UserRegistrationService();
-        const { user_id , name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,state,country,phone} = req.body;
-        responseHandler(req, res, serviceInst.warehouseAdminRegistration({ user_id , name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,state,country,phone }).then(serviceInst.toAPIResponse));
+        const { user_id , name,dob,email,password,username,state,country,phone} = req.body;
+        responseHandler(req, res, serviceInst.employeeRegistration({ user_id , name,dob,email,password,username,state,country,phone }).then(serviceInst.toAPIResponse));
     });
 
     router.post('/login', function(req, res, next){
