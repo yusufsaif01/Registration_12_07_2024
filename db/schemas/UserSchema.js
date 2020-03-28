@@ -29,8 +29,7 @@ module.exports = {
 		},
 
 		dob: {
-			type: String,
-			required: true,
+			type: String
 		},
 		institute: {
 			type: String
@@ -87,6 +86,9 @@ module.exports = {
 			required: true,
 			type: String
 		},
+		name:{
+			type:String
+		},
 		username: {
 			type: String,
 			required: true,
@@ -113,16 +115,64 @@ module.exports = {
 		phone: {
 			type: String
 		},
+		founded_in: {
+			type: String
+		},
+		location: {
+			type: String
+		},
+		address: {
+			type: String
+		},	
+		stadium: {
+			type: String
+		},
+		owner: {
+			type: String
+		},
+		manager: {
+			type: String
+		},
+		nick_name: {
+			type: String
+		},
+		trophies: {
+			type: Array
+		},
+		head_couch: {
+			type: String
+		},
+		top_players: {
+			type: Array
+		},
+		league: {
+			type: String
+		},
+		top_signings: {
+			type: Array
+		},
+		associated_players: {
+			type: Array
+		},
+		registration_number: {
+			type: String
+		},
+		
 		member_type: {
 			type: String,
 			enum:["player","club","academy"]
 		},
 		social_profiles: {
-			facebook: String,
-			youtube: String,
-			twitter: String,
-			instagram: String,
-			github: String
+			facebook: {
+				type:String},
+			youtube: {
+				type:String},
+			twitter: {
+				type:String},
+			instagram: {
+				type:String},
+			github: {
+				type:String}
 		},
 
 		is_first_time_login: {
@@ -132,6 +182,10 @@ module.exports = {
 		is_email_verified: {
 			type: Boolean,
 			default: false
+		},
+		type:{
+            type: String,
+			enum:["club","academy"]
 		},
 		is_deleted: {
 			type: Boolean,

@@ -78,17 +78,41 @@ class UserService extends BaseService {
     create({
         user_id,
         name,
-        dob,
+        first_name,
+        last_name,
+        registration_number,
+        member_type,
         role,
         email,
         username,
         password,
-        avatar_url,
         state,
         country,
         phone
     }) {
-
+        email = email.toLowerCase();
+        let member={};
+        member.username=username;
+        member.user_id=user_id;
+        member.member_type=member_type;
+        member.role=role;
+        member.email=email;
+        member.password=password;
+        member.country=country;
+        member.phone=phone;
+        member.state=state;
+        if(member_type =='player')
+        {
+            member.first_name=first_name;
+            member.last_name=last_name;
+        }
+        else
+        {
+            member.name=name;
+            member.registration_number=registration_number;
+        }
+        
+        
         let user = [{
             'user_id': user_id
         }];
@@ -124,8 +148,8 @@ class UserService extends BaseService {
                 }
                 console.log('password',password)
  
-                password = await this.authUtilityInst.bcryptToken(password);
-                return this._create({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone })
+                member.password = await this.authUtilityInst.bcryptToken(password);
+                return this._create(member)
 
             })
     }
@@ -137,9 +161,9 @@ class UserService extends BaseService {
      * @returns
      * @memberof UserRegistrationService
      */
-    _create({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone }) {
-        email = email && email.toLowerCase();
-        return this.utilityInst.insert({ user_id, name, dob, role, email, password, username, avatar_url, state, country, phone })
+    _create(member) {
+       
+        return this.utilityInst.insert(member)
             .catch((err) => {
                 // .catch(errors.Conflict, (err) => {
                 console.log(err)

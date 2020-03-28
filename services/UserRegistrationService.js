@@ -29,39 +29,64 @@ class UserRegistrationService extends UserService {
      * @memberof UserRegistrationService
      */
     validateMemberRegistration(registerUser) {
-        
-        if (!registerUser.user_id) {
-            return Promise.reject(new errors.ValidationFailed(
-                "user_id is required", { field_name: "user_id" }
-            ));
+        console.log('member_type',registerUser.member_type)
+        if (registerUser.member_type == "player") {
+            if (!registerUser.first_name) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "first_name is required", { field_name: "first_name" }
+                ));
+            }
+            if (!registerUser.last_name) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "last_name is required", { field_name: "last_name" }
+                ));
+            }
         }
-        if (!registerUser.name) {
-            return Promise.reject(new errors.ValidationFailed(
-                "name is required", { field_name: "name" }
-            ));
+        else {
+            if (!registerUser.name) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "name is required", { field_name: "name" }
+                ));
+            }
+
+            if (!registerUser.registration_number) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "registration_number is required", { field_name: "registration_number" }
+                ));
+            }
         }
-      
-        if (!registerUser.dob) {
-            return Promise.reject(new errors.ValidationFailed(
-                "dob is required", { field_name: "dob" }
-            ));
-        }
+        // if (!registerUser.user_id) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "user_id is required", { field_name: "user_id" }
+        //     ));
+        // }
+        // if (!registerUser.name) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "name is required", { field_name: "name" }
+        //     ));
+        // }
+
+        // if (!registerUser.dob) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "dob is required", { field_name: "dob" }
+        //     ));
+        // }
         // if (!registerUser.role) {
         //     return Promise.reject(new errors.ValidationFailed(
         //         "role is required", { field_name: "role" }
         //     ));
         // }
-        if (!registerUser.password) {
-            return Promise.reject(new errors.ValidationFailed(
-                "password is required", { field_name: "password" }
-            ));
-        }
-        if (!registerUser.username) {
-            return Promise.reject(new errors.ValidationFailed(
-                "username is required", { field_name: "username" }
-            ));
-        }
-        
+        // if (!registerUser.password) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "password is required", { field_name: "password" }
+        //     ));
+        // }
+        // if (!registerUser.username) {
+        //     return Promise.reject(new errors.ValidationFailed(
+        //         "username is required", { field_name: "username" }
+        //     ));
+        // }
+
         return Promise.resolve(registerUser);
     }
 
@@ -90,30 +115,28 @@ class UserRegistrationService extends UserService {
     memberRegistration(userData) {
         // let password = this.dateToPassword(userData.dob);
 
-        let user = {
-            username: userData.username,
-            user_id: userData.user_id ,
-            name: userData.name,
-            dob: userData.dob,
-            email: userData.email,
-            state: userData.state,
-            country: userData.country,
-            phone: userData.phone,
-            // role: userData.role,
-            password:userData.password,
-            avatar_url: 'user-avatar.jpg' // default avatar url
-        };
-        return this.validateMemberRegistration(user)
-        .then(() => {
-            return this.create(user)
-            .then(this.toAPIResponse);
-        })
+        // let user = {
+        //     username: userData.username,
+        //     user_id: userData.user_id,
+        //     email: userData.email,
+        //     state: userData.state,
+        //     country: userData.country,
+        //     phone: userData.phone,
+        //     // role: userData.role,
+        //     password: userData.password,
+        //     avatar_url: 'user-avatar.jpg' // default avatar url
+        // };
+        return this.validateMemberRegistration(userData)
+            .then(() => {
+                return this.create(userData)
+                    .then(this.toAPIResponse);
+            })
     }
 
-    async importEmployees({body, rows}) {
+    async importEmployees({ body, rows }) {
         let ColumnOrder = ["email", "name", "warehouse", "location", "department", "dob", "role", "vendor_id", "user_id", "doj", "state", "country", "phone"];
 
-        let invalidRows  = [];
+        let invalidRows = [];
         let users = [];
         for (let x = 1; x < rows.length; x++) {
             const row = rows[x];
@@ -126,16 +149,16 @@ class UserRegistrationService extends UserService {
             }
             let user = {};
             for (let i = 0; i < ColumnOrder.length; i++) {
-                user[ColumnOrder[i]] =  row[i] || null;
+                user[ColumnOrder[i]] = row[i] || null;
             }
 
-            user.email =  user.email && user.email.toLowerCase();
-            user.username =  user.user_id && user.user_id.toLowerCase();
+            user.email = user.email && user.email.toLowerCase();
+            user.username = user.user_id && user.user_id.toLowerCase();
             user.password = this.dateToPassword(user.dob);
 
             try {
                 await this.validateMemberRegistration(user);
-            } catch(err) {
+            } catch (err) {
                 invalidRows.push({
                     error: err.message,
                     line_no: x,
@@ -146,7 +169,7 @@ class UserRegistrationService extends UserService {
         }
 
         if (invalidRows.length) {
-            return Promise.reject(new errors.BadRequest("File data is invalid.", {invalidRows}));
+            return Promise.reject(new errors.BadRequest("File data is invalid.", { invalidRows }));
         }
         let data = await this.bulkInsert(users);
         return data.map(this.toAPIResponse);
@@ -154,7 +177,7 @@ class UserRegistrationService extends UserService {
     }
 
 
-    
+
     /**
      *
      *
@@ -211,14 +234,14 @@ class UserRegistrationService extends UserService {
         data.doj = new Date().toLocaleDateString();
 
         return this.validateAdminRegistration(data)
-        .then(() => {
-            return this.create(data)
-            .then((user)=>{
-                return user
-            }).catch(err=>{
-                console.log(err);
-            });
-        })
+            .then(() => {
+                return this.create(data)
+                    .then((user) => {
+                        return user
+                    }).catch(err => {
+                        console.log(err);
+                    });
+            })
     }
 
     /**
@@ -261,10 +284,10 @@ class UserRegistrationService extends UserService {
             avatar_url: 'user-avatar.jpg' // default avatar url
         };
         return this.validateMemberRegistration(user)
-        .then(() => {
-            return this.create(user)
-            .then(this.toAPIResponse);
-        })
+            .then(() => {
+                return this.create(user)
+                    .then(this.toAPIResponse);
+            })
     }
 
     /**
@@ -286,7 +309,11 @@ class UserRegistrationService extends UserService {
         state,
         country,
         phone,
-        status
+        status,
+        first_name,
+        last_name,
+        member_type,
+        registration_number
     }) {
         return {
             user_id,
@@ -296,6 +323,10 @@ class UserRegistrationService extends UserService {
             email,
             username,
             avatar_url,
+            first_name,
+        last_name,
+        member_type,
+        registration_number,
             state,
             country,
             phone,

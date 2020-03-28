@@ -14,8 +14,8 @@ module.exports = (router) => {
 
     router.post('/register', userValidator.createAPIValidation,function(req, res, next){
         const serviceInst = new UserRegistrationService();
-        const { user_id , name,dob,email,password,username,state,country,phone} = req.body;
-        responseHandler(req, res, serviceInst.memberRegistration({ user_id , name,dob,email,password,username,state,country,phone }).then(serviceInst.toAPIResponse));
+        
+        responseHandler(req, res, serviceInst.memberRegistration(req.body).then(serviceInst.toAPIResponse));
     });
 
     router.post('/login', function(req, res, next){

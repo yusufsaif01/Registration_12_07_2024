@@ -9,13 +9,18 @@ class UserValidator {
             /**
              * Add your validations here
              */
-            "role" : Joi.string(),
-            "state" : Joi.string(),
-            "country" : Joi.string(),
-            "phone" : Joi.string(),
+            // "role" : Joi.string(),
+            "state" : Joi.string().required(),
+            "country" : Joi.string().required(),
+            "phone" : Joi.string().min(10).required().max(10),
             "user_id" : Joi.string().alphanum().min(5).max(30).required(),
-            "dob" : Joi.string().min(8).max(30).required(),
-            "name" : Joi.string().alphanum().min(3).max(30).required(),
+            "member_type" : Joi.string().valid("player","club","academy").required(),
+            // "dob" : Joi.string().min(8).max(30),
+            "name" : Joi.string().alphanum().min(3).max(30),
+            "first_name" : Joi.string().alphanum().min(3).max(30),
+            "last_name" : Joi.string().alphanum().min(3).max(30),
+            "registration_number" : Joi.string().alphanum().min(3).max(30),
+            
             "password" : Joi.string().alphanum().min(3).max(30).required(),
             "email"      : Joi.string().email({ minDomainSegments: 2 }).required(),
             "username" : Joi.string().alphanum().min(3).max(30).required()
