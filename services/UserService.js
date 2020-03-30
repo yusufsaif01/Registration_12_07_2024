@@ -126,8 +126,6 @@ class UserService extends BaseService {
                     return Promise.reject(new errors.Conflict("User already exist."));
                 }
                 
-
-                // member.password = await this.authUtilityInst.bcryptToken(password);
                 return this._create(member)
 
             })
@@ -154,18 +152,7 @@ class UserService extends BaseService {
             });
     }
 
-    bulkInsert(users) {
-        return this.utilityInst.insertMany(users)
-            .catch((err) => {
-                // .catch(errors.Conflict, (err) => {
-                console.log(err);
-                if (err.constructor.name === 'Conflict') {
-                    err.message = 'User already exist.';
-                }
-
-                return Promise.reject(err);
-            });
-    }
+  
 
     _prepareCondition(filters = {}) {
         let condition = {};
