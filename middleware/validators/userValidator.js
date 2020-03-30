@@ -21,8 +21,7 @@ class UserValidator {
             "registration_number": Joi.string().alphanum().min(3).max(30),
 
             // "password": Joi.string().alphanum().min(3).max(30).required(),
-            "email": Joi.string().email({ minDomainSegments: 2 }).required(),
-            "username": Joi.string().alphanum().min(3).max(30).required()
+            "email": Joi.string().email({ minDomainSegments: 2 }).required()
         });
 
         try {

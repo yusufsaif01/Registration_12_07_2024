@@ -15,13 +15,11 @@ class AuthUtility {
         return this.bcryptTokenCompare(pass1, pass2);
     }
 
-    getAuthToken(id , email, username) {
+    getAuthToken(id , email) {
         
         return this.signWithJWT(JSON.stringify({            
             id,
-            // emp_id ,
-            email,
-            username
+            email
         }), config.jwt.jwt_secret , config.jwt.expiry_in);
     }
 

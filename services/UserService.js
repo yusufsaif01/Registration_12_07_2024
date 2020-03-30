@@ -84,14 +84,12 @@ class UserService extends BaseService {
         member_type,
         role,
         email,
-        username,
         state,
         country,
         phone
     }) {
         email = email.toLowerCase();
         let member = {};
-        member.username = username;
         member.member_type = member_type;
         member.role = role;
         member.email = email;
@@ -115,10 +113,7 @@ class UserService extends BaseService {
         if (email) {
             user.push({ 'email': email });
         }
-        if (username) {
-            user.push({ 'username': username });
-        }
-
+      
 
         return this.utilityInst.findOne({ $or: user })
             .then(async (user) => {

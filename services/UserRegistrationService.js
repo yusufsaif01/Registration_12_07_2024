@@ -80,7 +80,7 @@ class UserRegistrationService extends UserService {
                     console.log('register',user)
                  User = user;
     
-                    return this.authUtilityInst.getAuthToken(user.id, user.email, user.username)
+                    return this.authUtilityInst.getAuthToken(user.id, user.email)
                 })
                 .then(async (Token) => {
                     await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });

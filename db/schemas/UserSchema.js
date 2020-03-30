@@ -108,7 +108,6 @@ module.exports = {
 		},
 		username: {
 			type: String,
-			required: true,
 			unique: true
 		},
 		token: {
