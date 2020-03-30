@@ -85,7 +85,6 @@ class UserService extends BaseService {
         role,
         email,
         username,
-        password,
         state,
         country,
         phone
@@ -96,7 +95,6 @@ class UserService extends BaseService {
         member.member_type = member_type;
         member.role = role;
         member.email = email;
-        member.password = password;
         member.country = country;
         member.phone = phone;
         member.state = state;
@@ -127,9 +125,9 @@ class UserService extends BaseService {
                 if (user) {
                     return Promise.reject(new errors.Conflict("User already exist."));
                 }
-                console.log('password', password)
+                
 
-                member.password = await this.authUtilityInst.bcryptToken(password);
+                // member.password = await this.authUtilityInst.bcryptToken(password);
                 return this._create(member)
 
             })

@@ -107,7 +107,7 @@ class UserProfileService {
     /**
      *
      *
-     * @param {*} { emp_id,emp_name,warehouse,location,department,date,doj,role,email,username,vendor_id,avatar_url,state,country,phone,status}
+     * @param {*} 
      * @returns
      * @memberof UserRegistrationService
      */

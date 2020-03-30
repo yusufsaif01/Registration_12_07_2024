@@ -100,7 +100,7 @@ module.exports = {
 			// unique: true
 		},
 		password: {
-			required: true,
+			
 			type: String
 		},
 		name:{
