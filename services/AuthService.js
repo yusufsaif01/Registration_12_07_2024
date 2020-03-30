@@ -32,8 +32,8 @@ class AuthService {
                     })
                     .then(async (Token) => {
                         await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, email, username } = User;
-                        return { id, email, username, token: Token };
+                        let { id, email, username ,is_email_verified} = User;
+                        return { id, email, username, token: Token ,is_email_verified};
                     })
             })
     }
@@ -158,52 +158,65 @@ class AuthService {
             return Promise.reject(err);
         }
     }
+    
 
-    // resetPassword(tokenData,oldPassword, newPassword) {
-    //     return this.validateResetPassword(tokenData,oldPassword, newPassword)
-    //         .then(() => {
-    //             let User;
+    createPassword(tokenData, password,confirmPassword) {
+        return this.validateCreatePassword(tokenData, password,confirmPassword)
+            .then(() => {
+                let User;
 
-    //             // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
+                // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
 
-    //             return this.userUtilityInst.findOne({ email: tokenData.email })
-    //                 .then((user) => {
-    //                     if (!user) {
-    //                         return Promise.reject(new errors.NotFound("User not found"));
-    //                     }
-    //                     User = user;
+                return this.userUtilityInst.findOne({ email: tokenData.email })
+                    .then((user) => {
+                        if (!user) {
+                            return Promise.reject(new errors.NotFound("User not found"));
+                        }
+                        if(!user.is_email_verified){
+                            return Promise.reject(new errors.ValidationFailed(
+                                "email is not verified"
+                            ))
+                        }
+                        User = user;
                         
-    //                     return this.authUtilityInst.bcryptToken(newPassword);
-    //                 })
-    //                 .then((password) => {
-    //                     return this.updateUserPassword(tokenData, password);
-    //                 })
-    //                 .catch(err => { return Promise.reject(err); })
-    //                 .then(() => {
-    //                     return Promise.resolve();
-    //                 });
-    //         })
+                        return this.authUtilityInst.bcryptToken(password);
+                    })
+                    .then((password) => {
+                        return this.updateUserPassword(tokenData, password);
+                    })
+                    .catch(err => { return Promise.reject(err); })
+                    .then(() => {
+                        return Promise.resolve();
+                    });
+            })
 
-    // }
-    // validateResetPassword(token,oldPassword,newPassword) {
-    //     if (!token) {
-    //         return Promise.reject(new errors.ValidationFailed(
-    //             "token is required"
-    //         ));
-    //     }
+    }
+    validateCreatePassword(token,password,confirmPassword) {
+        if (!token) {
+            return Promise.reject(new errors.ValidationFailed(
+                "token is required"
+            ));
+        }
 
-    //     if (!newPassword) {
-    //         return Promise.reject(new errors.ValidationFailed(
-    //             "newPassword is required"
-    //         ));
-    //     }
-    //     if (!oldPassword) {
-    //         return Promise.reject(new errors.ValidationFailed(
-    //             "Old password is required"
-    //         ));
-    //     }
-    //     return Promise.resolve(token,oldPassword, newPassword)
-    // }
+        if (!password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "password is required"
+            ));
+        }
+        if (!confirmPassword) {
+            return Promise.reject(new errors.ValidationFailed(
+                "confirmPassword is required"
+            ));
+        }
+        if(password!==confirmPassword){
+            return Promise.reject(new errors.ValidationFailed(
+                "passwords do not match"
+            ));
+        }
+
+       
+        return Promise.resolve(token, password,confirmPassword)
+    }
 
     updateUserPassword(user, password) {
         return this.userUtilityInst.updateOne({ email: user.email }, { password: password });

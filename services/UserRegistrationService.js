@@ -3,6 +3,7 @@ const errors = require("../errors");
 const UserUtility = require('../db/utilities/UserUtility');
 const UserService = require("./UserService");
 const uuidv4 = require('uuid/v4');
+const AuthUtility = require('../db/utilities/AuthUtility');
 
 /**
  *
@@ -19,6 +20,7 @@ class UserRegistrationService extends UserService {
     constructor() {
         super();
         this.utilityInst = new UserUtility();
+        this.authUtilityInst = new AuthUtility();
     }
 
     /**
@@ -73,8 +75,19 @@ class UserRegistrationService extends UserService {
      
         return this.validateMemberRegistration(userData)
             .then(() => {
-                return this.create(userData)
-                    .then(this.toAPIResponse);
+                let User;
+                return this.create(userData).then((user) => {
+                    console.log('register',user)
+                 User = user;
+    
+                    return this.authUtilityInst.getAuthToken(user.id, user.email, user.username)
+                })
+                .then(async (Token) => {
+                    await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
+                    let { id, email, username,is_email_verified } = User;
+                    let url="http://localhost:3000/api/activate?token="+Token;
+                    return { id, email, username, token: Token,activation_url:url, is_email_verified};
+                }).then(this.toAPIResponse);
             })
     }
 
@@ -163,11 +176,14 @@ class UserRegistrationService extends UserService {
         state,
         country,
         phone,
+        token,
         status,
         first_name,
         last_name,
         member_type,
-        registration_number
+        registration_number,
+        activation_url,
+        is_email_verified
     }) {
         return {
             user_id,
@@ -175,6 +191,7 @@ class UserRegistrationService extends UserService {
             dob,
             role,
             email,
+            token,
             username,
             avatar_url,
             first_name,
@@ -184,7 +201,9 @@ class UserRegistrationService extends UserService {
             state,
             country,
             phone,
-            status
+            status,
+            activation_url,
+            is_email_verified
         };
     }
 }

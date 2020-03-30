@@ -62,6 +62,7 @@ class AuthUtility {
         return new Promise((resolve, reject) => {
             return jwt.verify(token.split(' ')[1], secretKey, function(err, data) {        
                 if (err) {
+                    console.log(err)
                     return reject(err);
                 }
                 console.log('jwt',data)
@@ -71,7 +72,7 @@ class AuthUtility {
     }
 
     getUserByToken(token) {
-
+       console.log('token',token)
         return this.jwtVerification(token, config.jwt.jwt_secret)
         .catch(() => {
             return Promise.reject(new errors.Unauthorized());
