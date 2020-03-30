@@ -31,10 +31,19 @@ module.exports = {
 		dob: {
 			type: String
 		},
-		institute: {
+		 school: {
 			type: String
 		},
-		document_links: {
+		college: {
+			type: String
+		},
+		university: {
+			type: String
+		},
+		document_link: {
+			type: String
+		},
+		employment_contract: {
 			type: String
 		},
 		about: {
@@ -44,7 +53,9 @@ module.exports = {
 			type: String
 		},
 		position: {
-			type: String
+			first_priority:{type:String},
+			second_priority:{type:String},
+			third_priority:{type:String}
 		},
 		strong_foot: {
 			type: String
@@ -68,7 +79,10 @@ module.exports = {
 			type: String
 		},
 		player_type: {
-			type: String
+			type: String,
+			enum: [
+				"grassroot","amateur","professional"
+			]
 		},
 		role: {
 			type: String,
@@ -123,6 +137,9 @@ module.exports = {
 		},
 		address: {
 			type: String
+		},
+		pincode: {
+			type: String
 		},	
 		stadium: {
 			type: String
@@ -133,13 +150,31 @@ module.exports = {
 		manager: {
 			type: String
 		},
-		nick_name: {
+		short_name: {
 			type: String
 		},
-		trophies: {
-			type: Array
+		contact_person_name: {
+			type: String
 		},
-		head_couch: {
+		contact_person_number: {
+			type: String
+		},
+		contact_person_email: {
+			type: String
+		},
+		trophies: [{
+			trophie_name:{type:String},
+			year:{type:String},
+			position:{type:String}
+		}
+		],
+		head_coach: {
+			type: String
+		},
+		head_coach_phone: {
+			type: String
+		},
+		head_coach_email: {
 			type: String
 		},
 		top_players: {
@@ -153,6 +188,9 @@ module.exports = {
 		},
 		associated_players: {
 			type: Array
+		},
+		total_associated_players: {
+			type: Number
 		},
 		registration_number: {
 			type: String

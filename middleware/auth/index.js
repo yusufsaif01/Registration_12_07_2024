@@ -26,6 +26,7 @@ module.exports = {
         return authUtilityInst.getUserByToken(token)
         .then((user) => {
             req.authUser = user;
+            
             return next();
         })
         .catch((err) => {

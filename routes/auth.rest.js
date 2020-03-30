@@ -20,7 +20,7 @@ module.exports = (router) => {
 
     router.post('/login', function(req, res, next){
         const authServiceInst = new AuthService();
-        responseHandler(req, res, authServiceInst.login(req.body.username, req.body.password));
+        responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
     });
 
     router.post('/logout', checkAuthToken, function(req, res, next){

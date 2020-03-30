@@ -17,32 +17,32 @@ class AuthService {
         this.activityUtilityInst = new ActivityUtility();
     }
 
-    login(username, password) {
+    login(email, password) {
 
-        return this.loginValidator(username, password)
+        return this.loginValidator(email, password)
             .then(() => {
                 let User;
 
-                return this.findByCredentials(username, password)
+                return this.findByCredentials(email, password)
                     .then((user) => {
                         User = user;
                         ActivityService.loginActivity(User.user_id, "login");
                         this.userUtilityInst.updateOne({ user_id: User.user_id }, { is_login: true });
-                        return this.authUtilityInst.getAuthToken(user.id, user.email, username)
+                        return this.authUtilityInst.getAuthToken(user.id, email, user.username)
                     })
                     .then(async (Token) => {
                         await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, emp_id, email, username } = User;
-                        return { id, emp_id, email, username, token: Token };
+                        let { id, email, username } = User;
+                        return { id, email, username, token: Token };
                     })
             })
     }
 
-    loginValidator(username, password) {
+    loginValidator(email, password) {
 
-        if (!username) {
+        if (!email) {
             return Promise.reject(new errors.ValidationFailed(
-                "username is required.", { field_name: "username" }
+                "email is required.", { field_name: "email" }
             ));
         }
         if (!password) {
@@ -50,13 +50,13 @@ class AuthService {
                 "password is required.", { field_name: "password" }
             ));
         }
-        return Promise.resolve(username, password);
+        return Promise.resolve(email, password);
     }
 
 
-    async findByCredentials(username, password) {
+    async findByCredentials(email, password) {
         try {
-            let user = await this.userUtilityInst.findOne({ $or: [{ username: username }] });
+            let user = await this.userUtilityInst.findOne({ $or: [{ email: email }] });
             if (!user) {
                 return Promise.reject(new errors.InvalidCredentials());
             }

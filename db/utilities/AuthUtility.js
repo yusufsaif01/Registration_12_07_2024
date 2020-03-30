@@ -64,6 +64,7 @@ class AuthUtility {
                 if (err) {
                     return reject(err);
                 }
+                console.log('jwt',data)
                 return resolve(data);
             });
         })
