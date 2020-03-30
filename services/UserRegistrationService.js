@@ -51,11 +51,11 @@ class UserRegistrationService extends UserService {
                 ));
             }
 
-            if (!registerUser.registration_number) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "registration_number is required", { field_name: "registration_number" }
-                ));
-            }
+            // if (!registerUser.registration_number) {
+            //     return Promise.reject(new errors.ValidationFailed(
+            //         "registration_number is required", { field_name: "registration_number" }
+            //     ));
+            // }
         }
        
 
@@ -84,9 +84,9 @@ class UserRegistrationService extends UserService {
                 })
                 .then(async (Token) => {
                     await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                    let { id, email, username,is_email_verified } = User;
+                    let { id, email,is_email_verified } = User;
                     let url="http://localhost:3000/api/activate?token="+Token;
-                    return { id, email, username, token: Token,activation_url:url, is_email_verified};
+                    return { id, email, token: Token,activation_url:url, is_email_verified};
                 }).then(this.toAPIResponse);
             })
     }
@@ -171,7 +171,6 @@ class UserRegistrationService extends UserService {
         dob,
         role,
         email,
-        username,
         avatar_url,
         state,
         country,
@@ -192,7 +191,6 @@ class UserRegistrationService extends UserService {
             role,
             email,
             token,
-            username,
             avatar_url,
             first_name,
         last_name,

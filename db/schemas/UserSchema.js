@@ -108,7 +108,7 @@ module.exports = {
 		},
 		username: {
 			type: String,
-			unique: true
+			// unique: true
 		},
 		token: {
 			type: String

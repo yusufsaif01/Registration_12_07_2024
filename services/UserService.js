@@ -80,7 +80,6 @@ class UserService extends BaseService {
         name,
         first_name,
         last_name,
-        registration_number,
         member_type,
         role,
         email,
@@ -102,7 +101,7 @@ class UserService extends BaseService {
         }
         else {
             member.name = name;
-            member.registration_number = registration_number;
+            // member.registration_number = registration_number;
         }
 
 
