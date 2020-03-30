@@ -10,10 +10,13 @@ module.exports = {
 				return uuidv4()
 			}
 		},
-		user_id: {
+		user_id:{
 			type: String,
 			required: true,
 			unique: true,
+			default: function () {
+				return uuidv4()
+			}
 		},
 		first_name: {
 			type: String,

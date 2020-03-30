@@ -71,12 +71,12 @@ class UserService extends BaseService {
     /**
      *
      *
-     * @param {*} { user_id,name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,avatar_url,state,country,phone}
+     * @param {*} 
      * @returns
      * @memberof UserRegistrationService
      */
     create({
-        user_id,
+
         name,
         first_name,
         last_name,
@@ -91,33 +91,28 @@ class UserService extends BaseService {
         phone
     }) {
         email = email.toLowerCase();
-        let member={};
-        member.username=username;
-        member.user_id=user_id;
-        member.member_type=member_type;
-        member.role=role;
-        member.email=email;
-        member.password=password;
-        member.country=country;
-        member.phone=phone;
-        member.state=state;
-        if(member_type =='player')
-        {
-            member.first_name=first_name;
-            member.last_name=last_name;
+        let member = {};
+        member.username = username;
+        member.member_type = member_type;
+        member.role = role;
+        member.email = email;
+        member.password = password;
+        member.country = country;
+        member.phone = phone;
+        member.state = state;
+        if (member_type == 'player') {
+            member.first_name = first_name;
+            member.last_name = last_name;
         }
-        else
-        {
-            member.name=name;
-            member.registration_number=registration_number;
+        else {
+            member.name = name;
+            member.registration_number = registration_number;
         }
-        
-        
-        let user = [{
-            'user_id': user_id
-        }];
 
-        email = email.toLowerCase();
+
+        let user = [];
+
+
 
         if (email) {
             user.push({ 'email': email });
@@ -125,29 +120,15 @@ class UserService extends BaseService {
         if (username) {
             user.push({ 'username': username });
         }
-        
 
-        // if (role == "super-admin" || role == "admin") {
-        //     // username = email.toLowerCase();
-        //     user.push({ 'username': username });
-        // }
-
-        // if (role == "manager" || role == "member") {
-        //     // username = user_id;
-        //     user.push({ 'username': username });
-        // }
-
-        // if (vendor_id) {
-        //     user.push({ 'vendor_id': vendor_id });
-        // }
 
         return this.utilityInst.findOne({ $or: user })
             .then(async (user) => {
                 if (user) {
                     return Promise.reject(new errors.Conflict("User already exist."));
                 }
-                console.log('password',password)
- 
+                console.log('password', password)
+
                 member.password = await this.authUtilityInst.bcryptToken(password);
                 return this._create(member)
 
@@ -157,12 +138,12 @@ class UserService extends BaseService {
     /**
      *
      *
-     * @param {*} { user_id,name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,avatar_url,state,country,phone}
+     * @param {*} member
      * @returns
      * @memberof UserRegistrationService
      */
     _create(member) {
-       
+
         return this.utilityInst.insert(member)
             .catch((err) => {
                 // .catch(errors.Conflict, (err) => {
