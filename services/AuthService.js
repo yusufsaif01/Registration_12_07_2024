@@ -113,7 +113,8 @@ class AuthService {
                         
                         return this.authUtilityInst.getAuthToken(user.id, user.email)
                     }).then(async(Token)=>{
-                        let url="http://localhost:4200/reset-password?token="+Token;
+                        let url = config.app.baseURL+"reset-password?token="+Token;
+                        // let url="http://localhost:4200/reset-password?token="+Token;
                         let notifyInst = new NotificationService();
                         await notifyInst.forgotPassword(User,  url )
                         return Promise.resolve();
