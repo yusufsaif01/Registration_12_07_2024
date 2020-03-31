@@ -36,7 +36,7 @@ module.exports = (router) => {
             return  userServiceInst.toAPIResponse(user)}));
     });
     
-    router.put('/update-profile',checkAuthToken, userValidator.updateAPIValidation, function (req, res) {
+    router.put('/update-profile',checkAuthToken, function (req, res) {
         let serviceInst = new UserProfileService();
         
         responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));

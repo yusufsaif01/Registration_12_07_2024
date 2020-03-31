@@ -36,74 +36,75 @@ class UserProfileService {
     //     }
     // }
     updateProfile(requestedData = {}) {
-        return this.validatePlayerProfileUpdate(requestedData.updateValues)
-        .then((data) => {
-            return this.userUtilityInst.updateOne({ 'id': requestedData.id }, data);     
-        })
+        return this.userUtilityInst.updateOne({ 'id': requestedData.id }, requestedData.updateValues);
+        // return this.validatePlayerProfileUpdate(requestedData.updateValues)
+        // .then((data) => {
+                
+        // })
         // return this.authUtilityInst.jwtVerification(token, config.jwt.jwt_secret)
         //     .then((user) => {
         //         return this.userUtilityInst.updateOne({ emp_id: user.emp_id }, data);
         //     })
     }
-    validatePlayerProfileUpdate(playerData) {
-        if (playerData.player_type == 'amateur' || playerData.player_type == 'professional') {
+    // validatePlayerProfileUpdate(playerData) {
+    //     if (playerData.player_type == 'amateur' || playerData.player_type == 'professional') {
 
-            if (!playerData.university) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "university is required", { field_name: "university" }
-                ));
-            }
-            if (!playerData.college) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "college is required", { field_name: "college" }
-                ));
-            }
-            if (playerData.player_type == 'professional' && !playerData.employment_contract) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "employment_contract is required", { field_name: "employment_contract" }
-                ));
-            }
-            if (playerData.club == 'yes') {
-                if (!playerData.head_coach_phone) {
-                    return Promise.reject(new errors.ValidationFailed(
-                        "head_coach_phone is required", { field_name: "head_coach_phone" }
-                    ));
-                }
-                if (!playerData.head_coach_email) {
-                    return Promise.reject(new errors.ValidationFailed(
-                        "head_coach_email is required", { field_name: "head_coach_email" }
-                    ));
-                }
-                if (playerData.player_type == 'professional' && !playerData.former_club) {
-                    return Promise.reject(new errors.ValidationFailed(
-                        "former_club is required", { field_name: "former_club" }
-                    ));
-                }
-            }
+    //         if (!playerData.university) {
+    //             return Promise.reject(new errors.ValidationFailed(
+    //                 "university is required", { field_name: "university" }
+    //             ));
+    //         }
+    //         if (!playerData.college) {
+    //             return Promise.reject(new errors.ValidationFailed(
+    //                 "college is required", { field_name: "college" }
+    //             ));
+    //         }
+    //         if (playerData.player_type == 'professional' && !playerData.employment_contract) {
+    //             return Promise.reject(new errors.ValidationFailed(
+    //                 "employment_contract is required", { field_name: "employment_contract" }
+    //             ));
+    //         }
+    //         if (playerData.club == 'yes') {
+    //             if (!playerData.head_coach_phone) {
+    //                 return Promise.reject(new errors.ValidationFailed(
+    //                     "head_coach_phone is required", { field_name: "head_coach_phone" }
+    //                 ));
+    //             }
+    //             if (!playerData.head_coach_email) {
+    //                 return Promise.reject(new errors.ValidationFailed(
+    //                     "head_coach_email is required", { field_name: "head_coach_email" }
+    //                 ));
+    //             }
+    //             if (playerData.player_type == 'professional' && !playerData.former_club) {
+    //                 return Promise.reject(new errors.ValidationFailed(
+    //                     "former_club is required", { field_name: "former_club" }
+    //                 ));
+    //             }
+    //         }
 
-        }
-        if (playerData.player_type == 'grassroot') {
-            if (!playerData.school) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "school is required", { field_name: "school" }
-                ));
-            }
-            if (playerData.club == 'yes') {
-                if (!playerData.head_coach_phone) {
-                    return Promise.reject(new errors.ValidationFailed(
-                        "head_coach_phone is required", { field_name: "head_coach_phone" }
-                    ));
-                }
-                if (!playerData.head_coach_email) {
-                    return Promise.reject(new errors.ValidationFailed(
-                        "head_coach_email is required", { field_name: "head_coach_email" }
-                    ));
-                }
-            }
-        }
+    //     }
+    //     if (playerData.player_type == 'grassroot') {
+    //         if (!playerData.school) {
+    //             return Promise.reject(new errors.ValidationFailed(
+    //                 "school is required", { field_name: "school" }
+    //             ));
+    //         }
+    //         if (playerData.club == 'yes') {
+    //             if (!playerData.head_coach_phone) {
+    //                 return Promise.reject(new errors.ValidationFailed(
+    //                     "head_coach_phone is required", { field_name: "head_coach_phone" }
+    //                 ));
+    //             }
+    //             if (!playerData.head_coach_email) {
+    //                 return Promise.reject(new errors.ValidationFailed(
+    //                     "head_coach_email is required", { field_name: "head_coach_email" }
+    //                 ));
+    //             }
+    //         }
+    //     }
 
-        return Promise.resolve(playerData);
-    }
+    //     return Promise.resolve(playerData);
+    // }
     /**
      *
      *
