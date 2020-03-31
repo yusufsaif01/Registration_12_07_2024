@@ -123,34 +123,45 @@ class AuthService {
                     });
             })
     }
-    async resetPassword(tokenData, oldPassword, newPassword) {
+    async resetPassword(tokenData, old_password, new_password,confirm_password) {
         if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
             ));
         }
-
-        if (!newPassword) {
-            return Promise.reject(new errors.ValidationFailed(
-                "newPassword is required"
-            ));
-        }
-        if (!oldPassword) {
+        if (!old_password) {
             return Promise.reject(new errors.ValidationFailed(
                 "Old password is required"
             ));
         }
+
+        if (!new_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "New password is required"
+            ));
+        }
+        if (!confirm_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "Confirm password is required"
+            ));
+        }
+        if (confirm_password!==new_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "Passwords do not match"
+            ));
+        }
+       
         
         try {
             let user = await this.userUtilityInst.findOne({ email: tokenData.email })
             if (!user) {
                 return Promise.reject(new errors.NotFound("User not found."));
             }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(oldPassword, user.password);
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(old_password, user.password);
             if (!checkPassword) {
-                return Promise.reject(new errors.BadRequest("Old assword is incorrect", { field_name: "old_password"}));
+                return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password"}));
             }
-            let password = await this.authUtilityInst.bcryptToken(newPassword);
+            let password = await this.authUtilityInst.bcryptToken(new_password);
             await this.updateUserPassword(tokenData, password);
             return Promise.resolve();
         } catch (err) {

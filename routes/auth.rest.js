@@ -57,7 +57,7 @@ module.exports = (router) => {
 
     router.post('/change-password', checkAuthToken, function (req, res, next) {
         const authServiceInst = new AuthService();
-        responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.old_password, req.body.new_password));
+        responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.old_password, req.body.new_password,req.body.confirm_password));
     });
 
 };
