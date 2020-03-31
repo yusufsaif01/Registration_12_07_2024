@@ -71,7 +71,7 @@ class UserService extends BaseService {
     /**
      *
      *
-     * @param {*} 
+     * @param {*} { name,first_name,last_name,member_type,role,email,state,country,phone}
      * @returns
      * @memberof UserRegistrationService
      */
