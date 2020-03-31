@@ -9,7 +9,7 @@
     "name": {
         "doc": "Database name",
         "format": "String",
-        "default": "lms",
+        "default": "YFTChain",
         "env": "DB_NAME",
         "arg": "db_name"
     },

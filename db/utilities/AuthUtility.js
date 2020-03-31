@@ -15,13 +15,11 @@ class AuthUtility {
         return this.bcryptTokenCompare(pass1, pass2);
     }
 
-    getAuthToken(id, emp_id , email, username) {
+    getAuthToken(id , email) {
         
         return this.signWithJWT(JSON.stringify({            
             id,
-            emp_id ,
-            email,
-            username
+            email
         }), config.jwt.jwt_secret , config.jwt.expiry_in);
     }
 
@@ -38,8 +36,10 @@ class AuthUtility {
     bcryptTokenCompare(pass1, pass2) {
         return bcrypt.compare(pass1, pass2).then(res => {
             if (!res) {
-                return Promise.reject(false);
+                return Promise.resolve(false);
+                
             }
+            
             return Promise.resolve(true);
         })
     }
@@ -60,25 +60,27 @@ class AuthUtility {
         return new Promise((resolve, reject) => {
             return jwt.verify(token.split(' ')[1], secretKey, function(err, data) {        
                 if (err) {
+                    console.log(err)
                     return reject(err);
                 }
+                console.log('jwt',data)
                 return resolve(data);
             });
         })
     }
 
     getUserByToken(token) {
-
+       console.log('token',token)
         return this.jwtVerification(token, config.jwt.jwt_secret)
         .catch(() => {
             return Promise.reject(new errors.Unauthorized());
         })
-        .then(({ id, email, emp_id }) => {
+        .then(({ id, email }) => {
 
              const _userUtilityInst = new UserUtility();
-            console.log(id,email,emp_id);
+            console.log(id,email);
 
-            return _userUtilityInst.findOne({ emp_id : emp_id});
+            return _userUtilityInst.findOne({ id : id});
         })
         .then((user) => {
             if (!user) {

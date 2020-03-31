@@ -2,7 +2,7 @@
 	"name": {
 		"doc": "Application name .",
 		"format": "String",
-		"default": "LMS",
+		"default": "YFTChain",
 		"env": "APP_NAME",
 		"arg": "app_name"
 	},

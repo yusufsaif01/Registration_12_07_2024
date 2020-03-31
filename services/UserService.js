@@ -71,61 +71,56 @@ class UserService extends BaseService {
     /**
      *
      *
-     * @param {*} { user_id,name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,avatar_url,state,country,phone}
+     * @param {*} { name,first_name,last_name,member_type,role,email,state,country,phone}
      * @returns
      * @memberof UserRegistrationService
      */
     create({
-        user_id,
+
         name,
-        warehouse,
-        location,
-        dob,
-        doj,
+        first_name,
+        last_name,
+        member_type,
         role,
         email,
-        username,
-        department,
-        password,
-        vendor_id,
-        avatar_url,
         state,
         country,
         phone
     }) {
-
-        let user = [{
-            'user_id': user_id
-        }];
-
         email = email.toLowerCase();
+        let member = {};
+        member.member_type = member_type;
+        member.role = role;
+        member.email = email;
+        member.country = country;
+        member.phone = phone;
+        member.state = state;
+        if (member_type == 'player') {
+            member.first_name = first_name;
+            member.last_name = last_name;
+        }
+        else {
+            member.name = name;
+            // member.registration_number = registration_number;
+        }
+
+
+        let user = [];
+
+
 
         if (email) {
             user.push({ 'email': email });
         }
-
-        if (role == "super-admin" || role == "admin") {
-            username = email.toLowerCase();
-            user.push({ 'username': username });
-        }
-
-        if (role == "manager" || role == "employee") {
-            username = user_id;
-            user.push({ 'username': username });
-        }
-
-        if (vendor_id) {
-            user.push({ 'vendor_id': vendor_id });
-        }
+      
 
         return this.utilityInst.findOne({ $or: user })
             .then(async (user) => {
                 if (user) {
                     return Promise.reject(new errors.Conflict("User already exist."));
                 }
-
-                password = await this.authUtilityInst.bcryptToken(password);
-                return this._create({ user_id, name, warehouse, location, dob, doj, role, email, department, password, username, vendor_id, avatar_url, state, country, phone })
+                
+                return this._create(member)
 
             })
     }
@@ -133,13 +128,13 @@ class UserService extends BaseService {
     /**
      *
      *
-     * @param {*} { user_id,name,warehouse,location,department,dob,doj,role,email,password,username,vendor_id,avatar_url,state,country,phone}
+     * @param {*} member
      * @returns
      * @memberof UserRegistrationService
      */
-    _create({ user_id, name, warehouse, location, department, dob, doj, role, email, password, username, vendor_id, avatar_url, state, country, phone }) {
-        email = email && email.toLowerCase();
-        return this.utilityInst.insert({ user_id, name, warehouse, location, department, dob, doj, role, email, password, username, vendor_id, avatar_url, state, country, phone })
+    _create(member) {
+
+        return this.utilityInst.insert(member)
             .catch((err) => {
                 // .catch(errors.Conflict, (err) => {
                 console.log(err)
@@ -151,18 +146,7 @@ class UserService extends BaseService {
             });
     }
 
-    bulkInsert(users) {
-        return this.utilityInst.insertMany(users)
-            .catch((err) => {
-                // .catch(errors.Conflict, (err) => {
-                console.log(err);
-                if (err.constructor.name === 'Conflict') {
-                    err.message = 'User already exist.';
-                }
-
-                return Promise.reject(err);
-            });
-    }
+  
 
     _prepareCondition(filters = {}) {
         let condition = {};

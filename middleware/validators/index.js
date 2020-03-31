@@ -1,8 +1,4 @@
-const warehouseValidator = require("./warehouseValidator");
-const knowledgeRepositoryValidator = require("./knowledgeRepositoryValidator");
-const departmentValidator = require("./departmentValidator");
+const userValidator = require("./userValidator");
 module.exports = {
-    warehouseValidator,
-    knowledgeRepositoryValidator,
-    departmentValidator
+    userValidator
 };

@@ -10,40 +10,89 @@ module.exports = {
 				return uuidv4()
 			}
 		},
-		user_id: {
+		user_id:{
 			type: String,
 			required: true,
 			unique: true,
+			default: function () {
+				return uuidv4()
+			}
 		},
-		name: {
+		first_name: {
 			type: String,
 		},
-		warehouse: {
+		last_name: {
 			type: String,
 		},
-		location: {
+		height: {
 			type: String,
 		},
-		department: {
+		weight: {
 			type: String,
 		},
+
 		dob: {
-			type: Date,
-			required: true,
+			type: String
 		},
-		doj: {
-			type: Date,
-			required: true,
+		 school: {
+			type: String
+		},
+		college: {
+			type: String
+		},
+		university: {
+			type: String
+		},
+		document_link: {
+			type: String
+		},
+		employment_contract: {
+			type: String
+		},
+		about: {
+			type: String
+		},
+		bio: {
+			type: String
+		},
+		position: {
+			first_priority:{type:String},
+			second_priority:{type:String},
+			third_priority:{type:String}
+		},
+		strong_foot: {
+			type: String
+		},
+		weak_foot: {
+			type: String
+		},
+		club: {
+			type: String
+		},
+		academy: {
+			type: String
+		},
+		former_club: {
+			type: String
+		},
+		former_academy: {
+			type: String
+		},
+		specialization: {
+			type: String
+		},
+		player_type: {
+			type: String,
+			enum: [
+				"grassroot","amateur","professional"
+			]
 		},
 		role: {
 			type: String,
 			enum: [
-				"super-admin",
-				"admin",
-				"manager",
-				"employee",
+				"admin"
 			],
-			default: 'employee'
+			default: 'admin'
 		},
 		email: {
 			type: String,
@@ -51,33 +100,134 @@ module.exports = {
 			// unique: true
 		},
 		password: {
-			required: true,
-			type: String,
+			
+			type: String
+		},
+		name:{
+			type:String
 		},
 		username: {
 			type: String,
-			required: true,
-			unique: true
-		},
-		vendor_id: {
-			type: String,
+			// unique: true
 		},
 		token: {
-			type: String,
+			type: String
+		},
+		forget_password_token: {
+			type: String
 		},
 		avatar_url: {
-			type: String,
+			type: String
 		},
 		state: {
-			type: String,
+			type: String
 		},
 		country: {
-			type: String,
+			type: String
+		},
+		city: {
+			type: String
 		},
 		phone: {
-			type: String,
+			type: String
 		},
-		is_logged_in: {
+		founded_in: {
+			type: String
+		},
+		location: {
+			type: String
+		},
+		address: {
+			type: String
+		},
+		pincode: {
+			type: String
+		},	
+		stadium: {
+			type: String
+		},
+		owner: {
+			type: String
+		},
+		manager: {
+			type: String
+		},
+		short_name: {
+			type: String
+		},
+		contact_person_name: {
+			type: String
+		},
+		contact_person_number: {
+			type: String
+		},
+		contact_person_email: {
+			type: String
+		},
+		trophies: [{
+			trophie_name:{type:String},
+			year:{type:String},
+			position:{type:String}
+		}
+		],
+		head_coach: {
+			type: String
+		},
+		head_coach_phone: {
+			type: String
+		},
+		head_coach_email: {
+			type: String
+		},
+		top_players: {
+			type: Array
+		},
+		league: {
+			type: String
+		},
+		top_signings: {
+			type: Array
+		},
+		associated_players: {
+			type: Array
+		},
+		total_associated_players: {
+			type: Number
+		},
+		registration_number: {
+			type: String
+		},
+		
+		member_type: {
+			type: String,
+			enum:["player","club","academy"]
+		},
+		social_profiles: {
+			facebook: {
+				type:String},
+			youtube: {
+				type:String},
+			twitter: {
+				type:String},
+			instagram: {
+				type:String},
+			github: {
+				type:String}
+		},
+
+		is_first_time_login: {
+			type: Boolean,
+			default: true
+		},
+		is_email_verified: {
+			type: Boolean,
+			default: false
+		},
+		type:{
+            type: String,
+			enum:["club","academy"]
+		},
+		is_deleted: {
 			type: Boolean,
 			default: false
 		},
