@@ -86,7 +86,7 @@ class UserRegistrationService extends UserService {
                 .then(async (Token) => {
                     await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
                     let { id, email,is_email_verified } = User;
-                    let url="http://localhost:4200/reset-password?token="+Token;
+                    let url="http://localhost:4200/create-password?token="+Token;
                     let notifyInst = new NotificationService();
                     await notifyInst.emailVerification(User, url)
                     return { id, email, token: Token, is_email_verified};

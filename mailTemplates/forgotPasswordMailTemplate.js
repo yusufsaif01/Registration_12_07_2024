@@ -1,11 +1,11 @@
-module.exports = ({ email, password }) => {
+module.exports = ({ email, password_reset_link }) => {
     return {
         to: email,
         subject: 'Password Reset',
         // html: "",
         text: `You are receiving this because you have requested the reset of the password for your account.
-          'Please copy following password, or paste this into your forgot password page to complete the process: 
-          ${password}
+          'Please follow the below url to complete the process: 
+          ${password_reset_link}
           'If you did not request this, please ignore this email and your password will remain unchanged.`
     };
 };
