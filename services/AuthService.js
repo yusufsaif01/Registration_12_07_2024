@@ -1,6 +1,7 @@
 const Promise = require("bluebird");
 const errors = require('../errors');
 const config = require('../config');
+const UserService = require('./UserService'); 
 
 const ActivityService = require('./ActivityService');
 
@@ -164,6 +165,7 @@ class AuthService {
             if (!checkPassword) {
                 return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password"}));
             }
+            
             let password = await this.authUtilityInst.bcryptToken(new_password);
             await this.updateUserPassword(tokenData, password);
             return Promise.resolve();
@@ -191,7 +193,8 @@ class AuthService {
                         //         "email is not verified"
                         //     ))
                         // }
-                       await this.userUtilityInst.update({ id: user.id, updateValues: { is_email_verified: true } })
+                        let serviceInst = new UserService();
+                       await serviceInst.update({ id: user.id, updateValues: { is_email_verified: true } })
                         User = user;
                         
                         return this.authUtilityInst.bcryptToken(password);
