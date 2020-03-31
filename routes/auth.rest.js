@@ -39,9 +39,18 @@ module.exports = (router) => {
 
         responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
     });
-    router.post('/create-password', checkAuthToken, function (req, res, next) {
+    // router.post('/create-password', checkAuthToken, function (req, res, next) {
+    //     const authServiceInst = new AuthService();
+    //     responseHandler(req, res, authServiceInst.createPassword(req.authUser, req.body.password, req.body.confirmPassword));
+    // })
+
+     router.post('/create-password',checkAuthToken,function (req, res, next) {
         const authServiceInst = new AuthService();
         responseHandler(req, res, authServiceInst.createPassword(req.authUser, req.body.password, req.body.confirmPassword));
+    })
+    router.post('/reset-password',checkAuthToken,function (req, res, next) {
+        const authServiceInst = new AuthService();
+        responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.password, req.body.confirmPassword));
     })
 
     router.post('/logout', checkAuthToken, function (req, res, next) {
@@ -57,7 +66,7 @@ module.exports = (router) => {
 
     router.post('/change-password', checkAuthToken, function (req, res, next) {
         const authServiceInst = new AuthService();
-        responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.old_password, req.body.new_password,req.body.confirm_password));
+        responseHandler(req, res, authServiceInst.changePassword(req.authUser, req.body.old_password, req.body.new_password,req.body.confirm_password));
     });
 
 };

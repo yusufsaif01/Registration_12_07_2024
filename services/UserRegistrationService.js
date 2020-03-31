@@ -5,6 +5,7 @@ const UserService = require("./UserService");
 const uuidv4 = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const NotificationService = require('./NotificationService');
+const config = require("../config");
 
 /**
  *
@@ -86,7 +87,8 @@ class UserRegistrationService extends UserService {
                 .then(async (Token) => {
                     await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
                     let { id, email,is_email_verified } = User;
-                    let url="http://localhost:3000/api/activate?token="+Token;
+                    let url = config.app.baseURL+"create-password?token="+Token;
+                    // let url="http://localhost:4200/create-password?token="+Token;
                     let notifyInst = new NotificationService();
                     await notifyInst.emailVerification(User, url)
                     return { id, email, token: Token, is_email_verified};

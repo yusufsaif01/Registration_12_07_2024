@@ -7,9 +7,9 @@ const config = require('../config');
 
 class NotificationService {
 
-    forgotPassword(user,  password ) {
-        console.log('password',password)
-        return this.sendMail("forgotPassword", { email: user.email, password });
+    forgotPassword(user,  password_reset_link ) {
+        console.log('password reset link',password_reset_link)
+        return this.sendMail("forgotPassword", { email: user.email,password_reset_link: password_reset_link });
     }
     emailVerification(user,  activation_link ) {
         console.log('acitivation-link',activation_link,'email',user.email)
