@@ -182,15 +182,16 @@ class AuthService {
                 // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
 
                 return this.userUtilityInst.findOne({ email: tokenData.email })
-                    .then((user) => {
+                    .then(async (user) => {
                         if (!user) {
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
-                        if(!user.is_email_verified){
-                            return Promise.reject(new errors.ValidationFailed(
-                                "email is not verified"
-                            ))
-                        }
+                        // if(!user.is_email_verified){
+                        //     return Promise.reject(new errors.ValidationFailed(
+                        //         "email is not verified"
+                        //     ))
+                        // }
+                       await this.userUtilityInst.update({ id: user.id, updateValues: { is_email_verified: true } })
                         User = user;
                         
                         return this.authUtilityInst.bcryptToken(password);
