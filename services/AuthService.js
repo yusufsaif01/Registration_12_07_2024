@@ -120,7 +120,7 @@ class AuthService {
                     })
             })
     }
-    async resetPassword(tokenData, old_password, new_password,confirm_password) {
+    async changePassword(tokenData, old_password, new_password,confirm_password) {
         if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
@@ -174,20 +174,44 @@ class AuthService {
             .then(() => {
                 let User;
 
-                // const roleList = ["super-admin", "admin"]; //Make It as dynamic list
 
                 return this.userUtilityInst.findOne({ email: tokenData.email })
                     .then(async (user) => {
                         if (!user) {
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
-                        // if(!user.is_email_verified){
-                        //     return Promise.reject(new errors.ValidationFailed(
-                        //         "email is not verified"
-                        //     ))
-                        // }
+                       
                         let serviceInst = new UserService();
                        await serviceInst.update({ id: user.id, updateValues: { is_email_verified: true } })
+                        User = user;
+                        
+                        return this.authUtilityInst.bcryptToken(password);
+                    })
+                    .then((password) => {
+                        return this.updateUserPassword(tokenData, password);
+                    })
+                    .catch(err => { return Promise.reject(err); })
+                    .then(() => {
+                        return Promise.resolve();
+                    });
+            })
+
+    }
+    resetPassword(tokenData, password,confirmPassword) {
+        return this.validateCreatePassword(tokenData, password,confirmPassword)
+            .then(() => {
+                let User;
+
+                return this.userUtilityInst.findOne({ email: tokenData.email })
+                    .then(async (user) => {
+                        if (!user) {
+                            return Promise.reject(new errors.NotFound("User not found"));
+                        }
+                        if(!user.is_email_verified){
+                            return Promise.reject(new errors.ValidationFailed(
+                                "email is not verified"
+                            ))
+                        }
                         User = user;
                         
                         return this.authUtilityInst.bcryptToken(password);
