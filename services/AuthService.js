@@ -109,17 +109,17 @@ class AuthService {
                         }
                         User = user;
                         randomString = this.authUtilityInst.randomBytes(4);
+                        console.log('pass',randomString)
                         return this.authUtilityInst.bcryptToken(randomString);
                     })
                     .then(async (password) => {
-
                         await this.updateUserPassword(User, password);
-
+                      
                         let notifyInst = new NotificationService();
-                        return notifyInst.forgotPassword(User, { randomString })
+                        return notifyInst.forgotPassword(User,  randomString )
                     })
                     .then(() => {
-                        return User;
+                        return Promise.resolve()
                     });
             })
     }

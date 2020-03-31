@@ -52,9 +52,7 @@ module.exports = (router) => {
     router.post('/forgot-password', function (req, res, next) {
         const authServiceInst = new AuthService();
         const userServiceInst = new UserRegistrationService();
-        responseHandler(req, res, authServiceInst.forgotPassword(req.body.email).then((user) => {
-            return userServiceInst.toAPIResponse(user)
-        }));
+        responseHandler(req, res, authServiceInst.forgotPassword(req.body.email));
     });
 
     router.post('/change-password', checkAuthToken, function (req, res, next) {

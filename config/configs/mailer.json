@@ -2,14 +2,14 @@
     "email": {
         "doc": "crediential for google authentication",
         "format": "String",
-        "default": "xxx",
+        "default": "45cab56a963476",
         "env": "MAILER_USER",
         "arg": "mailer_user"
     },
     "password": {
         "doc": "crediential for google authentication",
         "format": "String",
-        "default": "XXX",
+        "default": "fdc395e19a09db",
         "env": "MAILER_USER_PASSWORD",
         "arg": "mailer_user_password"
     },
@@ -23,14 +23,14 @@
     "host": {
         "doc": "mailer host",
         "format": "String",
-        "default": "XXX",
+        "default": "smtp.mailtrap.io",
         "env": "MAILER_HOST",
         "arg": "mailer_host"
     },
     "port": {
         "doc": "mailer port",
         "format": "Number",
-        "default": 587,
+        "default": 2525,
         "env": "MAILER_PORT",
         "arg": "mailer_port"
     },

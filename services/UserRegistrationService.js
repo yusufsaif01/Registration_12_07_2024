@@ -4,6 +4,7 @@ const UserUtility = require('../db/utilities/UserUtility');
 const UserService = require("./UserService");
 const uuidv4 = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
+const NotificationService = require('./NotificationService');
 
 /**
  *
@@ -86,7 +87,9 @@ class UserRegistrationService extends UserService {
                     await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
                     let { id, email,is_email_verified } = User;
                     let url="http://localhost:3000/api/activate?token="+Token;
-                    return { id, email, token: Token,activation_url:url, is_email_verified};
+                    let notifyInst = new NotificationService();
+                    await notifyInst.emailVerification(User, url)
+                    return { id, email, token: Token, is_email_verified};
                 }).then(this.toAPIResponse);
             })
     }
@@ -181,7 +184,6 @@ class UserRegistrationService extends UserService {
         last_name,
         member_type,
         registration_number,
-        activation_url,
         is_email_verified
     }) {
         return {
@@ -200,7 +202,6 @@ class UserRegistrationService extends UserService {
             country,
             phone,
             status,
-            activation_url,
             is_email_verified
         };
     }
