@@ -107,6 +107,9 @@ class AuthService {
 
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
+                        if(!user.is_email_verified){
+                            return Promise.reject(new errors.NotFound("email is not verified"));
+                        }
                         User = user;
                         randomString = this.authUtilityInst.randomBytes(4);
                         console.log('pass',randomString)
