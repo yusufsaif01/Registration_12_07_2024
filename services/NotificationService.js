@@ -7,8 +7,13 @@ const config = require('../config');
 
 class NotificationService {
 
-    forgotPassword(user, { password }) {
+    forgotPassword(user,  password ) {
+        console.log('password',password)
         return this.sendMail("forgotPassword", { email: user.email, password });
+    }
+    emailVerification(user,  activation_link ) {
+        console.log('acitivation-link',activation_link,'email',user.email)
+        return this.sendMail("emailVerification", { email: user.email, activation_link:activation_link });
     }
 
     async sendMail(mailTemplate, data) {

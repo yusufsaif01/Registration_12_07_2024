@@ -107,50 +107,64 @@ class AuthService {
 
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
+                        if(!user.is_email_verified){
+                            return Promise.reject(new errors.NotFound("email is not verified"));
+                        }
                         User = user;
                         randomString = this.authUtilityInst.randomBytes(4);
+                        console.log('pass',randomString)
                         return this.authUtilityInst.bcryptToken(randomString);
                     })
                     .then(async (password) => {
-
                         await this.updateUserPassword(User, password);
-
+                      
                         let notifyInst = new NotificationService();
-                        return notifyInst.forgotPassword(User, { randomString })
+                        return notifyInst.forgotPassword(User,  randomString )
                     })
                     .then(() => {
-                        return User;
+                        return Promise.resolve()
                     });
             })
     }
-    async resetPassword(tokenData, oldPassword, newPassword) {
+    async resetPassword(tokenData, old_password, new_password,confirm_password) {
         if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
             ));
         }
-
-        if (!newPassword) {
-            return Promise.reject(new errors.ValidationFailed(
-                "newPassword is required"
-            ));
-        }
-        if (!oldPassword) {
+        if (!old_password) {
             return Promise.reject(new errors.ValidationFailed(
                 "Old password is required"
             ));
         }
+
+        if (!new_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "New password is required"
+            ));
+        }
+        if (!confirm_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "Confirm password is required"
+            ));
+        }
+        if (confirm_password!==new_password) {
+            return Promise.reject(new errors.ValidationFailed(
+                "Passwords do not match"
+            ));
+        }
+       
         
         try {
             let user = await this.userUtilityInst.findOne({ email: tokenData.email })
             if (!user) {
                 return Promise.reject(new errors.NotFound("User not found."));
             }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(oldPassword, user.password);
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(old_password, user.password);
             if (!checkPassword) {
-                return Promise.reject(new errors.BadRequest("Old assword is incorrect", { field_name: "old_password"}));
+                return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password"}));
             }
-            let password = await this.authUtilityInst.bcryptToken(newPassword);
+            let password = await this.authUtilityInst.bcryptToken(new_password);
             await this.updateUserPassword(tokenData, password);
             return Promise.resolve();
         } catch (err) {
