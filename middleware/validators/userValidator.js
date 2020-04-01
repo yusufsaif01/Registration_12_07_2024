@@ -35,9 +35,9 @@ class UserValidator {
 
     async updateDetailsAPIValidation(req, res, next) {
         const trophieSchema = Joi.object().keys({
-            "trophie_name": Joi.string().required(),
-            "year": Joi.string().min(4).required().max(4),
-            "position": Joi.string().required()
+            "name": Joi.string(),
+            "year": Joi.string(),
+            "position": Joi.string()
         });
 
         const academySchema = Joi.object().keys({

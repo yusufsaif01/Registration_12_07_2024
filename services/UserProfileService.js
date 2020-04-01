@@ -44,12 +44,12 @@ class UserProfileService {
             })
 
     }
-    updateProfileBioValidation(data){
+    updateProfileBioValidation(data) {
         return Promise.resolve()
     }
-    
+
     updateProfileDetailsValidation(data) {
-        const { founded_in } = data
+        const { founded_in, trophies } = data
         if (founded_in) {
             var d = new Date();
             var currentYear = d.getFullYear();
@@ -70,6 +70,36 @@ class UserProfileService {
                 ));
             }
 
+        }
+        if (trophies) {
+            var d = new Date();
+            var msg;
+            var currentYear = d.getFullYear();
+            trophies.forEach(element => {
+
+
+                if (element.year > currentYear) {
+
+                    msg = "trophie year is greater than " + currentYear
+
+                }
+                if (element.year < 0) {
+
+                    msg = "trophie year cannot be negative"
+
+                }
+                if (element.year == 0) {
+
+                    msg = "trophie cannot be zero"
+
+                }
+            });
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(
+                    msg
+                ));
+
+            }
         }
         return Promise.resolve()
     }
