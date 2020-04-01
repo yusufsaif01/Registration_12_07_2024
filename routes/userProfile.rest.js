@@ -36,12 +36,19 @@ module.exports = (router) => {
             return  userServiceInst.toAPIResponse(user)}));
     });
     
-    router.put('/update-profile',checkAuthToken, function (req, res) {
+    router.put('/update-details',checkAuthToken,userValidator.updateDetailsAPIValidation, function (req, res) {
         let serviceInst = new UserProfileService();
         
         responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));
       
     });
+    router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, function (req, res) {
+        let serviceInst = new UserProfileService();
+        
+        responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));
+      
+    });
+    
     
 
 };

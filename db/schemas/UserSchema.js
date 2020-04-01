@@ -435,6 +435,9 @@ module.exports = {
 			},
 			phone_number: {
 				type: String
+			},
+			designation:{
+				type:String
 			}
 			
 		}],

@@ -33,7 +33,7 @@ class UserValidator {
         }
     }
 
-    async updateAPIValidation(req, res, next) {
+    async updateDetailsAPIValidation(req, res, next) {
         const trophieSchema = Joi.object().keys({
             "trophie_name": Joi.string().required(),
             "year": Joi.string().min(4).required().max(4),
@@ -47,35 +47,51 @@ class UserValidator {
 
 
             // "dob" : Joi.string().min(8).max(30),
+            "contact_person": Joi.object().keys({ 
+                "name": Joi.string(),
+                "email": Joi.string().email({ minDomainSegments: 2 }),
+                "phone_number": Joi.string().min(10),
+                "designation":Joi.string()
+            })
+           ,
+            "name": Joi.string(),
+            "short_name": Joi.string(),
+            "founded_in": Joi.number(),
+            "state": Joi.string(),
+            "country": Joi.string(),
+            "city": Joi.string(),
+            "address": Joi.object().keys({
+              "full_address":Joi.string(),
+              "pincode": Joi.string(),
+              "country": Joi.string(),
+            "city": Joi.string()
 
-            "contact_person_name": Joi.string().min(3).max(30).required(),
-            "contact_person_email": Joi.string().email({ minDomainSegments: 2 }).required(),
-            "contact_person_phone": Joi.string().min(10).required().max(10),
-            "name": Joi.string().min(3).max(30).required(),
-            "short_name": Joi.string().min(3).max(30).required(),
-            "founded_in": Joi.string().min(4).required().max(4),
-            "state": Joi.string().required(),
-            "country": Joi.string().required(),
-            "city": Joi.string().required(),
-            "address": Joi.string().min(3).max(50).required(),
-            "pincode": Joi.string().required(),
-            "phone": Joi.string().min(10).required().max(10),
-            "stadium": Joi.string().min(3).max(30).required(),
-            "owner": Joi.string().min(3).max(30).required(),
-            "manager": Joi.string().min(3).max(30).required(),
-            "document_link": Joi.string().required(),
-            "about": Joi.string().required(),
-            "bio": Joi.string().required(),
-            "trophies": Joi.array().items(trophieSchema).required().min(1),
-            "top_players": Joi.array().required().min(1),
-            "total_associated_players": Joi.number().required(),
-            "head_coach": Joi.string().min(3).required(),
-            "social_profiles":Joi.object().keys({ 
-                "facebook": Joi.string(),
-                "youtube": Joi.string(),
-                "twitter": Joi.string(),
-                "instagram": Joi.string(),
-                "github": Joi.string()
+            }),
+            
+            "phone": Joi.string().min(10),
+            "stadium": Joi.string(),
+            "owner": Joi.object().keys({ 
+                "name": Joi.string(),
+                "email": Joi.string().email({ minDomainSegments: 2 }),
+                "phone_number": Joi.string().min(10),
+            }),
+            "manager": Joi.object().keys({ 
+                "name": Joi.string(),
+                "email": Joi.string().email({ minDomainSegments: 2 }),
+                "phone_number": Joi.string().min(10),
+            }),
+            "documents": Joi.array().items(Joi.object().keys({
+                "link":Joi.string(),
+                "is_verified":Joi.string(),
+                "type":Joi.string()
+            })),
+            "trophies": Joi.array().items(trophieSchema),
+            "top_players": Joi.array(),
+            "associated_players": Joi.number(),
+            "club_academy_details":Joi.object().keys({
+                "head_coach": Joi.string(),
+                "head_coach_email": Joi.string(),
+                "head_coach_phone": Joi.string(),
             })
 
         });
@@ -86,42 +102,41 @@ class UserValidator {
 
 
 
-            "player_type": Joi.string().valid("grassroot", "amateur", "professional").required(),
-            "first_name": Joi.string().min(3).max(30).required(),
-            "last_name": Joi.string().min(3).required().max(30),
-            "dob": Joi.string().min(8).max(30),
-            "height": Joi.string().required(),
+            "player_type": Joi.string().valid("grassroot", "amateur", "professional"),
+            "first_name": Joi.string(),
+            "last_name": Joi.string(),
+            "dob": Joi.string().min(8),
+            "height": Joi.string(),
             "weight": Joi.string(),
-            "country": Joi.string().required(),
-            "state": Joi.string().required(),
-            "city": Joi.string().required(),
-            "school": Joi.string().min(3).max(30),
-            "college": Joi.string().min(3).max(30),
-            "university": Joi.string().min(3).max(30),
-            "phone": Joi.string().min(10).required().max(10),
+            "country": Joi.string(),
+            "state": Joi.string(),
+            "city": Joi.string(),
+            "institute":Joi.object().keys({
+                "school": Joi.string(),
+            "college": Joi.string(),
+            "university": Joi.string()
+            }),
+            "phone": Joi.string().min(10),
             "position": Joi.object().keys({
-                "first_priority": Joi.string().min(3).required().max(30),
-                "second_priority": Joi.string().min(3).required().max(30),
-                "third_priority": Joi.string().min(3).required().max(30)
-
-            }).required(),
-            "strong_foot": Joi.string().min(4).max(30).required(),
+                "priority": Joi.string(),
+                "name": Joi.string()
+            }),
+            "strong_foot": Joi.string(),
             "weak_foot": Joi.string(),
-            "document_link": Joi.string().required(),
+            "documents": Joi.array().items(Joi.object().keys({
+                "link":Joi.string(),
+                "is_verified":Joi.string(),
+                "type":Joi.string()
+            })),
             "employment_contract": Joi.string(),
-            "head_coach_email": Joi.string().email({ minDomainSegments: 2 }),
-            "head_coach_phone": Joi.string().min(10).max(10),
-            "club": Joi.string().valid('yes', 'no').required(),
-            "former_club": Joi.string().min(3).max(30),
-            "about": Joi.string().required(),
-            "bio": Joi.string().required(),
-            "social_profiles":Joi.object().keys({ 
-                "facebook": Joi.string(),
-                "youtube": Joi.string(),
-                "twitter": Joi.string(),
-                "instagram": Joi.string(),
-                "github": Joi.string()
-            })
+            "club_academy_details":Joi.object().keys({
+                "head_coach": Joi.string(),
+                "head_coach_email": Joi.string(),
+                "head_coach_phone": Joi.string()
+            }),
+            // "club": Joi.string().valid('yes', 'no').required(),
+            "former_club": Joi.string()
+        
         });
         var schema;
         if (req.authUser.member_type == 'player') {
@@ -135,6 +150,30 @@ class UserValidator {
             // await Joi.validate(req.body.trophies, trophieSchema);
             await Joi.validate(req.body, schema);
 
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
+    async updateBioAPIValidation(req, res, next) {
+        const schema = Joi.object().keys({
+            /**
+             * Add your validations here
+             */
+            "about": Joi.string(),
+            "bio": Joi.string(),
+            "social_profiles":Joi.object().keys({ 
+                "facebook": Joi.string(),
+                "youtube": Joi.string(),
+                "twitter": Joi.string(),
+                "instagram": Joi.string(),
+                "github": Joi.string()
+            })
+        });
+
+        try {
+            await Joi.validate(req.body, schema);
             return next();
         } catch (err) {
             console.log(err.details);
