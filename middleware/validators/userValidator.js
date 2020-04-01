@@ -54,12 +54,12 @@ class UserValidator {
                 "designation":Joi.string()
             }))
            ,
-            "name": Joi.string(),
-            "short_name": Joi.string(),
-            "founded_in": Joi.number(),
-            "state": Joi.string(),
-            "country": Joi.string(),
-            "city": Joi.string(),
+            "name": Joi.string().required(),
+            "short_name": Joi.string().required(),
+            "founded_in": Joi.number().required(),
+            "state": Joi.string().required(),
+            "country": Joi.string().required(),
+            "city": Joi.string().required(),
             "address": Joi.object().keys({
               "full_address":Joi.string(),
               "pincode": Joi.string(),
@@ -68,7 +68,7 @@ class UserValidator {
 
             }),
             
-            "phone": Joi.string().min(10),
+            "phone": Joi.string().min(10).required(),
             "stadium": Joi.string(),
             "owner": Joi.object().keys({ 
                 "name": Joi.string(),
@@ -87,7 +87,7 @@ class UserValidator {
             })),
             "trophies": Joi.array().items(trophieSchema),
             "top_players": Joi.array(),
-            "associated_players": Joi.number(),
+            "associated_players": Joi.number().required(),
             "club_academy_details":Joi.object().keys({
                 "head_coach": Joi.string(),
                 "head_coach_email": Joi.string(),
@@ -102,21 +102,21 @@ class UserValidator {
 
 
 
-            "player_type": Joi.string().valid("grassroot", "amateur", "professional"),
-            "first_name": Joi.string(),
-            "last_name": Joi.string(),
-            "dob": Joi.string().min(8),
-            "height": Joi.string(),
-            "weight": Joi.string(),
-            "country": Joi.string(),
-            "state": Joi.string(),
-            "city": Joi.string(),
+            "player_type": Joi.string().valid("grassroot", "amateur", "professional").required(),
+            "first_name": Joi.string().required(),
+            "last_name": Joi.string().required(),
+            "dob": Joi.string().min(8).required(),
+            "height": Joi.string().required(),
+            "weight": Joi.string().required(),
+            "country": Joi.string().required(),
+            "state": Joi.string().required(),
+            "city": Joi.string().required(),
             "institute":Joi.object().keys({
                 "school": Joi.string(),
             "college": Joi.string(),
             "university": Joi.string()
             }),
-            "phone": Joi.string().min(10),
+            "phone": Joi.string().min(10).required(),
             "position": Joi.object().keys({
                 "priority": Joi.string(),
                 "name": Joi.string()
@@ -161,8 +161,8 @@ class UserValidator {
             /**
              * Add your validations here
              */
-            "about": Joi.string(),
-            "bio": Joi.string(),
+            "about": Joi.string().required(),
+            "bio": Joi.string().required(),
             "social_profiles":Joi.object().keys({ 
                 "facebook": Joi.string(),
                 "youtube": Joi.string(),

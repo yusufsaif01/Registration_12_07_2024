@@ -118,7 +118,7 @@ class UserProfileService {
         club_academy_details,
         registration_number,
         avatar_url, role, top_players, top_signings,
-        associated_players, is_first_time_login, is_email_verified, is_deleted, status, username, user_id, member_type, email, country, phone, state, first_name, last_name, id, trophies, token, about, bio, city, club, dob, document_links, former_club, height, player_type, position,
+        associated_players, is_first_time_login, is_email_verified, is_deleted, status, username, user_id, member_type, email, country, phone, state, first_name, last_name, id, trophies, token, about, bio, city, club, dob, documents, former_club, height, player_type, position,
         strong_foot,
         institution,
         league,
@@ -133,7 +133,7 @@ class UserProfileService {
             address,
             club_academy_details,
             registration_number, avatar_url, role, top_players, top_signings,
-            associated_players, is_first_time_login, is_email_verified, is_deleted, status, username, user_id, member_type, email, country, phone, state, first_name, last_name, id, trophies, token, about, bio, city, club, dob, document_links, former_club, height, player_type, position,
+            associated_players, is_first_time_login, is_email_verified, is_deleted, status, username, user_id, member_type, email, country, phone, state, first_name, last_name, id, trophies, token, about, bio, city, club, dob, documents, former_club, height, player_type, position,
             
             strong_foot,
             league,
