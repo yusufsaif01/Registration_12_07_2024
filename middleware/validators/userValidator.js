@@ -47,12 +47,12 @@ class UserValidator {
 
 
             // "dob" : Joi.string().min(8).max(30),
-            "contact_person": Joi.object().keys({ 
+            "contact_person": Joi.array().items(Joi.object().keys({ 
                 "name": Joi.string(),
                 "email": Joi.string().email({ minDomainSegments: 2 }),
                 "phone_number": Joi.string().min(10),
                 "designation":Joi.string()
-            })
+            }))
            ,
             "name": Joi.string(),
             "short_name": Joi.string(),
