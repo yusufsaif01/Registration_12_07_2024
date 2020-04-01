@@ -4,6 +4,7 @@ const UserProfileService = require('../services/UserProfileService');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
 const FileService = require('../services/FileService');
+const errors = require("../errors");
 
 /**
  *
@@ -32,6 +33,11 @@ module.exports = (router) => {
     router.get('/profile',checkAuthToken, function (req, res) {
         let serviceInst = new UserService();
         let userServiceInst = new UserProfileService();
+        if(!req.authUser.is_email_verified)
+        {
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
+          
+        }
         // responseHandler(req, res, serviceInst.getDetails({ id: req.authUser.id }));
         responseHandler(req, res, serviceInst.getDetails({ id: req.authUser.id }).then((user) =>{
             return  userServiceInst.toAPIResponse(user)}));
@@ -39,16 +45,25 @@ module.exports = (router) => {
     
     router.put('/update-details',checkAuthToken,userValidator.updateDetailsAPIValidation,async function (req, res) {
         let serviceInst = new UserProfileService();
-        let filesURL = {};
-            const _fileInst = new FileService();
-            let file_url = await _fileInst.uploadFile(req.files.file, "./credentials/", req.files.file.name);
-        responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));
+        // let filesURL = {};
+        //     const _fileInst = new FileService();
+        //     let file_url = await _fileInst.uploadFile(req.files.file, "./credentials/", req.files.file.name);
+        if(!req.authUser.is_email_verified)
+        {
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
+          
+        }  
+        responseHandler(req, res, serviceInst.updateProfileDetails({ id: req.authUser.id,updateValues: req.body }));
       
     });
     router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, function (req, res) {
         let serviceInst = new UserProfileService();
-        
-        responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));
+        if(!req.authUser.is_email_verified)
+        {
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
+          
+        } 
+        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id,updateValues: req.body }));
       
     });
     

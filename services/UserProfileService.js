@@ -28,15 +28,27 @@ class UserProfileService {
      * @memberof UserProfileService
      */
 
-    updateProfile(requestedData = {}) {
+    updateProfileDetails(requestedData = {}) {
 
-        return this.updateProfileValidation(requestedData.updateValues)
+        return this.updateProfileDetailsValidation(requestedData.updateValues)
             .then(() => {
                 return this.userUtilityInst.updateOne({ 'id': requestedData.id }, requestedData.updateValues);
             })
 
     }
-    updateProfileValidation(data) {
+    updateProfileBio(requestedData = {}) {
+
+        return this.updateProfileBioValidation(requestedData.updateValues)
+            .then(() => {
+                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, requestedData.updateValues);
+            })
+
+    }
+    updateProfileBioValidation(data){
+        return Promise.resolve()
+    }
+    
+    updateProfileDetailsValidation(data) {
         const { founded_in } = data
         if (founded_in) {
             var d = new Date();
