@@ -3,6 +3,7 @@ const responseHandler = require('../ResponseHandler');
 const UserProfileService = require('../services/UserProfileService');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
+const FileService = require('../services/FileService');
 
 /**
  *
@@ -36,9 +37,11 @@ module.exports = (router) => {
             return  userServiceInst.toAPIResponse(user)}));
     });
     
-    router.put('/update-details',checkAuthToken,userValidator.updateDetailsAPIValidation, function (req, res) {
+    router.put('/update-details',checkAuthToken,userValidator.updateDetailsAPIValidation,async function (req, res) {
         let serviceInst = new UserProfileService();
-        
+        let filesURL = {};
+            const _fileInst = new FileService();
+            let file_url = await _fileInst.uploadFile(req.files.file, "./credentials/", req.files.file.name);
         responseHandler(req, res, serviceInst.updateProfile({ id: req.authUser.id,updateValues: req.body }));
       
     });
