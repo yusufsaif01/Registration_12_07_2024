@@ -61,6 +61,16 @@ class AuthService {
             if (!user) {
                 return Promise.reject(new errors.InvalidCredentials());
             }
+            if(!user.password)
+            {
+                return Promise.reject(new errors.ValidationFailed("account is not activated"))
+            }
+            if(!user.is_email_verified)
+            {
+                return Promise.reject((new errors.ValidationFailed(
+                    "email is not verified "
+                )))
+            }
             let checkPassword = await this.authUtilityInst.bcryptTokenCompare(password, user.password);
             if (!checkPassword) {
                 return Promise.reject(new errors.InvalidCredentials());
@@ -107,7 +117,7 @@ class AuthService {
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
                         if(!user.is_email_verified){
-                            return Promise.reject(new errors.NotFound("email is not verified"));
+                            return Promise.reject(new errors.ValidationFailed("email is not verified"));
                         }
                         User = user;
                         
