@@ -16,7 +16,7 @@
 	"baseURL": {
 		"doc": "For setting down the base url of app.",
 		"format": "url",
-		"default": "http://localhost:3000/",
+		"default": "http://localhost:4200/",
 		"env": "APP_BASE_URL",
 		"arg": "app_base_url"
 	},
