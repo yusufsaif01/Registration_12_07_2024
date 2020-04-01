@@ -129,7 +129,7 @@ module.exports = {
 			type: String
 		},
 		phone: {
-			type:Number
+			type:String
 		},
 		founded_in: {
 			type: String

@@ -12,7 +12,7 @@ class UserValidator {
             // "role" : Joi.string(),
             "state": Joi.string().required(),
             "country": Joi.string().required(),
-            "phone": Joi.number().min(10),
+            "phone": Joi.string().min(10).required(),
             "member_type": Joi.string().valid("player", "club", "academy").required(),
             // "dob" : Joi.string().min(8).max(30),
             "name": Joi.string().min(1),
