@@ -112,6 +112,7 @@ class UserProfileService {
      * @memberof UserRegistrationService
      */
     toAPIResponse({ nationality,
+        top_players,
     first_name,
     last_name,
     height,
@@ -153,6 +154,7 @@ class UserProfileService {
     type }) {
         return {
             nationality,
+            top_players,
     first_name,
     last_name,
     height,
