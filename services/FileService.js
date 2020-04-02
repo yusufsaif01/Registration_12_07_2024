@@ -52,7 +52,7 @@ class FileService {
     //     return new Promise.resolve(finalPath);
     // }
 
-    
+
 }
 
 module.exports = FileService;
