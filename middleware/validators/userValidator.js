@@ -162,8 +162,8 @@ class UserValidator {
             /**
              * Add your validations here
              */
-            "about": Joi.string().required(),
-            "bio": Joi.string().required(),
+            "about": Joi.string(),
+            "bio": Joi.string(),
             "social_profiles":Joi.object().keys({ 
                 "facebook": Joi.string(),
                 "youtube": Joi.string(),
