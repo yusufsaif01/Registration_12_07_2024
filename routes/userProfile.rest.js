@@ -33,11 +33,18 @@ module.exports = (router) => {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
           
         }
-        let filesURL = {};
+        if(!req.files || !req.files.file) {
+            return responseHandler(req, res, Promise.reject(new errors.BadRequest("File is missing")));
+        }
             const _fileInst = new FileService();
             let file_url = await _fileInst.uploadFile(req.files.file, "./documents/", req.files.file.name); 
             console.log(req.files) 
-        responseHandler(req, res, serviceInst.updateProfileDetails({ id: req.authUser.id,updateValues: req.body }));
+            let documents =[{link:file_url}]
+            let reqObj =req.body;
+            reqObj.documents=documents;
+            console.log(reqObj)
+            
+        responseHandler(req, res, serviceInst.updateProfileDetails({ id: req.authUser.id ,updateValues:reqObj}));
       
     });
     router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, function (req, res) {

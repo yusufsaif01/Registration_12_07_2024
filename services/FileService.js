@@ -3,6 +3,7 @@ const uuidv4 = require('uuid/v4');
 const Promise = require("bluebird");
 const errors = require("../errors");
 const config = require("../config");
+const fs = require('fs');
 
 
 

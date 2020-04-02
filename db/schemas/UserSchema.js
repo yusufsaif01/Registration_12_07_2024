@@ -18,6 +18,9 @@ module.exports = {
 				return uuidv4()
 			}
 		},
+		nationality:{
+			type:String
+		},
 		first_name: {
 			type: String,
 		},
