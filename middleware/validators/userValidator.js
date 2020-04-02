@@ -102,21 +102,22 @@ class UserValidator {
 
 
 
-            "player_type": Joi.string().valid("grassroot", "amateur", "professional").required(),
-            "first_name": Joi.string().required(),
-            "last_name": Joi.string().required(),
-            "dob": Joi.string().min(8).required(),
-            "height": Joi.string().required(),
-            "weight": Joi.string().required(),
-            "country": Joi.string().required(),
-            "state": Joi.string().required(),
-            "city": Joi.string().required(),
+            "player_type": Joi.string().valid("grassroot", "amateur", "professional"),
+            "first_name": Joi.string(),
+            "last_name": Joi.string(),
+            "dob": Joi.string().min(8),
+            "height": Joi.string(),
+            "weight": Joi.string(),
+            "country": Joi.string(),
+            "nationality":Joi.string(),
+            "state": Joi.string(),
+            "city": Joi.string(),
             "institute":Joi.object().keys({
                 "school": Joi.string(),
             "college": Joi.string(),
             "university": Joi.string()
             }),
-            "phone": Joi.string().min(10).required(),
+            "phone": Joi.string().min(10),
             "position": Joi.object().keys({
                 "priority": Joi.string(),
                 "name": Joi.string()
