@@ -33,8 +33,8 @@ class AuthService {
                     })
                     .then(async (Token) => {
                         await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, email, username, is_email_verified } = User;
-                        return { id, email, username, token: Token, is_email_verified };
+                        let { id, email, username, is_email_verified,member_type,player_type } = User;
+                        return { id, email, username, token: Token, is_email_verified,member_type,player_type };
                     })
             })
     }
