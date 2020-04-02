@@ -31,18 +31,59 @@ class UserProfileService {
     updateProfileDetails(requestedData = {}) {
 
         return this.updateProfileDetailsValidation(requestedData.updateValues)
-            .then(() => {
-                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, requestedData.updateValues);
+        .then(()=>{
+            return this.setRequestData(requestedData.member_type,requestedData.updateValues)
+        })
+            .then((data) => {
+                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, data);
             })
 
     }
+    setRequestData(member_type,data){
+    
+        if(member_type=='player')
+        {
+            let institute={}
+                institute.school=data.school;
+                institute.college=data.college;
+                institute.university=data.university;
+                data.institute=institute;
+        }
+        else{
+            let manager={}
+            let owner={}
+            let address={}
+                manager.name=data.manager
+                owner.name=data.owner
+                address.full_address=data.address
+                address.pincode=data.pincode
+                data.address=address;
+                data.manager=manager;
+                data.owner=owner;
+        }
+        return Promise.resolve(data)
+    }
     updateProfileBio(requestedData = {}) {
 
-        return this.updateProfileBioValidation(requestedData.updateValues)
-            .then(() => {
-                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, requestedData.updateValues);
+        return this.updateProfileBioValidation(requestedData.updateValues).
+        then(()=>{
+            return this.setBioRequestData(requestedData.updateValues)
+        })
+            .then((data) => {
+                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, data);
             })
 
+    }
+    setBioRequestData(data)
+    {
+        let social_profiles={};
+        social_profiles.facebook=data.facebook;
+        social_profiles.youtube=data.youtube;
+        social_profiles.twitter=data.twitter;
+        social_profiles.instagram=data.instagram;
+        data.social_profiles=social_profiles;
+        console.log(data)
+       return Promise.resolve(data)
     }
     updateProfileBioValidation(data) {
         return Promise.resolve()
@@ -112,6 +153,7 @@ class UserProfileService {
      * @memberof UserRegistrationService
      */
     toAPIResponse({ nationality,
+        top_players,
     first_name,
     last_name,
     height,
@@ -153,6 +195,7 @@ class UserProfileService {
     type }) {
         return {
             nationality,
+            top_players,
     first_name,
     last_name,
     height,

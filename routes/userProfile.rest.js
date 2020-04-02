@@ -33,28 +33,57 @@ module.exports = (router) => {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
           
         }
-        if(!req.files || !req.files.file) {
-            return responseHandler(req, res, Promise.reject(new errors.BadRequest("File is missing")));
-        }
+        let reqObj =req.body;
+        console.log(req.files)
+        
+        console.log(req.body)
+        if(req.files) {
+            console.log(req.files)
             const _fileInst = new FileService();
-            let file_url = await _fileInst.uploadFile(req.files.file, "./documents/", req.files.file.name); 
-            console.log(req.files) 
-            let documents =[{link:file_url}]
-            let reqObj =req.body;
+            if(req.files.aadhar)
+            {
+            let file_url = await _fileInst.uploadFile(req.files.aadhar, "./documents/", req.files.aadhar.name);
+            let documents =[{link:file_url,type:'aadhar'}]
             reqObj.documents=documents;
-            console.log(reqObj)
+            } 
+            if(req.files.aiff)
+            {
+                let file_url = await _fileInst.uploadFile(req.files.aiff, "./documents/", req.files.aiff.name);
+                let documents =[{link:file_url,type:'aiff'}]
+                reqObj.documents=documents;
+            }
+            if(req.body.document_type)
+            {
+                let file_url = await _fileInst.uploadFile(req.files.document, "./documents/", req.files.document.name);
+                let documents =[{link:file_url,type:req.body.document_type}]
+                reqObj.documents=documents;
+            }
             
-        responseHandler(req, res, serviceInst.updateProfileDetails({ id: req.authUser.id ,updateValues:reqObj}));
+        }
+            // console.log(reqObj)
+            
+        responseHandler(req, res, serviceInst.updateProfileDetails({member_type:req.authUser.member_type, id: req.authUser.id ,updateValues:reqObj}));
       
     });
-    router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, function (req, res) {
+    router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, async function(req, res) {
         let serviceInst = new UserProfileService();
+        let reqObj =req.body;
         if(!req.authUser.is_email_verified)
         {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
           
         } 
-        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id,updateValues: req.body }));
+        if(req.files) {
+            const _fileInst = new FileService();
+            if(req.files.avatar)
+            {
+            let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
+            reqObj.avatar_url=avatar_url;
+            } 
+            
+        }
+        
+        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id,updateValues: reqObj }));
       
     });
     
