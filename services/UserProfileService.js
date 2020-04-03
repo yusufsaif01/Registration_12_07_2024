@@ -2,6 +2,7 @@ const config = require('../config');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const errors = require("../errors");
+const _ = require("lodash");
 
 /**
  *
@@ -71,12 +72,17 @@ class UserProfileService {
     }
     setBioRequestData(data) {
         let social_profiles = {};
-        social_profiles.facebook = data.facebook;
-        social_profiles.youtube = data.youtube;
-        social_profiles.twitter = data.twitter;
-        social_profiles.instagram = data.instagram;
-        data.social_profiles = social_profiles;
-        console.log(data)
+        if (data.facebook)
+            social_profiles.facebook = data.facebook;
+        if (data.youtube)
+            social_profiles.youtube = data.youtube;
+        if (data.twitter)
+            social_profiles.twitter = data.twitter;
+        if (data.instagram)
+            social_profiles.instagram = data.instagram;
+        if (!_.isEmpty(social_profiles))
+            data.social_profiles = social_profiles;
+
         return Promise.resolve(data)
     }
     updateProfileBioValidation(data) {

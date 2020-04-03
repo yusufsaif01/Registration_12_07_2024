@@ -98,7 +98,7 @@ class UserValidator {
             "head_coach_email": Joi.string(),
             "head_coach_phone": Joi.string(),
             // "club": Joi.string().valid('yes', 'no').required(),
-            "former_club": Joi.string()
+            "former_club": Joi.string().allow('')
 
         });
         var schema;
