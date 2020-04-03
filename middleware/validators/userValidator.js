@@ -41,6 +41,8 @@ class UserValidator {
             /**
              * Add your validations here
              */
+            "contact_person": Joi.string(),
+            "trophies": Joi.string(),
             "contact_person_name": Joi.string(),
             "contact_person_email": Joi.string().email({ minDomainSegments: 2 }),
             "contact_person_phone_number": Joi.string().min(10),
@@ -74,9 +76,6 @@ class UserValidator {
             /**
              * Add your validations here
              */
-
-
-
             "player_type": Joi.string().valid("grassroot", "amateur", "professional"),
             "first_name": Joi.string(),
             "last_name": Joi.string(),
@@ -127,11 +126,11 @@ class UserValidator {
              */
             "about": Joi.string(),
             "bio": Joi.string(),
-                "facebook": Joi.string(),
-                "youtube": Joi.string(),
-                "twitter": Joi.string(),
-                "instagram": Joi.string(),
-                "github": Joi.string()
+            "facebook": Joi.string(),
+            "youtube": Joi.string(),
+            "twitter": Joi.string(),
+            "instagram": Joi.string(),
+            "github": Joi.string()
         });
 
         try {
