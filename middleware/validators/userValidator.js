@@ -59,8 +59,6 @@ class UserValidator {
             "city": Joi.string(),
             "phone": Joi.string().min(10),
             "stadium_name": Joi.string(),
-            "owner": Joi.string(),
-            "manager": Joi.string(),
             "document_type": Joi.string(),
             "trophie_name": Joi.string(),
             "trophie_year": Joi.string(),

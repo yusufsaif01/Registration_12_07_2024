@@ -180,25 +180,25 @@ module.exports = {
 			type: String
 		},
 		contact_person: [{
-			name: {
+			club_contact_name: {
 				type: String
 			},
-			email: {
+			club_contact_email: {
 				type: String
 			},
-			phone_number: {
+			club_contact_phone_number: {
 				type: String
 			},
-			designation: {
+			club_contact_designation: {
 				type: String
 			}
 
 		}],
 
 		trophies: [{
-			name: { type: String },
-			year: { type: String },
-			position: { type: String },
+			trophy_name: { type: String },
+			trophy_year: { type: String },
+			trophy_position: { type: String },
 			id: {
 				type: String,
 				default: function () {
