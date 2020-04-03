@@ -18,8 +18,8 @@ module.exports = {
 				return uuidv4()
 			}
 		},
-		nationality:{
-			type:String
+		nationality: {
+			type: String
 		},
 		first_name: {
 			type: String,
@@ -37,7 +37,7 @@ module.exports = {
 		dob: {
 			type: String
 		},
-		institiute:{
+		institiute: {
 			school: {
 				type: String
 			},
@@ -48,17 +48,17 @@ module.exports = {
 				type: String
 			}
 		}
-		 ,
+		,
 		documents: [{
-			link:{
+			link: {
 				type: String
 			},
-			is_verified:{
-			 type:Boolean,
-			 default:false
+			is_verified: {
+				type: Boolean,
+				default: false
 			},
-			type:{
-				type:String
+			type: {
+				type: String
 			}
 		}],
 		about: {
@@ -68,8 +68,8 @@ module.exports = {
 			type: String
 		},
 		position: [{
-			priority:{type:String},
-			name:{type:String}
+			priority: { type: String },
+			name: { type: String }
 		}],
 		strong_foot: {
 			type: String
@@ -77,7 +77,7 @@ module.exports = {
 		weak_foot: {
 			type: String
 		},
-		
+
 		former_club: {
 			type: String
 		},
@@ -90,7 +90,7 @@ module.exports = {
 		player_type: {
 			type: String,
 			enum: [
-				"grassroot","amateur","professional"
+				"grassroot", "amateur", "professional"
 			]
 		},
 		role: {
@@ -106,8 +106,8 @@ module.exports = {
 		password: {
 			type: String
 		},
-		name:{
-			type:String
+		name: {
+			type: String
 		},
 		username: {
 			type: String
@@ -137,49 +137,49 @@ module.exports = {
 			type: String
 		},
 		address: {
-			full_address:{
-            type:String
-			},
-			city:{
+			full_address: {
 				type: String
 			},
-			country:{
+			city: {
 				type: String
 			},
-			pincode:{
+			country: {
+				type: String
+			},
+			pincode: {
 				type: String
 			}
 		},
-		
-		stadium: {
+
+		stadium_name: {
 			type: String
 		},
 		owner: {
-			name:{
+			name: {
 				type: String
 			},
-			email:{
+			email: {
 				type: String
 			},
-			phone_number:{
+			phone_number: {
 				type: String
 			}
 		},
 		manager: {
-			name:{
+			name: {
 				type: String
 			},
-			email:{
+			email: {
 				type: String
 			},
-			phone_number:{
+			phone_number: {
 				type: String
 			}
 		},
 		short_name: {
 			type: String
 		},
-		contact_person:[{
+		contact_person: [{
 			name: {
 				type: String
 			},
@@ -189,36 +189,34 @@ module.exports = {
 			phone_number: {
 				type: String
 			},
-			designation:{
-				type:String
+			designation: {
+				type: String
 			}
-			
+
 		}],
-		
+
 		trophies: [{
-			name:{type:String},
-			year:{type:String},
-			position:{type:String},
+			name: { type: String },
+			year: { type: String },
+			position: { type: String },
 			id: {
 				type: String,
-				required: true,
-				unique: true,
 				default: function () {
 					return uuidv4()
 				}
 			}
 		}
 		],
-		
-	
-		club_academy_details:{
+
+
+		club_academy_details: {
 			head_coach: {
 				type: String
 			},
 			head_coach_phone: {
 				type: String
 			},
-			head_coach_email:{
+			head_coach_email: {
 				type: String
 			}
 		},
@@ -231,29 +229,34 @@ module.exports = {
 		top_signings: {
 			type: Array
 		},
-		
+
 		associated_players: {
 			type: Number
 		},
 		registration_number: {
 			type: String
 		},
-		
+
 		member_type: {
 			type: String,
-			enum:["player","club","academy"]
+			enum: ["player", "club", "academy"]
 		},
 		social_profiles: {
 			facebook: {
-				type:String},
+				type: String
+			},
 			youtube: {
-				type:String},
+				type: String
+			},
 			twitter: {
-				type:String},
+				type: String
+			},
 			instagram: {
-				type:String},
+				type: String
+			},
 			github: {
-				type:String}
+				type: String
+			}
 		},
 
 		is_first_time_login: {
@@ -264,9 +267,9 @@ module.exports = {
 			type: Boolean,
 			default: false
 		},
-		type:{
-            type: String,
-			enum:["club","academy"]
+		type: {
+			type: String,
+			enum: ["club", "academy"]
 		},
 		is_deleted: {
 			type: Boolean,

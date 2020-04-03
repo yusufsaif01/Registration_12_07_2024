@@ -12,53 +12,85 @@ const errors = require("../errors");
  * @param {*} router
  */
 module.exports = (router) => {
-    
-  
-    router.get('/profile',checkAuthToken, function (req, res) {
+    router.get('/profile', checkAuthToken, function (req, res) {
         let serviceInst = new UserService();
         let userServiceInst = new UserProfileService();
-        if(!req.authUser.is_email_verified)
-        {
+        if (!req.authUser.is_email_verified) {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
-          
         }
-        responseHandler(req, res, serviceInst.getDetails({ id: req.authUser.id }).then((user) =>{
-            return  userServiceInst.toAPIResponse(user)}));
+        responseHandler(req, res, serviceInst.getDetails({ id: req.authUser.id }).then((user) => {
+            return userServiceInst.toAPIResponse(user)
+        }));
     });
-    
-    router.put('/update-details',checkAuthToken,userValidator.updateDetailsAPIValidation,async function (req, res) {
+
+    router.put('/update-details', checkAuthToken, userValidator.updateDetailsAPIValidation, async function (req, res) {
         let serviceInst = new UserProfileService();
-        if(!req.authUser.is_email_verified)
-        {
+        if (!req.authUser.is_email_verified) {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
-          
         }
-        if(!req.files || !req.files.file) {
-            return responseHandler(req, res, Promise.reject(new errors.BadRequest("File is missing")));
-        }
+
+        let reqObj = req.body;
+        if (req.files) {
             const _fileInst = new FileService();
-            let file_url = await _fileInst.uploadFile(req.files.file, "./documents/", req.files.file.name); 
-            console.log(req.files) 
-            let documents =[{link:file_url}]
-            let reqObj =req.body;
-            reqObj.documents=documents;
-            console.log(reqObj)
-            
-        responseHandler(req, res, serviceInst.updateProfileDetails({ id: req.authUser.id ,updateValues:reqObj}));
-      
+            if (req.files.aadhar) {
+                let file_url = await _fileInst.uploadFile(req.files.aadhar, "./documents/", req.files.aadhar.name);
+                let documents = [{ link: file_url, type: 'aadhar' }]
+                reqObj.documents = documents;
+            }
+            if (req.files.aiff) {
+                let file_url = await _fileInst.uploadFile(req.files.aiff, "./documents/", req.files.aiff.name);
+                let documents = [{ link: file_url, type: 'aiff' }]
+                reqObj.documents = documents;
+            }
+            if (req.body.document_type) {
+                let file_url = await _fileInst.uploadFile(req.files.document, "./documents/", req.files.document.name);
+                let documents = [{ link: file_url, type: req.body.document_type }]
+                reqObj.documents = documents;
+            }
+        }
+        try {
+            reqObj.contact_person = JSON.parse(req.body.contact_person);
+        } catch (e) {
+            console.log(e);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for contact_persons")));
+        }
+
+        try {
+            let trophies = JSON.parse(req.body.trophies);
+            reqObj.trophies = trophies;
+        } catch (e) {
+            console.log(e);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for trophies")));
+        }
+
+        responseHandler(req, res, serviceInst.updateProfileDetails({
+            member_type: req.authUser.member_type,
+            id: req.authUser.id,
+            updateValues: reqObj
+        }));
+
     });
-    router.put('/update-bio',checkAuthToken,userValidator.updateBioAPIValidation, function (req, res) {
+    router.put('/update-bio', checkAuthToken, userValidator.updateBioAPIValidation, async function (req, res) {
         let serviceInst = new UserProfileService();
-        if(!req.authUser.is_email_verified)
-        {
+        let reqObj = req.body;
+        if (!req.authUser.is_email_verified) {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
-          
-        } 
-        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id,updateValues: req.body }));
-      
+
+        }
+        if (req.files) {
+            const _fileInst = new FileService();
+            if (req.files.avatar) {
+                let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
+                reqObj.avatar_url = avatar_url;
+            }
+
+        }
+
+        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id, updateValues: reqObj }));
+
     });
-    
-    
+
+
 
 };
 
