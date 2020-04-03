@@ -1,1 +1,5 @@
 node_modules
+.vscode
+apidocs
+logs
+*.log
