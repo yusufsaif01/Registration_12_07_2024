@@ -151,7 +151,7 @@ module.exports = {
 			}
 		},
 		
-		stadium: {
+		stadium_name: {
 			type: String
 		},
 		owner: {

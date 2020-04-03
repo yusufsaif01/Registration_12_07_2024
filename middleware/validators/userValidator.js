@@ -56,7 +56,7 @@ class UserValidator {
             "address": Joi.string(),
             "city": Joi.string(),
             "phone": Joi.string().min(10),
-            "stadium": Joi.string(),
+            "stadium_name": Joi.string(),
             "owner": Joi.string(),
             "manager": Joi.string(),
             "document_type": Joi.string(),
