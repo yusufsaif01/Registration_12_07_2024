@@ -46,10 +46,16 @@ class UserService extends BaseService {
         return this.utilityInst.find(filter, fields, options);
     }
 
-    async getDetails(requestedData = {}) {
+    async getDetails(member_type,requestedData = {}) {
         try {
-            let data = await this.utilityInst.findOne({ "id": requestedData.id });
-
+            let data;
+            if(member_type=='player'){
+             data = await this.playerUtilityInst.findOne({ "id": requestedData.id });
+            }
+            else
+            {
+             data = await this.clubAcademyUtilityInst.findOne({ "id": requestedData.id });
+            }
             if (!_.isEmpty(data)) {
                 return data;
             } else {

@@ -189,7 +189,6 @@ class UserProfileService {
         top_signings,
         associated_players,
         registration_number,
-
         member_type,
         social_profiles,
         type }) {
