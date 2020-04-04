@@ -1,6 +1,7 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
 const PlayerUtility = require('../db/utilities/PlayerUtility');
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const BaseService = require("./BaseService");
 const _ = require("lodash");
@@ -11,6 +12,7 @@ class UserService extends BaseService {
     constructor() {
         super();
         this.playerUtilityInst = new PlayerUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.authUtilityInst = new AuthUtility();
     }
 
@@ -75,7 +77,7 @@ class UserService extends BaseService {
      * @returns
      * @memberof UserRegistrationService
      */
-    create({
+    async create({
 
         name,
         first_name,
@@ -95,33 +97,24 @@ class UserService extends BaseService {
         member.country = country;
         member.phone = phone;
         member.state = state;
+
+        let user = [];
+        user.push({ 'email': email });
         if (member_type == 'player') {
             member.first_name = first_name;
-            member.last_name = last_name;
+            member.last_name = last_name;            
         }
         else {
             member.name = name;
+            member.type= member_type;
+        }
+        let foundPlayer = await this.playerUtilityInst.findOne({ $or: user })
+        let foundClub = await this.clubAcademyUtilityInst.findOne({ $or: user })
+        if (foundPlayer || foundClub) {
+            return Promise.reject(new errors.Conflict("User already exist."));
         }
 
-
-        let user = [];
-
-
-
-        if (email) {
-            user.push({ 'email': email });
-        }
-      
-
-        return this.playerUtilityInst.findOne({ $or: user })
-            .then(async (user) => {
-                if (user) {
-                    return Promise.reject(new errors.Conflict("User already exist."));
-                }
-                
-                return this._create(member)
-
-            })
+        return this._create(member)
     }
 
     /**
@@ -132,20 +125,33 @@ class UserService extends BaseService {
      * @memberof UserRegistrationService
      */
     _create(member) {
-         
-        return this.playerUtilityInst.insert(member)
-            .catch((err) => {
-                // .catch(errors.Conflict, (err) => {
-                console.log(err)
-                if (err.constructor.name === 'Conflict') {
-                    err.message = 'User already exist.';
-                }
+        if (member.member_type == 'player') {
+            return this.playerUtilityInst.insert(member)
+                .catch((err) => {
+                    console.log(err)
+                    if (err.constructor.name === 'Conflict') {
+                        err.message = 'User already exist.';
+                    }
 
-                return Promise.reject(err);
-            });
+                    return Promise.reject(err);
+                });
+        }
+        else {
+            return this.clubAcademyUtilityInst.insert(member)
+                .catch((err) => {
+                    console.log(err)
+                    if (err.constructor.name === 'Conflict') {
+                        err.message = 'User already exist.';
+                    }
+
+                    return Promise.reject(err);
+                });
+        }
+
+
     }
 
-  
+
 
     _prepareCondition(filters = {}) {
         let condition = {};

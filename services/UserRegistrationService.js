@@ -2,6 +2,7 @@ const Promise = require("bluebird");
 const errors = require("../errors");
 const LoginUtility = require('../db/utilities/LoginUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
 const UserService = require("./UserService");
 const uuidv4 = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
@@ -23,6 +24,7 @@ class UserRegistrationService extends UserService {
     constructor() {
         super();
         this.playerUtilityInst = new PlayerUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.loginUtilityInst = new LoginUtility();
         this.authUtilityInst = new AuthUtility();
     }
@@ -79,12 +81,17 @@ class UserRegistrationService extends UserService {
      
         return this.validateMemberRegistration(userData)
             .then(() => {
-                let User;
+                let User,email_status;
                 return this.create(userData)
                 .then( async(user)=>{
-                    let {user_id} =await this.loginUtilityInst.insert({member_type:userData.member_type});
-
+                    let {is_email_verified,member_type,user_id} =await this.loginUtilityInst.insert({member_type:userData.member_type});
+                    email_status=is_email_verified;
+                    if(member_type == 'player'){
                      await this.playerUtilityInst.updateOne({id:user.id},{user_id:user_id})
+                    }
+                    else{
+                        await this.clubAcademyUtilityInst.updateOne({id:user.id},{user_id:user_id})
+                    }
                      return user
                 })
                 .then((user) => {
@@ -93,13 +100,13 @@ class UserRegistrationService extends UserService {
                     return this.authUtilityInst.getAuthToken(User.id, User.email)
                 })
                 .then(async (Token) => {
-                    let { id, email,is_email_verified } = User;
+                    let { id, email } = User;
                     
                     let url = config.app.baseURL+"create-password?token="+Token;
                     // let url="http://localhost:4200/create-password?token="+Token;
                     let notifyInst = new NotificationService();
                     await notifyInst.emailVerification(User, url)
-                    return { id, email, token: Token, is_email_verified};
+                    return { id, email, token: Token,is_email_verified:email_status};
                 }).then(this.toAPIResponse);
             })
     }

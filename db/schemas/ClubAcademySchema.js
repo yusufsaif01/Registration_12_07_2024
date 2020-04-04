@@ -13,9 +13,12 @@ module.exports = {
         user_id: {
             type: String
         },
-        type:{
-            type:String,
-            enum: ["club","academy"]
+        name: {
+            type: String
+        },
+        type: {
+            type: String,
+            enum: ["club", "academy"]
         },
         founded_in: {
             type: String
@@ -152,7 +155,7 @@ module.exports = {
             }
 
         }]
-},
+    },
 
     schemaName: "Club_academy_details",
 
