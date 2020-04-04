@@ -23,11 +23,11 @@ module.exports = {
         founded_in: {
             type: String
         },
+        state: {
+            type: String
+        },
         address: {
             full_address: {
-                type: String
-            },
-            state: {
                 type: String
             },
             city: {

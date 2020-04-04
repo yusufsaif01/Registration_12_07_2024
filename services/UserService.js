@@ -101,20 +101,19 @@ class UserService extends BaseService {
         member.role = role;
         member.email = email;
         member.phone = phone;
+        member.state = state; 
         let user = [];
         user.push({ 'email': email });
         if (member_type == 'player') {
             member.first_name = first_name;
             member.last_name = last_name;
             member.country = country;
-            member.state = state;            
         }
         else {
             member.name = name;
             member.type= member_type;
             let address={};
             address.country=country;
-            address.state=state;
             member.address=address;
         }
         let foundPlayer = await this.playerUtilityInst.findOne({ $or: user })
