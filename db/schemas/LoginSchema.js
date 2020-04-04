@@ -18,7 +18,7 @@ module.exports = {
 		status: {
 			type: String,
 			enum: ['active', 'inactive'],
-			default: 'active'
+			default: 'inactive'
 		},
 		token: {
 			type: String

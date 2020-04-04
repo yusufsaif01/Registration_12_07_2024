@@ -37,7 +37,7 @@ class AuthService {
                         return this.authUtilityInst.getAuthToken(User.id, User.email,loginDetails.member_type)
                     })
                     .then(async (Token) => {
-                        await this.loginUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
+                        await this.loginUtilityInst.updateOne({ user_id: User.user_id }, { token: Token,status:'active' });
                         let { id ,email, username, player_type } = User;
                         let { is_email_verified, member_type,user_id } = loginDetails;
                         return { id,user_id, email, username, token: Token, is_email_verified, member_type, player_type };
@@ -90,7 +90,7 @@ class AuthService {
     }
 
     logout(data) {
-        return this.userUtilityInst.updateOne({ user_id: data.user_id }, { is_login: false }).then((status) => {
+        return this.loginUtilityInst.updateOne({ user_id: data.user_id }, {status:'inactive', is_first_time_login: false }).then((status) => {
             return Promise.resolve(status)
         }).then(() => {
             return ActivityService.loginActivity(data.user_id, "logout");
