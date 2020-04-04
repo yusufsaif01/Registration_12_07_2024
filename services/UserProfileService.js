@@ -1,6 +1,8 @@
 const config = require('../config');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
 const errors = require("../errors");
 const _ = require("lodash");
 
@@ -18,6 +20,8 @@ class UserProfileService {
     constructor() {
         this.authUtilityInst = new AuthUtility();
         this.userUtilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
     }
 
     /**
@@ -35,27 +39,58 @@ class UserProfileService {
                 return this.setRequestData(requestedData.member_type, requestedData.updateValues)
             })
             .then((data) => {
-                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                if(requestedData.member_type=='player')
+                {
+                return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                }
+                else
+                {
+                return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                }
+
             });
     }
     setRequestData(member_type, data) {
         if (member_type == 'player') {
             let institute = {}
-            institute.school = data.school;
-            institute.college = data.college;
-            institute.university = data.university;
+            if (data.school) {
+                institute.school = data.school;
+            }
+            if (data.college) {
+                institute.college = data.college;
+            }
+            if (data.university) {
+                institute.university = data.university;
+            }
             data.institute = institute;
         } else {
             let manager = {}
             let owner = {}
             let address = {}
-            manager.name = data.manager
-            owner.name = data.owner
-            address.full_address = data.address
-            address.pincode = data.pincode
-            data.address = address;
-            data.manager = manager;
-            data.owner = owner;
+            if (data.manager) {
+                manager.name = data.manager
+            }
+            if (data.owner) {
+                owner.name = data.owner
+            }
+            if (data.address) {
+                address.full_address = data.address
+            }
+            if (data.pincode) {
+                address.pincode = data.pincode
+            }
+            if (data.country) {
+                address.country = data.country
+            }
+            if (data.city) {
+                address.city = data.city
+            }
+            if (!_.isEmpty(address))
+                data.address = address;
+            if (!_.isEmpty(manager))
+                data.manager = manager;
+            if (!_.isEmpty(owner))
+                data.owner = owner;
         }
         return Promise.resolve(data)
     }

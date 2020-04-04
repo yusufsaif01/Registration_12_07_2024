@@ -21,7 +21,7 @@ module.exports = (router) => {
         if (!loginDetails.is_email_verified) {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
         }
-        responseHandler(req, res, serviceInst.getDetails(req.authUser.member_type,{ id: req.authUser.id }).then((user) => {
+        responseHandler(req, res, serviceInst.getDetails(req.authUser.member_type, { id: req.authUser.id }).then((user) => {
             return userServiceInst.toAPIResponse(user)
         }));
     });
@@ -61,7 +61,6 @@ module.exports = (router) => {
                 return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for contact_persons")));
             }
         }
-
         if (req.body.trophies) {
             try {
                 let trophies = JSON.parse(req.body.trophies);
@@ -70,9 +69,7 @@ module.exports = (router) => {
                 console.log(e);
                 return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for trophies")));
             }
-
         }
-
         responseHandler(req, res, serviceInst.updateProfileDetails({
             member_type: req.authUser.member_type,
             id: req.authUser.id,
@@ -84,7 +81,6 @@ module.exports = (router) => {
         let serviceInst = new UserProfileService();
         let reqObj = req.body;
         let loginUtilityInst = new LoginUtility();
-
         let loginDetails = await loginUtilityInst.findOne({ user_id: req.authUser.user_id })
         if (!loginDetails.is_email_verified) {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("email is not verified")));
