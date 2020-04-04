@@ -20,19 +20,6 @@ module.exports = (router) => {
         responseHandler(req, res, serviceInst.memberRegistration(req.body).then(serviceInst.toAPIResponse));
     });
 
-    router.get('/activate', function (req, res, next) {
-
-        let authUtilityInst = new AuthUtility();
-        let serviceInst = new UserService();
-        let token = req.query.token;
-        token = "Bearer " + token;
-        responseHandler(req, res, authUtilityInst.getUserByToken(token).then((user) => {
-            return serviceInst.update({ id: user.id, updateValues: { is_email_verified: true } }).then(() => {
-                return Promise.resolve()
-            })
-        }));
-
-    })
 
     router.post('/login', function (req, res, next) {
         const authServiceInst = new AuthService();
