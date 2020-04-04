@@ -167,19 +167,25 @@ class AuthService {
 
 
         try {
-            let user = await this.userUtilityInst.findOne({ email: tokenData.email })
-            if (!user) {
-                return Promise.reject(new errors.NotFound("User not found."));
+            let user;
+            if (tokenData.member_type == 'player') {
+                user = await this.playerUtilityInst.findOne({ email: tokenData.email });
             }
-            if (!user.password) {
+            else {
+                user = await this.clubAcademyUtilityInst.findOne({ email: tokenData.email })
+            }
+
+            if (!user) {
+                return Promise.reject(new errors.Conflict("User not found"));
+            }
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
+            if (!loginDetails.password) {
                 return Promise.reject(new errors.ValidationFailed("account is not activated"))
             }
-            if (!user.is_email_verified) {
-                return Promise.reject((new errors.ValidationFailed(
-                    "email is not verified "
-                )))
+            if (!loginDetails.is_email_verified) {
+                return Promise.reject(new errors.Conflict("email is not verified"));
             }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(old_password, user.password);
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(old_password, loginDetails.password);
             if (!checkPassword) {
                 return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password" }));
             }
