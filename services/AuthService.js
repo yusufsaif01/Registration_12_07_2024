@@ -27,19 +27,20 @@ class AuthService {
 
         return this.loginValidator(email, password)
             .then(() => {
-                let User;
+                let User,loginDetails;
 
                 return this.findByCredentials(email, password)
-                    .then((user) => {
-                        User = user;
+                    .then((result) => {
+                        User = result.user;
+                        loginDetails= result.loginDetails
                         ActivityService.loginActivity(User.user_id, "login");
-                        this.userUtilityInst.updateOne({ user_id: User.user_id }, { is_login: true });
-                        return this.authUtilityInst.getAuthToken(user.id, email)
+                        return this.authUtilityInst.getAuthToken(User.id, User.email,loginDetails.member_type)
                     })
                     .then(async (Token) => {
-                        await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, email, username, is_email_verified, member_type, player_type } = User;
-                        return { id, email, username, token: Token, is_email_verified, member_type, player_type };
+                        await this.loginUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
+                        let { id ,email, username, player_type } = User;
+                        let { is_email_verified, member_type,user_id } = loginDetails;
+                        return { id,user_id, email, username, token: Token, is_email_verified, member_type, player_type };
                     })
             })
     }
@@ -64,21 +65,24 @@ class AuthService {
         try {
             let user = await this.playerUtilityInst.findOne({ $or: [{ email: email }] });
             if (!user) {
+                user = await this.clubAcademyUtilityInst.findOne({ $or: [{ email: email }] });
+                if(!user)
                 return Promise.reject(new errors.InvalidCredentials());
             }
-            if (!user.password) {
+            let loginDetails = await this.loginUtilityInst.findOne({user_id:user.user_id})
+            if (!loginDetails.password) {
                 return Promise.reject(new errors.ValidationFailed("account is not activated"))
             }
-            if (!user.is_email_verified) {
+            if (!loginDetails.is_email_verified) {
                 return Promise.reject((new errors.ValidationFailed(
                     "email is not verified "
                 )))
             }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(password, user.password);
+            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(password, loginDetails.password);
             if (!checkPassword) {
                 return Promise.reject(new errors.InvalidCredentials());
             }
-            return user;
+            return {user:user,loginDetails:loginDetails};
         } catch (err) {
             console.log(err);
             return Promise.reject(err);
