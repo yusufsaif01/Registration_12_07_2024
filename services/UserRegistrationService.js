@@ -97,7 +97,7 @@ class UserRegistrationService extends UserService {
                 .then((user) => {
                     User=user;
                     console.log('register',User)
-                    return this.authUtilityInst.getAuthToken(User.id, User.email)
+                    return this.authUtilityInst.getAuthToken(User.id, User.email,userData.member_type)
                 })
                 .then(async (Token) => {
                     let { id, email } = User;

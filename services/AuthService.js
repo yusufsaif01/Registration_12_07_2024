@@ -6,6 +6,7 @@ const UserService = require('./UserService');
 const ActivityService = require('./ActivityService');
 
 const AuthUtility = require('../db/utilities/AuthUtility');
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
@@ -18,6 +19,8 @@ class AuthService {
         this.playerUtilityInst = new PlayerUtility();
         this.loginUtilityInst = new LoginUtility();
         this.activityUtilityInst = new ActivityUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
+
     }
 
     login(email, password) {
@@ -35,8 +38,8 @@ class AuthService {
                     })
                     .then(async (Token) => {
                         await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, email, username, is_email_verified,member_type,player_type } = User;
-                        return { id, email, username, token: Token, is_email_verified,member_type,player_type };
+                        let { id, email, username, is_email_verified, member_type, player_type } = User;
+                        return { id, email, username, token: Token, is_email_verified, member_type, player_type };
                     })
             })
     }
@@ -191,27 +194,30 @@ class AuthService {
     }
 
 
-    createPassword(tokenData, password, confirmPassword) {
+    async createPassword(tokenData, password, confirmPassword) {
         return this.validateCreatePassword(tokenData, password, confirmPassword)
-            .then(() => {
-                let User;
+            .then(async () => {
+                let user;
 
+                console.log('token', tokenData)
+                if (tokenData.member_type == 'player') {
+                    user = await this.playerUtilityInst.findOne({ email: tokenData.email });
+                }
+                else {
+                    user = await this.clubAcademyUtilityInst.findOne({ email: tokenData.email })
+                }
 
-                return this.playerUtilityInst.findOne({ email: tokenData.email })
-                    .then(async (user) => {
-                        if (!user) {
-                            return Promise.reject(new errors.Conflict("User not found"));
-                        }
-                        let loginDetails = await this.loginUtilityInst.findOne({user_id:tokenData.user_id})
-                        console.log('login details',loginDetails);
-                        if (loginDetails.is_email_verified) {
-                            return Promise.reject(new errors.Conflict("Password already created"));
-                        }
-                        await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id}, { is_email_verified: true } )
-                        User = user;
+                if (!user) {
+                    return Promise.reject(new errors.Conflict("User not found"));
+                }
+                let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
+                console.log('login details', loginDetails);
+                if (loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Conflict("Password already created"));
+                }
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true })
 
-                        return this.authUtilityInst.bcryptToken(password);
-                    })
+                return this.authUtilityInst.bcryptToken(password)
                     .then((password) => {
                         return this.updateUserPassword(tokenData, password);
                     })
@@ -232,7 +238,7 @@ class AuthService {
                         if (!user) {
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
-                        
+
                         if (!user.is_email_verified) {
                             return Promise.reject(new errors.ValidationFailed(
                                 "email is not verified"
