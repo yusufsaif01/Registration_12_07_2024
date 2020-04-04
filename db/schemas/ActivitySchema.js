@@ -14,12 +14,12 @@ module.exports = {
 			type     : String,
 			required : true
 		},
-		activity_type: {
+		type: {
 			type     : String,
 			required : true
 		},
-		activity_time        : {
-			type     : Date,
+		activity        : {
+			type     : String,
 			required : true
 		},
 	},
