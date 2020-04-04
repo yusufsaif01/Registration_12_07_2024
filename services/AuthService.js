@@ -27,20 +27,20 @@ class AuthService {
 
         return this.loginValidator(email, password)
             .then(() => {
-                let User,loginDetails;
+                let User, loginDetails;
 
                 return this.findByCredentials(email, password)
                     .then((result) => {
                         User = result.user;
-                        loginDetails= result.loginDetails
+                        loginDetails = result.loginDetails
                         ActivityService.loginActivity(User.user_id, "login");
-                        return this.authUtilityInst.getAuthToken(User.id, User.email,loginDetails.member_type)
+                        return this.authUtilityInst.getAuthToken(User.id, User.email, loginDetails.member_type)
                     })
                     .then(async (Token) => {
-                        await this.loginUtilityInst.updateOne({ user_id: User.user_id }, { token: Token,status:'active' });
-                        let { id ,email, username, player_type } = User;
-                        let { is_email_verified, member_type,user_id } = loginDetails;
-                        return { id,user_id, email, username, token: Token, is_email_verified, member_type, player_type };
+                        await this.loginUtilityInst.updateOne({ user_id: User.user_id }, { token: Token, status: 'active' });
+                        let { id, email, username, player_type } = User;
+                        let { is_email_verified, member_type, user_id } = loginDetails;
+                        return { id, user_id, email, username, token: Token, is_email_verified, member_type, player_type };
                     })
             })
     }
@@ -66,10 +66,10 @@ class AuthService {
             let user = await this.playerUtilityInst.findOne({ $or: [{ email: email }] });
             if (!user) {
                 user = await this.clubAcademyUtilityInst.findOne({ $or: [{ email: email }] });
-                if(!user)
-                return Promise.reject(new errors.InvalidCredentials());
+                if (!user)
+                    return Promise.reject(new errors.NotFound("User not found"));
             }
-            let loginDetails = await this.loginUtilityInst.findOne({user_id:user.user_id})
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id })
             if (!loginDetails.password) {
                 return Promise.reject(new errors.ValidationFailed("account is not activated"))
             }
@@ -82,7 +82,7 @@ class AuthService {
             if (!checkPassword) {
                 return Promise.reject(new errors.InvalidCredentials());
             }
-            return {user:user,loginDetails:loginDetails};
+            return { user: user, loginDetails: loginDetails };
         } catch (err) {
             console.log(err);
             return Promise.reject(err);
@@ -90,7 +90,7 @@ class AuthService {
     }
 
     logout(data) {
-        return this.loginUtilityInst.updateOne({ user_id: data.user_id }, {status:'inactive', is_first_time_login: false }).then((status) => {
+        return this.loginUtilityInst.updateOne({ user_id: data.user_id }, { status: 'inactive', is_first_time_login: false }).then((status) => {
             return Promise.resolve(status)
         }).then(() => {
             return ActivityService.loginActivity(data.user_id, "logout");
@@ -109,34 +109,30 @@ class AuthService {
         return Promise.resolve(email);
     }
 
-    forgotPassword(email) {
+    async forgotPassword(email) {
 
         return this.passwordValidator(email)
-            .then(() => {
-                let User;
-                let randomString
-
-
-                return this.playerUtilityInst.findOne({ email: email })
-                    .then(async (user) => {
-                        if (!user) {
-
-                            return Promise.reject(new errors.NotFound("User not found"));
-                        }
-                        if (!user.password) {
-                            return Promise.reject(new errors.ValidationFailed("account is not activated"))
-                        }
-                        if (!user.is_email_verified) {
-                            return Promise.reject(new errors.ValidationFailed("email is not verified"));
-                        }
-                        User = user;
-
-                        return this.authUtilityInst.getAuthToken(user.id, user.email)
-                    }).then(async (Token) => {
+            .then(async () => {
+                let user = await this.playerUtilityInst.findOne({ $or: [{ email: email }] });
+                if (!user) {
+                    user = await this.clubAcademyUtilityInst.findOne({ $or: [{ email: email }] });
+                    if (!user)
+                        return Promise.reject(new errors.NotFound("User not found"));
+                }
+                let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id })
+                if (!loginDetails.password) {
+                    return Promise.reject(new errors.ValidationFailed("account is not activated"))
+                }
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject((new errors.ValidationFailed(
+                        "email is not verified "
+                    )))
+                }
+                return this.authUtilityInst.getAuthToken(user.id, user.email,loginDetails.member_type)
+                    .then(async (Token) => {
                         let url = config.app.baseURL + "reset-password?token=" + Token;
-                        // let url="http://localhost:4200/reset-password?token="+Token;
                         let notifyInst = new NotificationService();
-                        await notifyInst.forgotPassword(User, url)
+                        await notifyInst.forgotPassword(user, url)
                         return Promise.resolve();
                     })
             })
@@ -222,6 +218,7 @@ class AuthService {
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true })
 
                 return this.authUtilityInst.bcryptToken(password)
+
                     .then((password) => {
                         return this.updateUserPassword(tokenData, password);
                     })
@@ -232,26 +229,28 @@ class AuthService {
             })
 
     }
-    resetPassword(tokenData, password, confirmPassword) {
+    async resetPassword(tokenData, password, confirmPassword) {
         return this.validateCreatePassword(tokenData, password, confirmPassword)
-            .then(() => {
-                let User;
+            .then(async () => {
+                let user;
+                if (tokenData.member_type == 'player') {
+                    user = await this.playerUtilityInst.findOne({ email: tokenData.email });
+                }
+                else {
+                    user = await this.clubAcademyUtilityInst.findOne({ email: tokenData.email })
+                }
 
-                return this.userUtilityInst.findOne({ email: tokenData.email })
-                    .then(async (user) => {
-                        if (!user) {
-                            return Promise.reject(new errors.NotFound("User not found"));
-                        }
+                if (!user) {
+                    return Promise.reject(new errors.Conflict("User not found"));
+                }
+                let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
 
-                        if (!user.is_email_verified) {
-                            return Promise.reject(new errors.ValidationFailed(
-                                "email is not verified"
-                            ))
-                        }
-                        User = user;
-
-                        return this.authUtilityInst.bcryptToken(password);
-                    })
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.ValidationFailed(
+                        "email is not verified"
+                    ))
+                }
+                return this.authUtilityInst.bcryptToken(password)
                     .then((password) => {
                         return this.updateUserPassword(tokenData, password);
                     })
@@ -260,7 +259,6 @@ class AuthService {
                         return Promise.resolve();
                     });
             })
-
     }
     validateCreatePassword(token, password, confirmPassword) {
         if (!token) {
