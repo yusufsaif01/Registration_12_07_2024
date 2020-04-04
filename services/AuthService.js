@@ -6,7 +6,7 @@ const UserService = require('./UserService');
 const ActivityService = require('./ActivityService');
 
 const AuthUtility = require('../db/utilities/AuthUtility');
-const UserUtility = require('../db/utilities/UserUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
 const NotificationService = require('./NotificationService');
 
@@ -14,7 +14,7 @@ class AuthService {
 
     constructor() {
         this.authUtilityInst = new AuthUtility();
-        this.userUtilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
         this.activityUtilityInst = new ActivityUtility();
     }
 
@@ -57,7 +57,7 @@ class AuthService {
 
     async findByCredentials(email, password) {
         try {
-            let user = await this.userUtilityInst.findOne({ $or: [{ email: email }] });
+            let user = await this.playerUtilityInst.findOne({ $or: [{ email: email }] });
             if (!user) {
                 return Promise.reject(new errors.InvalidCredentials());
             }
@@ -108,7 +108,7 @@ class AuthService {
                 let randomString
 
 
-                return this.userUtilityInst.findOne({ email: email })
+                return this.playerUtilityInst.findOne({ email: email })
                     .then(async (user) => {
                         if (!user) {
 
@@ -195,7 +195,7 @@ class AuthService {
                 let User;
 
 
-                return this.userUtilityInst.findOne({ email: tokenData.email })
+                return this.playerUtilityInst.findOne({ email: tokenData.email })
                     .then(async (user) => {
                         if (!user) {
                             return Promise.reject(new errors.Conflict("User not found"));
@@ -277,7 +277,7 @@ class AuthService {
     }
 
     updateUserPassword(user, password) {
-        return this.userUtilityInst.updateOne({ email: user.email }, { password: password });
+        return this.playerUtilityInst.updateOne({ email: user.email }, { password: password });
     }
 
 }

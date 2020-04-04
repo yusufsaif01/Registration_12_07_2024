@@ -1,6 +1,6 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
-const UserUtility = require('../db/utilities/UserUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const BaseService = require("./BaseService");
 const _ = require("lodash");
@@ -10,7 +10,7 @@ class UserService extends BaseService {
 
     constructor() {
         super();
-        this.utilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
         this.authUtilityInst = new AuthUtility();
     }
 
@@ -61,7 +61,7 @@ class UserService extends BaseService {
 
     async update(requestedData = {}) {
         try {
-            return this.utilityInst.findOneAndUpdate({ "id": requestedData.id }, requestedData.updateValues);
+            return this.playerUtilityInst.findOneAndUpdate({ "id": requestedData.id }, requestedData.updateValues);
         } catch (e) {
             console.log("Error in update() of UserUtility", e);
             return Promise.reject(e);
@@ -101,7 +101,6 @@ class UserService extends BaseService {
         }
         else {
             member.name = name;
-            // member.registration_number = registration_number;
         }
 
 
@@ -114,7 +113,7 @@ class UserService extends BaseService {
         }
       
 
-        return this.utilityInst.findOne({ $or: user })
+        return this.playerUtilityInst.findOne({ $or: user })
             .then(async (user) => {
                 if (user) {
                     return Promise.reject(new errors.Conflict("User already exist."));
@@ -133,8 +132,8 @@ class UserService extends BaseService {
      * @memberof UserRegistrationService
      */
     _create(member) {
-
-        return this.utilityInst.insert(member)
+         
+        return this.playerUtilityInst.insert(member)
             .catch((err) => {
                 // .catch(errors.Conflict, (err) => {
                 console.log(err)

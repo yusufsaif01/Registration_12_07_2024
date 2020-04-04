@@ -1,7 +1,7 @@
 const PlayerSchema = require("../schemas/PlayerSchema");
 const BaseUtility = require("./BaseUtility");
 
-class UserUtility extends BaseUtility {
+class PlayerUtility extends BaseUtility {
 	constructor() {
 		super(PlayerSchema);
 	}	

@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 var config       = require('../../config');
 const errors = require('../../errors');
-const UserUtility = require('../utilities/UserUtility');
+const PlayerUtility = require('../utilities/PlayerUtility');
 
 class AuthUtility {
 
@@ -77,10 +77,10 @@ class AuthUtility {
         })
         .then(({ id, email }) => {
 
-             const _userUtilityInst = new UserUtility();
+             const _playerUtilityInst = new PlayerUtility();
             console.log(id,email);
 
-            return _userUtilityInst.findOne({ id : id});
+            return _playerUtilityInst.findOne({ id : id});
         })
         .then((user) => {
             if (!user) {
