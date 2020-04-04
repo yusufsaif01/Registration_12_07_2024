@@ -2,7 +2,7 @@
     "jwt_secret": {
         "doc": "JWT secret for signed token",
         "format": "String",
-        "default": "lms",
+        "default": "yftchain",
         "env": "JWT_SECRET",
         "arg": "jwt_secret"
     },
