@@ -39,20 +39,21 @@ class UserProfileService {
                 return this.setRequestData(requestedData.member_type, requestedData.updateValues)
             })
             .then((data) => {
-                if(requestedData.member_type=='player')
-                {
-                return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                console.log('data',data)
+                if (requestedData.member_type == 'player') {
+                    return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
                 }
-                else
-                {
-                return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                else {
+                    return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
                 }
 
             });
     }
     setRequestData(member_type, data) {
+        console.log('req',data)
         if (member_type == 'player') {
             let institute = {}
+            let height = {}
             if (data.school) {
                 institute.school = data.school;
             }
@@ -62,7 +63,16 @@ class UserProfileService {
             if (data.university) {
                 institute.university = data.university;
             }
-            data.institute = institute;
+            if (data.player_height_foot) {
+                height.feet = data.player_height_foot
+            }
+            if (data.player_height_inches) {
+                height.inches = data.player_height_inches
+            }
+            if (!_.isEmpty(institute))
+                data.institute = institute;
+            if (!_.isEmpty(height))
+                data.height = height;
         } else {
             let manager = {}
             let owner = {}
@@ -92,6 +102,7 @@ class UserProfileService {
             if (!_.isEmpty(owner))
                 data.owner = owner;
         }
+        console.log('transformed',data)
         return Promise.resolve(data)
     }
     updateProfileBio(requestedData = {}) {
@@ -101,12 +112,18 @@ class UserProfileService {
                 return this.setBioRequestData(requestedData.updateValues)
             })
             .then((data) => {
-                return this.userUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                if (requestedData.member_type == 'player') {
+                    return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                }
+                else {
+                    return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
+                }
             })
 
     }
     setBioRequestData(data) {
         let social_profiles = {};
+       
         if (data.facebook)
             social_profiles.facebook = data.facebook;
         if (data.youtube)
@@ -117,7 +134,7 @@ class UserProfileService {
             social_profiles.instagram = data.instagram;
         if (!_.isEmpty(social_profiles))
             data.social_profiles = social_profiles;
-
+            console.log('set',data)
         return Promise.resolve(data)
     }
     updateProfileBioValidation(data) {

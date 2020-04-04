@@ -23,7 +23,10 @@ module.exports = {
             type: String,
         },
         height: {
-            type: String,
+            feet: {
+                type: String
+            },
+            inches: { type: String }
         },
         weight: {
             type: String,
@@ -46,7 +49,7 @@ module.exports = {
         phone: {
             type: String
         },
-        institiute: {
+        institute: {
             school: {
                 type: String
             },
@@ -86,16 +89,16 @@ module.exports = {
             type: String
         },
         club_academy_details: {
-			head_coach_name: {
-				type: String
-			},
-			head_coach_phone: {
-				type: String
-			},
-			head_coach_email: {
-				type: String
-			}
-		},
+            head_coach_name: {
+                type: String
+            },
+            head_coach_phone: {
+                type: String
+            },
+            head_coach_email: {
+                type: String
+            }
+        },
         former_club: {
             type: String
         },

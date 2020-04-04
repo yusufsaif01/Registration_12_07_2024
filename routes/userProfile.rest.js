@@ -80,6 +80,7 @@ module.exports = (router) => {
     router.put('/update-bio', checkAuthToken, userValidator.updateBioAPIValidation, async function (req, res) {
         let serviceInst = new UserProfileService();
         let reqObj = req.body;
+        console.log(req.body)
         let loginUtilityInst = new LoginUtility();
         let loginDetails = await loginUtilityInst.findOne({ user_id: req.authUser.user_id })
         if (!loginDetails.is_email_verified) {
@@ -94,7 +95,7 @@ module.exports = (router) => {
 
         }
 
-        responseHandler(req, res, serviceInst.updateProfileBio({ id: req.authUser.id, updateValues: reqObj }));
+        responseHandler(req, res, serviceInst.updateProfileBio({ member_type: req.authUser.member_type, id: req.authUser.id, updateValues: reqObj }));
 
     });
 
