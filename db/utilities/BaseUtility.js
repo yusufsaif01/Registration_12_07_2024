@@ -71,7 +71,7 @@ class BaseUtility {
 			let result = await this.model.create(record);
 			return result;
 		} catch (e) {
-			console.log(`Error in insertMany() while inserting data for ${this.schemaObj.schemaName} :: ${e}`);
+			console.log(`Error in insert() while inserting data for ${this.schemaObj.schemaName} :: ${e}`);
 			throw e;
 		}
 	}
@@ -115,6 +115,7 @@ class BaseUtility {
 			conditions.deleted_at = { $exists: false };
 
 			let result = await this.model.updateOne(conditions, updatedDoc, options);
+			console.log(result)
 			return result;
 		} catch (e) {
 			console.log(`Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`);

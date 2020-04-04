@@ -7,6 +7,7 @@ const ActivityService = require('./ActivityService');
 
 const AuthUtility = require('../db/utilities/AuthUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
+const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
 const NotificationService = require('./NotificationService');
 
@@ -15,6 +16,7 @@ class AuthService {
     constructor() {
         this.authUtilityInst = new AuthUtility();
         this.playerUtilityInst = new PlayerUtility();
+        this.loginUtilityInst = new LoginUtility();
         this.activityUtilityInst = new ActivityUtility();
     }
 
@@ -200,12 +202,12 @@ class AuthService {
                         if (!user) {
                             return Promise.reject(new errors.Conflict("User not found"));
                         }
-                        if (user.is_email_verified) {
+                        let loginDetails = await this.loginUtilityInst.findOne({user_id:tokenData.user_id})
+                        console.log('login details',loginDetails);
+                        if (loginDetails.is_email_verified) {
                             return Promise.reject(new errors.Conflict("Password already created"));
                         }
-
-                        let serviceInst = new UserService();
-                        await serviceInst.update({ id: user.id, updateValues: { is_email_verified: true } })
+                        await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id}, { is_email_verified: true } )
                         User = user;
 
                         return this.authUtilityInst.bcryptToken(password);
@@ -230,6 +232,7 @@ class AuthService {
                         if (!user) {
                             return Promise.reject(new errors.NotFound("User not found"));
                         }
+                        
                         if (!user.is_email_verified) {
                             return Promise.reject(new errors.ValidationFailed(
                                 "email is not verified"
@@ -277,7 +280,7 @@ class AuthService {
     }
 
     updateUserPassword(user, password) {
-        return this.playerUtilityInst.updateOne({ email: user.email }, { password: password });
+        return this.loginUtilityInst.updateOne({ user_id: user.user_id }, { password: password });
     }
 
 }

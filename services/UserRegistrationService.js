@@ -1,6 +1,7 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
-const UserUtility = require('../db/utilities/UserUtility');
+const LoginUtility = require('../db/utilities/LoginUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
 const UserService = require("./UserService");
 const uuidv4 = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
@@ -21,7 +22,8 @@ class UserRegistrationService extends UserService {
      */
     constructor() {
         super();
-        this.utilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
+        this.loginUtilityInst = new LoginUtility();
         this.authUtilityInst = new AuthUtility();
     }
 
@@ -78,15 +80,21 @@ class UserRegistrationService extends UserService {
         return this.validateMemberRegistration(userData)
             .then(() => {
                 let User;
-                return this.create(userData).then((user) => {
-                    console.log('register',user)
-                 User = user;
-    
-                    return this.authUtilityInst.getAuthToken(user.id, user.email)
+                return this.create(userData)
+                .then( async(user)=>{
+                    let {user_id} =await this.loginUtilityInst.insert({member_type:userData.member_type});
+
+                     await this.playerUtilityInst.updateOne({id:user.id},{user_id:user_id})
+                     return user
+                })
+                .then((user) => {
+                    User=user;
+                    console.log('register',User)
+                    return this.authUtilityInst.getAuthToken(User.id, User.email)
                 })
                 .then(async (Token) => {
-                    await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
                     let { id, email,is_email_verified } = User;
+                    
                     let url = config.app.baseURL+"create-password?token="+Token;
                     // let url="http://localhost:4200/create-password?token="+Token;
                     let notifyInst = new NotificationService();
