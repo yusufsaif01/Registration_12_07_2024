@@ -39,10 +39,7 @@ module.exports = (router) => {
 
         responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
     });
-    // router.post('/create-password', checkAuthToken, function (req, res, next) {
-    //     const authServiceInst = new AuthService();
-    //     responseHandler(req, res, authServiceInst.createPassword(req.authUser, req.body.password, req.body.confirmPassword));
-    // })
+  
 
      router.post('/create-password',checkAuthToken,function (req, res, next) {
         const authServiceInst = new AuthService();
