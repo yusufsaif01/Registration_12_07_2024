@@ -26,6 +26,9 @@ module.exports = {
         state: {
             type: String
         },
+        country: {
+            type: String
+        },
         address: {
             full_address: {
                 type: String
@@ -113,9 +116,6 @@ module.exports = {
         registration_number: {
             type: String
         },
-        about: {
-            type: String
-        },
         bio: {
             type: String
         },
@@ -134,9 +134,6 @@ module.exports = {
             },
             instagram: {
                 type: String
-            },
-            github: {
-                type: String
             }
         },
         contact_person: [{
@@ -152,7 +149,6 @@ module.exports = {
             designation: {
                 type: String
             }
-
         }]
     },
 

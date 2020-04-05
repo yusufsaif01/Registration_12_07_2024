@@ -27,17 +27,12 @@ class UserValidator {
 
     async updateDetailsAPIValidation(req, res, next) {
         const academySchema = Joi.object().keys({
-            "contact_person": Joi.string().allow(""),
-            "trophies": Joi.string().allow(""),
-            "contact_person_name": Joi.string(),
-            "contact_person_email": Joi.string().email({ minDomainSegments: 2 }).allow(""),
-            "contact_person_phone_number": Joi.string().min(10).allow(""),
-            "contact_person_designation": Joi.string().allow(""),
+            "contact_person": Joi.array(),
+            "trophies": Joi.array(),
             "name": Joi.string().allow(""),
             "short_name": Joi.string().allow(""),
             "founded_in": Joi.number().allow(""),
             "state": Joi.string().allow(""),
-            "country": Joi.string().allow(""),
             "city": Joi.string().allow(""),
             "pincode": Joi.string().allow(""),
             "country": Joi.string().allow(""),
@@ -46,34 +41,30 @@ class UserValidator {
             "phone": Joi.string().min(10).allow(""),
             "stadium_name": Joi.string().allow(""),
             "document_type": Joi.string().allow(""),
-            "trophie_name": Joi.string().allow(""),
-            "trophie_year": Joi.string().allow(""),
-            "trophie_position": Joi.string().allow(""),
             "top_players": Joi.array().allow(""),
             "associated_players": Joi.number().allow(""),
             "head_coach": Joi.string().allow(""),
             "head_coach_email": Joi.string().allow(""),
-            "head_coach_phone": Joi.string().allow("")
-
+            "head_coach_phone": Joi.string().allow(""),
+            "top_signings":Joi.array(),
+            "document":Joi.object()
         });
         const playerSchema = Joi.object().keys({
             "player_type": Joi.string().valid("grassroot", "amateur", "professional"),
             "first_name": Joi.string().allow(""),
             "last_name": Joi.string().allow(""),
             "dob": Joi.string().allow(""),
-            "player_height_foot": Joi.string().allow(""),
-            'player_height_inches': Joi.string().allow(""),
+            "height_feet": Joi.string().allow(""),
+            'height_inches': Joi.string().allow(""),
             "weight": Joi.string().allow(""),
             "country": Joi.string().allow(""),
-            "nationality": Joi.string().allow(""),
             "state": Joi.string().allow(""),
             "city": Joi.string().allow(""),
             "school": Joi.string().allow(""),
             "college": Joi.string().allow(""),
             "university": Joi.string().allow(""),
             "phone": Joi.string().min(10).allow(""),
-            "position_priority": Joi.string().allow(""),
-            "position_name": Joi.string().allow(""),
+            "position": Joi.array().allow(""),
             "strong_foot": Joi.string().allow(""),
             "weak_foot": Joi.string().allow(""),
             "head_coach": Joi.string().allow(""),
@@ -98,13 +89,11 @@ class UserValidator {
     }
     async updateBioAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "about": Joi.string().allow(""),
             "bio": Joi.string().allow(""),
             "facebook": Joi.string().allow(""),
             "youtube": Joi.string().allow(""),
             "twitter": Joi.string().allow(""),
-            "instagram": Joi.string().allow(""),
-            "github": Joi.string().allow("")
+            "instagram": Joi.string().allow("")
         });
 
         try {

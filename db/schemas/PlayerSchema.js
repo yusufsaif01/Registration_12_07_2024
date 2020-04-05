@@ -72,9 +72,6 @@ module.exports = {
                 type: String
             }
         }],
-        about: {
-            type: String
-        },
         bio: {
             type: String
         },
@@ -105,9 +102,6 @@ module.exports = {
         former_academy: {
             type: String
         },
-        specialization: {
-            type: String
-        },
         player_type: {
             type: String,
             enum: [
@@ -128,9 +122,6 @@ module.exports = {
                 type: String
             },
             instagram: {
-                type: String
-            },
-            github: {
                 type: String
             }
         }

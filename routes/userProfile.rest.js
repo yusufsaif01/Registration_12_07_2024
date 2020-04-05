@@ -39,24 +39,6 @@ module.exports = (router) => {
             }
         }
 
-        if (req.body.contact_person) {
-            try {
-                reqObj.contact_person = JSON.parse(req.body.contact_person);
-            } catch (e) {
-                console.log(e);
-                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for contact_persons")));
-            }
-        }
-
-        if (req.body.trophies) {
-            try {
-                reqObj.trophies = JSON.parse(req.body.trophies);
-            } catch (e) {
-                console.log(e);
-                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed("Invalid value for trophies")));
-            }
-        }
-
         responseHandler(req, res, serviceInst.updateProfileDetails({
             member_type: req.authUser.member_type,
             id: req.authUser.user_id,

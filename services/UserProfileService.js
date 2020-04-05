@@ -38,9 +38,9 @@ class UserProfileService {
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
 
         if (requestedData.member_type == 'player') {
-            return this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         } else {
-            return this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         }
     }
 
