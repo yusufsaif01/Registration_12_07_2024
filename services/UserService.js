@@ -1,8 +1,9 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
 const PlayerUtility = require('../db/utilities/PlayerUtility');
-const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const AuthUtility = require('../db/utilities/AuthUtility');
+const LoginUtility = require('../db/utilities/LoginUtility');
 const BaseService = require("./BaseService");
 const _ = require("lodash");
 const UserListResponseMapper = require("../dataModels/responseMapper/UserListResponseMapper");
@@ -14,6 +15,7 @@ class UserService extends BaseService {
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.authUtilityInst = new AuthUtility();
+        this.loginUtilityInst = new LoginUtility();
     }
 
     async getList(requestedData = {}) {
@@ -46,21 +48,29 @@ class UserService extends BaseService {
         return this.utilityInst.find(filter, fields, options);
     }
 
-    async getDetails(member_type,requestedData = {}) {
+    async getDetails(user = {}) {
         try {
-            let data;
-            if(member_type=='player'){
-             data = await this.playerUtilityInst.findOne({ "id": requestedData.id });
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
+            if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return responseHandler(req, res, Promise.reject(new errors.Unauthorized("email is not verified")));
+                }
+
+                let data = {};
+                if (loginDetails.member_type == 'player') {
+                    data = await this.playerUtilityInst.findOne({ "user_id": user.user_id });
+                } else {
+                    data = await this.clubAcademyUtilityInst.findOne({ "user_id": user.user_id });
+                }
+                if (!_.isEmpty(data)) {
+                    data.member_type = loginDetails.member_type;
+                    return data;
+                } else {
+                    return Promise.reject(new errors.NotFound("User not found"));
+                }
             }
-            else
-            {
-             data = await this.clubAcademyUtilityInst.findOne({ "id": requestedData.id });
-            }
-            if (!_.isEmpty(data)) {
-                return data;
-            } else {
-                return Promise.reject(new errors.NotFound());
-            }
+            throw new errors.NotFound("User not found");
+
         } catch (e) {
             console.log("Error in getDetails() of UserUtility", e);
             return Promise.reject(e);
@@ -84,7 +94,6 @@ class UserService extends BaseService {
      * @memberof UserRegistrationService
      */
     async create({
-
         name,
         first_name,
         last_name,
@@ -101,7 +110,7 @@ class UserService extends BaseService {
         member.role = role;
         member.email = email;
         member.phone = phone;
-        member.state = state; 
+        member.state = state;
         let user = [];
         user.push({ 'email': email });
         if (member_type == 'player') {
@@ -111,10 +120,10 @@ class UserService extends BaseService {
         }
         else {
             member.name = name;
-            member.type= member_type;
-            let address={};
-            address.country=country;
-            member.address=address;
+            member.type = member_type;
+            let address = {};
+            address.country = country;
+            member.address = address;
         }
         let foundPlayer = await this.playerUtilityInst.findOne({ $or: user })
         let foundClub = await this.clubAcademyUtilityInst.findOne({ $or: user })

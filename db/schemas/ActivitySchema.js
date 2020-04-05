@@ -10,20 +10,20 @@ module.exports = {
 				return uuidv4()
 			}
 		},
-		user_id       : {
-			type     : String,
-			required : true
+		user_id: {
+			type: String,
+			required: true
 		},
 		type: {
-			type     : String,
-			required : true
+			type: String,
+			required: true
 		},
-		activity        : {
-			type     : String,
-			required : true
+		activity: {
+			type: String,
+			required: true
 		},
 	},
-	schemaName: "Activities",
+	schemaName: "activities",
 	options: {
 		timestamps: true
 	}

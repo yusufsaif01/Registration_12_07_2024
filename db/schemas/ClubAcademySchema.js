@@ -97,8 +97,7 @@ module.exports = {
                     return uuidv4()
                 }
             }
-        }
-        ],
+        }],
         top_players: {
             type: Array
         },
@@ -157,7 +156,7 @@ module.exports = {
         }]
     },
 
-    schemaName: "Club_academy_details",
+    schemaName: "club_academy_details",
 
     options: {
         timestamps: true

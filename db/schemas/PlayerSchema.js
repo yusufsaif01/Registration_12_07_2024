@@ -136,7 +136,7 @@ module.exports = {
         }
     },
 
-    schemaName: "Player_details",
+    schemaName: "player_details",
 
     options: {
         timestamps: true

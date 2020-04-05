@@ -2,7 +2,7 @@ const config = require('../config');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
-const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtiltiy');
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const errors = require("../errors");
 const _ = require("lodash");
 
@@ -33,24 +33,18 @@ class UserProfileService {
      * @memberof UserProfileService
      */
 
-    updateProfileDetails(requestedData = {}) {
-        return this.updateProfileDetailsValidation(requestedData.updateValues)
-            .then(() => {
-                return this.setRequestData(requestedData.member_type, requestedData.updateValues)
-            })
-            .then((data) => {
-                console.log('data',data)
-                if (requestedData.member_type == 'player') {
-                    return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
-                }
-                else {
-                    return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
-                }
+    async updateProfileDetails(requestedData = {}) {
+        await this.updateProfileDetailsValidation(requestedData.updateValues);
+        let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
 
-            });
+        if (requestedData.member_type == 'player') {
+            return this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+        } else {
+            return this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+        }
     }
-    setRequestData(member_type, data) {
-        console.log('req',data)
+
+    prepareProfileData(member_type, data) {
         if (member_type == 'player') {
             let institute = {}
             let height = {}
@@ -102,28 +96,22 @@ class UserProfileService {
             if (!_.isEmpty(owner))
                 data.owner = owner;
         }
-        console.log('transformed',data)
         return Promise.resolve(data)
     }
-    updateProfileBio(requestedData = {}) {
 
-        return this.updateProfileBioValidation(requestedData.updateValues).
-            then(() => {
-                return this.setBioRequestData(requestedData.updateValues)
-            })
-            .then((data) => {
-                if (requestedData.member_type == 'player') {
-                    return this.playerUtilityInst.updateOne({ 'id': requestedData.id }, data);
-                }
-                else {
-                    return this.clubAcademyUtilityInst.updateOne({ 'id': requestedData.id }, data);
-                }
-            })
-
+    async updateProfileBio(requestedData = {}) {
+        let bioData = await this.prepareBioData(requestedData.updateValues);
+        console.log({ 'user_id': requestedData.id }, bioData, requestedData.member_type);
+        if (requestedData.member_type == 'player') {
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+        } else {
+            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+        }
     }
-    setBioRequestData(data) {
+
+    prepareBioData(data) {
         let social_profiles = {};
-       
+
         if (data.facebook)
             social_profiles.facebook = data.facebook;
         if (data.youtube)
@@ -132,66 +120,51 @@ class UserProfileService {
             social_profiles.twitter = data.twitter;
         if (data.instagram)
             social_profiles.instagram = data.instagram;
+
         if (!_.isEmpty(social_profiles))
             data.social_profiles = social_profiles;
-            console.log('set',data)
+
         return Promise.resolve(data)
-    }
-    updateProfileBioValidation(data) {
-        return Promise.resolve()
     }
 
     updateProfileDetailsValidation(data) {
         const { founded_in, trophies } = data
         if (founded_in) {
-            var d = new Date();
-            var currentYear = d.getFullYear();
+            let msg = null;
+            let d = new Date();
+            let currentYear = d.getFullYear();
 
             if (founded_in > currentYear) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "founded_in is greater than " + currentYear
-                ));
+                msg = "founded_in is greater than " + currentYear
             }
             if (founded_in < 0) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "founded_in cannot be negative"
-                ));
+                msg = "founded_in cannot be negative"
             }
             if (founded_in == 0) {
-                return Promise.reject(new errors.ValidationFailed(
-                    "founded_in cannot be zero"
-                ));
+                msg = "founded_in cannot be zero"
             }
 
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(msg));
+            }
         }
         if (trophies) {
-            var d = new Date();
-            var msg;
-            var currentYear = d.getFullYear();
+            let msg = null;
+            let d = new Date();
+            let currentYear = d.getFullYear();
             trophies.forEach(element => {
-
-
                 if (element.year > currentYear) {
-
-                    msg = "trophie year is greater than " + currentYear
-
+                    msg = "trophy year is greater than " + currentYear
                 }
                 if (element.year < 0) {
-
-                    msg = "trophie year cannot be negative"
-
+                    msg = "trophy year cannot be negative"
                 }
                 if (element.year == 0) {
-
-                    msg = "trophie cannot be zero"
-
+                    msg = "trophy year cannot be zero"
                 }
             });
             if (msg) {
-                return Promise.reject(new errors.ValidationFailed(
-                    msg
-                ));
-
+                return Promise.reject(new errors.ValidationFailed(msg));
             }
         }
         return Promise.resolve()
@@ -204,91 +177,23 @@ class UserProfileService {
      * @returns
      * @memberof UserRegistrationService
      */
-    toAPIResponse({ nationality,
-        top_players,
-        first_name,
-        last_name,
-        height,
-        weight,
-        dob,
-        institiute,
-        documents,
-        about,
-        bio,
-        position,
-        strong_foot,
-        weak_foot,
-        former_club,
-        former_academy,
-        specialization,
-        player_type,
-        email,
-        name,
-        avatar_url,
-        state,
-        country,
-        city,
-        phone,
-        founded_in,
-        address,
-        stadium_name,
-        owner,
-        manager,
-        short_name,
-        contact_person,
-        trophies,
-        club_academy_details,
-        top_signings,
-        associated_players,
-        registration_number,
-        member_type,
-        social_profiles,
-        type }) {
+    toAPIResponse({
+        nationality, top_players, first_name, last_name, height, weight, dob,
+        institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
+        former_academy, specialization, player_type, email, name, avatar_url, state,
+        country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
+        contact_person, trophies, club_academy_details, top_signings, associated_players,
+        registration_number, member_type, social_profiles, type
+    }) {
         return {
-            nationality,
-            top_players,
-            first_name,
-            last_name,
-            height,
-            weight,
-            dob,
-            institiute,
-            documents,
-            about,
-            bio,
-            position,
-            strong_foot,
-            weak_foot,
-            former_club,
-            former_academy,
-            specialization,
-            player_type,
-            email,
-            name,
-            avatar_url,
-            state,
-            country,
-            city,
-            phone,
-            founded_in,
-            address,
-            stadium_name,
-            owner,
-            manager,
-            short_name,
-            contact_person,
-            trophies,
-            club_academy_details,
-            top_signings,
-            associated_players,
-            registration_number,
-            member_type,
-            social_profiles,
-            type
+            nationality, top_players, first_name, last_name, height, weight, dob,
+            institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
+            former_academy, specialization, player_type, email, name, avatar_url, state,
+            country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
+            contact_person, trophies, club_academy_details, top_signings, associated_players,
+            registration_number, member_type, social_profiles, type
         };
     }
-
-
 }
 
 module.exports = UserProfileService;

@@ -1,9 +1,6 @@
 const UserService = require('../services/UserService');
 const UserRegistrationService = require('../services/UserRegistrationService');
-
-
 const responseHandler = require('../ResponseHandler');
-
 
 module.exports = (router) => {
 
@@ -39,9 +36,6 @@ module.exports = (router) => {
         let serviceInst = new UserRegistrationService()
         responseHandler(req, res, serviceInst.employeeRegistration(req.body));
     });
-
-
-
 
     /**
      * @api {get} /user/list?page_no=1&limit=10&search=xyz user listing

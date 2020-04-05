@@ -4,12 +4,12 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 var config = require('../../config');
 const errors = require('../../errors');
-const PlayerUtility = require('../utilities/PlayerUtility');
-const ClubAcademyUtility = require('../utilities/ClubAcademyUtiltiy');
+const LoginUtility = require("./LoginUtility");
 
 class AuthUtility {
 
     constructor() {
+        this.loginUtility = new LoginUtility();
     }
 
     tokenCompare(pass1, pass2) {
@@ -17,7 +17,6 @@ class AuthUtility {
     }
 
     getAuthToken(id, email, member_type) {
-
         return this.signWithJWT(JSON.stringify({
             id,
             email,
@@ -29,21 +28,15 @@ class AuthUtility {
         return crypto.randomBytes(len).toString('hex');
     }
 
-    bcryptToken(password) {
-        return bcrypt.hash(password, 10).then((hash) => {
-            return hash;
-        })
+    async bcryptToken(password) {
+        const hash = await bcrypt.hash(password, 10);
+        return hash;
     }
 
-    bcryptTokenCompare(pass1, pass2) {
-        return bcrypt.compare(pass1, pass2).then(res => {
-            if (!res) {
-                return Promise.resolve(false);
-
-            }
-
-            return Promise.resolve(true);
-        })
+    async bcryptTokenCompare(pass1, pass2) {
+        let isMatched = await bcrypt.compare(pass1, pass2);
+        isMatched = (isMatched) ? true : false;
+        return Promise.resolve(isMatched);
     }
 
     signWithJWT(string, secretKey, expiry) {
@@ -63,7 +56,7 @@ class AuthUtility {
             return jwt.verify(token.split(' ')[1], secretKey, function (err, data) {
                 if (err) {
                     console.log(err)
-                    return reject(err);
+                    return reject(new errors.Unauthorized());
                 }
                 console.log('jwt', data)
                 return resolve(data);
@@ -71,37 +64,29 @@ class AuthUtility {
         })
     }
 
-    getUserByToken(token) {
-        console.log('token', token)
-        return this.jwtVerification(token, config.jwt.jwt_secret)
-            .catch(() => {
-                return Promise.reject(new errors.Unauthorized());
-            })
-            .then(async ({ id, email, member_type }) => {
-
-                const _playerUtilityInst = new PlayerUtility();
-                const _clubAcademyUtilityInst = new ClubAcademyUtility();
-                console.log(id, email, member_type);
-                let obj = {}
-                if (member_type == 'player') {
-                    obj = await _playerUtilityInst.findOne({ id: id });
-                    obj.member_type = member_type;
-                    return obj;
-                }
-                else {
-                    obj = await _clubAcademyUtilityInst.findOne({ id: id });
-                    obj.member_type = member_type;
-                    return obj;
-                }
-            })
-            .then((user) => {
-                if (!user) {
-                    return Promise.reject(new errors.Unauthorized());
+    async getUserByToken(token, isCheckStatus) {
+        try {
+            const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
+            const project = ["user_id", "username", "role", "member_type", "status"];
+            let user = await this.loginUtility.findOne({ user_id: id }, project);
+            if (user) {
+                if (isCheckStatus) {
+                    let status = user.status;
+                    if (status === "blocked") {
+                        throw new errors.Unauthorized("User is blocked");
+                    } else if (status !== "active") {
+                        throw new errors.Unauthorized("User is not active");
+                    }
                 }
                 return user;
-            });
+            } else {
+                throw new errors.Unauthorized();
+            }
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
-
 }
 
 module.exports = AuthUtility;

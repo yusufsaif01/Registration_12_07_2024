@@ -2,7 +2,7 @@ const uuidv4 = require('uuid/v4');
 
 module.exports = {
 	fields: {
-			user_id: {
+		user_id: {
 			type: String,
 			required: true,
 			default: function () {
@@ -17,7 +17,7 @@ module.exports = {
 		},
 		status: {
 			type: String,
-			enum: ['active', 'inactive'],
+			enum: ['active', 'inactive', 'pending', 'blocked'],
 			default: 'inactive'
 		},
 		token: {
@@ -35,7 +35,7 @@ module.exports = {
 		},
 		is_first_time_login: {
 			type: Boolean,
-			default: true
+			default: false
 		},
 		is_email_verified: {
 			type: Boolean,
@@ -46,13 +46,12 @@ module.exports = {
 			enum: ["player", "club", "academy"]
 		},
 		role: {
-            type: String,
-            enum: ["admin","member"],
-            default: 'admin'
-        },
+			type: String,
+			enum: ["admin", "player", "club", "academy"]
+		},
 	},
 
-	schemaName: "Login_details",
+	schemaName: "login_details",
 
 	options: {
 		timestamps: true
