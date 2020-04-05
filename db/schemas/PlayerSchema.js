@@ -126,6 +126,9 @@ module.exports = {
             instagram: {
                 type: String
             }
+        },
+        associated_club: {
+            type: String
         }
     },
 

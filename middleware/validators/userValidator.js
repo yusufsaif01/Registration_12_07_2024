@@ -74,7 +74,7 @@ class UserValidator {
             })),
 
             // need to remove
-            "document":Joi.any()
+            "document": Joi.any()
 
         });
 
@@ -88,7 +88,7 @@ class UserValidator {
             "phone": Joi.string().trim().min(10).required(),
 
             "position": Joi.array().items(Joi.object().keys({
-                "priority": Joi.string().trim().min(1).required(),
+                "priority": Joi.number().min(1).required(),
                 "name": Joi.string().trim().min(1).required()
             })),
 
@@ -110,7 +110,8 @@ class UserValidator {
             "former_club": Joi.string().trim().allow(""),
 
             //need to remove
-            "player_employment_contract": Joi.any()
+            "player_employment_contract": Joi.any(),
+            "associated_club": Joi.string()
         };
 
         if (req.body.player_type === "amateur") {

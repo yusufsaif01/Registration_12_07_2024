@@ -69,7 +69,7 @@ class UserProfileService {
                 data.height = height;
             if (!_.isEmpty(club_academy_details))
                 data.club_academy_details = club_academy_details;
-                
+
         } else {
             let manager = {};
             let owner = {};
@@ -195,7 +195,7 @@ class UserProfileService {
         former_academy, specialization, player_type, email, name, avatar_url, state,
         country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
         contact_person, trophies, club_academy_details, top_signings, associated_players,
-        registration_number, member_type, social_profiles, type
+        registration_number, member_type, social_profiles, type, league, league_other
     }) {
         return {
             nationality, top_players, first_name, last_name, height, weight, dob,
@@ -203,7 +203,7 @@ class UserProfileService {
             former_academy, specialization, player_type, email, name, avatar_url, state,
             country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
             contact_person, trophies, club_academy_details, top_signings, associated_players,
-            registration_number, member_type, social_profiles, type
+            registration_number, member_type, social_profiles, type, league, league_other
         };
     }
 }

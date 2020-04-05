@@ -29,6 +29,9 @@ module.exports = {
         country: {
             type: String
         },
+        city: {
+            type: String
+        },
         address: {
             full_address: {
                 type: String
