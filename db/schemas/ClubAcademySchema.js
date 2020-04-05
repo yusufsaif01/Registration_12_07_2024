@@ -107,6 +107,9 @@ module.exports = {
         league: {
             type: String
         },
+        league_other: {
+            type: String
+        },
         top_signings: [{
             name: { type: String }
         }],

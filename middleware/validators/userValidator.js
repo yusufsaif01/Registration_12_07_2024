@@ -31,9 +31,7 @@ class UserValidator {
             "founded_in": Joi.number().min(1).required(),
             "country": Joi.string().trim().min(1).required(),
             "city": Joi.string().trim().required(),
-            "state": Joi.string().trim().required(),
             "phone": Joi.string().trim().min(10).required(),
-            "email": Joi.string().trim().email({ minDomainSegments: 2 }).required(),
 
             "short_name": Joi.string().trim().allow(""),
             "pincode": Joi.string().trim().allow(""),
@@ -48,31 +46,36 @@ class UserValidator {
             "owner": Joi.object().keys({
                 "name": Joi.string().trim().min(1),
                 "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone": Joi.string().trim().min(10)
+                "phone_number": Joi.string().trim().min(10)
             }),
             "manager": Joi.object().keys({
                 "name": Joi.string().trim().min(1),
                 "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone": Joi.string().trim().min(10)
+                "phone_number": Joi.string().trim().min(10)
             }),
             "top_signings": Joi.array().items(Joi.object().keys({
                 "name": Joi.string().trim().min(1)
             })),
             "league": Joi.string().trim().min(1),
+            "league_other": Joi.string().trim().min(1),
             "contact_person": Joi.array().items(Joi.object().keys({
                 "name": Joi.string().trim().min(1),
                 "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone": Joi.string().trim().min(10),
+                "phone_number": Joi.string().trim().min(10),
                 "designation": Joi.string().trim()
             })),
             "trophies": Joi.array().items(Joi.object().keys({
                 "name": Joi.string().trim().min(1),
                 "year": Joi.number().min(1),
-                "position": Joi.number().min(1)
+                "position": Joi.string().min(1)
             })),
             "top_players": Joi.array().items(Joi.object().keys({
                 "name": Joi.string().trim().min(1)
             })),
+
+            // need to remove
+            "document":Joi.any()
+
         });
 
         let playerRule = {
@@ -83,12 +86,11 @@ class UserValidator {
             "country": Joi.string().trim().min(1).required(),
             "state": Joi.string().trim().min(1).required(),
             "phone": Joi.string().trim().min(10).required(),
-            "email": Joi.string().trim().email({ minDomainSegments: 2 }).required(),
 
             "position": Joi.array().items(Joi.object().keys({
                 "priority": Joi.string().trim().min(1).required(),
                 "name": Joi.string().trim().min(1).required()
-            })).required(),
+            })),
 
             "strong_foot": Joi.string().trim().min(1).valid("right", "left").required(),
             "weak_foot": Joi.number().min(1).max(5),
@@ -105,7 +107,10 @@ class UserValidator {
             "head_coach": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
-            "former_club": Joi.string().trim().allow("")
+            "former_club": Joi.string().trim().allow(""),
+
+            //need to remove
+            "player_employment_contract": Joi.any()
         };
 
         if (req.body.player_type === "amateur") {
