@@ -46,53 +46,65 @@ class UserProfileService {
 
     prepareProfileData(member_type, data) {
         if (member_type == 'player') {
-            let institute = {}
-            let height = {}
-            if (data.school) {
-                institute.school = data.school;
-            }
-            if (data.college) {
-                institute.college = data.college;
-            }
-            if (data.university) {
-                institute.university = data.university;
-            }
-            if (data.player_height_foot) {
-                height.feet = data.player_height_foot
-            }
-            if (data.player_height_inches) {
-                height.inches = data.player_height_inches
-            }
+            let institute = {
+                "school": data.school ? data.school : null,
+                "college": data.college ? data.college : null,
+                "university": data.university ? data.university : null
+            };
+            let height = {
+                "feet": data.height_feet ? data.height_feet : null,
+                "inches": data.height_inches ? data.height_inches : null
+            };
+
+            let club_academy_details = {
+                "head_coach_name": data.head_coach_name ? data.head_coach_name : "",
+                "head_coach_phone": data.head_coach_phone ? data.head_coach_phone : "",
+                "head_coach_email": data.head_coach_email ? data.head_coach_email : ""
+            };
+
             if (!_.isEmpty(institute))
                 data.institute = institute;
+
             if (!_.isEmpty(height))
                 data.height = height;
+            if (!_.isEmpty(club_academy_details))
+                data.club_academy_details = club_academy_details;
+                
         } else {
-            let manager = {}
-            let owner = {}
-            let address = {}
+            let manager = {};
+            let owner = {};
+            let address = {};
+
             if (data.manager) {
                 manager.name = data.manager
             }
+
             if (data.owner) {
                 owner.name = data.owner
             }
+
             if (data.address) {
                 address.full_address = data.address
             }
+
             if (data.pincode) {
                 address.pincode = data.pincode
             }
+
             if (data.country) {
                 address.country = data.country
             }
+
             if (data.city) {
                 address.city = data.city
             }
+
             if (!_.isEmpty(address))
                 data.address = address;
+
             if (!_.isEmpty(manager))
                 data.manager = manager;
+
             if (!_.isEmpty(owner))
                 data.owner = owner;
         }
