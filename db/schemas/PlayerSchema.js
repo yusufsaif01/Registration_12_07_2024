@@ -26,7 +26,9 @@ module.exports = {
             feet: {
                 type: String
             },
-            inches: { type: String }
+            inches: {
+                type: String
+            }
         },
         weight: {
             type: String,
