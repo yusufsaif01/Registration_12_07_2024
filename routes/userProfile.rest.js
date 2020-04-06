@@ -10,59 +10,74 @@ const errors = require("../errors");
 module.exports = (router) => {
 
     router.get('/profile', checkAuthToken, async function (req, res) {
-        let serviceInst = new UserService();
-        let userServiceInst = new UserProfileService();
+        try {
+            let serviceInst = new UserService();
+            let userServiceInst = new UserProfileService();
 
-        responseHandler(req, res, serviceInst.getDetails(req.authUser).then((user) => {
-            return userServiceInst.toAPIResponse(user);
-        }));
+            responseHandler(req, res, serviceInst.getDetails(req.authUser).then((user) => {
+                return userServiceInst.toAPIResponse(user);
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+
     });
 
     router.put('/update-details', checkAuthToken, userValidator.updateDetailsAPIValidation, async function (req, res) {
-        let serviceInst = new UserProfileService();
+        try {
+            let serviceInst = new UserProfileService();
+            let reqObj = await serviceInst.uploadProfileDocuments(req.body, req.files);
 
-        let reqObj = req.body;
-        if (req.files) {
-            reqObj.documents = [];
-            const _fileInst = new FileService();
-            if (req.files.aadhar) {
-                let file_url = await _fileInst.uploadFile(req.files.aadhar, "./documents/", req.files.aadhar.name);
-                reqObj.documents.push({ link: file_url, type: 'aadhar' });
-            }
-            if (req.files.aiff) {
-                let file_url = await _fileInst.uploadFile(req.files.aiff, "./documents/", req.files.aiff.name);
-                reqObj.documents.push({ link: file_url, type: 'aiff' });
-            }
-            if (req.body.document_type && req.files.document) {
-                let file_url = await _fileInst.uploadFile(req.files.document, "./documents/", req.files.document.name);
-                reqObj.documents.push({ link: file_url, type: req.body.document_type });
-            }
+            responseHandler(req, res, serviceInst.updateProfileDetails({
+                member_type: req.authUser.member_type,
+                id: req.authUser.user_id,
+                updateValues: reqObj
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
         }
-
-        responseHandler(req, res, serviceInst.updateProfileDetails({
-            member_type: req.authUser.member_type,
-            id: req.authUser.user_id,
-            updateValues: reqObj
-        }));
-
     });
 
     router.put('/update-bio', checkAuthToken, userValidator.updateBioAPIValidation, async function (req, res) {
-        let serviceInst = new UserProfileService();
-        let reqObj = req.body;
+        try {
+            let serviceInst = new UserProfileService();
+            let reqObj = req.body;
 
-        if (req.files) {
-            const _fileInst = new FileService();
-            if (req.files.avatar) {
-                let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
-                reqObj.avatar_url = avatar_url;
+            if (req.files) {
+                const _fileInst = new FileService();
+                if (req.files.avatar) {
+                    let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
+                    reqObj.avatar_url = avatar_url;
+                }
             }
+            responseHandler(req, res, serviceInst.updateProfileBio({
+                member_type: req.authUser.member_type,
+                id: req.authUser.user_id,
+                updateValues: reqObj
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
         }
-        responseHandler(req, res, serviceInst.updateProfileBio({
-            member_type: req.authUser.member_type,
-            id: req.authUser.user_id,
-            updateValues: reqObj
-        }));
+    });
+
+    router.delete('/avatar', checkAuthToken, async function (req, res) {
+        try {
+            let serviceInst = new UserProfileService();
+            responseHandler(req, res, serviceInst.updateProfileBio({
+                member_type: req.authUser.member_type,
+                id: req.authUser.user_id,
+                updateValues: {
+                    avatar_url: "/uploads/avatar/user-avatar.png"
+                }
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+
     });
 };
 

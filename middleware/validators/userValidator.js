@@ -42,36 +42,16 @@ class UserValidator {
             "head_coach": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
-
-            "owner": Joi.object().keys({
-                "name": Joi.string().trim().min(1),
-                "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone_number": Joi.string().trim().min(10)
-            }),
-            "manager": Joi.object().keys({
-                "name": Joi.string().trim().min(1),
-                "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone_number": Joi.string().trim().min(10)
-            }),
-            "top_signings": Joi.array().items(Joi.object().keys({
-                "name": Joi.string().trim().min(1)
-            })),
+           
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
-            "contact_person": Joi.array().items(Joi.object().keys({
-                "name": Joi.string().trim().min(1),
-                "email": Joi.string().trim().email({ minDomainSegments: 2 }),
-                "phone_number": Joi.string().trim().min(10),
-                "designation": Joi.string().trim()
-            })),
-            "trophies": Joi.array().items(Joi.object().keys({
-                "name": Joi.string().trim().min(1),
-                "year": Joi.number().min(1),
-                "position": Joi.string().min(1)
-            })),
-            "top_players": Joi.array().items(Joi.object().keys({
-                "name": Joi.string().trim().min(1)
-            })),
+
+            "owner":Joi.string(),
+            "manager":Joi.string(),
+            "top_signings": Joi.string(),
+            "contact_person": Joi.string(),
+            "trophies": Joi.string(),
+            "top_players": Joi.string(),
 
             // need to remove
             "document": Joi.any()
@@ -87,10 +67,7 @@ class UserValidator {
             "state": Joi.string().trim().min(1).required(),
             "phone": Joi.string().trim().min(10).required(),
 
-            "position": Joi.array().items(Joi.object().keys({
-                "priority": Joi.number().min(1).required(),
-                "name": Joi.string().trim().min(1).required()
-            })),
+            "position": Joi.string().required(),
 
             "strong_foot": Joi.string().trim().min(1).valid("right", "left").required(),
             "weak_foot": Joi.number().min(1).max(5),
