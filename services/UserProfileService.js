@@ -182,6 +182,103 @@ class UserProfileService {
         return Promise.resolve()
     }
 
+    async uploadProfileDocuments(reqObj = {}, files = null) {
+        try {
+            if (files) {
+                reqObj.documents = [];
+                const _fileInst = new FileService();
+                if (files.aadhar) {
+                    let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
+                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                }
+                if (files.aiff) {
+                    let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
+                    reqObj.documents.push({ link: file_url, type: 'aiff' });
+                }
+                if (files.employment_contract) {
+                    let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
+                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                }
+                if (reqObj.document_type && files.document) {
+                    let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
+                    reqObj.documents.push({ link: file_url, type: reqObj.document_type });
+                }
+            }
+
+            if (reqObj.contact_person) {
+                try {
+                    reqObj.contact_person = JSON.parse(reqObj.contact_person);
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for contact_persons");
+                }
+            }
+            if (reqObj.trophies) {
+                try {
+                    let trophies = JSON.parse(reqObj.trophies);
+                    reqObj.trophies = trophies;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for trophies");
+                }
+            }
+
+            if (reqObj.position) {
+                try {
+                    let position = JSON.parse(reqObj.position);
+                    reqObj.position = position;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for position");
+                }
+            }
+
+            if (reqObj.top_players) {
+                try {
+                    let top_players = JSON.parse(reqObj.top_players);
+                    reqObj.top_players = top_players;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for top_players");
+                }
+            }
+
+            if (reqObj.owner) {
+                try {
+                    let owner = JSON.parse(reqObj.owner);
+                    reqObj.owner = owner;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for owner");
+                }
+            }
+
+            if (reqObj.manager) {
+                try {
+                    let manager = JSON.parse(reqObj.manager);
+                    reqObj.manager = manager;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for manager");
+                }
+            }
+            
+            if (reqObj.top_signings) {
+                try {
+                    let top_signings = JSON.parse(reqObj.top_signings);
+                    reqObj.top_signings = top_signings;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed("Invalid value for top_signings");
+                }
+            }
+            
+            return reqObj;
+        } catch (e) {
+            throw e;
+        }
+    }
+
     /**
      *
      *
