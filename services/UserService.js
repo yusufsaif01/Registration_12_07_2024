@@ -38,7 +38,7 @@ class UserService extends BaseService {
                 professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
                 grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
                 data = await this._search(conditions, null, options, member_type);
-                data = new UserListResponseMapper().map(data);
+                data = new UserListResponseMapper().map(data, member_type);
                 response = {
                     total: totalRecords,
                     records: data,
@@ -49,9 +49,16 @@ class UserService extends BaseService {
                     }
                 }
             }
-            else
+            else {
+                conditions.type = member_type
                 totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
-
+                data = await this._search(conditions, null, options, member_type);
+                data = new UserListResponseMapper().map(data, member_type);
+                response = {
+                    total: totalRecords,
+                    records: data
+                }
+            }
             return response
         } catch (e) {
             console.log("Error in getList() of UserUtility", e);
@@ -62,16 +69,21 @@ class UserService extends BaseService {
     async _search(filter, fields, options, member_type = {}) {
         if (member_type === 'player') {
             let data = {};
-            console.log('filter', filter)
             let player = await this.playerUtilityInst.find(filter, fields, options);
-
             data.player = player
-            let loginDetails = await this.loginUtilityInst.find(filter, fields, options);
+            let loginDetails = await this.loginUtilityInst.find({ member_type: member_type });
             data.loginDetails = loginDetails
             return data;
         }
-        else
-            return this.clubAcademyUtilityInst.find(filter, fields, options);
+        else {
+            let data = {};
+            filter.type = member_type;
+            let clubAcademy = await this.clubAcademyUtilityInst.find(filter, fields, options);
+            data.clubAcademy = clubAcademy
+            let loginDetails = await this.loginUtilityInst.find({ member_type: member_type });
+            data.loginDetails = loginDetails
+            return data;
+        }
     }
 
     async getDetails(user = {}) {

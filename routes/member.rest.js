@@ -4,8 +4,8 @@ const { checkAuthToken } = require('../middleware/auth');
 
 module.exports = (router) => {
     /**
-     * @api {get} /member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text member listing
-     * @apiName member listing
+     * @api {get} /member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text player listing
+     * @apiName player listing
      * @apiGroup Member
      *
      * @apiSuccess {String} status success
@@ -58,12 +58,11 @@ module.exports = (router) => {
         }
         let serviceInst = new UserService();
         responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'player',
-        status:req.authUser.status }));
+            member_type: 'player' }));
     });
     /**
-     * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text member listing
-     * @apiName member listing
+     * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text club listing
+     * @apiName club listing
      * @apiGroup Member
      *
      * @apiSuccess {String} status success
@@ -74,18 +73,13 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": { "total":100,
-     *                 "records":[{
-     *                  "name": "club name",
-     *                  "players": "total number of players",
-     *                  "email":"email of the player",
+     *       "data": {  "total":100,
+     *                  "records":[{
+     *                  "name": "name of the club",
+     *                  "no_of_players": "number of players associated",
+     *                  "email":"email of the club",
      *                  "status":"active/inactive/blocked/pending"
-     *                           }],
-     *                  “players_count”: {
-     *                  "grassroot":10,
-     *                  "professional":20,
-     *                  "amateur":15   }
-     *                }
+     *               }]}
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -115,7 +109,57 @@ module.exports = (router) => {
         }
         let serviceInst = new UserService();
         responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'club',
-        status:req.authUser.status }));
+            member_type: 'club' }));
+    });
+        /**
+     * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text academy listing
+     * @apiName academy listing
+     * @apiGroup Member
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {  "total":100,
+     *                  "records":[{
+     *                  "name": "name of the academy",
+     *                  "no_of_players": "number of players associated",
+     *                  "email":"email of the academy",
+     *                  "status":"active/inactive/blocked/pending"
+     *               }]}
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     */
+    router.get('/member/academy/list',checkAuthToken, function (req, res) {
+        let paginationOptions = {};
+        let sortOptions = {};
+        let filter = {};
+
+        paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.limit) ? Number(req.query.limit) : 10
+        };
+        sortOptions = {
+            sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "",
+            sort_order: (req.query && req.query.sort_order) ? req.query.sort_order : 1
+        };
+        filter = {
+            search: (req.query && req.query.search) ? req.query.search : null
+        }
+        let serviceInst = new UserService();
+        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
+            member_type: 'academy' }));
     });
 };
