@@ -70,6 +70,7 @@ class UserRegistrationService extends UserService {
         try {
             await this.validateMemberRegistration(userData);
             userData.user_id = uuid();
+            userData.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
 
             await this.loginUtilityInst.insert({
                 user_id: userData.user_id,

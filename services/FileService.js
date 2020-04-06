@@ -26,7 +26,7 @@ class FileService {
                     fs.mkdirSync(folderPath, { recursive: true });
                 }
                 finalPath = path.join(folderPath, fileName);
-                url = path.join("/", folder, fileName);
+                url = path.join("/", config.fileupload.uploadPath, folder, fileName);
             } catch (err) {
                 console.log(err);
                 return Promise.reject(new errors.UploadError());

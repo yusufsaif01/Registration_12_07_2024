@@ -62,6 +62,23 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     });
+
+    router.delete('/avatar', checkAuthToken, async function (req, res) {
+        try {
+            let serviceInst = new UserService();
+            responseHandler(req, res, serviceInst.updateProfileBio({
+                member_type: req.authUser.member_type,
+                id: req.authUser.user_id,
+                updateValues: {
+                    avatar_url: "/uploads/avatar/user-avatar.png"
+                }
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+
+    });
 };
 
 

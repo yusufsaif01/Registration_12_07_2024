@@ -64,6 +64,7 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    console.log(data);
                     return data;
                 } else {
                     return Promise.reject(new errors.NotFound("User not found"));
