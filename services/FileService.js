@@ -5,9 +5,6 @@ const errors = require("../errors");
 const config = require("../config");
 const fs = require('fs');
 
-
-
-
 class FileService {
 
     uploadFile(file, folder, fileName, allowedExt = []) {
@@ -42,18 +39,6 @@ class FileService {
             });
         });
     }
-
-
-
-    // uploadAvatar(filePath) {
-    //     if(!filePath){
-    //         return new Promise.reject();    
-    //     }
-    //     let finalPath = path.normalize(path.join(__basedir, config.fileupload.uploadPath, filePath));
-    //     return new Promise.resolve(finalPath);
-    // }
-
-
 }
 
 module.exports = FileService;

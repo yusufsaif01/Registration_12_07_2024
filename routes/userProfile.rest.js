@@ -33,6 +33,10 @@ module.exports = (router) => {
                 let file_url = await _fileInst.uploadFile(req.files.aiff, "./documents/", req.files.aiff.name);
                 reqObj.documents.push({ link: file_url, type: 'aiff' });
             }
+            if (req.files.employment_contract) {
+                let file_url = await _fileInst.uploadFile(req.files.employment_contract, "./documents/", req.files.employment_contract.name);
+                reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+            }
             if (req.body.document_type && req.files.document) {
                 let file_url = await _fileInst.uploadFile(req.files.document, "./documents/", req.files.document.name);
                 reqObj.documents.push({ link: file_url, type: req.body.document_type });

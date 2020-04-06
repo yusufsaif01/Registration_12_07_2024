@@ -13,6 +13,7 @@ class Route {
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));
+		app.use("/", express.static("uploads"));
 	}
 }
 
