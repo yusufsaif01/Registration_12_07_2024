@@ -65,7 +65,7 @@ module.exports = (router) => {
 
     router.delete('/avatar', checkAuthToken, async function (req, res) {
         try {
-            let serviceInst = new UserService();
+            let serviceInst = new UserProfileService();
             responseHandler(req, res, serviceInst.updateProfileBio({
                 member_type: req.authUser.member_type,
                 id: req.authUser.user_id,
