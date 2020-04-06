@@ -2,13 +2,13 @@
 class UserListResponseMapper {
     map(users) {
         let response = [];
-        users.forEach(user => {
+        users.player.forEach((user,index) => {
             let data = {
-                "id": user.id,
-                "name": user.name,
-                "role": user.role,
-                "user_id": user.user_id,
-                "status": user.status
+                "name": user.first_name +" "+ user.last_name,
+                "position": user.position[0]?user.position[0].name:"",
+                "type": user.player_type?user.player_type:"",
+                "email": user.email,
+                "status": users.loginDetails[index]? users.loginDetails[index].status:""
             };
 
             response.push(data);

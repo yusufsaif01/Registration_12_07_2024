@@ -30,13 +30,26 @@ class UserService extends BaseService {
 
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
+            let totalRecords;
+            let member_type = requestedData.member_type;
+            if (member_type === 'player')
+                totalRecords = await this.playerUtilityInst.countList(conditions);
+            else
+                totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
 
-            let totalRecords = await this.utilityInst.countList(conditions);
-            let data = await this._search(conditions, null, options);
+            let data = await this._search(conditions, null, options, member_type);
             data = new UserListResponseMapper().map(data);
+            let amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
+            let professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
+            let grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
             return {
-                count: totalRecords,
-                records: data
+                total: totalRecords,
+                records: data,
+                players_count: {
+                    grassroot: grassroot_count,
+                    professional: professional_count,
+                    amateur: amateur_count
+                }
             };
         } catch (e) {
             console.log("Error in getList() of UserUtility", e);
@@ -44,8 +57,19 @@ class UserService extends BaseService {
         }
     }
 
-    _search(filter, fields, options = {}) {
-        return this.utilityInst.find(filter, fields, options);
+    async _search(filter, fields, options, member_type = {}) {
+        if (member_type === 'player') {
+            let data = {};
+            console.log('filter',filter)
+            let player = await this.playerUtilityInst.find(filter, fields, options);
+            
+            data.player = player
+            let loginDetails = await this.loginUtilityInst.find(filter,fields,options);
+            data.loginDetails = loginDetails
+            return data;
+        }
+        else
+            return this.clubAcademyUtilityInst.find(filter, fields, options);
     }
 
     async getDetails(user = {}) {
@@ -176,16 +200,13 @@ class UserService extends BaseService {
             condition = {
                 $or: [
                     {
-                        name: new RegExp(filters.search, "i")
+                        email: new RegExp(filters.search, "i")
                     },
                     {
-                        user_id: new RegExp(filters.search, "i")
+                        first_name: new RegExp(filters.search, "i")
                     },
                     {
-                        role: new RegExp(filters.search, "i")
-                    },
-                    {
-                        department: new RegExp(filters.search, "i")
+                        last_name: new RegExp(filters.search, "i")
                     }
                 ]
             };

@@ -4,9 +4,9 @@ const { checkAuthToken } = require('../middleware/auth');
 
 module.exports = (router) => {
     /**
-     * @api {get} /user/list?page_no=1&limit=10&search=xyz user listing
-     * @apiName user listing
-     * @apiGroup User
+     * @api {get} /member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text member listing
+     * @apiName member listing
+     * @apiGroup Member
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -16,7 +16,19 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": []
+     *       "data": { "total":100,
+     *                 "records":[{
+     *                  "name": "first_name + last_name",
+     *                  "position": "position of first priority",
+     *                  "type":"grassroot/professional/amateur",
+     *                  "email":"email of the player",
+     *                  "status":"active/inactive/blocked/pending"
+     *                           }],
+     *                  “players_count”: {
+     *                  "grassroot":10,
+     *                  "professional":20,
+     *                  "amateur":15   }
+     *                }
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -28,7 +40,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text',checkAuthToken, function (req, res) {
+    router.get('/member/player/list',checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -45,6 +57,8 @@ module.exports = (router) => {
             search: (req.query && req.query.search) ? req.query.search : null
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,member_type: req.authUser.member_type }));
+        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
+            member_type: req.authUser.member_type,
+        status:req.authUser.status }));
     });
 };
