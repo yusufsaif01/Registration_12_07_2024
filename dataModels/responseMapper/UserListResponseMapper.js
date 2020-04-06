@@ -9,7 +9,7 @@ class UserListResponseMapper {
                     "position": user.position[0] ? user.position[0].name : "",
                     "type": user.player_type ? user.player_type : "",
                     "email": user.email,
-                    "status": users.loginDetails[index] ? users.loginDetails[index].status : ""
+                    "status": users.loginDetails[index] ? users.loginDetails[index] : ""
                 };
 
                 response.push(data);
@@ -22,7 +22,7 @@ class UserListResponseMapper {
                     "name": user.name,
                     "no_of_players": user.associated_players ? user.associated_players : "",
                     "email": user.email,
-                    "status": users.loginDetails[index] ? users.loginDetails[index].status : ""
+                    "status": users.loginDetails[index] ? users.loginDetails[index] : ""
                 };
 
                 response.push(data);

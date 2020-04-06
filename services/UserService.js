@@ -65,13 +65,22 @@ class UserService extends BaseService {
             return Promise.reject(e);
         }
     }
-
+ async getStatusByUserId(users)
+ {
+     let statusArray =[];
+     for (const user of users) {
+        let {status} = await this.loginUtilityInst.findOne({ user_id:user.user_id});
+        statusArray.push(status);
+      }
+   return statusArray;
+ }
     async _search(filter, fields, options, member_type = {}) {
         if (member_type === 'player') {
             let data = {};
             let player = await this.playerUtilityInst.find(filter, fields, options);
             data.player = player
-            let loginDetails = await this.loginUtilityInst.find({ member_type: member_type });
+            
+            let loginDetails = await this.getStatusByUserId(player);
             data.loginDetails = loginDetails
             return data;
         }
@@ -80,7 +89,7 @@ class UserService extends BaseService {
             filter.type = member_type;
             let clubAcademy = await this.clubAcademyUtilityInst.find(filter, fields, options);
             data.clubAcademy = clubAcademy
-            let loginDetails = await this.loginUtilityInst.find({ member_type: member_type });
+            let loginDetails = await this.getStatusByUserId(clubAcademy);
             data.loginDetails = loginDetails
             return data;
         }
