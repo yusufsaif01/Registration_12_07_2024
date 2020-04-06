@@ -47,7 +47,7 @@ module.exports = (router) => {
 
         paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
-            limit: (req.query && req.query.limit) ? Number(req.query.limit) : 10
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
         sortOptions = {
             sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "",
@@ -98,7 +98,7 @@ module.exports = (router) => {
 
         paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
-            limit: (req.query && req.query.limit) ? Number(req.query.limit) : 10
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
         sortOptions = {
             sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "",
@@ -149,7 +149,7 @@ module.exports = (router) => {
 
         paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
-            limit: (req.query && req.query.limit) ? Number(req.query.limit) : 10
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
         sortOptions = {
             sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "",
