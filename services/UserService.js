@@ -30,27 +30,29 @@ class UserService extends BaseService {
 
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
-            let totalRecords;
-            let member_type = requestedData.member_type;
-            if (member_type === 'player')
+            let totalRecords, amateur_count, professional_count, grassroot_count;
+            let member_type = requestedData.member_type, response = {}, data;
+            if (member_type === 'player') {
                 totalRecords = await this.playerUtilityInst.countList(conditions);
+                amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
+                professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
+                grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
+                data = await this._search(conditions, null, options, member_type);
+                data = new UserListResponseMapper().map(data);
+                response = {
+                    total: totalRecords,
+                    records: data,
+                    players_count: {
+                        grassroot: grassroot_count,
+                        professional: professional_count,
+                        amateur: amateur_count
+                    }
+                }
+            }
             else
                 totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
 
-            let data = await this._search(conditions, null, options, member_type);
-            data = new UserListResponseMapper().map(data);
-            let amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
-            let professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
-            let grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
-            return {
-                total: totalRecords,
-                records: data,
-                players_count: {
-                    grassroot: grassroot_count,
-                    professional: professional_count,
-                    amateur: amateur_count
-                }
-            };
+            return response
         } catch (e) {
             console.log("Error in getList() of UserUtility", e);
             return Promise.reject(e);
@@ -60,11 +62,11 @@ class UserService extends BaseService {
     async _search(filter, fields, options, member_type = {}) {
         if (member_type === 'player') {
             let data = {};
-            console.log('filter',filter)
+            console.log('filter', filter)
             let player = await this.playerUtilityInst.find(filter, fields, options);
-            
+
             data.player = player
-            let loginDetails = await this.loginUtilityInst.find(filter,fields,options);
+            let loginDetails = await this.loginUtilityInst.find(filter, fields, options);
             data.loginDetails = loginDetails
             return data;
         }
