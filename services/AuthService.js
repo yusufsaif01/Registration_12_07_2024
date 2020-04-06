@@ -1,46 +1,42 @@
 const Promise = require("bluebird");
 const errors = require('../errors');
 const config = require('../config');
-const UserService = require('./UserService');
-
 const ActivityService = require('./ActivityService');
-
 const AuthUtility = require('../db/utilities/AuthUtility');
-const UserUtility = require('../db/utilities/UserUtility');
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility');
+const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
-const NotificationService = require('./NotificationService');
+const EmailService = require('./EmailService');
 
 class AuthService {
 
     constructor() {
         this.authUtilityInst = new AuthUtility();
-        this.userUtilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
+        this.loginUtilityInst = new LoginUtility();
         this.activityUtilityInst = new ActivityUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.emailService = new EmailService();
     }
 
-    login(email, password) {
+    async login(email, password) {
+        try {
+            await this.loginValidator(email, password);
+            const loginDetails = await this.findByCredentials(email, password);
 
-        return this.loginValidator(email, password)
-            .then(() => {
-                let User;
+            ActivityService.loginActivity(loginDetails.user_id, "login");
+            const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
+            await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
 
-                return this.findByCredentials(email, password)
-                    .then((user) => {
-                        User = user;
-                        ActivityService.loginActivity(User.user_id, "login");
-                        this.userUtilityInst.updateOne({ user_id: User.user_id }, { is_login: true });
-                        return this.authUtilityInst.getAuthToken(user.id, email)
-                    })
-                    .then(async (Token) => {
-                        await this.userUtilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                        let { id, email, username, is_email_verified,member_type,player_type } = User;
-                        return { id, email, username, token: Token, is_email_verified,member_type,player_type };
-                    })
-            })
+            return { ...loginDetails, token: tokenForAuthentication };
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
 
     loginValidator(email, password) {
-
         if (!email) {
             return Promise.reject(new errors.ValidationFailed(
                 "email is required.", { field_name: "email" }
@@ -57,41 +53,44 @@ class AuthService {
 
     async findByCredentials(email, password) {
         try {
-            let user = await this.userUtilityInst.findOne({ $or: [{ email: email }] });
-            if (!user) {
-                return Promise.reject(new errors.InvalidCredentials());
+            let loginDetails = await this.loginUtilityInst.findOne({ username: email });
+            if (loginDetails) {
+                if (!loginDetails.password) {
+                    return Promise.reject(new errors.Unauthorized("account is not activated"));
+                }
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Unauthorized("email is not verified "));
+                }
+                let isPasswordMatched = await this.authUtilityInst.bcryptTokenCompare(password, loginDetails.password);
+                if (!isPasswordMatched) {
+                    return Promise.reject(new errors.InvalidCredentials());
+                }
+                return {
+                    "user_id": loginDetails.user_id,
+                    "email": loginDetails.username,
+                    "role": loginDetails.role,
+                    "member_type": loginDetails.member_type
+                };
             }
-            if (!user.password) {
-                return Promise.reject(new errors.ValidationFailed("account is not activated"))
-            }
-            if (!user.is_email_verified) {
-                return Promise.reject((new errors.ValidationFailed(
-                    "email is not verified "
-                )))
-            }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(password, user.password);
-            if (!checkPassword) {
-                return Promise.reject(new errors.InvalidCredentials());
-            }
-            return user;
+            throw new errors.InvalidCredentials("User is not registered");
         } catch (err) {
             console.log(err);
             return Promise.reject(err);
         }
     }
 
-    logout(data) {
-        return this.userUtilityInst.updateOne({ user_id: data.user_id }, { is_login: false }).then((status) => {
-            return Promise.resolve(status)
-        }).then(() => {
-            return ActivityService.loginActivity(data.user_id, "logout");
-        }).then(() => {
-            return Promise.resolve({ "Success ": true });
-        })
+    async logout(data) {
+        try {
+            await this.loginUtilityInst.updateOne({ user_id: data.user_id }, { token: "" });
+            await ActivityService.loginActivity(data.user_id, "logout");
+            return Promise.resolve();
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
     }
 
     passwordValidator(email) {
-
         if (!email) {
             return Promise.reject(new errors.ValidationFailed(
                 "email is required.", { field_name: "email" }
@@ -100,39 +99,56 @@ class AuthService {
         return Promise.resolve(email);
     }
 
-    forgotPassword(email) {
+    async forgotPassword(email) {
+        try {
+            await this.passwordValidator(email);
+            let loginDetails = await this.loginUtilityInst.findOne({ username: email });
+            if (loginDetails) {
+                if (loginDetails.status !== "active") {
+                    return Promise.reject(new errors.ValidationFailed("account is not activated"));
+                }
+                const tokenForForgetPassword = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
+                let resetPasswordURL = config.app.baseURL + "reset-password?token=" + tokenForForgetPassword;
 
-        return this.passwordValidator(email)
-            .then(() => {
-                let User;
-                let randomString
-
-
-                return this.userUtilityInst.findOne({ email: email })
-                    .then(async (user) => {
-                        if (!user) {
-
-                            return Promise.reject(new errors.NotFound("User not found"));
-                        }
-                        if (!user.password) {
-                            return Promise.reject(new errors.ValidationFailed("account is not activated"))
-                        }
-                        if (!user.is_email_verified) {
-                            return Promise.reject(new errors.ValidationFailed("email is not verified"));
-                        }
-                        User = user;
-
-                        return this.authUtilityInst.getAuthToken(user.id, user.email)
-                    }).then(async (Token) => {
-                        let url = config.app.baseURL + "reset-password?token=" + Token;
-                        // let url="http://localhost:4200/reset-password?token="+Token;
-                        let notifyInst = new NotificationService();
-                        await notifyInst.forgotPassword(User, url)
-                        return Promise.resolve();
-                    })
-            })
+                await this.emailService.forgotPassword(email, resetPasswordURL);
+                return Promise.resolve();
+            }
+            throw new errors.Unauthorized("User is not registered");
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
     }
+
     async changePassword(tokenData, old_password, new_password, confirm_password) {
+        try {
+            await this.validateChangePassword(tokenData, old_password, new_password, confirm_password);
+
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id });
+            if (loginDetails) {
+                console.log("loginDetails", loginDetails);
+                if (loginDetails.status !== "active") {
+                    return Promise.reject(new errors.ValidationFailed("account is not activated"))
+                }
+
+                let isPasswordMatched = await this.authUtilityInst.bcryptTokenCompare(old_password, loginDetails.password);
+                if (!isPasswordMatched) {
+                    return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password" }));
+                }
+
+                let password = await this.authUtilityInst.bcryptToken(new_password);
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                return Promise.resolve();
+            }
+            throw new errors.Unauthorized("User is not registered");
+
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
+    }
+
+    validateChangePassword(tokenData, old_password, new_password, confirm_password) {
         if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
                 "token is required"
@@ -160,95 +176,46 @@ class AuthService {
             ));
         }
 
+        return Promise.resolve();
+    }
 
+
+    async createPassword(tokenData, new_password, confirmPassword) {
         try {
-            let user = await this.userUtilityInst.findOne({ email: tokenData.email })
-            if (!user) {
-                return Promise.reject(new errors.NotFound("User not found."));
+            await this.validateCreatePassword(tokenData, new_password, confirmPassword);
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
+            if (loginDetails) {
+                const password = await this.authUtilityInst.bcryptToken(new_password);
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true, status: "active", password: password });
+                return Promise.resolve();
             }
-            if (!user.password) {
-                return Promise.reject(new errors.ValidationFailed("account is not activated"))
-            }
-            if (!user.is_email_verified) {
-                return Promise.reject((new errors.ValidationFailed(
-                    "email is not verified "
-                )))
-            }
-            let checkPassword = await this.authUtilityInst.bcryptTokenCompare(old_password, user.password);
-            if (!checkPassword) {
-                return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password" }));
-            }
-
-            let password = await this.authUtilityInst.bcryptToken(new_password);
-            await this.updateUserPassword(tokenData, password);
-            return Promise.resolve();
-        } catch (err) {
-            console.log(err);
-            return Promise.reject(err);
+            throw new errors.Unauthorized("User is not registered");
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
         }
     }
 
+    async resetPassword(tokenData, new_password, confirmPassword) {
+        try {
+            await this.validateCreatePassword(tokenData, new_password, confirmPassword);
 
-    createPassword(tokenData, password, confirmPassword) {
-        return this.validateCreatePassword(tokenData, password, confirmPassword)
-            .then(() => {
-                let User;
-
-
-                return this.userUtilityInst.findOne({ email: tokenData.email })
-                    .then(async (user) => {
-                        if (!user) {
-                            return Promise.reject(new errors.Conflict("User not found"));
-                        }
-                        if (user.is_email_verified) {
-                            return Promise.reject(new errors.Conflict("Password already created"));
-                        }
-
-                        let serviceInst = new UserService();
-                        await serviceInst.update({ id: user.id, updateValues: { is_email_verified: true } })
-                        User = user;
-
-                        return this.authUtilityInst.bcryptToken(password);
-                    })
-                    .then((password) => {
-                        return this.updateUserPassword(tokenData, password);
-                    })
-                    .catch(err => { return Promise.reject(err); })
-                    .then(() => {
-                        return Promise.resolve();
-                    });
-            })
-
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
+            if (loginDetails) {
+                if (loginDetails.status !== "active") {
+                    return Promise.reject(new errors.ValidationFailed("account is not activated"));
+                }
+                const password = await this.authUtilityInst.bcryptToken(new_password);
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                return Promise.resolve();
+            }
+            throw new errors.Unauthorized("User is not registered");
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
-    resetPassword(tokenData, password, confirmPassword) {
-        return this.validateCreatePassword(tokenData, password, confirmPassword)
-            .then(() => {
-                let User;
 
-                return this.userUtilityInst.findOne({ email: tokenData.email })
-                    .then(async (user) => {
-                        if (!user) {
-                            return Promise.reject(new errors.NotFound("User not found"));
-                        }
-                        if (!user.is_email_verified) {
-                            return Promise.reject(new errors.ValidationFailed(
-                                "email is not verified"
-                            ))
-                        }
-                        User = user;
-
-                        return this.authUtilityInst.bcryptToken(password);
-                    })
-                    .then((password) => {
-                        return this.updateUserPassword(tokenData, password);
-                    })
-                    .catch(err => { return Promise.reject(err); })
-                    .then(() => {
-                        return Promise.resolve();
-                    });
-            })
-
-    }
     validateCreatePassword(token, password, confirmPassword) {
         if (!token) {
             return Promise.reject(new errors.ValidationFailed(
@@ -271,13 +238,7 @@ class AuthService {
                 "passwords do not match"
             ));
         }
-
-
-        return Promise.resolve(token, password, confirmPassword)
-    }
-
-    updateUserPassword(user, password) {
-        return this.userUtilityInst.updateOne({ email: user.email }, { password: password });
+        return Promise.resolve();
     }
 
 }

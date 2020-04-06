@@ -1,4 +1,4 @@
-const UserSchema = require("../schemas/UserSchema");
+const UserSchema = require("../schemas/LoginSchema");
 const BaseUtility = require("./BaseUtility");
 
 class UserUtility extends BaseUtility {

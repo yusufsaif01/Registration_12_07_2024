@@ -1,9 +1,6 @@
 const UserService = require('../services/UserService');
 const UserRegistrationService = require('../services/UserRegistrationService');
-
-
 const responseHandler = require('../ResponseHandler');
-
 
 module.exports = (router) => {
 
@@ -39,52 +36,6 @@ module.exports = (router) => {
         let serviceInst = new UserRegistrationService()
         responseHandler(req, res, serviceInst.employeeRegistration(req.body));
     });
-
-
-    /**
-     * @api {post} /user/create create user information
-     * @apiName Create user
-     * @apiGroup User
-     *
-     * @apiParam (body) {String} key1 description.
-     * @apiParam (body) {String} key2 description
-     *
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done",
-     *     }
-     *
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     */
-    router.post('/user/import/csv', function (req, res) {
-        try {
-            const fileService = new FileService();
-            fileService.uploadFile(req.files.csv_file, "./import-csv/", req.files.csv_file.name)
-            .then((path) => {
-                return fileService.csvReader(path)
-            }).then((rows)=> {
-                let serviceInst = new UserRegistrationService()
-                responseHandler(req, res, serviceInst.importEmployees({body: req.body, rows}));
-            });
-        } catch(err) {
-            console.log(err)
-            responseHandler(req, res, Promise.reject(err));
-        }
-    });
-
 
     /**
      * @api {get} /user/list?page_no=1&limit=10&search=xyz user listing

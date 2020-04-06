@@ -1,10 +1,12 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
-const UserUtility = require('../db/utilities/UserUtility');
+const LoginUtility = require('../db/utilities/LoginUtility');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const UserService = require("./UserService");
-const uuidv4 = require('uuid/v4');
+const uuid = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
-const NotificationService = require('./NotificationService');
+const EmailService = require('./EmailService');
 const config = require("../config");
 
 /**
@@ -21,8 +23,11 @@ class UserRegistrationService extends UserService {
      */
     constructor() {
         super();
-        this.utilityInst = new UserUtility();
+        this.playerUtilityInst = new PlayerUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.loginUtilityInst = new LoginUtility();
         this.authUtilityInst = new AuthUtility();
+        this.emailService = new EmailService();
     }
 
     /**
@@ -33,7 +38,6 @@ class UserRegistrationService extends UserService {
      * @memberof UserRegistrationService
      */
     validateMemberRegistration(registerUser) {
-        console.log('member_type',registerUser.member_type)
         if (registerUser.member_type == "player") {
             if (!registerUser.first_name) {
                 return Promise.reject(new errors.ValidationFailed(
@@ -45,26 +49,15 @@ class UserRegistrationService extends UserService {
                     "last_name is required", { field_name: "last_name" }
                 ));
             }
-        }
-        else {
+        } else {
             if (!registerUser.name) {
                 return Promise.reject(new errors.ValidationFailed(
                     "name is required", { field_name: "name" }
                 ));
             }
-
-            // if (!registerUser.registration_number) {
-            //     return Promise.reject(new errors.ValidationFailed(
-            //         "registration_number is required", { field_name: "registration_number" }
-            //     ));
-            // }
         }
-       
-
         return Promise.resolve(registerUser);
     }
-
- 
 
     /**
      *
@@ -73,94 +66,33 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    memberRegistration(userData) {
-     
-        return this.validateMemberRegistration(userData)
-            .then(() => {
-                let User;
-                return this.create(userData).then((user) => {
-                    console.log('register',user)
-                 User = user;
-    
-                    return this.authUtilityInst.getAuthToken(user.id, user.email)
-                })
-                .then(async (Token) => {
-                    await this.utilityInst.updateOne({ user_id: User.user_id }, { token: Token });
-                    let { id, email,is_email_verified } = User;
-                    let url = config.app.baseURL+"create-password?token="+Token;
-                    // let url="http://localhost:4200/create-password?token="+Token;
-                    let notifyInst = new NotificationService();
-                    await notifyInst.emailVerification(User, url)
-                    return { id, email, token: Token, is_email_verified};
-                }).then(this.toAPIResponse);
-            })
+    async memberRegistration(userData) {
+        try {
+            await this.validateMemberRegistration(userData);
+            userData.user_id = uuid();
+
+            await this.loginUtilityInst.insert({
+                user_id: userData.user_id,
+                username: userData.email,
+                status: 'pending',
+                role: userData.member_type,
+                member_type: userData.member_type
+            });
+
+            if (userData.member_type == 'player') {
+                await this.playerUtilityInst.insert(userData);
+            } else {
+                await this.clubAcademyUtilityInst.insert(userData);
+            }
+            const tokenForAccountActivation = await this.authUtilityInst.getAuthToken(userData.user_id, userData.email, userData.member_type);
+            let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
+            this.emailService.emailVerification(userData.email, accountActivationURL);
+            return Promise.resolve();
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
-
-   
-
-
-
-    /**
-     *
-     *
-     * @param {*} registerUser
-     * @returns
-     * @memberof UserRegistrationService
-     */
-    validateAdminRegistration(adminData) {
-
-        if (!adminData.email) {
-            return Promise.reject(new errors.ValidationFailed(
-                "email is required", { field_name: "email" }
-            ));
-        }
-
-        if (!adminData.password) {
-            return Promise.reject(new errors.ValidationFailed(
-                "password is required", { field_name: "password" }
-            ));
-        }
-
-        if (!adminData.user_id) {
-            return Promise.reject(new errors.ValidationFailed(
-                "user id is required", { field_name: "user_id" }
-            ));
-        }
-
-        if (!adminData.dob) {
-            return Promise.reject(new errors.ValidationFailed(
-                "dob is required", { field_name: "dob" }
-            ));
-        }
-
-        return Promise.resolve(adminData);
-    }
-
-    /**
-     *
-     *
-     * @param {*} data
-     * @returns
-     * @memberof UserRegistrationService
-     */
-    adminRegistration(data) {
-
-        data.user_id = data.user_id || uuidv4();
-        data.dob = new Date().toLocaleDateString();
-        data.doj = new Date().toLocaleDateString();
-
-        return this.validateAdminRegistration(data)
-            .then(() => {
-                return this.create(data)
-                    .then((user) => {
-                        return user
-                    }).catch(err => {
-                        console.log(err);
-                    });
-            })
-    }
-
-
 
     /**
      *
@@ -170,41 +102,12 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    toAPIResponse({
-        user_id,
-        name,
-        dob,
-        role,
-        email,
-        avatar_url,
-        state,
-        country,
-        phone,
-        token,
-        status,
-        first_name,
-        last_name,
-        member_type,
-        registration_number,
-        is_email_verified
+    toAPIResponse({ user_id, name, dob, role, email, avatar_url, state, country, phone, token,
+        status, first_name, last_name, member_type, registration_number, is_email_verified
     }) {
         return {
-            user_id,
-            name,
-            dob,
-            role,
-            email,
-            token,
-            avatar_url,
-            first_name,
-        last_name,
-        member_type,
-        registration_number,
-            state,
-            country,
-            phone,
-            status,
-            is_email_verified
+            user_id, name, dob, role, email, token, avatar_url, first_name, last_name, member_type,
+            registration_number, state, country, phone, status, is_email_verified
         };
     }
 }

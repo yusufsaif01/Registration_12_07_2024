@@ -23,7 +23,6 @@ module.exports = (router) => {
      *       }]
      *     }
      *
-     *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
      *     HTTP/1.1 500 Internal server error
      *     {
@@ -57,7 +56,6 @@ module.exports = (router) => {
      *         "state_id":"1"
      *       }
      *     }
-     *
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
      *     HTTP/1.1 500 Internal server error

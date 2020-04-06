@@ -2,52 +2,47 @@ const Promise = require('bluebird');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-var config       = require('../../config');
+var config = require('../../config');
 const errors = require('../../errors');
-const UserUtility = require('../utilities/UserUtility');
+const LoginUtility = require("./LoginUtility");
 
 class AuthUtility {
 
-	constructor() {
-    }	
+    constructor() {
+        this.loginUtility = new LoginUtility();
+    }
 
-    tokenCompare(pass1, pass2){
+    tokenCompare(pass1, pass2) {
         return this.bcryptTokenCompare(pass1, pass2);
     }
 
-    getAuthToken(id , email) {
-        
-        return this.signWithJWT(JSON.stringify({            
+    getAuthToken(id, email, member_type) {
+        return this.signWithJWT(JSON.stringify({
             id,
-            email
-        }), config.jwt.jwt_secret , config.jwt.expiry_in);
+            email,
+            member_type
+        }), config.jwt.jwt_secret, config.jwt.expiry_in);
     }
 
-    randomBytes(len=20) {
+    randomBytes(len = 20) {
         return crypto.randomBytes(len).toString('hex');
     }
 
-    bcryptToken(password) {
-        return bcrypt.hash(password, 10).then((hash)=>{
-            return hash;
-        })
+    async bcryptToken(password) {
+        const hash = await bcrypt.hash(password, 10);
+        return hash;
     }
 
-    bcryptTokenCompare(pass1, pass2) {
-        return bcrypt.compare(pass1, pass2).then(res => {
-            if (!res) {
-                return Promise.resolve(false);
-                
-            }
-            
-            return Promise.resolve(true);
-        })
+    async bcryptTokenCompare(pass1, pass2) {
+        let isMatched = await bcrypt.compare(pass1, pass2);
+        isMatched = (isMatched) ? true : false;
+        return Promise.resolve(isMatched);
     }
 
     signWithJWT(string, secretKey, expiry) {
         return new Promise((resolve, reject) => {
             let data = JSON.parse(string);
-            jwt.sign(data, secretKey, { expiresIn: expiry}, (err, token) => {
+            jwt.sign(data, secretKey, { expiresIn: expiry }, (err, token) => {
                 if (err) {
                     return reject(err);
                 }
@@ -58,38 +53,40 @@ class AuthUtility {
 
     jwtVerification(token, secretKey) {
         return new Promise((resolve, reject) => {
-            return jwt.verify(token.split(' ')[1], secretKey, function(err, data) {        
+            return jwt.verify(token.split(' ')[1], secretKey, function (err, data) {
                 if (err) {
                     console.log(err)
-                    return reject(err);
+                    return reject(new errors.Unauthorized());
                 }
-                console.log('jwt',data)
+                console.log('jwt', data)
                 return resolve(data);
             });
         })
     }
 
-    getUserByToken(token) {
-       console.log('token',token)
-        return this.jwtVerification(token, config.jwt.jwt_secret)
-        .catch(() => {
-            return Promise.reject(new errors.Unauthorized());
-        })
-        .then(({ id, email }) => {
-
-             const _userUtilityInst = new UserUtility();
-            console.log(id,email);
-
-            return _userUtilityInst.findOne({ id : id});
-        })
-        .then((user) => {
-            if (!user) {
-                return Promise.reject(new errors.Unauthorized());
+    async getUserByToken(token, isCheckStatus) {
+        try {
+            const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
+            const project = ["user_id", "username", "role", "member_type", "status"];
+            let user = await this.loginUtility.findOne({ user_id: id }, project);
+            if (user) {
+                if (isCheckStatus) {
+                    let status = user.status;
+                    if (status === "blocked") {
+                        throw new errors.Unauthorized("User is blocked");
+                    } else if (status !== "active") {
+                        throw new errors.Unauthorized("User is not active");
+                    }
+                }
+                return user;
+            } else {
+                throw new errors.Unauthorized();
             }
-            return user;
-        });
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
-
 }
 
 module.exports = AuthUtility;
