@@ -169,6 +169,67 @@ class UserService extends BaseService {
             return Promise.reject(e);
         }
     }
+    
+    async activate(user_id) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
+            if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                }
+                if (loginDetails.status === 'active') {
+                    return Promise.reject(new errors.Conflict("status is already active"));
+                }
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'active' })
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
+        } catch (e) {
+            console.log("Error in activate() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async deactivate(user_id) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
+            if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                }
+                if (loginDetails.status === 'blocked') {
+                    return Promise.reject(new errors.Conflict("status is already blocked"));
+                }
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'blocked' })
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
+        } catch (e) {
+            console.log("Error in deactivate() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async delete(user_id) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
+            if (loginDetails) {
+                let date = Date.now()
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { is_deleted: true, deleted_at: date })
+                if (loginDetails.member_type === 'player') {
+                    await this.playerUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
+                }
+                else {
+                    await this.clubAcademyUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
+                }
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
+        } catch (e) {
+            console.log("Error in delete() of UserUtility", e);
+            return Promise.reject(e);
+        }
+    }
 
     /**
      *
