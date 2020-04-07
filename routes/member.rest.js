@@ -1,6 +1,7 @@
 const UserService = require('../services/UserService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
+const LoginUtility = require('../db/utilities/LoginUtility');
 
 
 module.exports = (router) => {
@@ -41,7 +42,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list',checkAuthToken, function (req, res) {
+    router.get('/member/player/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -57,19 +58,21 @@ module.exports = (router) => {
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         };
-        filterConditions={
+        filterConditions = {
             from: (req.query && req.query.from) ? req.query.from : null,
             to: (req.query && req.query.to) ? req.query.to : null,
-            email:(req.query && req.query.email) ? req.query.email : null,
-            name:(req.query && req.query.name) ? req.query.name : null,
-            position:(req.query && req.query.position) ? req.query.position : null,
-            type:(req.query && req.query.type) ? req.query.type : null,
-            profile_status:(req.query && req.query.profile_status) ? req.query.profile_status : null,
-            email_verified:(req.query && req.query.email_verified) ? req.query.email_verified : null,
+            email: (req.query && req.query.email) ? req.query.email : null,
+            name: (req.query && req.query.name) ? req.query.name : null,
+            position: (req.query && req.query.position) ? req.query.position : null,
+            type: (req.query && req.query.type) ? req.query.type : null,
+            profile_status: (req.query && req.query.profile_status) ? req.query.profile_status : null,
+            email_verified: (req.query && req.query.email_verified) ? req.query.email_verified : null,
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,filterConditions,
-            member_type: 'player' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter, filterConditions,
+            member_type: 'player'
+        }));
     });
     /**
      * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text club listing
@@ -102,7 +105,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/club/list',checkAuthToken, function (req, res) {
+    router.get('/member/club/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -119,41 +122,43 @@ module.exports = (router) => {
             search: (req.query && req.query.search) ? req.query.search : null
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'club' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter,
+            member_type: 'club'
+        }));
     });
-        /**
-     * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text academy listing
-     * @apiName academy listing
-     * @apiGroup Member
-     *
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done",
-     *       "data": {  "total":100,
-     *                  "records":[{
-     *                  "name": "name of the academy",
-     *                  "no_of_players": "number of players associated",
-     *                  "email":"email of the academy",
-     *                  "status":"active/inactive/blocked/pending"
-     *               }]}
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     */
-    router.get('/member/academy/list',checkAuthToken, function (req, res) {
+    /**
+ * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text academy listing
+ * @apiName academy listing
+ * @apiGroup Member
+ *
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done",
+ *       "data": {  "total":100,
+ *                  "records":[{
+ *                  "name": "name of the academy",
+ *                  "no_of_players": "number of players associated",
+ *                  "email":"email of the academy",
+ *                  "status":"active/inactive/blocked/pending"
+ *               }]}
+ *     }
+ *
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ */
+    router.get('/member/academy/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -170,7 +175,40 @@ module.exports = (router) => {
             search: (req.query && req.query.search) ? req.query.search : null
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'academy' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter,
+            member_type: 'academy'
+        }));
     });
+
+    router.put('/member/status-activate/:id', checkAuthToken, function (req, res) {
+        try {
+            if (!req.params.id) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "user id is required"
+                ));
+            }
+            let id = req.params.id
+            let serviceInst = new UserService();
+            responseHandler(req, res,serviceInst.activate(id))
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    })
+    router.put('/member/status-deactivate/:id', checkAuthToken, function (req, res) {
+        try {
+            if (!req.params.id) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "user id is required"
+                ));
+            }
+            let id = req.params.id
+            let serviceInst = new UserService();
+            responseHandler(req, res,serviceInst.deactivate(id))
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    })
 };

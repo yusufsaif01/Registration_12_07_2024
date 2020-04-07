@@ -24,7 +24,7 @@ class UserService extends BaseService {
             let member_type = requestedData.member_type, response = {}, data;
 
             let conditions = this._prepareCondition(requestedData.filter);
-             
+
             let paginationOptions = requestedData.paginationOptions || {};
             let sortOptions = requestedData.sortOptions || {};
 
@@ -35,10 +35,9 @@ class UserService extends BaseService {
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
 
             if (member_type === 'player') {
-                filterConditions = this._filterCondition(requestedData.filterConditions)
-                if(filterConditions)
-                {
-                    conditions.$and=filterConditions.$and
+                let filterConditions = this._filterCondition(requestedData.filterConditions)
+                if (filterConditions) {
+                    conditions.$and = filterConditions.$and
                 }
                 response = await this.getPlayerList(conditions, options, member_type);
             } else {
@@ -152,6 +151,45 @@ class UserService extends BaseService {
     async update(requestedData = {}) {
         try {
             return this.playerUtilityInst.findOneAndUpdate({ "id": requestedData.id }, requestedData.updateValues);
+        } catch (e) {
+            console.log("Error in update() of UserUtility", e);
+            return Promise.reject(e);
+        }
+    }
+    async activate(user_id) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
+            if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                }
+                if (loginDetails.status === 'active') {
+                    return Promise.reject(new errors.Conflict("status is already active"));
+                }
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'active' })
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
+        } catch (e) {
+            console.log("Error in update() of UserUtility", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async deactivate(user_id) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
+            if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                }
+                if (loginDetails.status === 'blocked') {
+                    return Promise.reject(new errors.Conflict("status is already blocked"));
+                }
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'blocked' })
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
         } catch (e) {
             console.log("Error in update() of UserUtility", e);
             return Promise.reject(e);
