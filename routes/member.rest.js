@@ -211,4 +211,19 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     })
+    router.delete('/member/delete/:id', checkAuthToken, function (req, res) {
+        try {
+            if (!req.params.id) {
+                return Promise.reject(new errors.ValidationFailed(
+                    "user id is required"
+                ));
+            }
+            let id = req.params.id
+            let serviceInst = new UserService();
+            responseHandler(req, res,serviceInst.delete(id))
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    })
 };
