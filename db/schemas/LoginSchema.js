@@ -15,6 +15,11 @@ module.exports = {
 		password: {
 			type: String
 		},
+		profile_status: {
+			type: String,
+			enum: ['verified', 'unverified'],
+			default: 'unverified'
+		},
 		status: {
 			type: String,
 			enum: ['active', 'inactive', 'pending', 'blocked'],

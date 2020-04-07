@@ -1,4 +1,6 @@
-const uuidv4 = require('uuid/v4');
+const uuid = require('uuid/v4');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 module.exports = {
     fields: {
@@ -7,7 +9,7 @@ module.exports = {
             required: true,
             unique: true,
             default: function () {
-                return uuidv4()
+                return uuid()
             }
         },
         user_id: {
@@ -129,6 +131,9 @@ module.exports = {
         },
         associated_club: {
             type: String
+        },
+        login_details: {
+            type: Schema.Types.ObjectId, ref: 'login_details'
         }
     },
 

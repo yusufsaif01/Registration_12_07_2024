@@ -20,8 +20,11 @@ class UserService extends BaseService {
 
     async getList(requestedData = {}) {
         try {
-            let conditions = this._prepareCondition(requestedData.filter);
 
+            let member_type = requestedData.member_type, response = {}, data;
+
+            let conditions = this._prepareCondition(requestedData.filter);
+             
             let paginationOptions = requestedData.paginationOptions || {};
             let sortOptions = requestedData.sortOptions || {};
 
@@ -31,21 +34,90 @@ class UserService extends BaseService {
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
 
-            let totalRecords = await this.utilityInst.countList(conditions);
-            let data = await this._search(conditions, null, options);
-            data = new UserListResponseMapper().map(data);
-            return {
-                count: totalRecords,
-                records: data
-            };
+            if (member_type === 'player') {
+                filterConditions = this._filterCondition(requestedData.filterConditions)
+                if(filterConditions)
+                {
+                    conditions.$and=filterConditions.$and
+                }
+                response = await this.getPlayerList(conditions, options, member_type);
+            } else {
+                response = await this.getClubAcademyList(conditions, options, member_type);
+            }
+            return response
         } catch (e) {
             console.log("Error in getList() of UserUtility", e);
             return Promise.reject(e);
         }
     }
 
-    _search(filter, fields, options = {}) {
-        return this.utilityInst.find(filter, fields, options);
+    async getPlayerList(conditions, options, member_type) {
+        try {
+            let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
+
+            totalRecords = await this.playerUtilityInst.countList(conditions);
+            amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
+            professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
+            grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
+
+            let baseOptions = {
+                conditions: conditions,
+                options: options,
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 }
+            };
+
+            let toBePopulatedOptions = {
+                path: "login_details",
+                projection: { status: 1, is_email_verified: 1, profile_status: 1 }
+            };
+
+            let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
+
+            data = new UserListResponseMapper().map(data, member_type);
+            let response = {
+                total: totalRecords,
+                records: data,
+                players_count: {
+                    grassroot: grassroot_count,
+                    professional: professional_count,
+                    amateur: amateur_count
+                }
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPlayerList() of UserService", e);
+            throw e;
+        }
+    }
+
+    async getClubAcademyList(conditions, options, member_type) {
+        try {
+            conditions.member_type = member_type
+            const totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
+
+            let baseOptions = {
+                conditions: conditions,
+                options: options,
+                projection: { name: 1, associated_players: 1, email: 1 }
+            };
+
+            let toBePopulatedOptions = {
+                path: "login_details",
+                projection: { status: 1, is_email_verified: 1, profile_status: 1 }
+            };
+
+            let data = await this.clubAcademyUtilityInst.populate(baseOptions, toBePopulatedOptions);
+
+            data = new UserListResponseMapper().map(data, member_type);
+            let response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPlayerList() of UserService", e);
+            throw e;
+        }
     }
 
     async getDetails(user = {}) {
@@ -167,6 +239,51 @@ class UserService extends BaseService {
 
 
     }
+    _filterCondition(filterConditions = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filterConditions) {
+
+            if (filterConditions.email) {
+                filterArr.push({ email: new RegExp(filterConditions.email, 'i') })
+            }
+            if (filterConditions.name) {
+
+                filterArr.push({
+                    $or: [
+                        { first_name: new RegExp(filterConditions.name, 'i') },
+                        { last_name: new RegExp(filterConditions.name, 'i') }
+                    ]
+                })
+
+            }
+            if (filterConditions.position) {
+                filterArr.push({
+                    position: {
+                        $elemMatch: {
+                            name: new RegExp(filterConditions.position, 'i'),
+                            priority: 1
+                        }
+                    }
+                })
+            }
+            if (filterConditions.type) {
+                filterArr.push({ player_type: new RegExp(filterConditions.type, 'i') })
+            }
+            if (filterConditions.from && filterConditions.to) {
+                filterArr.push({
+                    createdAt: {
+                        $gte: filterConditions.from,
+                        $lte: filterConditions.to
+                    }
+                })
+            }
+            condition = {
+                $and: filterArr
+            }
+        }
+        return filterArr.length ? condition : null
+    }
 
 
 
@@ -176,16 +293,25 @@ class UserService extends BaseService {
             condition = {
                 $or: [
                     {
-                        name: new RegExp(filters.search, "i")
+                        email: new RegExp(filters.search, "i")
                     },
                     {
-                        user_id: new RegExp(filters.search, "i")
+                        first_name: new RegExp(filters.search, "i")
                     },
                     {
-                        role: new RegExp(filters.search, "i")
+                        last_name: new RegExp(filters.search, "i")
                     },
                     {
-                        department: new RegExp(filters.search, "i")
+                        player_type: new RegExp(filters.search, "i")
+                    }
+                    ,
+                    {
+                        position: {
+                            $elemMatch: {
+                                name: new RegExp(filters.search, "i"),
+                                priority: 1
+                            }
+                        }
                     }
                 ]
             };
