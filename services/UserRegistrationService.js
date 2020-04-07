@@ -8,6 +8,7 @@ const uuid = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const EmailService = require('./EmailService');
 const config = require("../config");
+const _ = require("lodash");
 
 /**
  *
@@ -37,7 +38,7 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    validateMemberRegistration(registerUser) {
+    async validateMemberRegistration(registerUser) {
         if (registerUser.member_type == "player") {
             if (!registerUser.first_name) {
                 return Promise.reject(new errors.ValidationFailed(
@@ -55,6 +56,12 @@ class UserRegistrationService extends UserService {
                     "name is required", { field_name: "name" }
                 ));
             }
+        }
+        const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
+        if (!_.isEmpty(user)) {
+            return Promise.reject(new errors.Conflict(
+                "Email is already registered"
+            ));
         }
         return Promise.resolve(registerUser);
     }
@@ -80,7 +87,7 @@ class UserRegistrationService extends UserService {
                 member_type: userData.member_type
             });
             userData.login_details = loginDetails._id;
-            
+
             if (userData.member_type == 'player') {
                 await this.playerUtilityInst.insert(userData);
             } else {
