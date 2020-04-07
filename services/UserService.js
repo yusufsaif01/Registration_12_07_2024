@@ -30,7 +30,7 @@ class UserService extends BaseService {
 
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
-            let totalRecords=0, amateur_count=0, professional_count=0, grassroot_count=0;
+            let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
             let member_type = requestedData.member_type, response = {}, data;
             if (member_type === 'player') {
                 totalRecords = await this.playerUtilityInst.countList(conditions);
@@ -65,21 +65,20 @@ class UserService extends BaseService {
             return Promise.reject(e);
         }
     }
- async getStatusByUserId(users)
- {
-     let statusArray =[];
-     for (const user of users) {
-        let {status} = await this.loginUtilityInst.findOne({ user_id:user.user_id});
-        statusArray.push(status);
-      }
-   return statusArray;
- }
+    async getStatusByUserId(users) {
+        let statusArray = [];
+        for (const user of users) {
+            let { status } = await this.loginUtilityInst.findOne({ user_id: user.user_id });
+            statusArray.push(status);
+        }
+        return statusArray;
+    }
     async _search(filter, fields, options, member_type = {}) {
         if (member_type === 'player') {
             let data = {};
             let player = await this.playerUtilityInst.find(filter, fields, options);
             data.player = player
-            
+
             let loginDetails = await this.getStatusByUserId(player);
             data.loginDetails = loginDetails
             return data;
@@ -229,6 +228,18 @@ class UserService extends BaseService {
                     },
                     {
                         last_name: new RegExp(filters.search, "i")
+                    },
+                    {
+                        player_type: new RegExp(filters.search, "i")
+                    }
+                    ,
+                    {
+                        position: {
+                            $elemMatch: {
+                                name: new RegExp(filters.search, "i"),
+                                priority: 1
+                            }
+                        }
                     }
                 ]
             };
