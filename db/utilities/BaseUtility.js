@@ -126,7 +126,7 @@ class BaseUtility {
 	async findOneAndUpdate(conditions = {}, updatedDoc = {}, options = {}) {
 		try {
 			let entity = await this.findOne(conditions, null, options)
-			if(!entity) {
+			if (!entity) {
 				return Promise.reject(new errors.NotFound());
 			}
 			conditions.deleted_at = { $exists: false };
@@ -138,6 +138,20 @@ class BaseUtility {
 		}
 	}
 
+	async populate(baseOptions = {}, toBePopulatedOptions = {}) {
+		try {
+			baseOptions.projection = (!_.isEmpty(baseOptions.projection)) ? baseOptions.projection : { "_id": 0, "__v": 0 };
+			toBePopulatedOptions.projection = (!_.isEmpty(toBePopulatedOptions.projection)) ? toBePopulatedOptions.projection : { "_id": 0, "__v": 0 };
+
+			const data = await this.model.find(baseOptions.conditions || {}, baseOptions.projection || null, baseOptions.options || {})
+				.populate({ "path": toBePopulatedOptions.path, match: toBePopulatedOptions.condition || {}, select: toBePopulatedOptions.projection || null })
+				.exec();
+			return data;
+		} catch (e) {
+			console.log(`Error in populate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
+			throw e;
+		}
+	}
 }
 
 module.exports = BaseUtility;

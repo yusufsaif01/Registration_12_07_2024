@@ -20,6 +20,9 @@ class UserService extends BaseService {
 
     async getList(requestedData = {}) {
         try {
+
+            let member_type = requestedData.member_type, response = {}, data;
+
             let conditions = this._prepareCondition(requestedData.filter);
 
             let paginationOptions = requestedData.paginationOptions || {};
@@ -30,34 +33,11 @@ class UserService extends BaseService {
 
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
-            let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
-            let member_type = requestedData.member_type, response = {}, data;
+
             if (member_type === 'player') {
-                totalRecords = await this.playerUtilityInst.countList(conditions);
-                amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
-                professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
-                grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
-                data = await this._search(conditions, null, options, member_type);
-                data = new UserListResponseMapper().map(data, member_type);
-                response = {
-                    total: totalRecords,
-                    records: data,
-                    players_count: {
-                        grassroot: grassroot_count,
-                        professional: professional_count,
-                        amateur: amateur_count
-                    }
-                }
-            }
-            else {
-                conditions.member_type = member_type
-                totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
-                data = await this._search(conditions, null, options, member_type);
-                data = new UserListResponseMapper().map(data, member_type);
-                response = {
-                    total: totalRecords,
-                    records: data
-                }
+                response = await this.getPlayerList(conditions, options, member_type);
+            } else {
+                response = await this.getClubAcademyList(conditions, options, member_type);
             }
             return response
         } catch (e) {
@@ -65,31 +45,73 @@ class UserService extends BaseService {
             return Promise.reject(e);
         }
     }
-    async getStatusByUserId(users) {
-        let statusArray = [];
-        for (const user of users) {
-            let { status } = await this.loginUtilityInst.findOne({ user_id: user.user_id });
-            statusArray.push(status);
-        }
-        return statusArray;
-    }
-    async _search(filter, fields, options, member_type = {}) {
-        if (member_type === 'player') {
-            let data = {};
-            let player = await this.playerUtilityInst.find(filter, fields, options);
-            data.player = player
 
-            let loginDetails = await this.getStatusByUserId(player);
-            data.loginDetails = loginDetails
-            return data;
+    async getPlayerList(conditions, options, member_type) {
+        try {
+            let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
+
+            totalRecords = await this.playerUtilityInst.countList(conditions);
+            amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
+            professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
+            grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
+
+            let baseOptions = {
+                conditions: conditions,
+                options: options,
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 }
+            };
+
+            let toBePopulatedOptions = {
+                path: "login_details",
+                projection: { status: 1, is_email_verified: 1, profile_status: 1 }
+            };
+
+            let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
+
+            data = new UserListResponseMapper().map(data, member_type);
+            let response = {
+                total: totalRecords,
+                records: data,
+                players_count: {
+                    grassroot: grassroot_count,
+                    professional: professional_count,
+                    amateur: amateur_count
+                }
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPlayerList() of UserService", e);
+            throw e;
         }
-        else {
-            let data = {};
-            let clubAcademy = await this.clubAcademyUtilityInst.find(filter, fields, options);
-            data.clubAcademy = clubAcademy
-            let loginDetails = await this.getStatusByUserId(clubAcademy);
-            data.loginDetails = loginDetails
-            return data;
+    }
+
+    async getClubAcademyList(conditions, options, member_type) {
+        try {
+            conditions.member_type = member_type
+            const totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
+
+            let baseOptions = {
+                conditions: conditions,
+                options: options,
+                projection: { name: 1, associated_players: 1, email: 1 }
+            };
+
+            let toBePopulatedOptions = {
+                path: "login_details",
+                projection: { status: 1, is_email_verified: 1, profile_status: 1 }
+            };
+
+            let data = await this.clubAcademyUtilityInst.populate(baseOptions, toBePopulatedOptions);
+
+            data = new UserListResponseMapper().map(data, member_type);
+            let response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPlayerList() of UserService", e);
+            throw e;
         }
     }
 
