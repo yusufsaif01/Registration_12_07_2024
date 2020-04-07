@@ -23,8 +23,8 @@ class UserService extends BaseService {
 
             let member_type = requestedData.member_type, response = {}, data;
 
-            let conditions = this._prepareCondition(requestedData.filter);
-             
+            let conditions = this._prepareSearchCondition(requestedData.filter);
+
             let paginationOptions = requestedData.paginationOptions || {};
             let sortOptions = requestedData.sortOptions || {};
 
@@ -34,12 +34,24 @@ class UserService extends BaseService {
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
 
+            if (requestedData.filterConditions && (requestedData.filterConditions.email_verified || requestedData.filterConditions.profile_status)) {
+                let _condition = {}
+                if (requestedData.filterConditions.email_verified)
+                    _condition.is_email_verified = (String(requestedData.filterConditions.email_verified).toLowerCase() === "true");
+                if (requestedData.filterConditions.profile_status)
+                    _condition.profile_status = requestedData.filterConditions.profile_status;
+
+                let users = await this.loginUtilityInst.find(_condition, { user_id: 1 });
+                users = _.map(users, "user_id");
+                conditions.user_id = { $in: users };
+            }
+
+            filterConditions = this._prepareFilterCondition(requestedData.filterConditions, member_type)
+            if (filterConditions) {
+                conditions.$and = filterConditions.$and
+            }
+
             if (member_type === 'player') {
-                filterConditions = this._filterCondition(requestedData.filterConditions)
-                if(filterConditions)
-                {
-                    conditions.$and=filterConditions.$and
-                }
                 response = await this.getPlayerList(conditions, options, member_type);
             } else {
                 response = await this.getClubAcademyList(conditions, options, member_type);
@@ -56,9 +68,9 @@ class UserService extends BaseService {
             let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
 
             totalRecords = await this.playerUtilityInst.countList(conditions);
-            amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
-            professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
-            grassroot_count = await this.playerUtilityInst.countList({ player_type: 'grassroot' })
+            amateur_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'amateur' })
+            professional_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'professional' })
+            grassroot_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'grassroot' })
 
             let baseOptions = {
                 conditions: conditions,
@@ -239,37 +251,15 @@ class UserService extends BaseService {
 
 
     }
-    _filterCondition(filterConditions = {}) {
+
+    _prepareFilterCondition(filterConditions = {}, member_type) {
         let condition = {};
         let filterArr = []
         if (filterConditions) {
-
             if (filterConditions.email) {
                 filterArr.push({ email: new RegExp(filterConditions.email, 'i') })
             }
-            if (filterConditions.name) {
 
-                filterArr.push({
-                    $or: [
-                        { first_name: new RegExp(filterConditions.name, 'i') },
-                        { last_name: new RegExp(filterConditions.name, 'i') }
-                    ]
-                })
-
-            }
-            if (filterConditions.position) {
-                filterArr.push({
-                    position: {
-                        $elemMatch: {
-                            name: new RegExp(filterConditions.position, 'i'),
-                            priority: 1
-                        }
-                    }
-                })
-            }
-            if (filterConditions.type) {
-                filterArr.push({ player_type: new RegExp(filterConditions.type, 'i') })
-            }
             if (filterConditions.from && filterConditions.to) {
                 filterArr.push({
                     createdAt: {
@@ -277,6 +267,35 @@ class UserService extends BaseService {
                         $lte: filterConditions.to
                     }
                 })
+            }
+            if (member_type === "player") {
+                if (filterConditions.name) {
+                    filterArr.push({
+                        $or: [
+                            { first_name: new RegExp(filterConditions.name, 'i') },
+                            { last_name: new RegExp(filterConditions.name, 'i') }
+                        ]
+                    });
+                }
+                if (filterConditions.position) {
+                    filterArr.push({
+                        position: {
+                            $elemMatch: {
+                                name: new RegExp(filterConditions.position, 'i'),
+                                priority: 1
+                            }
+                        }
+                    })
+                }
+                if (filterConditions.type) {
+                    filterArr.push({ player_type: new RegExp(filterConditions.type, 'i') })
+                }
+            } else {
+                if (filterConditions.name) {
+                    filterArr.push({
+                        name: new RegExp(filterConditions.name, 'i')
+                    });
+                }
             }
             condition = {
                 $and: filterArr
@@ -287,7 +306,7 @@ class UserService extends BaseService {
 
 
 
-    _prepareCondition(filters = {}) {
+    _prepareSearchCondition(filters = {}) {
         let condition = {};
         if (filters.search) {
             condition = {

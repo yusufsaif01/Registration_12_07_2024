@@ -41,7 +41,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list',checkAuthToken, function (req, res) {
+    router.get('/member/player/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -57,19 +57,21 @@ module.exports = (router) => {
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         };
-        filterConditions={
+        filterConditions = {
             from: (req.query && req.query.from) ? req.query.from : null,
             to: (req.query && req.query.to) ? req.query.to : null,
-            email:(req.query && req.query.email) ? req.query.email : null,
-            name:(req.query && req.query.name) ? req.query.name : null,
-            position:(req.query && req.query.position) ? req.query.position : null,
-            type:(req.query && req.query.type) ? req.query.type : null,
-            profile_status:(req.query && req.query.profile_status) ? req.query.profile_status : null,
-            email_verified:(req.query && req.query.email_verified) ? req.query.email_verified : null,
+            email: (req.query && req.query.email) ? req.query.email : null,
+            name: (req.query && req.query.name) ? req.query.name : null,
+            position: (req.query && req.query.position) ? req.query.position : null,
+            type: (req.query && req.query.type) ? req.query.type : null,
+            profile_status: (req.query && req.query.profile_status) ? req.query.profile_status : null,
+            email_verified: (req.query && req.query.email_verified) ? req.query.email_verified : null,
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,filterConditions,
-            member_type: 'player' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter, filterConditions,
+            member_type: 'player'
+        }));
     });
     /**
      * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text club listing
@@ -102,7 +104,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/club/list',checkAuthToken, function (req, res) {
+    router.get('/member/club/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -118,11 +120,23 @@ module.exports = (router) => {
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         }
+
+        filterConditions = {
+            from: (req.query && req.query.from) ? req.query.from : null,
+            to: (req.query && req.query.to) ? req.query.to : null,
+            email: (req.query && req.query.email) ? req.query.email : null,
+            name: (req.query && req.query.name) ? req.query.name : null,
+            profile_status: (req.query && req.query.profile_status) ? req.query.profile_status : null,
+            email_verified: (req.query && req.query.email_verified) ? req.query.email_verified : null,
+        }
+
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'club' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter, filterConditions,
+            member_type: 'club'
+        }));
     });
-        /**
+    /**
      * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text academy listing
      * @apiName academy listing
      * @apiGroup Member
@@ -153,7 +167,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/academy/list',checkAuthToken, function (req, res) {
+    router.get('/member/academy/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -169,8 +183,19 @@ module.exports = (router) => {
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         }
+
+        filterConditions = {
+            from: (req.query && req.query.from) ? req.query.from : null,
+            to: (req.query && req.query.to) ? req.query.to : null,
+            email: (req.query && req.query.email) ? req.query.email : null,
+            name: (req.query && req.query.name) ? req.query.name : null,
+            profile_status: (req.query && req.query.profile_status) ? req.query.profile_status : null,
+            email_verified: (req.query && req.query.email_verified) ? req.query.email_verified : null,
+        }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
-            member_type: 'academy' }));
+        responseHandler(req, res, serviceInst.getList({
+            paginationOptions, sortOptions, filter, filterConditions,
+            member_type: 'academy'
+        }));
     });
 };
