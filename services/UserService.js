@@ -21,7 +21,7 @@ class UserService extends BaseService {
     async getList(requestedData = {}) {
         try {
             let conditions = this._prepareCondition(requestedData.filter);
-
+             
             let paginationOptions = requestedData.paginationOptions || {};
             let sortOptions = requestedData.sortOptions || {};
 
@@ -31,8 +31,13 @@ class UserService extends BaseService {
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
             let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
-            let member_type = requestedData.member_type, response = {}, data;
+            let member_type = requestedData.member_type, response = {}, data,filterConditions;
             if (member_type === 'player') {
+                filterConditions = this._filterCondition(requestedData.filterConditions)
+                if(filterConditions)
+                {
+                    conditions.$and=filterConditions.$and
+                }
                 totalRecords = await this.playerUtilityInst.countList(conditions);
                 amateur_count = await this.playerUtilityInst.countList({ player_type: 'amateur' })
                 professional_count = await this.playerUtilityInst.countList({ player_type: 'professional' })
@@ -211,6 +216,51 @@ class UserService extends BaseService {
         }
 
 
+    }
+    _filterCondition(filterConditions = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filterConditions) {
+
+            if (filterConditions.email) {
+                filterArr.push({ email: new RegExp(filterConditions.email, 'i') })
+            }
+            if (filterConditions.name) {
+
+                filterArr.push({
+                    $or: [
+                        { first_name: new RegExp(filterConditions.name, 'i') },
+                        { last_name: new RegExp(filterConditions.name, 'i') }
+                    ]
+                })
+
+            }
+            if (filterConditions.position) {
+                filterArr.push({
+                    position: {
+                        $elemMatch: {
+                            name: new RegExp(filterConditions.position, 'i'),
+                            priority: 1
+                        }
+                    }
+                })
+            }
+            if (filterConditions.type) {
+                filterArr.push({ player_type: new RegExp(filterConditions.type, 'i') })
+            }
+            if (filterConditions.from && filterConditions.to) {
+                filterArr.push({
+                    createdAt: {
+                        $gte: filterConditions.from,
+                        $lte: filterConditions.to
+                    }
+                })
+            }
+            condition = {
+                $and: filterArr
+            }
+        }
+        return filterArr.length ? condition : null
     }
 
 

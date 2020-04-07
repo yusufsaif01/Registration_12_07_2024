@@ -1,4 +1,4 @@
-// const errors = require('../../errors');
+const errors = require('../../errors');
 const AuthUtility = require('../../db/utilities/AuthUtility');
 
 var _checkRole = (req, roles) => {

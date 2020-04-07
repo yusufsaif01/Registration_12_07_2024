@@ -2,6 +2,7 @@ const UserService = require('../services/UserService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 
+
 module.exports = (router) => {
     /**
      * @api {get} /member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text player listing
@@ -55,9 +56,19 @@ module.exports = (router) => {
         };
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
+        };
+        filterConditions={
+            from: (req.query && req.query.from) ? req.query.from : null,
+            to: (req.query && req.query.to) ? req.query.to : null,
+            email:(req.query && req.query.email) ? req.query.email : null,
+            name:(req.query && req.query.name) ? req.query.name : null,
+            position:(req.query && req.query.position) ? req.query.position : null,
+            type:(req.query && req.query.type) ? req.query.type : null,
+            profile_status:(req.query && req.query.profile_status) ? req.query.profile_status : null,
+            email_verified:(req.query && req.query.email_verified) ? req.query.email_verified : null,
         }
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,
+        responseHandler(req, res, serviceInst.getList({ paginationOptions, sortOptions, filter ,filterConditions,
             member_type: 'player' }));
     });
     /**
