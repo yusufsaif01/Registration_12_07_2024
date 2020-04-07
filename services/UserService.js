@@ -30,7 +30,7 @@ class UserService extends BaseService {
 
             if (!_.isEmpty(sortOptions.sort_by) && !_.isEmpty(sortOptions.sort_order))
                 options.sort[sortOptions.sort_by] = sortOptions.sort_order;
-            let totalRecords, amateur_count, professional_count, grassroot_count;
+            let totalRecords=0, amateur_count=0, professional_count=0, grassroot_count=0;
             let member_type = requestedData.member_type, response = {}, data;
             if (member_type === 'player') {
                 totalRecords = await this.playerUtilityInst.countList(conditions);
@@ -50,7 +50,7 @@ class UserService extends BaseService {
                 }
             }
             else {
-                conditions.type = member_type
+                conditions.member_type = member_type
                 totalRecords = await this.clubAcademyUtilityInst.countList(conditions);
                 data = await this._search(conditions, null, options, member_type);
                 data = new UserListResponseMapper().map(data, member_type);
@@ -86,7 +86,6 @@ class UserService extends BaseService {
         }
         else {
             let data = {};
-            filter.type = member_type;
             let clubAcademy = await this.clubAcademyUtilityInst.find(filter, fields, options);
             data.clubAcademy = clubAcademy
             let loginDetails = await this.getStatusByUserId(clubAcademy);

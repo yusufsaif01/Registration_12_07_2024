@@ -16,7 +16,7 @@ module.exports = {
         name: {
             type: String
         },
-        type: {
+        member_type: {
             type: String,
             enum: ["club", "academy"]
         },
