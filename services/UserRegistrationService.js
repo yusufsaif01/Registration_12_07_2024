@@ -72,14 +72,15 @@ class UserRegistrationService extends UserService {
             userData.user_id = uuid();
             userData.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
 
-            await this.loginUtilityInst.insert({
+            let loginDetails = await this.loginUtilityInst.insert({
                 user_id: userData.user_id,
                 username: userData.email,
                 status: 'pending',
                 role: userData.member_type,
                 member_type: userData.member_type
             });
-
+            userData.login_details = loginDetails._id;
+            
             if (userData.member_type == 'player') {
                 await this.playerUtilityInst.insert(userData);
             } else {
