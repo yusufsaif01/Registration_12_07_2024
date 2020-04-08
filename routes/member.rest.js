@@ -14,7 +14,7 @@ module.exports = (router) => {
 	 * @apiParam (query) {String} page_no page number.
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
-     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
      * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
@@ -101,7 +101,7 @@ module.exports = (router) => {
      * @apiParam (query) {String} page_no page number.
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
-     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
      * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
@@ -181,7 +181,7 @@ module.exports = (router) => {
      * @apiParam (query) {String} page_no page number.
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
-     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
      * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
