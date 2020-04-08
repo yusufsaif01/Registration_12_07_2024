@@ -274,7 +274,7 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
@@ -282,7 +282,7 @@ module.exports = (router) => {
      *       "httpCode": 401
 	 *     }
      * 
-     *@apiErrorExample {json} Conflict
+     *@apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
 	 *       "message": "status is already active",
@@ -329,7 +329,7 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
@@ -337,7 +337,7 @@ module.exports = (router) => {
      *       "httpCode": 401
 	 *     }
      * 
-     *@apiErrorExample {json} Conflict
+     *@apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
 	 *       "message": "status is already blocked",
@@ -384,12 +384,20 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
      *       "code": "UNAUTHORIZED",
      *       "httpCode": 401
+	 *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+	 *     HTTP/1.1 404 Not found
+	 *     {
+	 *       "message": "User not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
 	 *     }
      * 
      */
