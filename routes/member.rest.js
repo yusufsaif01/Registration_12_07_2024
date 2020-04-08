@@ -199,7 +199,47 @@ module.exports = (router) => {
             member_type: 'academy'
         }));
     });
-
+    /**
+     * @api {put} /member/status-activate/:id member status activate
+     * @apiName Status-activate
+     * @apiGroup Member
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+ 
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} Unauthorized
+	 *     HTTP/1.1 401 Unauthorized
+	 *     {
+	 *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+	 *     }
+     * 
+     *@apiErrorExample {json} Conflict
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "status is already active",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     */
     router.put('/member/status-activate/:id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.id) {
@@ -215,6 +255,47 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     })
+        /**
+     * @api {put} /member/status-deactivate/:id member status deactivate
+     * @apiName Status-activate
+     * @apiGroup Member
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+ 
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} Unauthorized
+	 *     HTTP/1.1 401 Unauthorized
+	 *     {
+	 *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+	 *     }
+     * 
+     *@apiErrorExample {json} Conflict
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "status is already blocked",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     */
     router.put('/member/status-deactivate/:id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.id) {
@@ -230,6 +311,39 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     })
+        /**
+     * @api {delete} /member/delete/:id member delete
+     * @apiName Delete
+     * @apiGroup Member
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+ 
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} Unauthorized
+	 *     HTTP/1.1 401 Unauthorized
+	 *     {
+	 *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+	 *     }
+     * 
+     */
     router.delete('/member/delete/:id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.id) {
