@@ -105,7 +105,7 @@ module.exports = {
                 type: String,
                 required: true,
                 default: function () {
-                    return uuidv4()
+                    return uuid()
                 }
             }
         }],
