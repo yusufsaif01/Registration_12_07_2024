@@ -6,9 +6,24 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 
 module.exports = (router) => {
     /**
-     * @api {get} /member/player/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text player listing
+     * @api {get} /member/player/list?page_no=<1>&page_size=<20>&sort_by=<created_at>&sort_order=<1>&search=<text>&from=<from_date>&to=<to_date>&email=<email>&name=<name>&position=<position>&type=<type>&profile_status=<profile_status>&email_verified=<email_verified>  player listing
      * @apiName player listing
      * @apiGroup Member
+     * 
+	 * @apiParam (query) {String} page_no page number.
+	 * @apiParam (query) {String} page_size records per page
+     * @apiParam (query) {String} sort_by sort by field name
+     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
+     * @apiParam (query) {String} from from date of player register
+     * @apiParam (query) {String} to to date of player register
+     * @apiParam (query) {String} email email of the player
+     * @apiParam (query) {String} name name of the player
+     * @apiParam (query) {String} position name of the position
+     * @apiParam (query) {String} type grassroot/amateur/professional
+     * @apiParam (query) {String} profile_status verified/unverified
+     * @apiParam (query) {String} email_verified true/false
+     * 
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -18,19 +33,22 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": { "total":100,
-     *                 "records":[{
-     *                  "name": "first_name + last_name",
-     *                  "position": "position of first priority",
-     *                  "type":"grassroot/professional/amateur",
-     *                  "email":"email of the player",
-     *                  "status":"active/inactive/blocked/pending"
-     *                           }],
-     *                  “players_count”: {
-     *                  "grassroot":10,
-     *                  "professional":20,
-     *                  "amateur":15   }
-     *                }
+     *       "data": { 
+     *         "total":100,
+     *         "records":[
+     *           {
+     *             "name": "first_name + last_name",
+     *             "position": "position of first priority",
+     *             "type":"grassroot/professional/amateur",
+     *             "email":"email of the player",
+     *             "status":"active/inactive/blocked/pending"
+     *           }
+     *         ],
+     *         "players_count": {
+     *           "grassroot":10,
+     *           "professional":20,
+     *           "amateur":15   
+     *       }
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -75,10 +93,23 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text club listing
+     * @api {get} /member/club/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text&from=<from_date>&to=<to_date>&email=<email>&name=<name>&profile_status=<profile_status>&email_verified=<email_verified> club listing
      * @apiName club listing
      * @apiGroup Member
      *
+     * @apiParam (query) {String} page_no page number.
+	 * @apiParam (query) {String} page_size records per page
+     * @apiParam (query) {String} sort_by sort by field name
+     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
+     * @apiParam (query) {String} from from date of player register
+     * @apiParam (query) {String} to to date of player register
+     * @apiParam (query) {String} email email of the player
+     * @apiParam (query) {String} name name of the player
+     * @apiParam (query) {String} profile_status verified/unverified
+     * @apiParam (query) {String} email_verified true/false
+     * 
+     * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
      *
@@ -87,14 +118,18 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": {  "total":100,
-     *                  "records":[{
-     *                  "name": "name of the club",
-     *                  "no_of_players": "number of players associated",
-     *                  "email":"email of the club",
-     *                  "status":"active/inactive/blocked/pending"
-     *               }]}
-     *     }
+     *       "data": {  
+     *         "total":100,
+     *         "records":[
+     *           {
+     *             "name": "name of the academy",
+     *             "no_of_players": "number of players associated",
+     *             "email":"email of the academy",
+     *             "status":"active/inactive/blocked/pending"
+     *            }
+     *         ]
+     *       }
+     *    }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
      *     HTTP/1.1 500 Internal server error
@@ -138,10 +173,22 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text academy listing
+     * @api {get} /member/academy/list?page_no=1&page_size=20&sort_by=created_at&sort_order=1&search=text&from=<from_date>&to=<to_date>&email=<email>&name=<name>&profile_status=<profile_status>&email_verified=<email_verified> academy listing
      * @apiName academy listing
      * @apiGroup Member
      *
+     * @apiParam (query) {String} page_no page number.
+	 * @apiParam (query) {String} page_size records per page
+     * @apiParam (query) {String} sort_by sort by field name
+     * @apiParam (query) {String} sort_order order to sort (0 - Descending, 1 - Ascending)
+     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
+     * @apiParam (query) {String} from from date of player register
+     * @apiParam (query) {String} to to date of player register
+     * @apiParam (query) {String} email email of the player
+     * @apiParam (query) {String} name name of the player
+     * @apiParam (query) {String} profile_status verified/unverified
+     * @apiParam (query) {String} email_verified true/false
+     * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
      *
@@ -150,14 +197,18 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": {  "total":100,
-     *                  "records":[{
-     *                  "name": "name of the academy",
-     *                  "no_of_players": "number of players associated",
-     *                  "email":"email of the academy",
-     *                  "status":"active/inactive/blocked/pending"
-     *               }]}
-     *     }
+     *       "data": {  
+     *         "total":100,
+     *         "records":[
+     *           {
+     *             "name": "name of the academy",
+     *             "no_of_players": "number of players associated",
+     *             "email":"email of the academy",
+     *             "status":"active/inactive/blocked/pending"
+     *            }
+     *         ]
+     *       }
+     *    }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
      *     HTTP/1.1 500 Internal server error
