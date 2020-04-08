@@ -21,7 +21,8 @@ module.exports = (router) => {
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
-     *       "data": { "first_name": "name",
+     *       "data": { 
+     *                  "first_name": "name",
      *                  "last_name": "last name",
      *                  "documents": [],
      *                  "position": [],
@@ -33,7 +34,29 @@ module.exports = (router) => {
      *                  "member_type": "player"
      *               }  
      *     }
-     *
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {
+     *                 "top_players": [],
+     *                 "documents": [],
+     *                 "email": "newclub@newclub.com",
+     *                 "name": "breakers",
+     *                 "avatar_url": "/uploads/avatar/user-avatar.png",
+     *                 "state": "delhi",
+     *                 "country": "india",
+     *                 "phone": "222222222222",
+     *                 "contact_person": [],
+     *                 "trophies": [],
+     *                 "top_signings": [],
+     *                 "associated_players": 100,
+     *                 "member_type": "club"
+     *                }
+     *     }
+     * 
      * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
