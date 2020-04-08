@@ -130,6 +130,32 @@ class UserValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+    async listQueryValidation(req, res, next) {
+       
+         const query = Joi.object().keys({
+             "page_no":Joi.number(),
+             "page_size":Joi.number(),
+            "sort_order":Joi.number().valid([1,-1]),
+            "sort_by":Joi.string(),
+            "from": Joi.string(),
+            "to": Joi.string(),
+            "search":Joi.string(),
+            "email":Joi.string(),
+            "name": Joi.string(),
+            "position": Joi.string(),
+            "type": Joi.string(),
+            "profile_status": Joi.string().valid(['verified','unverified']),
+            "email_verified":Joi.string().valid(['true','false']),
+         })
+        try {
+            console.log(req)
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new UserValidator();

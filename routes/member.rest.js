@@ -2,6 +2,7 @@ const UserService = require('../services/UserService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const LoginUtility = require('../db/utilities/LoginUtility');
+const userValidator = require("../middleware/validators").userValidator;
 
 
 module.exports = (router) => {
@@ -60,7 +61,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list', checkAuthToken, function (req, res) {
+    router.get('/member/player/list', checkAuthToken, userValidator.listQueryValidation,function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
