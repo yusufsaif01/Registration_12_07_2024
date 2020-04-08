@@ -388,7 +388,6 @@ class UserService extends BaseService {
                 filterArr.push({ name: new RegExp(filters.search, 'i') })
                 let num = Number(filters.search)
                 if (!isNaN(num)) {
-                    console.log('called', num)
                     filterArr.push({ associated_players: num })
                 }
             }
