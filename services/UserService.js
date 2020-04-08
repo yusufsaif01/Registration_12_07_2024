@@ -226,7 +226,7 @@ class UserService extends BaseService {
             }
             throw new errors.NotFound("User not found");
         } catch (e) {
-            console.log("Error in delete() of UserUtility", e);
+            console.log("Error in delete() of UserService", e);
             return Promise.reject(e);
         }
     }
