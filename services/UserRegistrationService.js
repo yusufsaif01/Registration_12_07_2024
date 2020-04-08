@@ -8,6 +8,8 @@ const uuid = require('uuid/v4');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const EmailService = require('./EmailService');
 const config = require("../config");
+const _ = require("lodash");
+const AdminUtility = require("../db/utilities/AdminUtility");
 
 /**
  *
@@ -28,6 +30,7 @@ class UserRegistrationService extends UserService {
         this.loginUtilityInst = new LoginUtility();
         this.authUtilityInst = new AuthUtility();
         this.emailService = new EmailService();
+        this.adminUtilityInst = new AdminUtility();
     }
 
     /**
@@ -37,7 +40,7 @@ class UserRegistrationService extends UserService {
      * @returns
      * @memberof UserRegistrationService
      */
-    validateMemberRegistration(registerUser) {
+    async validateMemberRegistration(registerUser) {
         if (registerUser.member_type == "player") {
             if (!registerUser.first_name) {
                 return Promise.reject(new errors.ValidationFailed(
@@ -55,6 +58,12 @@ class UserRegistrationService extends UserService {
                     "name is required", { field_name: "name" }
                 ));
             }
+        }
+        const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
+        if (!_.isEmpty(user)) {
+            return Promise.reject(new errors.Conflict(
+                "Email is already registered"
+            ));
         }
         return Promise.resolve(registerUser);
     }
@@ -80,7 +89,7 @@ class UserRegistrationService extends UserService {
                 member_type: userData.member_type
             });
             userData.login_details = loginDetails._id;
-            
+
             if (userData.member_type == 'player') {
                 await this.playerUtilityInst.insert(userData);
             } else {
@@ -111,6 +120,32 @@ class UserRegistrationService extends UserService {
             user_id, name, dob, role, email, token, avatar_url, first_name, last_name, member_type,
             registration_number, state, country, phone, status, is_email_verified
         };
+    }
+
+    async adminRegistration(adminDetails = {}) {
+
+        const user = await this.loginUtilityInst.findOne({ "username": adminDetails.email });
+        if (!_.isEmpty(user)) {
+            return Promise.reject(new errors.Conflict(
+                "Email is already registered"
+            ));
+        }
+
+        adminDetails.user_id = uuid();
+        adminDetails.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
+
+        let loginDetails = await this.loginUtilityInst.insert({
+            user_id: adminDetails.user_id,
+            username: adminDetails.email,
+            status: 'active',
+            role: 'admin',
+            password: adminDetails.password,
+            profile_status: "verified",
+            is_email_verified:true
+        });
+        adminDetails.login_details = loginDetails._id;
+
+        await this.adminUtilityInst.insert(adminDetails);
     }
 }
 

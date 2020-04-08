@@ -18,6 +18,9 @@ module.exports = {
         nationality: {
             type: String
         },
+		deleted_at: {
+			type: Date
+		},
         first_name: {
             type: String,
         },
