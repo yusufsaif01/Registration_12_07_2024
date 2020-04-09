@@ -23,7 +23,7 @@ class UserService extends BaseService {
 
             let member_type = requestedData.member_type, response = {}, data;
 
-            let conditions = this._prepareSearchCondition(requestedData.filter);
+            let conditions = this._prepareSearchCondition(requestedData.filter, member_type);
 
             let paginationOptions = requestedData.paginationOptions || {};
             let sortOptions = requestedData.sortOptions || {};
@@ -169,7 +169,7 @@ class UserService extends BaseService {
             return Promise.reject(e);
         }
     }
-    
+
     async activate(user_id) {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
@@ -367,36 +367,37 @@ class UserService extends BaseService {
 
 
 
-    _prepareSearchCondition(filters = {}) {
+    _prepareSearchCondition(filters = {}, member_type) {
         let condition = {};
+        let filterArr = []
         if (filters.search) {
-            condition = {
-                $or: [
-                    {
-                        email: new RegExp(filters.search, "i")
-                    },
-                    {
-                        first_name: new RegExp(filters.search, "i")
-                    },
-                    {
-                        last_name: new RegExp(filters.search, "i")
-                    },
-                    {
-                        player_type: new RegExp(filters.search, "i")
-                    }
-                    ,
-                    {
-                        position: {
-                            $elemMatch: {
-                                name: new RegExp(filters.search, "i"),
-                                priority: 1
-                            }
+            if (member_type == 'player') {
+                filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+                filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                filterArr.push({ player_type: new RegExp(filters.search, 'i') })
+                filterArr.push({
+                    position: {
+                        $elemMatch: {
+                            name: new RegExp(filters.search, "i"),
+                            priority: 1
                         }
                     }
-                ]
+                })
+            }
+            else {
+                filterArr.push({ name: new RegExp(filters.search, 'i') })
+                let num = Number(filters.search)
+                if (!isNaN(num)) {
+                    filterArr.push({ associated_players: num })
+                }
+            }
+            filterArr.push({
+                email: new RegExp(filters.search, "i")
+            })
+            condition = {
+                $or: filterArr
             };
         }
-
         return condition;
     }
 

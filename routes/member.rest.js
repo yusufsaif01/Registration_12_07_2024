@@ -61,7 +61,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list', checkAuthToken, userValidator.listQueryValidation,function (req, res) {
+    router.get('/member/player/list', checkAuthToken, userValidator.playerListQueryValidation,function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -102,7 +102,7 @@ module.exports = (router) => {
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
      * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
-     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
+     * @apiParam (query) {String} search text search, this search will be done on name,no_of_players,email
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
      * @apiParam (query) {String} email email of the player
@@ -141,7 +141,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/club/list', checkAuthToken, function (req, res) {
+    router.get('/member/club/list', checkAuthToken,userValidator.clubAcademyListQueryValidation,function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -182,7 +182,7 @@ module.exports = (router) => {
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
      * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
-     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type
+     * @apiParam (query) {String} search text search, this search will be done on name,no_of_players,email
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
      * @apiParam (query) {String} email email of the player
@@ -220,7 +220,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/academy/list', checkAuthToken, function (req, res) {
+    router.get('/member/academy/list', checkAuthToken,userValidator.clubAcademyListQueryValidation, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -252,7 +252,7 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {put} /member/status-activate/:id member status activate
+     * @api {put} /member/status-activate/:id status activate
      * @apiName Status-activate
      * @apiGroup Member
      *
@@ -263,8 +263,7 @@ module.exports = (router) => {
      *     HTTP/1.1 200 OK
      *     {
      *       "status": "success",
-     *       "message": "Successfully done",
- 
+     *       "message": "Successfully done"
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -275,7 +274,7 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
@@ -283,7 +282,7 @@ module.exports = (router) => {
      *       "httpCode": 401
 	 *     }
      * 
-     *@apiErrorExample {json} Conflict
+     *@apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
 	 *       "message": "status is already active",
@@ -308,8 +307,8 @@ module.exports = (router) => {
         }
     })
         /**
-     * @api {put} /member/status-deactivate/:id member status deactivate
-     * @apiName Status-activate
+     * @api {put} /member/status-deactivate/:id status deactivate
+     * @apiName Status-deactivate
      * @apiGroup Member
      *
      * @apiSuccess {String} status success
@@ -319,8 +318,7 @@ module.exports = (router) => {
      *     HTTP/1.1 200 OK
      *     {
      *       "status": "success",
-     *       "message": "Successfully done",
- 
+     *       "message": "Successfully done"
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -331,7 +329,7 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
@@ -339,7 +337,7 @@ module.exports = (router) => {
      *       "httpCode": 401
 	 *     }
      * 
-     *@apiErrorExample {json} Conflict
+     *@apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
 	 *       "message": "status is already blocked",
@@ -364,7 +362,7 @@ module.exports = (router) => {
         }
     })
         /**
-     * @api {delete} /member/delete/:id member delete
+     * @api {delete} /member/delete/:id delete
      * @apiName Delete
      * @apiGroup Member
      *
@@ -375,8 +373,7 @@ module.exports = (router) => {
      *     HTTP/1.1 200 OK
      *     {
      *       "status": "success",
-     *       "message": "Successfully done",
- 
+     *       "message": "Successfully done"
      *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -387,12 +384,20 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
-     * @apiErrorExample {json} Unauthorized
+     * @apiErrorExample {json} UNAUTHORIZED
 	 *     HTTP/1.1 401 Unauthorized
 	 *     {
 	 *       "message": "Unauthorized",
      *       "code": "UNAUTHORIZED",
      *       "httpCode": 401
+	 *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+	 *     HTTP/1.1 404 Not found
+	 *     {
+	 *       "message": "User not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
 	 *     }
      * 
      */
