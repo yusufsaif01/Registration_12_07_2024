@@ -1,6 +1,7 @@
 const UserService = require('../services/UserService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
+const errors = require('../errors');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
 
@@ -41,7 +42,7 @@ module.exports = (router) => {
      *             "name": "first_name + last_name",
      *             "position": "position of first priority",
      *             "type":"grassroot/professional/amateur",
-     *             "email":"email of the player",
+*             "email":"email of the player",
      *             "status":"active/inactive/blocked/pending",
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *           }
@@ -301,9 +302,9 @@ module.exports = (router) => {
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.activate(id))
+            responseHandler(req, res,serviceInst.activate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
@@ -356,9 +357,9 @@ module.exports = (router) => {
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.deactivate(id))
+            responseHandler(req, res,serviceInst.deactivate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
@@ -406,14 +407,14 @@ module.exports = (router) => {
      */
     router.delete('/member/delete/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.delete(id))
+            responseHandler(req, res,serviceInst.delete(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
