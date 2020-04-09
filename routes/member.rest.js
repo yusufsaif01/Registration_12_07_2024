@@ -1,6 +1,7 @@
 const UserService = require('../services/UserService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
+const errors = require('../errors');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
 
@@ -41,8 +42,9 @@ module.exports = (router) => {
      *             "name": "first_name + last_name",
      *             "position": "position of first priority",
      *             "type":"grassroot/professional/amateur",
-     *             "email":"email of the player",
-     *             "status":"active/inactive/blocked/pending"
+*             "email":"email of the player",
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *           }
      *         ],
      *         "players_count": {
@@ -126,7 +128,8 @@ module.exports = (router) => {
      *             "name": "name of the academy",
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
-     *             "status":"active/inactive/blocked/pending"
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
      *       }
@@ -205,7 +208,8 @@ module.exports = (router) => {
      *             "name": "name of the academy",
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
-     *             "status":"active/inactive/blocked/pending"
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
      *       }
@@ -252,7 +256,7 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {put} /member/status-activate/:id status activate
+     * @api {put} /member/status-activate/:user_id status activate
      * @apiName Status-activate
      * @apiGroup Member
      *
@@ -291,23 +295,23 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.put('/member/status-activate/:id', checkAuthToken, function (req, res) {
+    router.put('/member/status-activate/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.activate(id))
+            responseHandler(req, res,serviceInst.activate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
         }
     })
         /**
-     * @api {put} /member/status-deactivate/:id status deactivate
+     * @api {put} /member/status-deactivate/:user_id status deactivate
      * @apiName Status-deactivate
      * @apiGroup Member
      *
@@ -346,23 +350,23 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.put('/member/status-deactivate/:id', checkAuthToken, function (req, res) {
+    router.put('/member/status-deactivate/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.deactivate(id))
+            responseHandler(req, res,serviceInst.deactivate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
         }
     })
         /**
-     * @api {delete} /member/delete/:id delete
+     * @api {delete} /member/delete/:user_id delete
      * @apiName Delete
      * @apiGroup Member
      *
@@ -401,16 +405,16 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.delete('/member/delete/:id', checkAuthToken, function (req, res) {
+    router.delete('/member/delete/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
             }
-            let id = req.params.id
+            let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.delete(id))
+            responseHandler(req, res,serviceInst.delete(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));

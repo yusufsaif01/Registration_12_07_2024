@@ -75,7 +75,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 }
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 , user_id: 1}
             };
 
             let toBePopulatedOptions = {
@@ -110,7 +110,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { name: 1, associated_players: 1, email: 1 }
+                projection: { name: 1, associated_players: 1, email: 1 , user_id: 1}
             };
 
             let toBePopulatedOptions = {

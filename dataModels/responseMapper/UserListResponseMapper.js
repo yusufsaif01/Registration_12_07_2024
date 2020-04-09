@@ -9,7 +9,8 @@ class UserListResponseMapper {
                     "position": "-",
                     "type": user.player_type || "-",
                     "email": user.email || "-",
-                    "status": "-"
+                    "status": "-",
+                    "user_id":user.user_id
                 };
 
                 data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";
@@ -30,7 +31,8 @@ class UserListResponseMapper {
                     "name": user.name || "-",
                     "no_of_players": user.associated_players || 0,
                     "email": user.email || "-",
-                    "status": ""
+                    "status": "",
+                    "user_id":user.user_id
                 };
 
                 if (user.login_details && user.login_details.status) {
