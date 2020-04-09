@@ -42,7 +42,8 @@ module.exports = (router) => {
      *             "position": "position of first priority",
      *             "type":"grassroot/professional/amateur",
      *             "email":"email of the player",
-     *             "status":"active/inactive/blocked/pending"
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *           }
      *         ],
      *         "players_count": {
@@ -126,7 +127,8 @@ module.exports = (router) => {
      *             "name": "name of the academy",
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
-     *             "status":"active/inactive/blocked/pending"
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
      *       }
@@ -205,7 +207,8 @@ module.exports = (router) => {
      *             "name": "name of the academy",
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
-     *             "status":"active/inactive/blocked/pending"
+     *             "status":"active/inactive/blocked/pending",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
      *       }
