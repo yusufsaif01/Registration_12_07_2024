@@ -255,7 +255,7 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {put} /member/status-activate/:id status activate
+     * @api {put} /member/status-activate/:user_id status activate
      * @apiName Status-activate
      * @apiGroup Member
      *
@@ -294,9 +294,9 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.put('/member/status-activate/:id', checkAuthToken, function (req, res) {
+    router.put('/member/status-activate/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
@@ -310,7 +310,7 @@ module.exports = (router) => {
         }
     })
         /**
-     * @api {put} /member/status-deactivate/:id status deactivate
+     * @api {put} /member/status-deactivate/:user_id status deactivate
      * @apiName Status-deactivate
      * @apiGroup Member
      *
@@ -349,9 +349,9 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.put('/member/status-deactivate/:id', checkAuthToken, function (req, res) {
+    router.put('/member/status-deactivate/:user_id', checkAuthToken, function (req, res) {
         try {
-            if (!req.params.id) {
+            if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
                     "user id is required"
                 ));
@@ -365,7 +365,7 @@ module.exports = (router) => {
         }
     })
         /**
-     * @api {delete} /member/delete/:id delete
+     * @api {delete} /member/delete/:user_id delete
      * @apiName Delete
      * @apiGroup Member
      *
@@ -404,7 +404,7 @@ module.exports = (router) => {
 	 *     }
      * 
      */
-    router.delete('/member/delete/:id', checkAuthToken, function (req, res) {
+    router.delete('/member/delete/:user_id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.id) {
                 return Promise.reject(new errors.ValidationFailed(
