@@ -9,6 +9,7 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
 const EmailService = require('./EmailService');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const ACCOUNT = require('../constants/AccountStatus');
 
 class AuthService {
 
@@ -105,7 +106,7 @@ class AuthService {
             await this.passwordValidator(email);
             let loginDetails = await this.loginUtilityInst.findOne({ username: email });
             if (loginDetails) {
-                if (loginDetails.status !== "active") {
+                if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
                 }
                 const tokenForForgetPassword = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
@@ -128,7 +129,7 @@ class AuthService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id });
             if (loginDetails) {
                 console.log("loginDetails", loginDetails);
-                if (loginDetails.status !== "active") {
+                if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED))
                 }
 
@@ -187,7 +188,7 @@ class AuthService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
                 const password = await this.authUtilityInst.bcryptToken(new_password);
-                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true, status: "active", password: password });
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true, status: ACCOUNT.ACTIVE, password: password });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
@@ -203,7 +204,7 @@ class AuthService {
 
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
-                if (loginDetails.status !== "active") {
+                if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
