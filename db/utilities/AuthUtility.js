@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 var config = require('../../config');
 const errors = require('../../errors');
 const LoginUtility = require("./LoginUtility");
+const ACCOUNT = require("../../constants/AccountStatus")
+const RESPONSE_MESSAGE = require("../../constants/ResponseMessage")
 
 class AuthUtility {
 
@@ -72,10 +74,10 @@ class AuthUtility {
             if (user) {
                 if (isCheckStatus) {
                     let status = user.status;
-                    if (status === "blocked") {
-                        throw new errors.Unauthorized("User is blocked");
-                    } else if (status !== "active") {
-                        throw new errors.Unauthorized("User is not active");
+                    if (status === ACCOUNT.BLOCKED) {
+                        throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED);
+                    } else if (status !== ACCOUNT.ACTIVE) {
+                        throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_INACTIVE);
                     }
                 }
                 return user;

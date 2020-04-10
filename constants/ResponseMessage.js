@@ -14,6 +14,12 @@ class ResponseMessage {
     static get USER_NOT_FOUND() {
         return "User not found";
     }
+    static get USER_BLOCKED() {
+        return "User is blocked";
+    }
+    static get USER_INACTIVE() {
+        return "User is not active";
+    }
     static get USER_ALREADY_EXISTS() {
         return "User already exists";
     }
