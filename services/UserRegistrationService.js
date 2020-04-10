@@ -14,6 +14,7 @@ const ACCOUNT = require('../constants/AccountStatus');
 const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const PROFILE = require('../constants/ProfileStatus');
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 
 /**
  *
@@ -66,7 +67,7 @@ class UserRegistrationService extends UserService {
         const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
         if (!_.isEmpty(user)) {
             return Promise.reject(new errors.Conflict(
-                "Email is already registered"
+                RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED
             ));
         }
         return Promise.resolve(registerUser);
@@ -131,7 +132,7 @@ class UserRegistrationService extends UserService {
         const user = await this.loginUtilityInst.findOne({ "username": adminDetails.email });
         if (!_.isEmpty(user)) {
             return Promise.reject(new errors.Conflict(
-                "Email is already registered"
+                RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED
             ));
         }
 
