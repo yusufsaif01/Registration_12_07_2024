@@ -79,7 +79,7 @@ class UserRegistrationService extends UserService {
         try {
             await this.validateMemberRegistration(userData);
             userData.user_id = uuid();
-            userData.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
+            userData.avatar_url = config.app.default_avatar_url; // default user icon
 
             let loginDetails = await this.loginUtilityInst.insert({
                 user_id: userData.user_id,
