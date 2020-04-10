@@ -2,6 +2,7 @@ const uuidv4 = require('uuid/v4');
 const MEMBER = require('../../constants/MemberType')
 const ACCOUNT = require('../../constants/AccountStatus')
 const PROFILE = require('../../constants/ProfileStatus')
+const ROLE = require('../../constants/Role')
 module.exports = {
 	fields: {
 		user_id: {
@@ -54,7 +55,7 @@ module.exports = {
 		},
 		role: {
 			type: String,
-			enum: ["admin", "player", "club", "academy"]
+			enum: [ROLE.ADMIN, ROLE.PLAYER, ROLE.CLUB, ROLE.ACADEMY]
 		},
 	},
 
