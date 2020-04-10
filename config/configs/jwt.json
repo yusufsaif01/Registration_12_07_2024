@@ -10,7 +10,7 @@
     "expiry_in" : {
         "doc": "expiry time for signed token",
         "format": "String",
-        "default": "1h",
+        "default": "4h",
         "env": "JWT_EXPIRY_IN",
         "arg": "jwt_expiry_in"
     }
