@@ -14,6 +14,15 @@ class ResponseMessage {
     static get EMAIL_REQUIRED() {
         return "Email is required"
     }
+    static get FIRST_NAME_REQUIRED() {
+        return "First name is required"
+    }
+    static get LAST_NAME_REQUIRED() {
+        return "Last name is required"
+    }
+    static get NAME_REQUIRED() {
+        return "Name is required"
+    }
     static get PASSWORD_REQUIRED() {
         return "Password is required"
     }

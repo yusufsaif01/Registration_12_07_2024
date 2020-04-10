@@ -49,18 +49,18 @@ class UserRegistrationService extends UserService {
         if (registerUser.member_type == MEMBER.PLAYER) {
             if (!registerUser.first_name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "first_name is required", { field_name: "first_name" }
+                    RESPONSE_MESSAGE.FIRST_NAME_REQUIRED
                 ));
             }
             if (!registerUser.last_name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "last_name is required", { field_name: "last_name" }
+                    RESPONSE_MESSAGE.LAST_NAME_REQUIRED
                 ));
             }
         } else {
             if (!registerUser.name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "name is required", { field_name: "name" }
+                    RESPONSE_MESSAGE.NAME_REQUIRED
                 ));
             }
         }
