@@ -2,7 +2,7 @@ class EmailVerified {
     static get TRUE() {
         return "true";
     }
-    static get False() {
+    static get FALSE() {
         return "false";
     }
 }
