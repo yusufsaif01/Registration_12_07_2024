@@ -1,5 +1,7 @@
 const uuidv4 = require('uuid/v4');
-
+const MEMBER = require('../../constants/MemberType')
+const ACCOUNT = require('../../constants/AccountStatus')
+const PROFILE = require('../../constants/ProfileStatus')
 module.exports = {
 	fields: {
 		user_id: {
@@ -17,13 +19,13 @@ module.exports = {
 		},
 		profile_status: {
 			type: String,
-			enum: ['verified', 'unverified'],
-			default: 'unverified'
+			enum: [PROFILE.VERIFIED, PROFILE.UNVERIFIED],
+			default: PROFILE.UNVERIFIED
 		},
 		status: {
 			type: String,
-			enum: ['active', 'inactive', 'pending', 'blocked'],
-			default: 'inactive'
+			enum: [ACCOUNT.ACTIVE, ACCOUNT.INACTIVE, ACCOUNT.PENDING, ACCOUNT.BLOCKED],
+			default: ACCOUNT.INACTIVE
 		},
 		token: {
 			type: String
@@ -48,7 +50,7 @@ module.exports = {
 		},
 		member_type: {
 			type: String,
-			enum: ["player", "club", "academy"]
+			enum: [MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY]
 		},
 		role: {
 			type: String,
