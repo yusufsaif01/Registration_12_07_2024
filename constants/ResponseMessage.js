@@ -20,6 +20,9 @@ class ResponseMessage {
     static get EMAIL_REQUIRED() {
         return "Email is required"
     }
+    static get USER_ID_REQUIRED() {
+        return "User id is required"
+    }
     static get FIRST_NAME_REQUIRED() {
         return "First name is required"
     }

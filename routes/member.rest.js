@@ -4,6 +4,8 @@ const { checkAuthToken } = require('../middleware/auth');
 const errors = require('../errors');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
+const MEMBER =  require('../constants/MemberType')
+const RESPONSE_MESSAGE =  require('../constants/ResponseMessage')
 
 
 module.exports = (router) => {
@@ -92,7 +94,7 @@ module.exports = (router) => {
         let serviceInst = new UserService();
         responseHandler(req, res, serviceInst.getList({
             paginationOptions, sortOptions, filter, filterConditions,
-            member_type: 'player'
+            member_type: MEMBER.PLAYER
         }));
     });
     /**
@@ -173,7 +175,7 @@ module.exports = (router) => {
         let serviceInst = new UserService();
         responseHandler(req, res, serviceInst.getList({
             paginationOptions, sortOptions, filter, filterConditions,
-            member_type: 'club'
+            member_type: MEMBER.CLUB
         }));
     });
     /**
@@ -252,7 +254,7 @@ module.exports = (router) => {
         let serviceInst = new UserService();
         responseHandler(req, res, serviceInst.getList({
             paginationOptions, sortOptions, filter, filterConditions,
-            member_type: 'academy'
+            member_type: MEMBER.ACADEMY
         }));
     });
     /**
@@ -299,7 +301,7 @@ module.exports = (router) => {
         try {
             if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "user id is required"
+                    RESPONSE_MESSAGE.USER_ID_REQUIRED
                 ));
             }
             let user_id = req.params.user_id
@@ -354,7 +356,7 @@ module.exports = (router) => {
         try {
             if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "user id is required"
+                    RESPONSE_MESSAGE.USER_ID_REQUIRED
                 ));
             }
             let user_id = req.params.user_id
@@ -409,7 +411,7 @@ module.exports = (router) => {
         try {
             if (!req.params.user_id) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "user id is required"
+                    RESPONSE_MESSAGE.USER_ID_REQUIRED
                 ));
             }
             let user_id = req.params.user_id
