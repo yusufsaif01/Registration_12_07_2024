@@ -1,10 +1,12 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
-const MEMBER = require('../../constants/MemberType')
-const PLAYER = require('../../constants/PlayerType')
-const PROFILE = require('../../constants/ProfileStatus')
-const EMAIL_VERIFIED = require('../../constants/EmailVerified')
+const MEMBER = require('../../constants/MemberType');
+const PLAYER = require('../../constants/PlayerType');
+const STRONG_FOOT = require('../../constants/StrongFoot');
+const SORT_ORDER = require('../../constants/SortOrder');
+const PROFILE = require('../../constants/ProfileStatus');
+const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -72,7 +74,7 @@ class UserValidator {
 
             "position": Joi.string().required(),
 
-            "strong_foot": Joi.string().trim().min(1).valid("right", "left").required(),
+            "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
             "weak_foot": Joi.number().min(1).max(5),
 
             "city": Joi.string().trim().allow(""),
@@ -138,7 +140,7 @@ class UserValidator {
          const query = Joi.object().keys({
              "page_no":Joi.number(),
              "page_size":Joi.number(),
-            "sort_order":Joi.number().valid([1,-1]),
+            "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
             "sort_by":Joi.string(),
             "from": Joi.string(),
             "to": Joi.string(),
@@ -164,7 +166,7 @@ class UserValidator {
         const query = Joi.object().keys({
             "page_no":Joi.number(),
             "page_size":Joi.number(),
-           "sort_order":Joi.number().valid([1,-1]),
+           "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
            "sort_by":Joi.string(),
            "from": Joi.string(),
            "to": Joi.string(),
