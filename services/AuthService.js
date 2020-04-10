@@ -41,12 +41,12 @@ class AuthService {
     loginValidator(email, password) {
         if (!email) {
             return Promise.reject(new errors.ValidationFailed(
-                "email is required.", { field_name: "email" }
+                RESPONSE_MESSAGE.EMAIL_REQUIRED
             ));
         }
         if (!password) {
             return Promise.reject(new errors.ValidationFailed(
-                "password is required.", { field_name: "password" }
+                RESPONSE_MESSAGE.PASSWORD_REQUIRED
             ));
         }
         return Promise.resolve(email, password);
@@ -95,7 +95,7 @@ class AuthService {
     passwordValidator(email) {
         if (!email) {
             return Promise.reject(new errors.ValidationFailed(
-                "email is required.", { field_name: "email" }
+                RESPONSE_MESSAGE.EMAIL_REQUIRED
             ));
         }
         return Promise.resolve(email);
@@ -135,7 +135,7 @@ class AuthService {
 
                 let isPasswordMatched = await this.authUtilityInst.bcryptTokenCompare(old_password, loginDetails.password);
                 if (!isPasswordMatched) {
-                    return Promise.reject(new errors.BadRequest("Old password is incorrect", { field_name: "old_password" }));
+                    return Promise.reject(new errors.BadRequest(RESPONSE_MESSAGE.OLD_PASSWORD_INCORRECT));
                 }
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
@@ -153,28 +153,28 @@ class AuthService {
     validateChangePassword(tokenData, old_password, new_password, confirm_password) {
         if (!tokenData) {
             return Promise.reject(new errors.ValidationFailed(
-                "token is required"
+                RESPONSE_MESSAGE.TOKEN_REQUIRED
             ));
         }
         if (!old_password) {
             return Promise.reject(new errors.ValidationFailed(
-                "Old password is required"
+                RESPONSE_MESSAGE.OLD_PASSWORD_REQUIRED
             ));
         }
 
         if (!new_password) {
             return Promise.reject(new errors.ValidationFailed(
-                "New password is required"
+                RESPONSE_MESSAGE.NEW_PASSWORD_REQUIRED
             ));
         }
         if (!confirm_password) {
             return Promise.reject(new errors.ValidationFailed(
-                "Confirm password is required"
+                RESPONSE_MESSAGE.CONFIRM_PASSWORD_REQUIRED
             ));
         }
         if (confirm_password !== new_password) {
             return Promise.reject(new errors.ValidationFailed(
-                "Passwords do not match"
+                RESPONSE_MESSAGE.PASSWORDS_DO_NOT_MATCH
             ));
         }
 
@@ -221,23 +221,23 @@ class AuthService {
     validateCreatePassword(token, password, confirmPassword) {
         if (!token) {
             return Promise.reject(new errors.ValidationFailed(
-                "token is required"
+                RESPONSE_MESSAGE.TOKEN_REQUIRED
             ));
         }
 
         if (!password) {
             return Promise.reject(new errors.ValidationFailed(
-                "password is required"
+                RESPONSE_MESSAGE.PASSWORD_REQUIRED
             ));
         }
         if (!confirmPassword) {
             return Promise.reject(new errors.ValidationFailed(
-                "confirmPassword is required"
+                RESPONSE_MESSAGE.CONFIRM_PASSWORD_REQUIRED
             ));
         }
         if (password !== confirmPassword) {
             return Promise.reject(new errors.ValidationFailed(
-                "passwords do not match"
+                RESPONSE_MESSAGE.PASSWORDS_DO_NOT_MATCH
             ));
         }
         return Promise.resolve();

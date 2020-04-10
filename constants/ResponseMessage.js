@@ -12,16 +12,28 @@ class ResponseMessage {
         return "User is not registered";
     }
     static get EMAIL_REQUIRED() {
-        return "email is required.", { field_name: "email" }
+        return "Email is required"
     }
     static get PASSWORD_REQUIRED() {
-        return "password is required.", { field_name: "password" }
+        return "Password is required"
     }
     static get TOKEN_REQUIRED() {
-        return "token is required"
+        return "Token is required"
     }
     static get OLD_PASSWORD_REQUIRED() {
-        return "Old password is incorrect", { field_name: "old_password"}
+        return "Old password is required"
+    }
+    static get OLD_PASSWORD_INCORRECT() {
+        return "Old password is incorrect"
+    }
+    static get NEW_PASSWORD_REQUIRED() {
+        return "New password is required"
+    }
+    static get CONFIRM_PASSWORD_REQUIRED() {
+        return "Confirm password is required"
+    }
+    static get PASSWORDS_DO_NOT_MATCH() {
+        return "Passwords do not match"
     }
 }
 
