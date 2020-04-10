@@ -2,6 +2,7 @@ const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const MEMBER = require('../../constants/MemberType')
+const PLAYER = require('../../constants/PlayerType')
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -59,7 +60,7 @@ class UserValidator {
         });
 
         let playerRule = {
-            "player_type": Joi.string().trim().min(1).valid("grassroot", "amateur", "professional").required(),
+            "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
             "first_name": Joi.string().trim().min(1).max(500).required(),
             "last_name": Joi.string().trim().min(1).max(500).required(),
             "dob": Joi.string().trim().required(),
@@ -91,7 +92,7 @@ class UserValidator {
             "associated_club": Joi.string()
         };
 
-        if (req.body.player_type === "amateur") {
+        if (req.body.player_type === PLAYER.AMATEUR) {
             playerRule.height_feet = Joi.string().trim().required();
             playerRule.height_inches = Joi.string().trim().required();
             playerRule.city = Joi.string().trim().required();
@@ -101,7 +102,7 @@ class UserValidator {
 
         var schema = academySchema;
 
-        if (req.authUser.member_type == 'player') {
+        if (req.authUser.member_type == MEMBER.PLAYER) {
             schema = playerSchema;
         }
 
