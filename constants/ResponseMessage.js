@@ -11,6 +11,12 @@ class ResponseMessage {
     static get USER_NOT_REGISTERED() {
         return "User is not registered";
     }
+    static get USER_NOT_FOUND() {
+        return "User not found";
+    }
+    static get USER_ALREADY_EXISTS() {
+        return "User already exists";
+    }
     static get EMAIL_REQUIRED() {
         return "Email is required"
     }
@@ -86,6 +92,12 @@ class ResponseMessage {
     }
     static get INVALID_VALUE_TOP_SIGNINGS() {
         return "Invalid value for top_signings"
+    }
+    static get STATUS_ALREADY_ACTIVE() {
+        return "Status is already active"
+    }
+    static get STATUS_ALREADY_BLOCKED() {
+        return "Status is already blocked"
     }
     
 }
