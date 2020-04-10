@@ -4,6 +4,7 @@ const responseHandler = require("../../ResponseHandler");
 const MEMBER = require('../../constants/MemberType')
 const PLAYER = require('../../constants/PlayerType')
 const PROFILE = require('../../constants/ProfileStatus')
+const EMAIL_VERIFIED = require('../../constants/EmailVerified')
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -147,7 +148,7 @@ class UserValidator {
             "position": Joi.string(),
             "type": Joi.string(),
             "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-            "email_verified":Joi.string().valid(['true','false']),
+            "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.False]),
          })
         try {
             console.log(req)
@@ -171,7 +172,7 @@ class UserValidator {
            "email":Joi.string(),
            "name": Joi.string(),
            "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-           "email_verified":Joi.string().valid(['true','false']),
+           "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.False]),
         })
        try {
            console.log(req)
