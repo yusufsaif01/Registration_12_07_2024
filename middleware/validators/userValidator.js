@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
-
+const MEMBER = require('../../constants/MemberType')
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -9,7 +9,7 @@ class UserValidator {
             "state": Joi.string().required(),
             "country": Joi.string().required(),
             "phone": Joi.string().min(10).required(),
-            "member_type": Joi.string().valid("player", "club", "academy").required(),
+            "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
             "name": Joi.string().min(1),
             "first_name": Joi.string().min(1),
             "last_name": Joi.string().min(1),
