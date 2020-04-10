@@ -2,35 +2,35 @@
     "email": {
         "doc": "crediential for google authentication",
         "format": "String",
-        "default": "45cab56a963476",
+        "default": "",
         "env": "MAILER_USER",
         "arg": "mailer_user"
     },
     "password": {
         "doc": "crediential for google authentication",
         "format": "String",
-        "default": "fdc395e19a09db",
+        "default": "",
         "env": "MAILER_USER_PASSWORD",
         "arg": "mailer_user_password"
     },
     "fromEmail": {
         "doc": "email",
         "format": "String",
-        "default": "test@demo.com",
+        "default": "support@4thpointer.com",
         "env": "MAILER_FROM_EMAIL",
         "arg": "mailer_from_email"
     },
     "host": {
         "doc": "mailer host",
         "format": "String",
-        "default": "smtp.mailtrap.io",
+        "default": "139.59.77.111",
         "env": "MAILER_HOST",
         "arg": "mailer_host"
     },
     "port": {
         "doc": "mailer port",
         "format": "Number",
-        "default": 2525,
+        "default": 1025,
         "env": "MAILER_PORT",
         "arg": "mailer_port"
     },
