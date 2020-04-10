@@ -6,6 +6,9 @@ const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const FileService = require('../services/FileService');
 const errors = require("../errors");
 const _ = require("lodash");
+const MEMBER = require('../constants/MemberType');
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+
 
 /**
  *
@@ -38,7 +41,7 @@ class UserProfileService {
         await this.updateProfileDetailsValidation(requestedData.updateValues);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
 
-        if (requestedData.member_type == 'player') {
+        if (requestedData.member_type == MEMBER.PLAYER) {
             await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         } else {
             await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
@@ -46,7 +49,7 @@ class UserProfileService {
     }
 
     prepareProfileData(member_type, data) {
-        if (member_type == 'player') {
+        if (member_type == MEMBER.PLAYER) {
             let institute = {
                 "school": data.school ? data.school : null,
                 "college": data.college ? data.college : null,
@@ -115,7 +118,7 @@ class UserProfileService {
     async updateProfileBio(requestedData = {}) {
         let bioData = await this.prepareBioData(requestedData.updateValues);
         console.log({ 'user_id': requestedData.id }, bioData, requestedData.member_type);
-        if (requestedData.member_type == 'player') {
+        if (requestedData.member_type == MEMBER.PLAYER) {
             await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
         } else {
             await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
@@ -148,13 +151,13 @@ class UserProfileService {
             let currentYear = d.getFullYear();
 
             if (founded_in > currentYear) {
-                msg = "founded_in is greater than " + currentYear
+                msg = RESPONSE_MESSAGE.FOUNDED_IN_GREATER_THAN_CURRENT_YEAR
             }
             if (founded_in < 0) {
-                msg = "founded_in cannot be negative"
+                msg = RESPONSE_MESSAGE.FOUNDED_IN_CANNOT_BE_NEGATIVE
             }
             if (founded_in == 0) {
-                msg = "founded_in cannot be zero"
+                msg = RESPONSE_MESSAGE.FOUNDED_IN_CANNOT_BE_ZERO
             }
 
             if (msg) {
@@ -167,13 +170,13 @@ class UserProfileService {
             let currentYear = d.getFullYear();
             trophies.forEach(element => {
                 if (element.year > currentYear) {
-                    msg = "trophy year is greater than " + currentYear
+                    msg = RESPONSE_MESSAGE.TROPHY_YEAR_GREATER_THAN_CURRENT_YEAR
                 }
                 if (element.year < 0) {
-                    msg = "trophy year cannot be negative"
+                    msg = RESPONSE_MESSAGE.TROPHY_YEAR_CANNOT_BE_NEGATIVE
                 }
                 if (element.year == 0) {
-                    msg = "trophy year cannot be zero"
+                    msg = RESPONSE_MESSAGE.TROPHY_YEAR_CANNOT_BE_ZERO
                 }
             });
             if (msg) {
@@ -211,7 +214,7 @@ class UserProfileService {
                     reqObj.contact_person = JSON.parse(reqObj.contact_person);
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for contact_persons");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_CONTACT_PERSONS);
                 }
             }
             if (reqObj.trophies) {
@@ -220,7 +223,7 @@ class UserProfileService {
                     reqObj.trophies = trophies;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for trophies");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TROPHIES);
                 }
             }
 
@@ -230,7 +233,7 @@ class UserProfileService {
                     reqObj.position = position;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for position");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_POSITION);
                 }
             }
 
@@ -240,7 +243,7 @@ class UserProfileService {
                     reqObj.top_players = top_players;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for top_players");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_PLAYERS);
                 }
             }
 
@@ -250,7 +253,7 @@ class UserProfileService {
                     reqObj.owner = owner;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for owner");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_OWNER);
                 }
             }
 
@@ -260,7 +263,7 @@ class UserProfileService {
                     reqObj.manager = manager;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for manager");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_MANAGER);
                 }
             }
             
@@ -270,7 +273,7 @@ class UserProfileService {
                     reqObj.top_signings = top_signings;
                 } catch (e) {
                     console.log(e);
-                    throw new errors.ValidationFailed("Invalid value for top_signings");
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_SIGNINGS);
                 }
             }
             

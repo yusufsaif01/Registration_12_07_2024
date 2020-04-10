@@ -35,6 +35,50 @@ class ResponseMessage {
     static get PASSWORDS_DO_NOT_MATCH() {
         return "Passwords do not match"
     }
+    static get FOUNDED_IN_GREATER_THAN_CURRENT_YEAR() {
+        let d = new Date();
+        let currentYear = d.getFullYear();
+        return "Founded in is greater than " + currentYear
+    }
+    static get FOUNDED_IN_CANNOT_BE_NEGATIVE() {
+        return "Founded in cannot be negative"
+    }
+    static get FOUNDED_IN_CANNOT_BE_ZERO() {
+        return "Founded in cannot be zero"
+    }
+    static get TROPHY_YEAR_GREATER_THAN_CURRENT_YEAR() {
+        let d = new Date();
+        let currentYear = d.getFullYear();
+        return "Trophy year is greater than " + currentYear
+    }
+    static get TROPHY_YEAR_CANNOT_BE_NEGATIVE() {
+        return "Trophy year cannot be negative"
+    }
+    static get TROPHY_YEAR_CANNOT_BE_ZERO() {
+        return "Trophy year cannot be zero"
+    }
+    static get INVALID_VALUE_CONTACT_PERSONS() {
+        return "Invalid value for contact_persons"
+    }
+    static get INVALID_VALUE_TROPHIES() {
+        return "Invalid value for trophies"
+    }
+    static get INVALID_VALUE_POSITION() {
+        return "Invalid value for position"
+    }
+    static get INVALID_VALUE_TOP_PLAYERS() {
+        return "Invalid value for top players"
+    }
+    static get INVALID_VALUE_OWNER() {
+        return "Invalid value for owner"
+    }
+    static get INVALID_VALUE_MANAGER() {
+        return "Invalid value for manager"
+    }
+    static get INVALID_VALUE_TOP_SIGNINGS() {
+        return "Invalid value for top_signings"
+    }
+    
 }
 
 module.exports = ResponseMessage
