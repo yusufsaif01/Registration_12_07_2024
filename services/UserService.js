@@ -46,6 +46,17 @@ class UserService extends BaseService {
                 conditions.user_id = { $in: users };
             }
 
+            if (requestedData.filter && requestedData.filter.search) {
+                let _condition = {}
+                _condition.status = new RegExp(requestedData.filter.search, 'i');
+
+                let users = await this.loginUtilityInst.find(_condition, { user_id: 1 });
+                users = _.map(users, "user_id");
+                if (conditions.$or)
+                    conditions.$or.push({ user_id: { $in: users } });
+
+            }
+
             filterConditions = this._prepareFilterCondition(requestedData.filterConditions, member_type)
             if (filterConditions) {
                 conditions.$and = filterConditions.$and
