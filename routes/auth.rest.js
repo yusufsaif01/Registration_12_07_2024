@@ -113,14 +113,6 @@ module.exports = (router) => {
      *       "httpCode": 401
 	 *     }
      * 
-     *@apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "email is already verified",
-     *       "code": "VALIDATION_FAILED",
-     *       "httpCode": 422
-	 *     }
-     * 
      */
 	router.put('/activate',checkTokenForAccountActivation, function (req, res, next) {
 		const authServiceInst = new AuthService();
@@ -166,6 +158,14 @@ module.exports = (router) => {
 	*       "message": "user is not registered",
 	*       "code": "UNAUTHORIZED",
 	*       "httpCode": 401
+	*     }
+	*
+    *@apiErrorExample {json} VALIDATION_FAILED
+	*     HTTP/1.1 422 Validiation Failed
+	*     {
+	*       "message": "Password already created",
+    *       "code": "VALIDATION_FAILED",
+    *       "httpCode": 422
 	*     }
 	*  
 	*/
