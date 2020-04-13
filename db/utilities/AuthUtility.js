@@ -64,10 +64,10 @@ class AuthUtility {
         })
     }
 
-    async getUserByToken(token, isCheckStatus) {
+    async getUserByToken(token, isCheckStatus,isCheckForgotPassToken) {
         try {
             const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
-            const project = ["user_id", "username", "role", "member_type", "status"];
+            const project = ["user_id", "username", "role", "member_type", "status","forgot_password_token"];
             let user = await this.loginUtility.findOne({ user_id: id }, project);
             if (user) {
                 if (isCheckStatus) {
@@ -77,6 +77,13 @@ class AuthUtility {
                     } else if (status !== "active") {
                         throw new errors.Unauthorized("User is not active");
                     }
+                }
+                if(isCheckForgotPassToken && user.forgot_password_token)
+                {
+                    const fpt='Bearer '+user.forgot_password_token
+                    const fptUser = await this.jwtVerification(fpt, config.jwt.jwt_secret);
+                    if(user.user_id !== fptUser.id)
+                    throw new errors.Unauthorized("User authentication failed");
                 }
                 return user;
             } else {
