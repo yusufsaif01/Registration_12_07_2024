@@ -23,9 +23,6 @@ class AuthService {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: data.user_id })
             if (loginDetails) {
-                if (loginDetails.is_email_verified) {
-                    return Promise.reject(new errors.ValidationFailed("email is already verified"));
-                }
                 const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id,
                     loginDetails.username, loginDetails.member_type);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
