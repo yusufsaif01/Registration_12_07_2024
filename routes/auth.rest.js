@@ -116,7 +116,6 @@ module.exports = (router) => {
      */
 	router.put('/activate',checkTokenForAccountActivation, function (req, res, next) {
 		const authServiceInst = new AuthService();
-		console.log(req.authUser)
 	    responseHandler(req, res, authServiceInst.emailVerification(req.authUser));
 	})
 	/**
