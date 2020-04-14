@@ -86,14 +86,14 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 , user_id: 1}
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
                 path: "login_details",
                 projection: { status: 1, is_email_verified: 1, profile_status: 1 }
             };
-            
+            console.log(conditions)
             let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
 
             data = new UserListResponseMapper().map(data, member_type);
@@ -121,7 +121,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { name: 1, associated_players: 1, email: 1 , user_id: 1}
+                projection: { name: 1, associated_players: 1, email: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
@@ -384,9 +384,19 @@ class UserService extends BaseService {
         if (filters.search) {
             filters.search = filters.search.trim()
             if (member_type == 'player') {
-                let [first, second] = filters.search.split(' ')
-                first ? filterArr.push({ first_name: new RegExp(first, 'i') }) : filterArr.push({ first_name: new RegExp(filters.search, 'i') })
-                second ? filterArr.push({ last_name: new RegExp(second, 'i') }) : filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                let [first, second] = filters.search.split(/\s+/)
+                if (first) {
+                    filterArr.push({ $and: [{ first_name: new RegExp(first, 'i') }] })
+                }
+                else
+                    filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+
+                if (second) {
+
+                    filterArr[0].$and.push({ last_name: new RegExp(second, 'i') })
+                }
+                else
+                    filterArr.push({ last_name: new RegExp(filters.search, 'i') })
                 filterArr.push({ player_type: new RegExp(filters.search, 'i') })
                 filterArr.push({
                     position: {
