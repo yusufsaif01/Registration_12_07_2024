@@ -83,6 +83,8 @@ class AuthUtility {
                     const fptUser = await this.jwtVerification(fpt, config.jwt.jwt_secret);
                     if (user.user_id !== fptUser.id)
                         throw new errors.Unauthorized("User authentication failed");
+                } else {
+                    throw new errors.Unauthorized("Activation link expired");
                 }
                 return user;
             } else {

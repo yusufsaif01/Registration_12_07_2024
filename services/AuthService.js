@@ -23,11 +23,9 @@ class AuthService {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: data.user_id })
             if (loginDetails) {
-                const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id,
-                    loginDetails.username, loginDetails.member_type);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
                     is_email_verified: true,
-                    forgot_password_token: tokenForAuthentication
+                    status: 'active'
                 });
                 return Promise.resolve()
             }
@@ -128,6 +126,10 @@ class AuthService {
                 const tokenForForgetPassword = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
                 let resetPasswordURL = config.app.baseURL + "reset-password?token=" + tokenForForgetPassword;
 
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
+                    forgot_password_token: tokenForForgetPassword
+                });
+
                 await this.emailService.forgotPassword(email, resetPasswordURL);
                 return Promise.resolve();
             }
@@ -204,14 +206,14 @@ class AuthService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
                 if (!loginDetails.is_email_verified) {
-                    return Promise.reject(new errors.ValidationFailed("Email is not verifed"));
+                    return Promise.reject(new errors.ValidationFailed("Email is not verified"));
                 }
                 if (!loginDetails.forgot_password_token) {
                     return Promise.reject(new errors.ValidationFailed("Password already created"));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
-                    status: "active", password: password,
+                    password: password,
                     forgot_password_token: ""
                 });
                 return Promise.resolve();
@@ -233,7 +235,7 @@ class AuthService {
                     return Promise.reject(new errors.ValidationFailed("account is not activated"));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
-                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized("User is not registered");
