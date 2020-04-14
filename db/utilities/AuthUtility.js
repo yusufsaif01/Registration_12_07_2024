@@ -78,13 +78,16 @@ class AuthUtility {
                         throw new errors.Unauthorized("User is not active");
                     }
                 }
-                if (isCheckForgotPassToken && user.forgot_password_token) {
-                    const fpt = 'Bearer ' + user.forgot_password_token
-                    const fptUser = await this.jwtVerification(fpt, config.jwt.jwt_secret);
-                    if (user.user_id !== fptUser.id)
-                        throw new errors.Unauthorized("User authentication failed");
-                } else {
-                    throw new errors.Unauthorized("Activation link expired");
+                console.log(user);
+                if (isCheckForgotPassToken) {
+                    if (user.forgot_password_token) {
+                        const fpt = 'Bearer ' + user.forgot_password_token
+                        const fptUser = await this.jwtVerification(fpt, config.jwt.jwt_secret);
+                        if (user.user_id !== fptUser.id)
+                            throw new errors.Unauthorized("User authentication failed");
+                    } else {
+                        throw new errors.Unauthorized("Activation link expired");
+                    }
                 }
                 return user;
             } else {
