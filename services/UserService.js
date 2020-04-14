@@ -93,7 +93,7 @@ class UserService extends BaseService {
                 path: "login_details",
                 projection: { status: 1, is_email_verified: 1, profile_status: 1 }
             };
-
+            
             let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
 
             data = new UserListResponseMapper().map(data, member_type);
@@ -382,9 +382,11 @@ class UserService extends BaseService {
         let condition = {};
         let filterArr = []
         if (filters.search) {
+            filters.search = filters.search.trim()
             if (member_type == 'player') {
-                filterArr.push({ first_name: new RegExp(filters.search, 'i') })
-                filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                let [first, second] = filters.search.split(' ')
+                first ? filterArr.push({ first_name: new RegExp(first, 'i') }) : filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+                second ? filterArr.push({ last_name: new RegExp(second, 'i') }) : filterArr.push({ last_name: new RegExp(filters.search, 'i') })
                 filterArr.push({ player_type: new RegExp(filters.search, 'i') })
                 filterArr.push({
                     position: {
@@ -399,6 +401,8 @@ class UserService extends BaseService {
                 filterArr.push({ name: new RegExp(filters.search, 'i') })
                 let num = Number(filters.search)
                 if (!isNaN(num)) {
+                    if (num === 0)
+                        filterArr.push({ associated_players: null })
                     filterArr.push({ associated_players: num })
                 }
             }
