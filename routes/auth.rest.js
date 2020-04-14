@@ -82,41 +82,41 @@ module.exports = (router) => {
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
 	});
-	        /**
-     * @api {put} /activate email verification
-     * @apiName activate
-     * @apiGroup Auth
-     *
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} UNAUTHORIZED
-	 *     HTTP/1.1 401 Unauthorized
-	 *     {
-	 *       "message": "Unauthorized",
-     *       "code": "UNAUTHORIZED",
-     *       "httpCode": 401
-	 *     }
-     * 
-     */
-	router.put('/activate',checkTokenForAccountActivation, function (req, res, next) {
+	/**
+* @api {put} /activate email verification
+* @apiName activate
+* @apiGroup Auth
+*
+* @apiSuccess {String} status success
+* @apiSuccess {String} message Successfully done
+*
+* @apiSuccessExample {json} Success-Response:
+*     HTTP/1.1 200 OK
+*     {
+*       "status": "success",
+*       "message": "Successfully done"
+*     }
+*
+* @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+*     HTTP/1.1 500 Internal server error
+*     {
+*       "message": "Internal Server Error",
+*       "code": "INTERNAL_SERVER_ERROR",
+*       "httpCode": 500
+*     }
+*
+* @apiErrorExample {json} UNAUTHORIZED
+*     HTTP/1.1 401 Unauthorized
+*     {
+*       "message": "Unauthorized",
+*       "code": "UNAUTHORIZED",
+*       "httpCode": 401
+*     }
+* 
+*/
+	router.put('/activate', checkTokenForAccountActivation, function (req, res, next) {
 		const authServiceInst = new AuthService();
-	    responseHandler(req, res, authServiceInst.emailVerification(req.authUser));
+		responseHandler(req, res, authServiceInst.emailVerification(req.authUser));
 	})
 	/**
 	* @api {post} /create-password create password 

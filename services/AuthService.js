@@ -203,17 +203,17 @@ class AuthService {
             await this.validateCreatePassword(tokenData, new_password, confirmPassword);
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
-                if(!loginDetails.is_email_verified)
-                {
+                if (!loginDetails.is_email_verified) {
                     return Promise.reject(new errors.ValidationFailed("Email is not verifed"));
                 }
-                if(!loginDetails.forgot_password_token)
-                {
+                if (!loginDetails.forgot_password_token) {
                     return Promise.reject(new errors.ValidationFailed("Password already created"));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
-                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {status: "active", password: password,
-                forgot_password_token:""});
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
+                    status: "active", password: password,
+                    forgot_password_token: ""
+                });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized("User is not registered");

@@ -15,7 +15,7 @@ const _checkToken = async (req, isCheckStatus, isCheckForgotPassToken) => {
             const authUtilityInst = new AuthUtility();
             const user = await authUtilityInst.getUserByToken(token, isCheckStatus, isCheckForgotPassToken);
             return user;
-        } 
+        }
         throw new errors.Unauthorized();
 
     } catch (err) {
@@ -37,7 +37,7 @@ module.exports = {
 
     async checkAuthToken(req, res, next) {
         try {
-            const user = await _checkToken(req, true,false);
+            const user = await _checkToken(req, true, false);
             req.authUser = user;
             return next();
         } catch (err) {
