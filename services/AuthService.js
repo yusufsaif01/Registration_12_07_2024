@@ -28,8 +28,16 @@ class AuthService {
             ActivityService.loginActivity(loginDetails.user_id, "login");
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
-
-            return { ...loginDetails, token: tokenForAuthentication };
+            let avatarUrl="";
+            if (loginDetails.member_type === 'player') {
+                const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: loginDetails.user_id })
+                avatarUrl = avatar_url
+            }
+            else {
+                const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: loginDetails.user_id })
+                avatarUrl = avatar_url
+            }
+            return { ...loginDetails, avatar_url: avatarUrl, token: tokenForAuthentication };
         } catch (e) {
             console.log(e);
             return Promise.reject(e);
