@@ -332,12 +332,22 @@ class UserService extends BaseService {
             if (member_type === "player") {
                 if (filterConditions.name) {
                     let nameArr = filterConditions.name.split(/\s+/)
-                    let name = [];
-                    nameArr.forEach(search => {
-                        name.push({ first_name: new RegExp(search, 'i') })
-                        name.push({ last_name: new RegExp(search, 'i') })
-                    });
-                    filterArr.push({ $or: name })
+                    if (nameArr.length) {
+                        let name = [];
+                        nameArr.forEach(search => {
+                            name.push({ first_name: new RegExp(search, 'i') })
+                            name.push({ last_name: new RegExp(search, 'i') })
+                        });
+                        filterArr.push({ $or: name })
+                    }
+                    else {
+                        filterArr.push({
+                            $or: [
+                                { first_name: new RegExp(filterConditions.name, 'i') },
+                                { last_name: new RegExp(filterConditions.name, 'i') }
+                            ]
+                        });
+                    }
                 }
                 if (filterConditions.position) {
                     filterArr.push({
