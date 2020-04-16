@@ -199,6 +199,18 @@ module.exports = (router) => {
      *       "data": {"n": 1,
      *                "nModified": 1,
      *                "ok": 1}
+     *     }   
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {"n": 1,
+     *                "nModified": 1,
+     *                "ok": 1,
+     *                "avatar_url": "\uploads\documents\Sample.jpg"
+     *               }
      *     }
      *
      * @apiErrorExample {json} Unauthorized

@@ -116,9 +116,19 @@ class UserProfileService {
         let bioData = await this.prepareBioData(requestedData.updateValues);
         console.log({ 'user_id': requestedData.id }, bioData, requestedData.member_type);
         if (requestedData.member_type == 'player') {
-            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            let res = await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            if (bioData.avatar_url) {
+                const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
+                res.avatar_url = avatar_url;
+            }
+            return res;
         } else {
-            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            let res = await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            if (bioData.avatar_url) {
+                const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
+                res.avatar_url = avatar_url;
+            }
+            return res;
         }
     }
 
@@ -263,7 +273,7 @@ class UserProfileService {
                     throw new errors.ValidationFailed("Invalid value for manager");
                 }
             }
-            
+
             if (reqObj.top_signings) {
                 try {
                     let top_signings = JSON.parse(reqObj.top_signings);
@@ -273,7 +283,7 @@ class UserProfileService {
                     throw new errors.ValidationFailed("Invalid value for top_signings");
                 }
             }
-            
+
             return reqObj;
         } catch (e) {
             throw e;
