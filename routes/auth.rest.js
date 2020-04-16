@@ -64,6 +64,7 @@ module.exports = (router) => {
      *                "email": "newclub@newclub.com",
      *                "role": "club",
      *                "member_type": "club",
+	 *                "avatar_url": "/uploads/avatar/user-avatar.png",
      *                "token": "emlhdCI6MTU4NjM1MTgzOZQXcVhb7e8xD9EaImqZwaErrhK7s"
      *}
 	 *     }
