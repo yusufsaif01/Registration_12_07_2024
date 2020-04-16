@@ -187,6 +187,7 @@ class AuthService {
             if (loginDetails) {
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true, status: "active", password: password });
+                await this.emailService.welcome(loginDetails.username);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized("User is not registered");
