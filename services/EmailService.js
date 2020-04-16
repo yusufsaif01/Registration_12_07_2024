@@ -14,6 +14,9 @@ class EmailService {
         await this.sendMail("emailVerification", { email: email, activation_link: activation_link });
     }
 
+    async welcome(email) {
+        await this.sendMail("welcome", { email: email });
+    }
     async changePassword(email) {
         await this.sendMail("changePassword", { email: email });
     }

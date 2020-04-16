@@ -217,6 +217,7 @@ class AuthService {
                     password: password,
                     forgot_password_token: ""
                 });
+                await this.emailService.welcome(loginDetails.username);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized("User is not registered");
