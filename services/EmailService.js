@@ -17,6 +17,9 @@ class EmailService {
     async welcome(email) {
         await this.sendMail("welcome", { email: email });
     }
+    async changePassword(email) {
+        await this.sendMail("changePassword", { email: email });
+    }
 
     async sendMail(mailTemplate, data) {
         try {
