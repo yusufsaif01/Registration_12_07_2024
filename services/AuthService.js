@@ -138,6 +138,7 @@ class AuthService {
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized("User is not registered");
