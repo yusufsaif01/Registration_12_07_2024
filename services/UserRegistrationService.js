@@ -81,12 +81,15 @@ class UserRegistrationService extends UserService {
             userData.user_id = uuid();
             userData.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
 
+            const tokenForAccountActivation = await this.authUtilityInst.getAuthToken(userData.user_id, userData.email, userData.member_type);
+
             let loginDetails = await this.loginUtilityInst.insert({
                 user_id: userData.user_id,
                 username: userData.email,
                 status: 'pending',
                 role: userData.member_type,
-                member_type: userData.member_type
+                member_type: userData.member_type,
+                forgot_password_token: tokenForAccountActivation
             });
             userData.login_details = loginDetails._id;
 
@@ -95,7 +98,7 @@ class UserRegistrationService extends UserService {
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
             }
-            const tokenForAccountActivation = await this.authUtilityInst.getAuthToken(userData.user_id, userData.email, userData.member_type);
+
             let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
             this.emailService.emailVerification(userData.email, accountActivationURL);
             return Promise.resolve();
@@ -141,7 +144,7 @@ class UserRegistrationService extends UserService {
             role: 'admin',
             password: adminDetails.password,
             profile_status: "verified",
-            is_email_verified:true
+            is_email_verified: true
         });
         adminDetails.login_details = loginDetails._id;
 
