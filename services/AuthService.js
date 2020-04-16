@@ -4,6 +4,7 @@ const config = require('../config');
 const ActivityService = require('./ActivityService');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const AdminUtility = require('../db/utilities/AdminUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
@@ -13,6 +14,7 @@ class AuthService {
 
     constructor() {
         this.authUtilityInst = new AuthUtility();
+        this.adminUtilityInst = new AdminUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.loginUtilityInst = new LoginUtility();
         this.activityUtilityInst = new ActivityUtility();
@@ -47,6 +49,10 @@ class AuthService {
             let avatarUrl = "";
             if (loginDetails.member_type === 'player') {
                 const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
+                avatarUrl = avatar_url
+            }
+            else if (loginDetails.role === 'admin') {
+                const { avatar_url } = await this.adminUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
                 avatarUrl = avatar_url
             }
             else {
