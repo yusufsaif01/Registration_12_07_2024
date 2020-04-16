@@ -75,7 +75,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 , user_id: 1}
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
@@ -110,7 +110,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { name: 1, associated_players: 1, email: 1 , user_id: 1}
+                projection: { name: 1, associated_players: 1, email: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
@@ -331,12 +331,13 @@ class UserService extends BaseService {
             }
             if (member_type === "player") {
                 if (filterConditions.name) {
-                    filterArr.push({
-                        $or: [
-                            { first_name: new RegExp(filterConditions.name, 'i') },
-                            { last_name: new RegExp(filterConditions.name, 'i') }
-                        ]
+                    let nameArr = filterConditions.name.split(/\s+/)
+                    let name = [];
+                    nameArr.forEach(search => {
+                        name.push({ first_name: new RegExp(search, 'i') })
+                        name.push({ last_name: new RegExp(search, 'i') })
                     });
+                    filterArr.push({ $or: name })
                 }
                 if (filterConditions.position) {
                     filterArr.push({
