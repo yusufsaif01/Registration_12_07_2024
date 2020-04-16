@@ -93,7 +93,6 @@ class UserService extends BaseService {
                 path: "login_details",
                 projection: { status: 1, is_email_verified: 1, profile_status: 1 }
             };
-            console.log(conditions)
             let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
 
             data = new UserListResponseMapper().map(data, member_type);
@@ -385,7 +384,7 @@ class UserService extends BaseService {
             filters.search = filters.search.trim()
             if (member_type == 'player') {
                 let searchArr = filters.search.split(/\s+/)
-                if (searchArr) {
+                if (searchArr.length) {
                     let name = [];
                     searchArr.forEach(search => {
                         name.push({ first_name: new RegExp(search, 'i') })
