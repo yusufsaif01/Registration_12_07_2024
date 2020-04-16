@@ -46,6 +46,17 @@ class UserService extends BaseService {
                 conditions.user_id = { $in: users };
             }
 
+            if (requestedData.filter && requestedData.filter.search) {
+                let _condition = {}
+                _condition.status = new RegExp(requestedData.filter.search, 'i');
+
+                let users = await this.loginUtilityInst.find(_condition, { user_id: 1 });
+                users = _.map(users, "user_id");
+                if (conditions.$or)
+                    conditions.$or.push({ user_id: { $in: users } });
+
+            }
+
             filterConditions = this._prepareFilterCondition(requestedData.filterConditions, member_type)
             if (filterConditions) {
                 conditions.$and = filterConditions.$and
@@ -75,14 +86,13 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1 , user_id: 1}
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
                 path: "login_details",
                 projection: { status: 1, is_email_verified: 1, profile_status: 1 }
             };
-
             let data = await this.playerUtilityInst.populate(baseOptions, toBePopulatedOptions);
 
             data = new UserListResponseMapper().map(data, member_type);
@@ -110,7 +120,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { name: 1, associated_players: 1, email: 1 , user_id: 1}
+                projection: { name: 1, associated_players: 1, email: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
@@ -371,9 +381,21 @@ class UserService extends BaseService {
         let condition = {};
         let filterArr = []
         if (filters.search) {
+            filters.search = filters.search.trim()
             if (member_type == 'player') {
-                filterArr.push({ first_name: new RegExp(filters.search, 'i') })
-                filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                let searchArr = filters.search.split(/\s+/)
+                if (searchArr.length) {
+                    let name = [];
+                    searchArr.forEach(search => {
+                        name.push({ first_name: new RegExp(search, 'i') })
+                        name.push({ last_name: new RegExp(search, 'i') })
+                    });
+                    filterArr.push({ $or: name })
+                }
+                else {
+                    filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+                    filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                }
                 filterArr.push({ player_type: new RegExp(filters.search, 'i') })
                 filterArr.push({
                     position: {
@@ -388,6 +410,8 @@ class UserService extends BaseService {
                 filterArr.push({ name: new RegExp(filters.search, 'i') })
                 let num = Number(filters.search)
                 if (!isNaN(num)) {
+                    if (num === 0)
+                        filterArr.push({ associated_players: null })
                     filterArr.push({ associated_players: num })
                 }
             }
