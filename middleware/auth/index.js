@@ -8,14 +8,14 @@ var _checkRole = (req, roles) => {
     return roles.includes(req.authUser.role);
 };
 
-const _checkToken = async (req, isCheckStatus) => {
+const _checkToken = async (req, isCheckStatus, isCheckForgotPassToken) => {
     try {
         const token = req.headers.authorization || req.body.token;
         if (token) {
             const authUtilityInst = new AuthUtility();
-            const user = await authUtilityInst.getUserByToken(token, isCheckStatus);
+            const user = await authUtilityInst.getUserByToken(token, isCheckStatus, isCheckForgotPassToken);
             return user;
-        } 
+        }
         throw new errors.Unauthorized();
 
     } catch (err) {
@@ -37,7 +37,7 @@ module.exports = {
 
     async checkAuthToken(req, res, next) {
         try {
-            const user = await _checkToken(req, true);
+            const user = await _checkToken(req, true, false);
             req.authUser = user;
             return next();
         } catch (err) {
@@ -49,7 +49,7 @@ module.exports = {
 
     async checkTokenForAccountActivation(req, res, next) {
         try {
-            const user = await _checkToken(req, false);
+            const user = await _checkToken(req, false, true);
             req.authUser = user;
             return next();
         } catch (err) {
