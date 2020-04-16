@@ -3,6 +3,6 @@ module.exports = ({ email }) => {
         to: email,
         subject: 'Welcome To YFTChain',
         // html: "",
-        text: `Welcome to YFTChain`
+        text: `Welcome to YFTChain.`
     };
 };
