@@ -11,6 +11,8 @@ const ActivityUtility = require('../db/utilities/ActivityUtility');
 const EmailService = require('./EmailService');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
+const MEMBER = require('../constants/MemberType');
+const ROLE = require('../constants/Role');
 
 class AuthService {
 
@@ -29,11 +31,11 @@ class AuthService {
             if (loginDetails) {
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
                     is_email_verified: true,
-                    status: 'active'
+                    status: ACCOUNT.ACTIVE
                 });
                 return Promise.resolve()
             }
-            throw new errors.NotFound("User not found");
+            throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (err) {
             console.log(err);
             return Promise.reject(err);
@@ -49,11 +51,11 @@ class AuthService {
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
             let avatarUrl = "";
-            if (loginDetails.member_type === 'player') {
+            if (loginDetails.member_type === MEMBER.PLAYER) {
                 const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
                 avatarUrl = avatar_url
             }
-            else if (loginDetails.role === 'admin') {
+            else if (loginDetails.role === ROLE.ADMIN) {
                 const { avatar_url } = await this.adminUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
                 avatarUrl = avatar_url
             }
@@ -223,10 +225,10 @@ class AuthService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
                 if (!loginDetails.is_email_verified) {
-                    return Promise.reject(new errors.ValidationFailed("Email is not verified"));
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMAIL_NOT_VERIFIED));
                 }
                 if (!loginDetails.forgot_password_token) {
-                    return Promise.reject(new errors.ValidationFailed("Password already created"));
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PASSWORD_ALREADY_CREATED));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {

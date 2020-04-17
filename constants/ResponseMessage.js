@@ -47,6 +47,9 @@ class ResponseMessage {
     static get PASSWORD_REQUIRED() {
         return "Password is required"
     }
+    static get PASSWORD_ALREADY_CREATED() {
+        return "Password already created"
+    }
     static get TOKEN_REQUIRED() {
         return "Token is required"
     }
