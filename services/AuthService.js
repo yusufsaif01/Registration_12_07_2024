@@ -13,6 +13,7 @@ const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
 const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
+const ACTIVITY = require('../constants/Activity');
 
 class AuthService {
 
@@ -47,7 +48,7 @@ class AuthService {
             await this.loginValidator(email, password);
             const loginDetails = await this.findByCredentials(email, password);
 
-            ActivityService.loginActivity(loginDetails.user_id, "login");
+            ActivityService.loginActivity(loginDetails.user_id, ACTIVITY.LOGIN);
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
             let avatarUrl = "";
@@ -116,7 +117,7 @@ class AuthService {
     async logout(data) {
         try {
             await this.loginUtilityInst.updateOne({ user_id: data.user_id }, { token: "" });
-            await ActivityService.loginActivity(data.user_id, "logout");
+            await ActivityService.loginActivity(data.user_id, ACTIVITY.LOGOUT);
             return Promise.resolve();
         } catch (err) {
             console.log(err);

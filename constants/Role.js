@@ -7,7 +7,7 @@ class Role {
     }
     static get CLUB() {
         return "club";
-    }static get ACADEMY() {
+    } static get ACADEMY() {
         return "academy";
     }
 }
