@@ -5,11 +5,17 @@ class ResponseMessage {
     static get ACCOUNT_NOT_ACTIVATED() {
         return "Account is not activated";
     }
+    static get ACTIVATION_LINK_EXPIRED() {
+        return "Activation link expired";
+    }
     static get EMAIL_NOT_VERIFIED() {
         return "Email is not verified";
     }
     static get USER_NOT_REGISTERED() {
         return "User is not registered";
+    }
+    static get USER_AUTHENTICATION_FAILED() {
+        return "User authentication failed";
     }
     static get USER_NOT_FOUND() {
         return "User not found";
@@ -108,7 +114,7 @@ class ResponseMessage {
     static get STATUS_ALREADY_BLOCKED() {
         return "Status is already blocked"
     }
-    
+
 }
 
 module.exports = ResponseMessage
