@@ -59,7 +59,8 @@ class UserValidator {
             "top_players": Joi.string(),
 
             // need to remove
-            "document": Joi.any()
+            "document": Joi.any(),
+            "aiff": Joi.any()
 
         });
 

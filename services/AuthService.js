@@ -4,6 +4,7 @@ const config = require('../config');
 const ActivityService = require('./ActivityService');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const AdminUtility = require('../db/utilities/AdminUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const ActivityUtility = require('../db/utilities/ActivityUtility');
@@ -15,11 +16,28 @@ class AuthService {
 
     constructor() {
         this.authUtilityInst = new AuthUtility();
+        this.adminUtilityInst = new AdminUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.loginUtilityInst = new LoginUtility();
         this.activityUtilityInst = new ActivityUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.emailService = new EmailService();
+    }
+    async emailVerification(data) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: data.user_id })
+            if (loginDetails) {
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
+                    is_email_verified: true,
+                    status: 'active'
+                });
+                return Promise.resolve()
+            }
+            throw new errors.NotFound("User not found");
+        } catch (err) {
+            console.log(err);
+            return Promise.reject(err);
+        }
     }
 
     async login(email, password) {
@@ -30,8 +48,20 @@ class AuthService {
             ActivityService.loginActivity(loginDetails.user_id, "login");
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
-
-            return { ...loginDetails, token: tokenForAuthentication };
+            let avatarUrl = "";
+            if (loginDetails.member_type === 'player') {
+                const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
+                avatarUrl = avatar_url
+            }
+            else if (loginDetails.role === 'admin') {
+                const { avatar_url } = await this.adminUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
+                avatarUrl = avatar_url
+            }
+            else {
+                const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
+                avatarUrl = avatar_url
+            }
+            return { ...loginDetails, avatar_url: avatarUrl, token: tokenForAuthentication };
         } catch (e) {
             console.log(e);
             return Promise.reject(e);
@@ -112,6 +142,10 @@ class AuthService {
                 const tokenForForgetPassword = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
                 let resetPasswordURL = config.app.baseURL + "reset-password?token=" + tokenForForgetPassword;
 
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
+                    forgot_password_token: tokenForForgetPassword
+                });
+
                 await this.emailService.forgotPassword(email, resetPasswordURL);
                 return Promise.resolve();
             }
@@ -140,6 +174,7 @@ class AuthService {
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
@@ -187,8 +222,18 @@ class AuthService {
             await this.validateCreatePassword(tokenData, new_password, confirmPassword);
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
+                if (!loginDetails.is_email_verified) {
+                    return Promise.reject(new errors.ValidationFailed("Email is not verified"));
+                }
+                if (!loginDetails.forgot_password_token) {
+                    return Promise.reject(new errors.ValidationFailed("Password already created"));
+                }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
-                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { is_email_verified: true, status: ACCOUNT.ACTIVE, password: password });
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
+                    password: password,
+                    forgot_password_token: ""
+                });
+                await this.emailService.welcome(loginDetails.username);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
@@ -208,7 +253,7 @@ class AuthService {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
-                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

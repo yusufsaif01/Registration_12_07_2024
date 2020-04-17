@@ -10,8 +10,15 @@ class EmailService {
     }
 
     async emailVerification(email, activation_link) {
-        console.log('activation-link', activation_link, 'email',email)
+        console.log('activation-link', activation_link, 'email', email)
         await this.sendMail("emailVerification", { email: email, activation_link: activation_link });
+    }
+
+    async welcome(email) {
+        await this.sendMail("welcome", { email: email });
+    }
+    async changePassword(email) {
+        await this.sendMail("changePassword", { email: email });
     }
 
     async sendMail(mailTemplate, data) {
@@ -22,7 +29,7 @@ class EmailService {
         } catch (err) {
             console.log("Error in sending mail", err);
             return Promise.resolve();
-        }   
+        }
     }
 }
 
