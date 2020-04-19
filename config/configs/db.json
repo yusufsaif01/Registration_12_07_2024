@@ -1,12 +1,12 @@
 {
-    "host": {
+    "db_host": {
         "doc": "Database host name/IP",
         "format": "String",
-        "default": "mongodb://127.0.0.1:27017/",
-        "env": "MONGO_HOST_URL",
-        "arg": "mongo_host_url"
+        "default": "127.0.0.1:27017",
+        "env": "MONGO_HOST",
+        "arg": "mongo_host"
     },
-    "name": {
+    "db_name": {
         "doc": "Database name",
         "format": "String",
         "default": "YFTChain",

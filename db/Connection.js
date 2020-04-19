@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
+const config = require("../config");
 
 class Connection {
-	async connectDB({ host, name }) {
-		let url = host + name;
-		this.dbConnection = await this.connectMongoDB(url);
+
+	constructor() {
+		this.config = config.db;
+	}
+
+	async connectDB() {
+		this.dbConnection = await this.connectMongoDB();
 		return this.dbConnection;
 	}
 
@@ -12,10 +17,19 @@ class Connection {
 		return mongoose.connection.close();
 	}
 
-	async connectMongoDB(mongoDbURL, options = {}) {
+	async connectMongoDB() {
 		try {
+			let options = this.config.options || {};
+			options.useNewUrlParser = true;
+			options.promiseLibrary = Promise;
+			let hostURL = `${this.config.db_host}/${this.config.db_name}`;
+			if(this.config.is_auth_enable) {
+				hostURL = `${this.config.db_user}:${this.config.db_pass}@${hostURL}`;
+			}
+			let mongoDbURL = `mongodb://${hostURL}`;
+ 
 			this.attachEvents();
-			options.useCreateIndex = true;
+			console.log(mongoDbURL)
 			return mongoose.connect(mongoDbURL, options);
 		} catch (err) {
 			console.error({ err }, "Error in mongo DB connection.");
