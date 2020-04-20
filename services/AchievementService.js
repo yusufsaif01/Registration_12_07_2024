@@ -8,7 +8,7 @@ class AchievementService extends BaseService {
 		this.achievementUtilityInst = new AchievementUtility();
 	}
 
-	async count(user_id) {
+	async stats(user_id) {
 		try {
 			let achievementCount = 0, tournamentCount = 0;
 			achievementCount = await this.achievementUtilityInst.countList({ user_id: user_id });

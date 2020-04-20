@@ -41,6 +41,6 @@ module.exports = (router) => {
  */
     router.get('/timeline/achievement/stats', checkAuthToken, function (req, res) {
         let serviceInst = new AchievementService();
-        responseHandler(req, res, serviceInst.count(req.authUser.user_id));
+        responseHandler(req, res, serviceInst.stats(req.authUser.user_id));
     });
 }
