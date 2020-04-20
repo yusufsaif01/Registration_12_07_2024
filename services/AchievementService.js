@@ -22,7 +22,6 @@ class AchievementService extends BaseService {
 			}
 			return response;
 		} catch (err) {
-			console.log("Error in stats() of AchievementService", e);
 			return err;
 		}
 	}
