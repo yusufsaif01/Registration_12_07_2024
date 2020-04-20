@@ -49,6 +49,16 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
+	async add(requestedData = {}) {
+		try {
+			let achievement = requestedData.reqObj;
+			achievement.user_id=requestedData.user_id;
+			this.achievementUtilityInst.insert(achievement)
+		} catch (err) {
+			console.log("Error in add() of AchievementService", e);
+			return err;
+		}
+	}
 }
 
 module.exports = AchievementService;

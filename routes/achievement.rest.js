@@ -1,6 +1,7 @@
 const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
+const FileService = require('../services/FileService');
 
 module.exports = (router) => {
     /**
@@ -110,4 +111,20 @@ module.exports = (router) => {
             paginationOptions, sortOptions, user_id: req.authUser.user_id
         }));
     });
+    router.post('/achievement/add', checkAuthToken, async function (req, res) {
+        let reqObj = req.body
+        if (req.files) {
+            const _fileInst = new FileService();
+            if (req.files.achievement) {
+                let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.avatar.achievement);
+                reqObj.media_url = media_url;
+            }
+        }
+        let serviceInst = new AchievementService();
+        responseHandler(req, res, serviceInst.add({
+            reqObj: reqObj,
+            user_id: req.authUser.user_id
+        }));
+    });
+
 }
