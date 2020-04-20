@@ -81,6 +81,42 @@ class AchievementService extends BaseService {
 			return e;
 		}
 	}
+	async edit(requestedData = {}) {
+		try {
+			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id })
+			if (!foundAchievement) {
+				return Promise.reject(new errors.NotFound("Achievement not found"));
+			}
+			let achievement = requestedData.reqObj;
+			if (achievement.year) {
+				let msg = null;
+				let d = new Date();
+				let currentYear = d.getFullYear();
+
+				if (achievement.year > currentYear) {
+					msg = "year is greater than " + currentYear
+				}
+				if (achievement.year < 1970) {
+					msg = "year is less than 1970"
+				}
+				if (achievement.year < 0) {
+					msg = "year cannot be negative"
+				}
+				if (achievement.year == 0) {
+					msg = "year cannot be zero"
+				}
+				if (msg) {
+					return Promise.reject(new errors.ValidationFailed(msg));
+				}
+			}
+			achievement.user_id = requestedData.user_id;
+			let response = await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
+			return response;
+		} catch (e) {
+			console.log("Error in edit() of AchievementService", e);
+			return e;
+		}
+	}
 }
 
 module.exports = AchievementService;
