@@ -3,6 +3,7 @@ const authRoutes = require('./auth.rest');
 const userProfileRoutes = require('./userProfile.rest');
 const masterDataRoutes = require('./master-data.rest');
 const memberRoutes = require('./member.rest');
+const achievementRoutes = require('./achievement.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -12,6 +13,7 @@ class Route {
 		userProfileRoutes(apiRouter);
 		masterDataRoutes(apiRouter);
 		memberRoutes(apiRouter);
+		achievementRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));
