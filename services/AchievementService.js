@@ -10,9 +10,14 @@ class AchievementService extends BaseService {
 
 	async count(user_id) {
 		try {
-			let achievements = 0;
-			achievements = await this.achievementUtilityInst.countList({ user_id: user_id });
-			return { count: achievements };
+			let achievementCount = 0, tournamentCount = 0;
+			achievementCount = await this.achievementUtilityInst.countList({ user_id: user_id });
+			let response = {
+				achievements: achievementCount,
+				tournaments: tournamentCount
+
+			}
+			return response;
 		} catch (err) {
 			return err;
 		}
