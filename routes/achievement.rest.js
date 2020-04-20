@@ -113,7 +113,7 @@ module.exports = (router) => {
         }));
     });
     /**
- * @api {post} /achievement/add add achievements
+ * @api {post} /achievement/add add achievement
  * @apiName add achievement
  * @apiGroup Achievement
  *   
