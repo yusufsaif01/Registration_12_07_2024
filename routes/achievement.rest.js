@@ -170,53 +170,53 @@ module.exports = (router) => {
         }
     });
      /**
-         * @api {put} /achievement/:id edit achievements
-         * @apiName edit achievements
-         * @apiGroup Achievement
-         *   
-         * @apiParam (body) {String} type type of achievement
-         * @apiParam (body) {String} name name of achievement
-         * @apiParam (body) {String} year year of achievement
-         * @apiParam (body) {String} position position achieved
-         * 
-         * @apiSuccess {String} status success
-         * @apiSuccess {String} message Successfully done
-         *
-         * @apiSuccessExample {json} Success-Response:
-         *     HTTP/1.1 200 OK
-         *     {
-         *       "status": "success",
-         *       "message": "Successfully done",
-         *       "data": {"n": 1,
-         *                "nModified": 1,
-         *                "ok": 1}
-         *     }   
-         * 
-         * @apiErrorExample {json} Unauthorized
-         *     HTTP/1.1 401 Unauthorized
-         *     {
-         *       "message": "Unauthorized",
-         *       "code": "UNAUTHORIZED",
-         *       "httpCode": 401
-         *     }
-         * 
-         * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-         *     HTTP/1.1 500 Internal server error
-         *     {
-         *       "message": "Internal Server Error",
-         *       "code": "INTERNAL_SERVER_ERROR",
-         *       "httpCode": 500
-         *     }
-         *
-         * @apiErrorExample {json} NOT_FOUND
-	     *     HTTP/1.1 404 Not found
-	     *     {
-	     *       "message": "Achievement not found",
-         *       "code": "NOT_FOUND",
-         *       "httpCode": 404
-	     *     }
-         * 
-         */
+ * @api {put} /achievement/:id edit achievements
+ * @apiName edit achievements
+ * @apiGroup Achievement
+ *   
+ * @apiParam (body) {String} type type of achievement
+ * @apiParam (body) {String} name name of achievement
+ * @apiParam (body) {String} year year of achievement
+ * @apiParam (body) {String} position position achieved
+ * 
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done",
+ *       "data": {"n": 1,
+ *                "nModified": 1,
+ *                "ok": 1}
+ *     }   
+ * 
+ * @apiErrorExample {json} Unauthorized
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized",
+ *       "code": "UNAUTHORIZED",
+ *       "httpCode": 401
+ *     }
+ * 
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ * @apiErrorExample {json} NOT_FOUND
+ *     HTTP/1.1 404 Not found
+ *     {
+ *       "message": "Achievement not found",
+ *       "code": "NOT_FOUND",
+ *       "httpCode": 404
+ *     }
+ * 
+ */
         router.put('/achievement/:id', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
             let reqObj = req.body
             try {
