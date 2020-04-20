@@ -171,7 +171,7 @@ module.exports = (router) => {
     });
     /**
 * @api {put} /achievement/:id edit achievements
-* @apiName edit achievements
+* @apiName edit achievement
 * @apiGroup Achievement
 *   
 * @apiParam (body) {String} type type of achievement
