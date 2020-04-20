@@ -86,7 +86,7 @@ class AuthUtility {
                         if (user.user_id !== fptUser.id)
                             throw new errors.Unauthorized("User authentication failed");
                     } else {
-                        throw new errors.Unauthorized("Activation link expired");
+                        throw new errors.LinkExpired("Link has been expired");
                     }
                 }
                 return user;
