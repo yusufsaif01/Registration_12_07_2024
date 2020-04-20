@@ -52,7 +52,27 @@ class AchievementService extends BaseService {
 	async add(requestedData = {}) {
 		try {
 			let achievement = requestedData.reqObj;
-			await this.AchievementValidation(achievement);
+			if (achievement.year) {
+				let msg = null;
+				let d = new Date();
+				let currentYear = d.getFullYear();
+	
+				if (achievement.year > currentYear) {
+					msg = "year is greater than " + currentYear
+				}
+				if (achievement.year < 1970) {
+					msg = "year is less than 1970"
+				}
+				if (achievement.year < 0) {
+					msg = "year cannot be negative"
+				}
+				if (achievement.year == 0) {
+					msg = "year cannot be zero"
+				}
+				if (msg) {
+					return Promise.reject(new errors.ValidationFailed(msg));
+				}
+			}
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.insert(achievement)
 			Promise.resolve();
@@ -60,31 +80,6 @@ class AchievementService extends BaseService {
 			console.log("Error in add() of AchievementService", e);
 			return e;
 		}
-	}
-	AchievementValidation(data) {
-		const { year } = data
-		if (year) {
-			let msg = null;
-			let d = new Date();
-			let currentYear = d.getFullYear();
-
-			if (year > currentYear) {
-				msg = "year is greater than " + currentYear
-			}
-			if (year < 1970) {
-				msg = "year is less than 1970"
-			}
-			if (year < 0) {
-				msg = "year cannot be negative"
-			}
-			if (year == 0) {
-				msg = "year cannot be zero"
-			}
-			if (msg) {
-				return Promise.reject(new errors.ValidationFailed(msg));
-			}
-		}
-		return Promise.resolve()
 	}
 }
 
