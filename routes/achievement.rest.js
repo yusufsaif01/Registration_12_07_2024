@@ -2,6 +2,7 @@ const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
+const userValidator = require("../middleware/validators").userValidator;
 
 module.exports = (router) => {
     /**
@@ -111,44 +112,44 @@ module.exports = (router) => {
             paginationOptions, sortOptions, user_id: req.authUser.user_id
         }));
     });
-/**
-     * @api {post} /achievement/add add achievements
-     * @apiName add achievements
-     * @apiGroup Achievement
-     *   
-     * @apiParam (body) {String} type type of achievement
-     * @apiParam (body) {String} name name of achievement
-     * @apiParam (body) {String} year year of achievement
-     * @apiParam (body) {String} position position achieved
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }   
-     * 
-     * @apiErrorExample {json} Unauthorized
-	 *     HTTP/1.1 401 Unauthorized
-	 *     {
-	 *       "message": "Unauthorized",
-     *       "code": "UNAUTHORIZED",
-     *       "httpCode": 401
-	 *     }
-     * 
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     */
-    router.post('/achievement/add', checkAuthToken, async function (req, res) {
+    /**
+         * @api {post} /achievement/add add achievements
+         * @apiName add achievements
+         * @apiGroup Achievement
+         *   
+         * @apiParam (body) {String} type type of achievement
+         * @apiParam (body) {String} name name of achievement
+         * @apiParam (body) {String} year year of achievement
+         * @apiParam (body) {String} position position achieved
+         * 
+         * @apiSuccess {String} status success
+         * @apiSuccess {String} message Successfully done
+         *
+         * @apiSuccessExample {json} Success-Response:
+         *     HTTP/1.1 200 OK
+         *     {
+         *       "status": "success",
+         *       "message": "Successfully done"
+         *     }   
+         * 
+         * @apiErrorExample {json} Unauthorized
+         *     HTTP/1.1 401 Unauthorized
+         *     {
+         *       "message": "Unauthorized",
+         *       "code": "UNAUTHORIZED",
+         *       "httpCode": 401
+         *     }
+         * 
+         * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+         *     HTTP/1.1 500 Internal server error
+         *     {
+         *       "message": "Internal Server Error",
+         *       "code": "INTERNAL_SERVER_ERROR",
+         *       "httpCode": 500
+         *     }
+         *
+         */
+    router.post('/achievement/add', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
