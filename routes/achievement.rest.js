@@ -113,18 +113,23 @@ module.exports = (router) => {
     });
     router.post('/achievement/add', checkAuthToken, async function (req, res) {
         let reqObj = req.body
-        if (req.files) {
-            const _fileInst = new FileService();
-            if (req.files.achievement) {
-                let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.avatar.achievement);
-                reqObj.media_url = media_url;
+        try {
+            if (req.files) {
+                const _fileInst = new FileService();
+                if (req.files.achievement) {
+                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.avatar.achievement);
+                    reqObj.media_url = media_url;
+                }
             }
+            let serviceInst = new AchievementService();
+            responseHandler(req, res, serviceInst.add({
+                reqObj: reqObj,
+                user_id: req.authUser.user_id
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
         }
-        let serviceInst = new AchievementService();
-        responseHandler(req, res, serviceInst.add({
-            reqObj: reqObj,
-            user_id: req.authUser.user_id
-        }));
     });
 
 }
