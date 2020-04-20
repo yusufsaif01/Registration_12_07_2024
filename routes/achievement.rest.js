@@ -186,7 +186,10 @@ module.exports = (router) => {
          *     HTTP/1.1 200 OK
          *     {
          *       "status": "success",
-         *       "message": "Successfully done"
+         *       "message": "Successfully done",
+         *       "data": {"n": 1,
+         *                "nModified": 1,
+         *                "ok": 1}
          *     }   
          * 
          * @apiErrorExample {json} Unauthorized
@@ -205,6 +208,14 @@ module.exports = (router) => {
          *       "httpCode": 500
          *     }
          *
+         * @apiErrorExample {json} NOT_FOUND
+	     *     HTTP/1.1 404 Not found
+	     *     {
+	     *       "message": "Achievement not found",
+         *       "code": "NOT_FOUND",
+         *       "httpCode": 404
+	     *     }
+         * 
          */
         router.put('/achievement/:id', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
             let reqObj = req.body
