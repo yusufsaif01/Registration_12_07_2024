@@ -64,4 +64,9 @@ module.exports = {
         'code': 'INVALID_TOKEN',
         'httpCode': 402
     },
+    "LinkExpired": {
+        'message': 'Link Expired',
+        'code': 'LINK_EXPIRED',
+        'httpCode': 401
+    },
 };
