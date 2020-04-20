@@ -102,7 +102,7 @@ module.exports = (router) => {
         };
         sortOptions = {
             sort_by: "year",
-            sort_order: 1
+            sort_order: "1"
         };
 
         let serviceInst = new AchievementService();
