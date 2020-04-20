@@ -114,7 +114,7 @@ module.exports = (router) => {
     });
     /**
  * @api {post} /achievement/add add achievements
- * @apiName add achievements
+ * @apiName add achievement
  * @apiGroup Achievement
  *   
  * @apiParam (body) {String} type type of achievement
