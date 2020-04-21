@@ -9,7 +9,7 @@ class AchievementListResponseMapper {
                             "name": achievement.name || "",
                             "year": achievement.year,
                             "position": achievement.position || "",
-                            "media": achievement.mediaUrl || "",
+                            "media": achievement.media_url || "",
                             "id": achievement.id
                 };
                 response.push(data);
