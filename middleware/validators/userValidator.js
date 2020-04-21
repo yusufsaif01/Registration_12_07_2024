@@ -137,12 +137,12 @@ class UserValidator {
         }
     }
     async playerListQueryValidation(req, res, next) {
-       
-         const query = Joi.object().keys({
-             "page_no":Joi.number(),
-             "page_size":Joi.number(),
-            "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
-            "sort_by":Joi.string(),
+
+        const query = Joi.object().keys({
+            "page_no": Joi.number(),
+            "page_size": Joi.number(),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
+            "sort_by": Joi.string(),
             "from": Joi.string(),
             "to": Joi.string(),
             "search": Joi.string(),
@@ -150,9 +150,9 @@ class UserValidator {
             "name": Joi.string(),
             "position": Joi.string(),
             "type": Joi.string(),
-            "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-            "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.FALSE]),
-         })
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
+        })
         try {
             console.log(req)
             await Joi.validate(req.query, query);
@@ -165,37 +165,21 @@ class UserValidator {
     async clubAcademyListQueryValidation(req, res, next) {
 
         const query = Joi.object().keys({
-            "page_no":Joi.number(),
-            "page_size":Joi.number(),
-           "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
-           "sort_by":Joi.string(),
-           "from": Joi.string(),
-           "to": Joi.string(),
-           "search":Joi.string(),
-           "email":Joi.string(),
-           "name": Joi.string(),
-           "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-           "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.FALSE]),
+            "page_no": Joi.number(),
+            "page_size": Joi.number(),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
+            "sort_by": Joi.string(),
+            "from": Joi.string(),
+            "to": Joi.string(),
+            "search": Joi.string(),
+            "email": Joi.string(),
+            "name": Joi.string(),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
         try {
             console.log(req)
             await Joi.validate(req.query, query);
-            return next();
-        } catch (err) {
-            console.log(err.details);
-            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
-        }
-    }
-    async addAchievementAPIValidation(req, res, next) {
-        const schema = Joi.object().keys({
-            "type": Joi.string().required(),
-            "name": Joi.string().allow(""),
-            "year": Joi.string().required(),
-            "position": Joi.string().allow(""),
-            "achievement": Joi.any()
-        });
-        try {
-            await Joi.validate(req.body, schema);
             return next();
         } catch (err) {
             console.log(err.details);

@@ -2,7 +2,7 @@ const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
-const userValidator = require("../middleware/validators").userValidator;
+const achievementValidator = require("../middleware/validators").achievementValidator;
 
 module.exports = (router) => {
     /**
@@ -149,7 +149,7 @@ module.exports = (router) => {
  *     }
  *
  */
-    router.post('/achievement/add', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
+    router.post('/achievement/add', checkAuthToken, achievementValidator.addAchievementAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
