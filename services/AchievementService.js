@@ -78,12 +78,12 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
-	async delete(id) {
+	async delete(Data = {}) {
 		try {
-			let foundAchievement = await this.achievementUtilityInst.findOne({ id: id })
+			let foundAchievement = await this.achievementUtilityInst.findOne({ id: Data.id, user_id: Data.user_id })
 			if (foundAchievement) {
 				let date = Date.now()
-				await this.achievementUtilityInst.findOneAndUpdate({ id: id }, { is_deleted: true, deleted_at: date })
+				await this.achievementUtilityInst.findOneAndUpdate({ id: Data.id }, { is_deleted: true, deleted_at: date })
 				return Promise.resolve()
 			}
 			throw new errors.NotFound("Achievement not found");

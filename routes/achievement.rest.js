@@ -280,7 +280,10 @@ module.exports = (router) => {
     router.delete('/achievement/:id', checkAuthToken, function (req, res) {
         try {
             let serviceInst = new AchievementService();
-            responseHandler(req, res, serviceInst.delete(req.params.id))
+            responseHandler(req, res, serviceInst.delete({
+                id: req.params.id,
+                user_id: req.authUser.user_id
+            }))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
