@@ -64,7 +64,7 @@ class AchievementService extends BaseService {
 	}
 	async edit(requestedData = {}) {
 		try {
-			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id })
+			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id, user_id: requestedData.user_id })
 			if (!foundAchievement) {
 				return Promise.reject(new errors.NotFound("Achievement not found"));
 			}
