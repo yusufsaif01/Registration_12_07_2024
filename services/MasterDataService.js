@@ -2,8 +2,6 @@ const City = require("csc-client").City;
 const Country = require("csc-client").Country;
 const State = require("csc-client").State;
 const CountryUtility = require('../db/utilities/CountryUtility');
-const StateUtility = require('../db/utilities/StateUtility');
-const CityUtility = require('../db/utilities/CityUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 
@@ -13,8 +11,6 @@ class MasterDataService {
         this.country = new Country();
         this.state = new State();
         this.countryUtilityInst = new CountryUtility();
-        this.stateUtilityInst = new StateUtility();
-        this.cityUtilityInst = new CityUtility();
     }
 
     getAllCountries() {
