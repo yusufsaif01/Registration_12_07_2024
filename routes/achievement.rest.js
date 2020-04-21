@@ -217,7 +217,7 @@ module.exports = (router) => {
 *     }
 * 
 */
-    router.put('/achievement/:id', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
+    router.put('/achievement/:id', checkAuthToken, achievementValidator.addAchievementAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
