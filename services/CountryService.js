@@ -7,9 +7,9 @@ class CountryService extends BaseService {
         super();
         this.countryUtilityInst = new CountryUtility();
     }
-    addIndia() {
+    async addCountry(countryName) {
         try {
-            await this.countryUtilityInst.insert({ name: "India" })
+            await this.countryUtilityInst.insert({ name: countryName })
         } catch (err) {
             return err;
         }
