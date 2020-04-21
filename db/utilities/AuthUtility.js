@@ -58,7 +58,7 @@ class AuthUtility {
                     console.log(err)
                     return reject(new errors.Unauthorized());
                 }
-                console.log('jwt', data)
+
                 return resolve(data);
             });
         })
@@ -78,7 +78,7 @@ class AuthUtility {
                         throw new errors.Unauthorized("User is not active");
                     }
                 }
-                console.log(user);
+
                 if (isCheckForgotPassToken) {
                     if (user.forgot_password_token) {
                         const fpt = 'Bearer ' + user.forgot_password_token

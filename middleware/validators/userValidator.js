@@ -149,7 +149,7 @@ class UserValidator {
             "email_verified": Joi.string().valid(['true', 'false']),
         })
         try {
-            console.log(req)
+
             await Joi.validate(req.query, query);
             return next();
         } catch (err) {
@@ -173,7 +173,7 @@ class UserValidator {
             "email_verified": Joi.string().valid(['true', 'false']),
         })
         try {
-            console.log(req)
+
             await Joi.validate(req.query, query);
             return next();
         } catch (err) {
