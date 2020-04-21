@@ -111,8 +111,8 @@ class AchievementService extends BaseService {
 				}
 			}
 			achievement.user_id = requestedData.user_id;
-			let response = await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
-			return response;
+			await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
+			return Promise.resolve();
 		} catch (e) {
 			console.log("Error in edit() of AchievementService", e);
 			return e;
