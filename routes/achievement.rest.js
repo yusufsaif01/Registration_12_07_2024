@@ -70,7 +70,7 @@ module.exports = (router) => {
  *             "name": "Devdar trophy",
  *             "year": "1989",
  *             "position": "First",
- *             "image": "\\uploads\\documents\\Sample.jpg",
+ *             "media": "\\uploads\\documents\\Sample.jpg",
  *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996"
  *           }
  *         ]
