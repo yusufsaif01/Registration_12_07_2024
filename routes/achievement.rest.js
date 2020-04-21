@@ -188,10 +188,7 @@ module.exports = (router) => {
 *     HTTP/1.1 200 OK
 *     {
 *       "status": "success",
-*       "message": "Successfully done",
-*       "data": {"n": 1,
-*                "nModified": 1,
-*                "ok": 1}
+*       "message": "Successfully done"
 *     }   
 * 
 * @apiErrorExample {json} Unauthorized
