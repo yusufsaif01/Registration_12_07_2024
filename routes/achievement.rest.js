@@ -121,6 +121,7 @@ module.exports = (router) => {
  * @apiParam (body) {String} name name of achievement
  * @apiParam (body) {String} year year of achievement
  * @apiParam (body) {String} position position achieved
+ * @apiParam (body) {String} achievement achievement image
  * 
  * @apiSuccess {String} status success
  * @apiSuccess {String} message Successfully done
@@ -178,6 +179,7 @@ module.exports = (router) => {
 * @apiParam (body) {String} name name of achievement
 * @apiParam (body) {String} year year of achievement
 * @apiParam (body) {String} position position achieved
+* @apiParam (body) {String} achievement achievement image
 * 
 * @apiSuccess {String} status success
 * @apiSuccess {String} message Successfully done
