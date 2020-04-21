@@ -1,6 +1,7 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const PLAYER = require('../../constants/PlayerType')
 
 module.exports = {
     fields: {
@@ -112,7 +113,7 @@ module.exports = {
         player_type: {
             type: String,
             enum: [
-                "grassroot", "amateur", "professional"
+                PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL
             ]
         },
         avatar_url: {

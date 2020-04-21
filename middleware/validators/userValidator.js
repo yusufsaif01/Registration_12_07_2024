@@ -1,7 +1,12 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
-
+const MEMBER = require('../../constants/MemberType');
+const PLAYER = require('../../constants/PlayerType');
+const STRONG_FOOT = require('../../constants/StrongFoot');
+const SORT_ORDER = require('../../constants/SortOrder');
+const PROFILE = require('../../constants/ProfileStatus');
+const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -9,7 +14,7 @@ class UserValidator {
             "state": Joi.string().required(),
             "country": Joi.string().required(),
             "phone": Joi.string().min(10).required(),
-            "member_type": Joi.string().valid("player", "club", "academy").required(),
+            "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
             "name": Joi.string().min(1),
             "first_name": Joi.string().min(1),
             "last_name": Joi.string().min(1),
@@ -60,7 +65,7 @@ class UserValidator {
         });
 
         let playerRule = {
-            "player_type": Joi.string().trim().min(1).valid("grassroot", "amateur", "professional").required(),
+            "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
             "first_name": Joi.string().trim().min(1).max(500).required(),
             "last_name": Joi.string().trim().min(1).max(500).required(),
             "dob": Joi.string().trim().required(),
@@ -70,7 +75,7 @@ class UserValidator {
 
             "position": Joi.string().required(),
 
-            "strong_foot": Joi.string().trim().min(1).valid("right", "left").required(),
+            "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
             "weak_foot": Joi.number().min(1).max(5),
 
             "city": Joi.string().trim().allow(""),
@@ -92,7 +97,7 @@ class UserValidator {
             "associated_club": Joi.string()
         };
 
-        if (req.body.player_type === "amateur") {
+        if (req.body.player_type === PLAYER.AMATEUR) {
             playerRule.height_feet = Joi.string().trim().required();
             playerRule.height_inches = Joi.string().trim().required();
             playerRule.city = Joi.string().trim().required();
@@ -102,7 +107,7 @@ class UserValidator {
 
         var schema = academySchema;
 
-        if (req.authUser.member_type == 'player') {
+        if (req.authUser.member_type == MEMBER.PLAYER) {
             schema = playerSchema;
         }
 
@@ -136,7 +141,7 @@ class UserValidator {
         const query = Joi.object().keys({
             "page_no": Joi.number(),
             "page_size": Joi.number(),
-            "sort_order": Joi.number().valid([1, -1]),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
             "sort_by": Joi.string(),
             "from": Joi.string(),
             "to": Joi.string(),
@@ -145,8 +150,8 @@ class UserValidator {
             "name": Joi.string(),
             "position": Joi.string(),
             "type": Joi.string(),
-            "profile_status": Joi.string().valid(['verified', 'unverified']),
-            "email_verified": Joi.string().valid(['true', 'false']),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
         try {
             console.log(req)
@@ -162,35 +167,19 @@ class UserValidator {
         const query = Joi.object().keys({
             "page_no": Joi.number(),
             "page_size": Joi.number(),
-            "sort_order": Joi.number().valid([1, -1]),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
             "sort_by": Joi.string(),
             "from": Joi.string(),
             "to": Joi.string(),
             "search": Joi.string(),
             "email": Joi.string(),
             "name": Joi.string(),
-            "profile_status": Joi.string().valid(['verified', 'unverified']),
-            "email_verified": Joi.string().valid(['true', 'false']),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
         try {
             console.log(req)
             await Joi.validate(req.query, query);
-            return next();
-        } catch (err) {
-            console.log(err.details);
-            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
-        }
-    }
-    async addAchievementAPIValidation(req, res, next) {
-        const schema = Joi.object().keys({
-            "type": Joi.string().required(),
-            "name": Joi.string().allow(""),
-            "year": Joi.string().required(),
-            "position": Joi.string().allow(""),
-            "achievement": Joi.any()
-        });
-        try {
-            await Joi.validate(req.body, schema);
             return next();
         } catch (err) {
             console.log(err.details);

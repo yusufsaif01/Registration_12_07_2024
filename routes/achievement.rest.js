@@ -2,7 +2,7 @@ const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
-const userValidator = require("../middleware/validators").userValidator;
+const achievementValidator = require("../middleware/validators").achievementValidator;
 
 module.exports = (router) => {
     /**
@@ -70,7 +70,7 @@ module.exports = (router) => {
  *             "name": "Devdar trophy",
  *             "year": "1989",
  *             "position": "First",
- *             "image": "\\uploads\\documents\\Sample.jpg",
+ *             "media": "\\uploads\\documents\\Sample.jpg",
  *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996"
  *           }
  *         ]
@@ -149,7 +149,7 @@ module.exports = (router) => {
  *     }
  *
  */
-    router.post('/achievement/add', checkAuthToken, userValidator.addAchievementAPIValidation, async function (req, res) {
+    router.post('/achievement/add', checkAuthToken, achievementValidator.addAchievementAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
