@@ -8,6 +8,9 @@ class ResponseMessage {
     static get ACTIVATION_LINK_EXPIRED() {
         return "Activation link expired";
     }
+    static get LINK_EXPIRED() {
+        return "Link has been expired";
+    }
     static get EMAIL_NOT_VERIFIED() {
         return "Email is not verified";
     }

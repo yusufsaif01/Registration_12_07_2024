@@ -380,4 +380,48 @@ module.exports = (router) => {
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.changePassword(req.authUser, req.body.old_password, req.body.new_password, req.body.confirm_password));
 	});
+
+    /**
+	* @api {get} /link/status check the status of the forgot password link
+	* @apiName Forgot password link status
+	* @apiGroup Auth
+	*
+	* @apiSuccess {String} status success
+	* @apiSuccess {String} message Successfully done
+	*
+	* @apiSuccessExample {json} Success-Response:
+	*     HTTP/1.1 200 OK
+	*     {
+	*       "status": "success",
+	*       "message": "Successfully done"
+	*     }
+	*
+	* @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+	*     HTTP/1.1 500 Internal server error
+	*     {
+	*       "message": "Internal Server Error",
+	*       "code": "INTERNAL_SERVER_ERROR",
+	*       "httpCode": 500
+	*     }
+	*
+	* @apiErrorExample {json} UNAUTHORIZED
+	*     HTTP/1.1 401 Unauthorized
+	*     {
+	*       "message": "Unauthorized",
+	*       "code": "UNAUTHORIZED",
+	*       "httpCode": 401
+	*     }
+    *
+	* @apiErrorExample {json} UNAUTHORIZED
+	*     HTTP/1.1 401 Unauthorized
+	*     {
+	*       "message": "Unauthorized",
+	*       "code": "UNAUTHORIZED",
+	*       "httpCode": 401
+	*     }
+	* 
+	*/
+	router.get('/link/status', checkTokenForAccountActivation, function (req, res, next) {
+		responseHandler(req, res, Promise.resolve());
+	})
 };

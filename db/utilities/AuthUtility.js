@@ -88,7 +88,7 @@ class AuthUtility {
                         if (user.user_id !== fptUser.id)
                             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_AUTHENTICATION_FAILED);
                     } else {
-                        throw new errors.Unauthorized(RESPONSE_MESSAGE.ACTIVATION_LINK_EXPIRED);
+                        throw new errors.LinkExpired(RESPONSE_MESSAGE.LINK_EXPIRED);
                     }
                 }
                 return user;
