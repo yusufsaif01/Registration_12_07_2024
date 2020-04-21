@@ -16,13 +16,13 @@ class Mailer {
 
     send({ to, subject, text, html }) {
         let from = this.from;
-        // return Promise.reject({ from, to, subject, text, html });
         return new Promise((resolve, reject) => {
             return this.mailer.sendMail({ from, to, subject, text, html }, (error, info) => {
                 if (error) {
                     console.log(error);
                     return reject(error);
                 }
+                console.log("Mail sent");
                 return resolve(info);
             });
         });

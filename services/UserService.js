@@ -7,6 +7,11 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const BaseService = require("./BaseService");
 const _ = require("lodash");
 const UserListResponseMapper = require("../dataModels/responseMapper/UserListResponseMapper");
+const MEMBER = require('../constants/MemberType');
+const EMAIL_VERIFIED = require('../constants/EmailVerified');
+const PLAYER = require('../constants/PlayerType');
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const ACCOUNT = require('../constants/AccountStatus');
 
 class UserService extends BaseService {
 
@@ -37,7 +42,7 @@ class UserService extends BaseService {
             if (requestedData.filterConditions && (requestedData.filterConditions.email_verified || requestedData.filterConditions.profile_status)) {
                 let _condition = {}
                 if (requestedData.filterConditions.email_verified)
-                    _condition.is_email_verified = (String(requestedData.filterConditions.email_verified).toLowerCase() === "true");
+                    _condition.is_email_verified = (String(requestedData.filterConditions.email_verified).toLowerCase() === EMAIL_VERIFIED.TRUE);
                 if (requestedData.filterConditions.profile_status)
                     _condition.profile_status = requestedData.filterConditions.profile_status;
 
@@ -62,7 +67,7 @@ class UserService extends BaseService {
                 conditions.$and = filterConditions.$and
             }
 
-            if (member_type === 'player') {
+            if (member_type === MEMBER.PLAYER) {
                 response = await this.getPlayerList(conditions, options, member_type);
             } else {
                 response = await this.getClubAcademyList(conditions, options, member_type);
@@ -79,9 +84,9 @@ class UserService extends BaseService {
             let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
 
             totalRecords = await this.playerUtilityInst.countList(conditions);
-            amateur_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'amateur' })
-            professional_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'professional' })
-            grassroot_count = await this.playerUtilityInst.countList({ ...conditions, player_type: 'grassroot' })
+            amateur_count = await this.playerUtilityInst.countList({ ...conditions, player_type: PLAYER.AMATEUR })
+            professional_count = await this.playerUtilityInst.countList({ ...conditions, player_type: PLAYER.PROFESSIONAL })
+            grassroot_count = await this.playerUtilityInst.countList({ ...conditions, player_type: PLAYER.GRASSROOT })
 
             let baseOptions = {
                 conditions: conditions,
@@ -147,11 +152,11 @@ class UserService extends BaseService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
             if (loginDetails) {
                 if (!loginDetails.is_email_verified) {
-                    return responseHandler(req, res, Promise.reject(new errors.Unauthorized("email is not verified")));
+                    return responseHandler(req, res, Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.EMAIL_NOT_VERIFIED)));
                 }
 
                 let data = {};
-                if (loginDetails.member_type == 'player') {
+                if (loginDetails.member_type == MEMBER.PLAYER) {
                     data = await this.playerUtilityInst.findOne({ "user_id": user.user_id });
                 } else {
                     data = await this.clubAcademyUtilityInst.findOne({ "user_id": user.user_id });
@@ -160,10 +165,10 @@ class UserService extends BaseService {
                     data.member_type = loginDetails.member_type;
                     return data;
                 } else {
-                    return Promise.reject(new errors.NotFound("User not found"));
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND));
                 }
             }
-            throw new errors.NotFound("User not found");
+            throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
 
         } catch (e) {
             console.log("Error in getDetails() of UserUtility", e);
@@ -185,15 +190,15 @@ class UserService extends BaseService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
             if (loginDetails) {
                 if (!loginDetails.is_email_verified) {
-                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                    return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.EMAIL_NOT_VERIFIED));
                 }
-                if (loginDetails.status === 'active') {
-                    return Promise.reject(new errors.Conflict("status is already active"));
+                if (loginDetails.status === ACCOUNT.ACTIVE) {
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATUS_ALREADY_ACTIVE));
                 }
-                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'active' })
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: ACCOUNT.ACTIVE })
                 return Promise.resolve()
             }
-            throw new errors.NotFound("User not found");
+            throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (e) {
             console.log("Error in activate() of UserService", e);
             return Promise.reject(e);
@@ -205,15 +210,15 @@ class UserService extends BaseService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id })
             if (loginDetails) {
                 if (!loginDetails.is_email_verified) {
-                    return Promise.reject(new errors.Unauthorized("email is not verified"));
+                    return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.EMAIL_NOT_VERIFIED));
                 }
-                if (loginDetails.status === 'blocked') {
-                    return Promise.reject(new errors.Conflict("status is already blocked"));
+                if (loginDetails.status === ACCOUNT.BLOCKED) {
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATUS_ALREADY_BLOCKED));
                 }
-                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: 'blocked' })
+                await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: ACCOUNT.BLOCKED })
                 return Promise.resolve()
             }
-            throw new errors.NotFound("User not found");
+            throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (e) {
             console.log("Error in deactivate() of UserService", e);
             return Promise.reject(e);
@@ -226,7 +231,7 @@ class UserService extends BaseService {
             if (loginDetails) {
                 let date = Date.now()
                 await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { is_deleted: true, deleted_at: date })
-                if (loginDetails.member_type === 'player') {
+                if (loginDetails.member_type === MEMBER.PLAYER) {
                     await this.playerUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
                 }
                 else {
@@ -234,7 +239,7 @@ class UserService extends BaseService {
                 }
                 return Promise.resolve()
             }
-            throw new errors.NotFound("User not found");
+            throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (e) {
             console.log("Error in delete() of UserService", e);
             return Promise.reject(e);
@@ -268,7 +273,7 @@ class UserService extends BaseService {
         member.state = state;
         let user = [];
         user.push({ 'email': email });
-        if (member_type == 'player') {
+        if (member_type == MEMBER.PLAYER) {
             member.first_name = first_name;
             member.last_name = last_name;
             member.country = country;
@@ -283,7 +288,7 @@ class UserService extends BaseService {
         let foundPlayer = await this.playerUtilityInst.findOne({ $or: user })
         let foundClub = await this.clubAcademyUtilityInst.findOne({ $or: user })
         if (foundPlayer || foundClub) {
-            return Promise.reject(new errors.Conflict("User already exist."));
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.USER_ALREADY_EXISTS));
         }
 
         return this._create(member)
@@ -297,12 +302,12 @@ class UserService extends BaseService {
      * @memberof UserRegistrationService
      */
     _create(member) {
-        if (member.member_type == 'player') {
+        if (member.member_type == MEMBER.PLAYER) {
             return this.playerUtilityInst.insert(member)
                 .catch((err) => {
                     console.log(err)
                     if (err.constructor.name === 'Conflict') {
-                        err.message = 'User already exist.';
+                        err.message = RESPONSE_MESSAGE.USER_ALREADY_EXISTS;
                     }
 
                     return Promise.reject(err);
@@ -313,7 +318,7 @@ class UserService extends BaseService {
                 .catch((err) => {
                     console.log(err)
                     if (err.constructor.name === 'Conflict') {
-                        err.message = 'User already exist.';
+                        err.message = RESPONSE_MESSAGE.USER_ALREADY_EXISTS;
                     }
 
                     return Promise.reject(err);
@@ -339,7 +344,7 @@ class UserService extends BaseService {
                     }
                 })
             }
-            if (member_type === "player") {
+            if (member_type === MEMBER.PLAYER) {
                 if (filterConditions.name) {
                     let nameArr = filterConditions.name.split(/\s+/)
                     if (nameArr.length) {
@@ -393,7 +398,7 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            if (member_type == 'player') {
+            if (member_type == MEMBER.PLAYER) {
                 let searchArr = filters.search.split(/\s+/)
                 if (searchArr.length) {
                     let name = [];

@@ -37,7 +37,8 @@ class AchievementService extends BaseService {
 				options.sort[sortOptions.sort_by] = sortOptions.sort_order;
 
 			totalRecords = await this.achievementUtilityInst.countList({ user_id: requestedData.user_id });
-			let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, null, options);
+			let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
+			let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
 			data = new AchievementListResponseMapper().map(data);
 			response = {
 				total: totalRecords,
