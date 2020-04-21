@@ -318,4 +318,8 @@ module.exports = (router) => {
         let serviceInst = new MasterDataService();
         return responseHandler(req, res, serviceInst.getCountryByCountryCode(req.params.code));
     });
+    router.get("/master/location/stats", function (req, res) {
+        let serviceInst = new MasterDataService();
+        return responseHandler(req, res, serviceInst.getLocationStats());
+    });
 };
