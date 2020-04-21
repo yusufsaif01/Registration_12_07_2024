@@ -155,7 +155,7 @@ module.exports = (router) => {
             if (req.files) {
                 const _fileInst = new FileService();
                 if (req.files.achievement) {
-                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.achievement);
+                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.achievement.name);
                     reqObj.media_url = media_url;
                 }
             }
