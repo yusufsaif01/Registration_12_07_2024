@@ -353,4 +353,46 @@ module.exports = (router) => {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getLocationStats());
     });
+
+    /**
+     * @api {post} /master/state/add add state
+     * @apiName add state
+     * @apiGroup Location
+     *
+     * @apiParam (body) {String} name state name
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "State already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *
+     */
+
+    router.post("/master/state/add", function (req, res) {
+        let serviceInst = new LocationService();
+        let reqObj = req.body
+        return responseHandler(req, res, serviceInst.addState(reqObj));
+    });
 };

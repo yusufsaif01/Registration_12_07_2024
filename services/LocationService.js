@@ -2,6 +2,8 @@ const City = require("csc-client").City;
 const Country = require("csc-client").Country;
 const State = require("csc-client").State;
 const CountryUtility = require('../db/utilities/CountryUtility');
+const errors = require("../errors");
+const StateUtility = require('../db/utilities/StateUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 
@@ -11,6 +13,7 @@ class LocationService {
         this.country = new Country();
         this.state = new State();
         this.countryUtilityInst = new CountryUtility();
+        this.stateUtilityInst = new StateUtility();
     }
 
     getAllCountries() {
@@ -70,6 +73,20 @@ class LocationService {
             })
         } catch (err) {
             return err;
+        }
+    }
+    async addState(data = {}) {
+        try {
+            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
+            const state = await this.stateUtilityInst.findOne({ name: data.name });
+            if (!_.isEmpty(state)) {
+                return Promise.reject(new errors.Conflict("State already added"));
+            }
+            await this.stateUtilityInst.insert({ name: data.name, country_id: id })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in add() of StateService", e);
+            return Promise.reject(e);
         }
     }
 }
