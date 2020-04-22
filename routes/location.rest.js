@@ -436,4 +436,53 @@ module.exports = (router) => {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getStateList());
     });
+
+    /**
+     * @api {put} /master/state/:id edit state
+     * @apiName edit state
+     * @apiGroup Location
+     *
+     * @apiParam (body) {String} name state name
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "State already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "State not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+
+    router.put("/master/state/:id", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
+        let serviceInst = new LocationService();
+        return responseHandler(req, res, serviceInst.editState({ reqObj: req.body, id: req.params.id }));
+    });
 };

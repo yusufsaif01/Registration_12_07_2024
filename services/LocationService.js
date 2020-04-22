@@ -108,6 +108,25 @@ class LocationService {
             return Promise.reject(e);
         }
     }
+    async editState(data = {}) {
+        try {
+            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
+            let reqObj = data.reqObj;
+            const foundState = await this.stateUtilityInst.findOne({ id: data.id, country_id: id })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            const state = await this.stateUtilityInst.findOne({ name: reqObj.name, country_id: id });
+            if (!_.isEmpty(state)) {
+                return Promise.reject(new errors.Conflict("State already added"));
+            }
+            await this.stateUtilityInst.updateOne({ id: data.id }, { name: reqObj.name })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editState() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = LocationService;
