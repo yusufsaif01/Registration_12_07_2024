@@ -1,6 +1,7 @@
 const LocationService = require('../services/LocationService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
+const locationValidator = require("../middleware/validators").locationValidator;
 
 module.exports = (router) => {
 
@@ -391,7 +392,7 @@ module.exports = (router) => {
      *
      */
 
-    router.post("/master/state/add", checkAuthToken, checkRole(["admin"]), function (req, res) {
+    router.post("/master/state/add", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         let reqObj = req.body
         return responseHandler(req, res, serviceInst.addState(reqObj));
