@@ -1,8 +1,8 @@
-
+const MEMBER = require('../../constants/MemberType')
 class UserListResponseMapper {
     map(users, member_type) {
         let response = [];
-        if (member_type === 'player') {
+        if (member_type === MEMBER.PLAYER) {
             users.forEach((user, index) => {
                 let data = {
                     "name": (user.first_name || "") + " " + (user.last_name || ""),

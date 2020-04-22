@@ -10,6 +10,11 @@ const EmailService = require('./EmailService');
 const config = require("../config");
 const _ = require("lodash");
 const AdminUtility = require("../db/utilities/AdminUtility");
+const ACCOUNT = require('../constants/AccountStatus');
+const MEMBER = require('../constants/MemberType');
+const ROLE = require('../constants/Role');
+const PROFILE = require('../constants/ProfileStatus');
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 
 /**
  *
@@ -41,28 +46,28 @@ class UserRegistrationService extends UserService {
      * @memberof UserRegistrationService
      */
     async validateMemberRegistration(registerUser) {
-        if (registerUser.member_type == "player") {
+        if (registerUser.member_type == MEMBER.PLAYER) {
             if (!registerUser.first_name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "first_name is required", { field_name: "first_name" }
+                    RESPONSE_MESSAGE.FIRST_NAME_REQUIRED
                 ));
             }
             if (!registerUser.last_name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "last_name is required", { field_name: "last_name" }
+                    RESPONSE_MESSAGE.LAST_NAME_REQUIRED
                 ));
             }
         } else {
             if (!registerUser.name) {
                 return Promise.reject(new errors.ValidationFailed(
-                    "name is required", { field_name: "name" }
+                    RESPONSE_MESSAGE.NAME_REQUIRED
                 ));
             }
         }
         const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
         if (!_.isEmpty(user)) {
             return Promise.reject(new errors.Conflict(
-                "Email is already registered"
+                RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED
             ));
         }
         return Promise.resolve(registerUser);
@@ -79,21 +84,21 @@ class UserRegistrationService extends UserService {
         try {
             await this.validateMemberRegistration(userData);
             userData.user_id = uuid();
-            userData.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
+            userData.avatar_url = config.app.default_avatar_url; // default user icon
 
             const tokenForAccountActivation = await this.authUtilityInst.getAuthToken(userData.user_id, userData.email, userData.member_type);
 
             let loginDetails = await this.loginUtilityInst.insert({
                 user_id: userData.user_id,
                 username: userData.email,
-                status: 'pending',
+                status: ACCOUNT.PENDING,
                 role: userData.member_type,
                 member_type: userData.member_type,
                 forgot_password_token: tokenForAccountActivation
             });
             userData.login_details = loginDetails._id;
 
-            if (userData.member_type == 'player') {
+            if (userData.member_type == MEMBER.PLAYER) {
                 await this.playerUtilityInst.insert(userData);
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
@@ -130,21 +135,21 @@ class UserRegistrationService extends UserService {
         const user = await this.loginUtilityInst.findOne({ "username": adminDetails.email });
         if (!_.isEmpty(user)) {
             return Promise.reject(new errors.Conflict(
-                "Email is already registered"
+                RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED
             ));
         }
 
         adminDetails.user_id = uuid();
-        adminDetails.avatar_url = "/uploads/avatar/user-avatar.png"; // default user icon
+        adminDetails.avatar_url = config.app.default_avatar_url; // default user icon
 
         let loginDetails = await this.loginUtilityInst.insert({
             user_id: adminDetails.user_id,
             username: adminDetails.email,
-            status: 'active',
-            role: 'admin',
+            status: ACCOUNT.ACTIVE,
+            role: ROLE.ADMIN,
             password: adminDetails.password,
-            profile_status: "verified",
-            is_email_verified: true
+            profile_status: PROFILE.VERIFIED,
+            is_email_verified:true
         });
         adminDetails.login_details = loginDetails._id;
 
