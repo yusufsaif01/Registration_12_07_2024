@@ -53,36 +53,59 @@ class AchievementService extends BaseService {
 	async add(requestedData = {}) {
 		try {
 			let achievement = requestedData.reqObj;
-			if (achievement.year) {
-				let msg = null;
-				let d = new Date();
-				let currentYear = d.getFullYear();
-
-				if (achievement.year > currentYear) {
-					msg = "year is greater than " + currentYear
-				}
-				if (achievement.year < 1970) {
-					msg = "year is less than 1970"
-				}
-				if (achievement.year < 0) {
-					msg = "year cannot be negative"
-				}
-				if (achievement.year == 0) {
-					msg = "year cannot be zero"
-				}
-				if (msg) {
-					return Promise.reject(new errors.ValidationFailed(msg));
-				}
-			}
+			await this.validateYear(achievement)
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.insert(achievement)
-			Promise.resolve();
+			return Promise.resolve();
 		} catch (e) {
 			console.log("Error in add() of AchievementService", e);
-			return e;
+			return Promise.reject(e);
 		}
 	}
-}
+	async edit(requestedData = {}) {
+		try {
+			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id, user_id: requestedData.user_id })
+			if (!foundAchievement) {
+				return Promise.reject(new errors.NotFound("Achievement not found"));
+			}
+			let achievement = requestedData.reqObj;
+			await this.validateYear(achievement)
+			achievement.user_id = requestedData.user_id;
+			await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
+			return Promise.resolve();
+		} catch (e) {
+			console.log("Error in edit() of AchievementService", e);
+			return Promise.reject(e);
+		}
+	}
+	async validateYear(data) {
+		let { year } = data;
+		if (year) {
+			let msg = null;
+			let d = new Date();
+			let currentYear = d.getFullYear();
 
+			if (year > currentYear) {
+				msg = "year is greater than " + currentYear
+			}
+			if (year < 1970) {
+				msg = "year is less than 1970"
+			}
+			if (year < 0) {
+				msg = "year cannot be negative"
+			}
+			if (year == 0) {
+				msg = "year cannot be zero"
+			}
+			if (msg) {
+				return Promise.reject(new errors.ValidationFailed(msg));
+			}
+			else
+				return Promise.resolve();
+		}
+		else
+			return Promise.reject(new errors.ValidationFailed("year is required"));
+	}
+}
 module.exports = AchievementService;
 
