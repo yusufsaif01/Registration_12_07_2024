@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 var config = require('../../config');
 const errors = require('../../errors');
 const LoginUtility = require("./LoginUtility");
+const ACCOUNT = require("../../constants/AccountStatus")
+const RESPONSE_MESSAGE = require("../../constants/ResponseMessage")
 
 class AuthUtility {
 
@@ -58,7 +60,7 @@ class AuthUtility {
                     console.log(err)
                     return reject(new errors.Unauthorized());
                 }
-                console.log('jwt', data)
+
                 return resolve(data);
             });
         })
@@ -72,21 +74,21 @@ class AuthUtility {
             if (user) {
                 if (isCheckStatus) {
                     let status = user.status;
-                    if (status === "blocked") {
-                        throw new errors.Unauthorized("User is blocked");
-                    } else if (status !== "active") {
-                        throw new errors.Unauthorized("User is not active");
+                    if (status === ACCOUNT.BLOCKED) {
+                        throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED);
+                    } else if (status !== ACCOUNT.ACTIVE) {
+                        throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_INACTIVE);
                     }
                 }
-                console.log(user);
+
                 if (isCheckForgotPassToken) {
                     if (user.forgot_password_token) {
                         const fpt = 'Bearer ' + user.forgot_password_token
                         const fptUser = await this.jwtVerification(fpt, config.jwt.jwt_secret);
                         if (user.user_id !== fptUser.id)
-                            throw new errors.Unauthorized("User authentication failed");
+                            throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_AUTHENTICATION_FAILED);
                     } else {
-                        throw new errors.LinkExpired("Link has been expired");
+                        throw new errors.LinkExpired(RESPONSE_MESSAGE.LINK_EXPIRED);
                     }
                 }
                 return user;
