@@ -104,7 +104,7 @@ class LocationService {
             }
             return response;
         } catch (e) {
-            console.log("Error in getList() of AchievementService", e);
+            console.log("Error in getStateList() of LocationService", e);
             return Promise.reject(e);
         }
     }
