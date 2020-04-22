@@ -113,12 +113,12 @@ class LocationService {
     async editState(data = {}) {
         try {
             let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
-            let reqObj = data.reqObj;
-            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             const foundState = await this.stateUtilityInst.findOne({ id: data.id, country_id: id })
             if (_.isEmpty(foundState)) {
                 return Promise.reject(new errors.NotFound("State not found"));
             }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const state = await this.stateUtilityInst.findOne({ name: regex, country_id: id });
             if (!_.isEmpty(state)) {
