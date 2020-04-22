@@ -2,6 +2,7 @@ const BaseService = require("./BaseService");
 const _ = require("lodash");
 const AchievementUtility = require("../db/utilities/AchievementUtility");
 const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
+const errors = require("../errors");
 
 class AchievementService extends BaseService {
 
@@ -47,6 +48,38 @@ class AchievementService extends BaseService {
 		} catch (e) {
 			console.log("Error in getList() of AchievementService", e);
 			return Promise.reject(e);
+		}
+	}
+	async add(requestedData = {}) {
+		try {
+			let achievement = requestedData.reqObj;
+			if (achievement.year) {
+				let msg = null;
+				let d = new Date();
+				let currentYear = d.getFullYear();
+
+				if (achievement.year > currentYear) {
+					msg = "year is greater than " + currentYear
+				}
+				if (achievement.year < 1970) {
+					msg = "year is less than 1970"
+				}
+				if (achievement.year < 0) {
+					msg = "year cannot be negative"
+				}
+				if (achievement.year == 0) {
+					msg = "year cannot be zero"
+				}
+				if (msg) {
+					return Promise.reject(new errors.ValidationFailed(msg));
+				}
+			}
+			achievement.user_id = requestedData.user_id;
+			await this.achievementUtilityInst.insert(achievement)
+			Promise.resolve();
+		} catch (e) {
+			console.log("Error in add() of AchievementService", e);
+			return e;
 		}
 	}
 }

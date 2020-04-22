@@ -47,12 +47,12 @@ class UserValidator {
             "head_coach": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
-           
+
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
 
-            "owner":Joi.string(),
-            "manager":Joi.string(),
+            "owner": Joi.string(),
+            "manager": Joi.string(),
             "top_signings": Joi.string(),
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
@@ -137,22 +137,22 @@ class UserValidator {
         }
     }
     async playerListQueryValidation(req, res, next) {
-       
-         const query = Joi.object().keys({
-             "page_no":Joi.number(),
-             "page_size":Joi.number(),
-            "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
-            "sort_by":Joi.string(),
+
+        const query = Joi.object().keys({
+            "page_no": Joi.number(),
+            "page_size": Joi.number(),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
+            "sort_by": Joi.string(),
             "from": Joi.string(),
             "to": Joi.string(),
-            "search":Joi.string(),
-            "email":Joi.string(),
+            "search": Joi.string(),
+            "email": Joi.string(),
             "name": Joi.string(),
             "position": Joi.string(),
             "type": Joi.string(),
-            "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-            "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.FALSE]),
-         })
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
+        })
         try {
             console.log(req)
             await Joi.validate(req.query, query);
@@ -163,29 +163,29 @@ class UserValidator {
         }
     }
     async clubAcademyListQueryValidation(req, res, next) {
-       
+
         const query = Joi.object().keys({
-            "page_no":Joi.number(),
-            "page_size":Joi.number(),
-           "sort_order":Joi.number().valid([SORT_ORDER.ASCENDING,SORT_ORDER.DESCENDING]),
-           "sort_by":Joi.string(),
-           "from": Joi.string(),
-           "to": Joi.string(),
-           "search":Joi.string(),
-           "email":Joi.string(),
-           "name": Joi.string(),
-           "profile_status": Joi.string().valid([PROFILE.VERIFIED,PROFILE.UNVERIFIED]),
-           "email_verified":Joi.string().valid([EMAIL_VERIFIED.TRUE,EMAIL_VERIFIED.FALSE]),
+            "page_no": Joi.number(),
+            "page_size": Joi.number(),
+            "sort_order": Joi.number().valid([SORT_ORDER.ASCENDING, SORT_ORDER.DESCENDING]),
+            "sort_by": Joi.string(),
+            "from": Joi.string(),
+            "to": Joi.string(),
+            "search": Joi.string(),
+            "email": Joi.string(),
+            "name": Joi.string(),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
-       try {
-           console.log(req)
-           await Joi.validate(req.query, query);
-           return next();
-       } catch (err) {
-           console.log(err.details);
-           return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
-       }
-   }
+        try {
+            console.log(req)
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new UserValidator();

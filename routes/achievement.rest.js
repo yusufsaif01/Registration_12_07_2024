@@ -1,6 +1,8 @@
 const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
+const FileService = require('../services/FileService');
+const achievementValidator = require("../middleware/validators").achievementValidator;
 
 module.exports = (router) => {
     /**
@@ -110,4 +112,62 @@ module.exports = (router) => {
             paginationOptions, sortOptions, user_id: req.authUser.user_id
         }));
     });
+    /**
+ * @api {post} /achievement/add add achievement
+ * @apiName add achievement
+ * @apiGroup Achievement
+ *   
+ * @apiParam (body) {String} type type of achievement
+ * @apiParam (body) {String} name name of achievement
+ * @apiParam (body) {String} year year of achievement
+ * @apiParam (body) {String} position position achieved
+ * 
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done"
+ *     }   
+ * 
+ * @apiErrorExample {json} Unauthorized
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized",
+ *       "code": "UNAUTHORIZED",
+ *       "httpCode": 401
+ *     }
+ * 
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ */
+    router.post('/achievement/add', checkAuthToken, achievementValidator.addAchievementAPIValidation, async function (req, res) {
+        let reqObj = req.body
+        try {
+            if (req.files) {
+                const _fileInst = new FileService();
+                if (req.files.achievement) {
+                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.achievement.name);
+                    reqObj.media_url = media_url;
+                }
+            }
+            let serviceInst = new AchievementService();
+            responseHandler(req, res, serviceInst.add({
+                reqObj: reqObj,
+                user_id: req.authUser.user_id
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    });
+
 }
