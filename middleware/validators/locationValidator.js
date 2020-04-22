@@ -15,6 +15,18 @@ class LocationValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+    async addCityAPIValidation(req, res, next) {
+        const schema = Joi.object().keys({
+            "name": Joi.string().required().min(1)
+        });
+        try {
+            await Joi.validate(req.body, schema);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new LocationValidator();

@@ -530,7 +530,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/city/add/:state_id", checkAuthToken, checkRole(["admin"]), function (req, res) {
+    router.post("/master/city/add/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.addCity({ reqObj: req.body, state_id: req.params.state_id }));
     });
