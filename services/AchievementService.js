@@ -18,13 +18,13 @@ class AchievementService extends BaseService {
 			let response = {
 				achievements: achievementCount,
 				tournaments: tournamentCount
-
 			}
 			return response;
 		} catch (err) {
 			return err;
 		}
 	}
+
 	async getList(requestedData = {}) {
 		try {
 			let response = {}, totalRecords = 0;
@@ -50,10 +50,13 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
+
 	async add(requestedData = {}) {
 		try {
 			let achievement = requestedData.reqObj;
-			await this.validateYear(achievement)
+			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
+
+			await this._validateYear(achievement.year);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.insert(achievement)
 			return Promise.resolve();
@@ -62,6 +65,7 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
+
 	async edit(requestedData = {}) {
 		try {
 			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id, user_id: requestedData.user_id })
@@ -69,7 +73,9 @@ class AchievementService extends BaseService {
 				return Promise.reject(new errors.NotFound("Achievement not found"));
 			}
 			let achievement = requestedData.reqObj;
-			await this.validateYear(achievement)
+			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
+
+			await this._validateYear(achievement.year);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
 			return Promise.resolve();
@@ -78,12 +84,12 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
-	async delete(Data = {}) {
+
+	async delete({ id, user_id }) {
 		try {
-			let foundAchievement = await this.achievementUtilityInst.findOne({ id: Data.id, user_id: Data.user_id })
+			let foundAchievement = await this.achievementUtilityInst.findOne({ id: id, user_id: user_id })
 			if (foundAchievement) {
-				let date = Date.now()
-				await this.achievementUtilityInst.findOneAndUpdate({ id: Data.id }, { is_deleted: true, deleted_at: date })
+				await this.achievementUtilityInst.findOneAndUpdate({ id: id }, { is_deleted: true, deleted_at: Date.now() })
 				return Promise.resolve()
 			}
 			throw new errors.NotFound("Achievement not found");
@@ -92,8 +98,8 @@ class AchievementService extends BaseService {
 			return Promise.reject(e);
 		}
 	}
-	async validateYear(data) {
-		let { year } = data;
+
+	async _validateYear(year) {
 		if (year) {
 			let msg = null;
 			let d = new Date();
