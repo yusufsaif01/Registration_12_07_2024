@@ -5,7 +5,7 @@ const CountryUtility = require('../db/utilities/CountryUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 
-class MasterDataService {
+class LocationService {
     constructor() {
         this.city = new City();
         this.country = new Country();
@@ -64,4 +64,4 @@ class MasterDataService {
     }
 }
 
-module.exports = MasterDataService;
+module.exports = LocationService;
