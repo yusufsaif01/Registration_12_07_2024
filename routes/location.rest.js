@@ -1,4 +1,4 @@
-const MasterDataService = require('../services/LocationService');
+const LocationService = require('../services/LocationService');
 const responseHandler = require('../ResponseHandler');
 
 module.exports = (router) => {
@@ -33,7 +33,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/city/all", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getAllCities());
     });
 
@@ -67,7 +67,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/city/byId/:id", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getCityById(req.params.id));
     });
 
@@ -102,7 +102,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/city/byStateID/:stateId", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getCitiesByStateId(req.params.stateId));
     });
 
@@ -137,7 +137,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/state/all", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getAllStates());
     });
 
@@ -172,7 +172,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/state/byId/:id", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getStateById(req.params.id));
     });
 
@@ -207,7 +207,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/state/byCountryId/:countryId", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getStatesByCountryId(req.params.countryId));
     });
 
@@ -243,7 +243,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/country/all", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getAllCountries());
     });
 
@@ -279,7 +279,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/country/byId/:id", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getCountryById(req.params.id));
     });
 
@@ -315,7 +315,7 @@ module.exports = (router) => {
      *
      */
     router.get("/master/country/byCode/:code", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getCountryByCountryCode(req.params.code));
     });
 
@@ -350,7 +350,7 @@ module.exports = (router) => {
     */
 
     router.get("/master/location/stats", function (req, res) {
-        let serviceInst = new MasterDataService();
+        let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getLocationStats());
     });
 };

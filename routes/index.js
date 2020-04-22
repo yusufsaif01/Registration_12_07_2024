@@ -1,7 +1,7 @@
 const express = require('express');
 const authRoutes = require('./auth.rest');
 const userProfileRoutes = require('./userProfile.rest');
-const masterDataRoutes = require('./master-data.rest');
+const locationRoutes = require('./location.rest');
 const memberRoutes = require('./member.rest');
 const achievementRoutes = require('./achievement.rest');
 
@@ -11,7 +11,7 @@ class Route {
 
 		authRoutes(apiRouter);
 		userProfileRoutes(apiRouter);
-		masterDataRoutes(apiRouter);
+		locationRoutes(apiRouter);
 		memberRoutes(apiRouter);
 		achievementRoutes(apiRouter);
 
