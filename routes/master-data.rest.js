@@ -322,7 +322,7 @@ module.exports = (router) => {
     /**
     * @api {get} /master/location/stats location stats
     * @apiName location stats
-    * @apiGroup Location 
+    * @apiGroup Master Data
     * 
     * @apiSuccess {String} status success
     * @apiSuccess {String} message Successfully done
