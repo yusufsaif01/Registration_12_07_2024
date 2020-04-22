@@ -148,6 +148,9 @@ class LocationService {
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const city = await this.cityUtilityInst.findOne({ name: regex, state_id: data.state_id });
             if (!_.isEmpty(city)) {
