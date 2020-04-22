@@ -79,7 +79,7 @@ class LocationService {
     async addState(data = {}) {
         try {
             let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
-            const state = await this.stateUtilityInst.findOne({ name: data.name });
+            const state = await this.stateUtilityInst.findOne({ name: data.name, country_id: id });
             if (!_.isEmpty(state)) {
                 return Promise.reject(new errors.Conflict("State already added"));
             }
