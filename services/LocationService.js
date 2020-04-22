@@ -82,6 +82,9 @@ class LocationService {
         try {
             let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
             data.name = data.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(data.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
             let regex = new RegExp(["^", data.name, "$"].join(""), "i");
             const state = await this.stateUtilityInst.findOne({ name: regex, country_id: id });
             if (!_.isEmpty(state)) {
@@ -121,6 +124,9 @@ class LocationService {
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const state = await this.stateUtilityInst.findOne({ name: regex, country_id: id });
             if (!_.isEmpty(state)) {
