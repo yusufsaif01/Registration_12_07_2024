@@ -1,4 +1,4 @@
-const MasterDataService = require('../services/MasterDataService');
+const MasterDataService = require('../services/LocationService');
 const responseHandler = require('../ResponseHandler');
 
 module.exports = (router) => {
