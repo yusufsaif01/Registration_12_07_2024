@@ -26,7 +26,8 @@ module.exports = {
             required: true
         },
         position: {
-            type: String
+            type: String,
+            default: "NA"
         },
         media_url: {
             type: String

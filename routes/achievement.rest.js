@@ -121,6 +121,7 @@ module.exports = (router) => {
  * @apiParam (body) {String} name name of achievement
  * @apiParam (body) {String} year year of achievement
  * @apiParam (body) {String} position position achieved
+ * @apiParam (body) {String} achievement achievement image
  * 
  * @apiSuccess {String} status success
  * @apiSuccess {String} message Successfully done
@@ -178,6 +179,7 @@ module.exports = (router) => {
 * @apiParam (body) {String} name name of achievement
 * @apiParam (body) {String} year year of achievement
 * @apiParam (body) {String} position position achieved
+* @apiParam (body) {String} achievement achievement image
 * 
 * @apiSuccess {String} status success
 * @apiSuccess {String} message Successfully done
@@ -235,5 +237,56 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     });
-
+    /**
+ * @api {delete} /achievement/:id delete achievement
+ * @apiName delete achievement
+ * @apiGroup Achievement
+ *
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done"
+ *     }
+ *
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ * @apiErrorExample {json} UNAUTHORIZED
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized",
+ *       "code": "UNAUTHORIZED",
+ *       "httpCode": 401
+ *     }
+ * 
+ * @apiErrorExample {json} NOT_FOUND
+ *     HTTP/1.1 404 Not found
+ *     {
+ *       "message": "Achievement not found",
+ *       "code": "NOT_FOUND",
+ *       "httpCode": 404
+ *     }
+ * 
+ */
+    router.delete('/achievement/:id', checkAuthToken, function (req, res) {
+        try {
+            let serviceInst = new AchievementService();
+            responseHandler(req, res, serviceInst.delete({
+                id: req.params.id,
+                user_id: req.authUser.user_id
+            }))
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    })
 }
