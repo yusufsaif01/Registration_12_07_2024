@@ -1,12 +1,12 @@
 const db = require('../db');
-const CountryService = require('../services/CountryService');
+const LocationService = require('../services/LocationService');
 
 var countrySeeder = () => {
     (async () => {
         try {
             await db.connectDB();
-            const countryInst = new CountryService();
-            await countryInst.addCountry('India')
+            const locationInst = new LocationService();
+            await locationInst.addCountry({ name: "India", phone_code: "+91", sortname: "IN" })
             console.log("#############DONE##############");
             process.exit();
         } catch (err) {

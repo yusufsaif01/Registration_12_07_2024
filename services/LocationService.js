@@ -62,6 +62,16 @@ class LocationService {
             return err;
         }
     }
+    async addCountry(data = {}) {
+        try {
+            await this.countryUtilityInst.insert({
+                name: data.name,
+                phone_code: data.phone_code, sortname: data.sortname
+            })
+        } catch (err) {
+            return err;
+        }
+    }
 }
 
 module.exports = LocationService;
