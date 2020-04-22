@@ -7,7 +7,7 @@ class AchievementValidator {
         const schema = Joi.object().keys({
             "type": Joi.string().required(),
             "name": Joi.string().allow(""),
-            "year": Joi.string().required(),
+            "year": Joi.date().required(),
             "position": Joi.string().allow(""),
             "achievement": Joi.any()
         });
