@@ -114,11 +114,13 @@ class LocationService {
         try {
             let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
             let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             const foundState = await this.stateUtilityInst.findOne({ id: data.id, country_id: id })
             if (_.isEmpty(foundState)) {
                 return Promise.reject(new errors.NotFound("State not found"));
             }
-            const state = await this.stateUtilityInst.findOne({ name: reqObj.name, country_id: id });
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const state = await this.stateUtilityInst.findOne({ name: regex, country_id: id });
             if (!_.isEmpty(state)) {
                 return Promise.reject(new errors.Conflict("State already added"));
             }
