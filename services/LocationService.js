@@ -85,7 +85,7 @@ class LocationService {
             await this.stateUtilityInst.insert({ name: data.name, country_id: id })
             Promise.resolve()
         } catch (e) {
-            console.log("Error in add() of StateService", e);
+            console.log("Error in addState() of LocationService", e);
             return Promise.reject(e);
         }
     }
