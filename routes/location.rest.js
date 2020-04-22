@@ -485,4 +485,53 @@ module.exports = (router) => {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.editState({ reqObj: req.body, id: req.params.id }));
     });
+
+    /**
+     * @api {post} /master/city/add/:state_id add city
+     * @apiName add city
+     * @apiGroup Location
+     *
+     * @apiParam (body) {String} name city name
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "City already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "State not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+
+    router.post("/master/city/add/:state_id", checkAuthToken, checkRole(["admin"]), function (req, res) {
+        let serviceInst = new LocationService();
+        return responseHandler(req, res, serviceInst.addCity({ reqObj: req.body, state_id: req.params.state_id }));
+    });
 };

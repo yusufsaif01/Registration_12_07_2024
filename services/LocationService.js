@@ -4,6 +4,7 @@ const State = require("csc-client").State;
 const CountryUtility = require('../db/utilities/CountryUtility');
 const errors = require("../errors");
 const StateUtility = require('../db/utilities/StateUtility');
+const CityUtility = require('../db/utilities/CityUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
@@ -15,6 +16,7 @@ class LocationService {
         this.state = new State();
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
+        this.cityUtilityInst = new CityUtility();
     }
 
     getAllCountries() {
@@ -128,6 +130,27 @@ class LocationService {
             Promise.resolve()
         } catch (e) {
             console.log("Error in editState() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async addCity(data = {}) {
+        try {
+            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
+            let foundState = await this.stateUtilityInst.findOne({ id: data.state_id, country_id: id })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const city = await this.cityUtilityInst.findOne({ name: regex, state_id: data.state_id });
+            if (!_.isEmpty(city)) {
+                return Promise.reject(new errors.Conflict("City already added"));
+            }
+            await this.cityUtilityInst.insert({ name: reqObj.name, state_id: data.state_id })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in addCity() of LocationService", e);
             return Promise.reject(e);
         }
     }
