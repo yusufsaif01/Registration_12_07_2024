@@ -6,6 +6,7 @@ class LocationListResponseMapper {
             locationStats.forEach((locationStat) => {
                 let data = {
                     "country": locationStat._id.country || "",
+                    "country_id": locationStat._id.country_id,
                     "no_of_state": locationStat._id.total_states || 0,
                     "no_of_city": locationStat.total_cities || 0
                 };
