@@ -138,7 +138,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {put} /master/state/:id edit state
+     * @api {put} /master/state/:country_id/:state_id edit state
      * @apiName edit state
      * @apiGroup Location
      *
@@ -179,10 +179,21 @@ module.exports = (router) => {
      *       "httpCode": 404
      *     }
      * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Country not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
      */
 
-    router.put("/master/state/:id", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
+    router.put("/master/state/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.editState({ reqObj: req.body, id: req.params.id }));
+        return responseHandler(req, res, serviceInst.editState({
+            reqObj: req.body,
+            country_id: req.params.country_id, state_id: req.params.state_id
+        }));
     });
 };

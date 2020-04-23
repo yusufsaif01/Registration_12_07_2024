@@ -87,8 +87,14 @@ class LocationService {
     }
     async editState(data = {}) {
         try {
-            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
-            const foundState = await this.stateUtilityInst.findOne({ id: data.id, country_id: id })
+            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            const foundState = await this.stateUtilityInst.findOne({
+                id: data.state_id,
+                country_id: data.country_id
+            })
             if (_.isEmpty(foundState)) {
                 return Promise.reject(new errors.NotFound("State not found"));
             }
@@ -98,11 +104,14 @@ class LocationService {
                 return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const state = await this.stateUtilityInst.findOne({ name: regex, country_id: id });
+            const state = await this.stateUtilityInst.findOne({
+                name: regex,
+                country_id: data.country_id, id: data.state_id
+            });
             if (!_.isEmpty(state)) {
                 return Promise.reject(new errors.Conflict("State already added"));
             }
-            await this.stateUtilityInst.updateOne({ id: data.id }, { name: reqObj.name })
+            await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
             Promise.resolve()
         } catch (e) {
             console.log("Error in editState() of LocationService", e);
