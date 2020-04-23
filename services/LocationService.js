@@ -104,10 +104,7 @@ class LocationService {
                 return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const state = await this.stateUtilityInst.findOne({
-                name: regex,
-                country_id: data.country_id, id: data.state_id
-            });
+            const state = await this.stateUtilityInst.findOne({ name: regex });
             if (!_.isEmpty(state)) {
                 return Promise.reject(new errors.Conflict("State already added"));
             }
