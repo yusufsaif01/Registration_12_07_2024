@@ -85,6 +85,39 @@ class LocationService {
             return Promise.reject(e);
         }
     }
+    async editState(data = {}) {
+        try {
+            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            const foundState = await this.stateUtilityInst.findOne({
+                id: data.state_id,
+                country_id: data.country_id
+            })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const state = await this.stateUtilityInst.findOne({
+                name: regex,
+                country_id: data.country_id
+            });
+            if (!_.isEmpty(state)) {
+                return Promise.reject(new errors.Conflict("State already added"));
+            }
+            await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editState() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = LocationService;
