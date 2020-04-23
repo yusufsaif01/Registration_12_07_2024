@@ -42,11 +42,12 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {post} /master/state/add/:country_id add state
+     * @api {post} /master/state/add add state
      * @apiName add state
      * @apiGroup Location
      *
      * @apiParam (body) {String} name state name
+     * @apiParam (body) {String} country_id country id
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -85,8 +86,8 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/state/add/:country_id", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
+    router.post("/master/state/add", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.addState({ reqObj: req.body, country_id: req.params.country_id }));
+        return responseHandler(req, res, serviceInst.addState({ reqObj: req.body }));
     });
 };
