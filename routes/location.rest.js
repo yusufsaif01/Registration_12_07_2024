@@ -311,7 +311,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {put} /master/city/:country_id/:state_id/:city_id add city
+     * @api {put} /master/city/:country_id/:state_id/:city_id edit city
      * @apiName edit city
      * @apiGroup Location
      *
