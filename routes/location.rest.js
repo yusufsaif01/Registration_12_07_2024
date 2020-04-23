@@ -239,6 +239,14 @@ module.exports = (router) => {
      *       "httpCode": 404
      *     }
      * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Country not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
      */
 
     router.post("/master/city/add/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
