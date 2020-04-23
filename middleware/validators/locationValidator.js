@@ -30,7 +30,9 @@ class LocationValidator {
     }
     async addCityAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required().min(1)
+            "name": Joi.string().required(),
+            "country_id": Joi.string().required(),
+            "state_id": Joi.string().required()
         });
         try {
             await Joi.validate(req.body, schema);

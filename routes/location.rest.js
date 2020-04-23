@@ -199,11 +199,13 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {post} /master/city/add/:country_id/:state_id add city
+     * @api {post} /master/city/add add city
      * @apiName add city
      * @apiGroup Location
      *
      * @apiParam (body) {String} name city name
+     * @apiParam (body) {String} country_id country id
+     * @apiParam (body) {String} state_id state id
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -250,11 +252,10 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/city/add/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
+    router.post("/master/city/add", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.addCity({
-            reqObj: req.body,
-            country_id: req.params.country_id, state_id: req.params.state_id
+            reqObj: req.body
         }));
     });
 };
