@@ -257,7 +257,7 @@ module.exports = (router) => {
         }));
     });
     /**
-     * @api {get} /master/city/list/:state_id?page_size=<10>&page_no=<1>&search=<text> city listing
+     * @api {get} /master/city/list/:country_id/:state_id?page_size=<10>&page_no=<1>&search=<text> city listing
      * @apiName city listing
      * @apiGroup Location
      * 
@@ -290,7 +290,7 @@ module.exports = (router) => {
      *
      */
 
-    router.get("/master/city/list/:state_id", function (req, res) {
+    router.get("/master/city/list/:country_id/:state_id", function (req, res) {
         let paginationOptions = {};
         let filter = {};
 
@@ -302,6 +302,9 @@ module.exports = (router) => {
             search: (req.query && req.query.search) ? req.query.search : null
         }
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.getCityList({ state_id: state_id, paginationOptions, filter }));
+        return responseHandler(req, res, serviceInst.getCityList({
+            country_id: req.params.country_id,
+            state_id: req.params.state_id, paginationOptions, filter
+        }));
     });
 };
