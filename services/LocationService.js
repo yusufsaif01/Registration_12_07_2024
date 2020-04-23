@@ -163,6 +163,81 @@ class LocationService {
             return Promise.reject(e);
         }
     }
+    async getCityList(requestedData = {}) {
+        try {
+            let conditions = this._prepareSearchCondition(requestedData.filter);
+
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+
+            let response = {}, totalRecords = 0;
+            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
+            let foundState = await this.stateUtilityInst.findOne({ id: requestedData.state_id, country_id: id })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            totalRecords = await this.stateUtilityInst.countList({ country_id: id });
+            let projection = { name: 1, id: 1 };
+            let data = await this.stateUtilityInst.find({ country_id: id }, projection);
+            data = new StateListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getStateList() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
+    _prepareSearchCondition(filters = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filters.search) {
+            filters.search = filters.search.trim()
+            if (member_type == MEMBER.PLAYER) {
+                let searchArr = filters.search.split(/\s+/)
+                if (searchArr.length) {
+                    let name = [];
+                    searchArr.forEach(search => {
+                        name.push({ first_name: new RegExp(search, 'i') })
+                        name.push({ last_name: new RegExp(search, 'i') })
+                    });
+                    filterArr.push({ $or: name })
+                }
+                else {
+                    filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+                    filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+                }
+                filterArr.push({ player_type: new RegExp(filters.search, 'i') })
+                filterArr.push({
+                    position: {
+                        $elemMatch: {
+                            name: new RegExp(filters.search, "i"),
+                            priority: 1
+                        }
+                    }
+                })
+            }
+            else {
+                filterArr.push({ name: new RegExp(filters.search, 'i') })
+                let num = Number(filters.search)
+                if (!isNaN(num)) {
+                    if (num === 0)
+                        filterArr.push({ associated_players: null })
+                    filterArr.push({ associated_players: num })
+                }
+            }
+            filterArr.push({
+                email: new RegExp(filters.search, "i")
+            })
+            condition = {
+                $or: filterArr
+            };
+        }
+        return condition;
+    }
 }
 
 module.exports = LocationService;
