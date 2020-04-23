@@ -5,7 +5,8 @@ const responseHandler = require("../../ResponseHandler");
 class LocationValidator {
     async addStateAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required()
+            "name": Joi.string().required(),
+            "country_id":Joi.string().required()
         });
         try {
             await Joi.validate(req.body, schema);
