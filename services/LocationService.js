@@ -122,8 +122,14 @@ class LocationService {
     }
     async addCity(data = {}) {
         try {
-            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
-            let foundState = await this.stateUtilityInst.findOne({ id: data.state_id, country_id: id })
+            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: data.state_id,
+                country_id: data.country_id
+            })
             if (_.isEmpty(foundState)) {
                 return Promise.reject(new errors.NotFound("State not found"));
             }
