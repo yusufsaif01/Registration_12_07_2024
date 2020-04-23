@@ -90,4 +90,51 @@ module.exports = (router) => {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.addState({ reqObj: req.body }));
     });
+
+    /**
+     * @api {get} /master/state/list/:country_id state listing
+     * @apiName state listing
+     * @apiGroup Location
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":1,
+     *         "records":[
+     *           {
+     *             "name": "Delhi",
+     *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996"
+     *           }
+     *         ]
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Country not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+
+    router.get("/master/state/list/:country_id", function (req, res) {
+        let serviceInst = new LocationService();
+        return responseHandler(req, res, serviceInst.getStateList(req.params.country_id));
+    });
 };
