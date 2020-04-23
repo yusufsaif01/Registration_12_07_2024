@@ -18,6 +18,7 @@ module.exports = (router) => {
     *       "message": "Successfully done",
     *       "data": [ {
     *                  "country": "India",
+    *                  "country_id": "3bcda0b2-2bc6-4c0c-bc42-82c4aa42ec39",
     *                  "no_of_state": 10,
     *                  "no_of_city": 10 }
     *               ]
