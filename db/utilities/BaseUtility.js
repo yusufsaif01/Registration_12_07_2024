@@ -152,6 +152,18 @@ class BaseUtility {
 			throw e;
 		}
 	}
+	async aggregate(aggregations = []) {
+		try {
+			if (_.isEmpty(this.model)) {
+				await this.getModel();
+			}
+			const data = await this.model.aggregate(aggregations)
+			return data;
+		} catch (e) {
+			console.log(`Error in aggregate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
+			throw e;
+		}
+	}
 }
 
 module.exports = BaseUtility;
