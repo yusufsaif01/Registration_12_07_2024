@@ -64,13 +64,16 @@ class LocationService {
             return Promise.reject(e);
         }
     }
-    async getStateList() {
+    async getStateList(country_id) {
         try {
             let response = {}, totalRecords = 0;
-            let { id } = await this.countryUtilityInst.findOne({ name: "India" }, { id: 1 })
-            totalRecords = await this.stateUtilityInst.countList({ country_id: id });
+            let country = await this.countryUtilityInst.findOne({ id: country_id })
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            totalRecords = await this.stateUtilityInst.countList({ country_id: country_id });
             let projection = { name: 1, id: 1 }
-            let data = await this.stateUtilityInst.find({ country_id: id }, projection);
+            let data = await this.stateUtilityInst.find({ country_id: country_id }, projection);
             data = new StateListResponseMapper().map(data);
             response = {
                 total: totalRecords,

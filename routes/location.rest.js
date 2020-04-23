@@ -91,7 +91,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {get} /master/state/list state listing
+     * @api {get} /master/state/list/:country_id state listing
      * @apiName state listing
      * @apiGroup Location
      * 
@@ -122,10 +122,18 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Country not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
      */
 
-    router.get("/master/state/list", function (req, res) {
+    router.get("/master/state/list/:country_id", function (req, res) {
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.getStateList());
+        return responseHandler(req, res, serviceInst.getStateList(req.params.country_id));
     });
 };
