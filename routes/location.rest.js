@@ -190,7 +190,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/state/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
+    router.put("/master/state/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.editStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.editState({
             reqObj: req.body,
