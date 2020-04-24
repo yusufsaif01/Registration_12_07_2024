@@ -3,7 +3,7 @@ const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 
 class PlayerSpecializationValidator {
-    async addAbilityAPIValidation(req, res, next) {
+    async AbilityAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required()
         });
