@@ -86,7 +86,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {put} /master/player-specialization/ability/:id edit ability
+     * @api {put} /master/player-specialization/ability/:ability_id edit ability
      * @apiName edit ability
      * @apiGroup Player specialization
      *
@@ -129,10 +129,10 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/player-specialization/ability/:id", checkAuthToken,
+    router.put("/master/player-specialization/ability/:ability_id", checkAuthToken,
         playerSpecializationValidator.AbilityAPIValidation, checkRole(["admin"]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.editAbility({ reqObj: req.body, ability_id: req.params.id }));
+            return responseHandler(req, res, serviceInst.editAbility({ reqObj: req.body, ability_id: req.params.ability_id }));
         });
 
     /**
