@@ -226,7 +226,7 @@ module.exports = (router) => {
 
     /**
      * @api {put} /master/player-specialization/parameter/:ability_id/:parameter_id edit parameter
-     * @apiName add parameter
+     * @apiName edit parameter
      * @apiGroup Player specialization
      *
      * @apiParam (body) {String} name parameter name
@@ -261,6 +261,14 @@ module.exports = (router) => {
      *     HTTP/1.1 404 Not found
      *     {
      *       "message": "Ability not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Parameter not found",
      *       "code": "NOT_FOUND",
      *       "httpCode": 404
      *     }
