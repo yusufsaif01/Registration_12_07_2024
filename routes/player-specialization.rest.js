@@ -335,4 +335,47 @@ module.exports = (router) => {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addPosition({ reqObj: req.body }));
         });
+
+    /**
+     * @api {get} /master/player-specialization/position/list position listing
+     * @apiName position listing
+     * @apiGroup Player specialization
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":1,
+     *         "records": [{
+     *                    "id": "1909541a-4b08-48f6-a024-70cbdce73f6e",
+     *                    "name": "Goalkeeper",
+     *                    "abbreviation": "GK",
+     *                    "abilities": [{
+     *                       "id": "1e61a8e2-db18-4331-8c5f-d17fa1058eef",
+     *                       "name": "Stamina"
+     *                         }]
+     *                    }]
+     *               }
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+
+    router.get("/master/player-specialization/position/list", function (req, res) {
+        let serviceInst = new PlayerSpecializationService();
+        return responseHandler(req, res, serviceInst.getPositionList());
+    });
 };

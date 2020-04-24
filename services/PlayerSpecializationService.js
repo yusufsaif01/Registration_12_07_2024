@@ -5,6 +5,7 @@ const ParameterUtility = require('../db/utilities/ParameterUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
 const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
+const PositionListResponseMapper = require("../dataModels/responseMapper/PositionListResponseMapper");
 
 class PlayerSpecializationService {
 
@@ -183,6 +184,30 @@ class PlayerSpecializationService {
             return Promise.resolve()
         }
         catch (e) {
+            return Promise.reject(e);
+        }
+    }
+    async getPositionList() {
+        try {
+            let response = {}, totalRecords = 0;
+            totalRecords = await this.positionUtilityInst.countList({});
+            let data = await this.positionUtilityInst.aggregate([{
+                $lookup: { from: "abilities", localField: "abilities", foreignField: "id", as: "output" }
+            },
+            {
+                $project: {
+                    id: 1, name: 1, abbreviation: 1,
+                    abilities: { $map: { input: "$output", as: "ability", in: { id: "$$ability.id", name: "$$ability.name" } } }
+                }
+            }])
+            data = new PositionListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPositionList() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
