@@ -268,7 +268,7 @@ module.exports = (router) => {
      */
 
     router.put("/master/player-specialization/parameter/:ability_id/:parameter_id", checkAuthToken, checkRole(["admin"]),
-        playerSpecializationValidator.addParameterAPIValidation, function (req, res) {
+        playerSpecializationValidator.editParameterAPIValidation, function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.editParameter({
                 reqObj: req.body,
