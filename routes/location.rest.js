@@ -197,4 +197,65 @@ module.exports = (router) => {
             country_id: req.params.country_id, state_id: req.params.state_id
         }));
     });
+
+    /**
+     * @api {post} /master/city/add add city
+     * @apiName add city
+     * @apiGroup Location
+     *
+     * @apiParam (body) {String} name city name
+     * @apiParam (body) {String} country_id country id
+     * @apiParam (body) {String} state_id state id
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "City already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "State not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Country not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+
+    router.post("/master/city/add", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
+        let serviceInst = new LocationService();
+        return responseHandler(req, res, serviceInst.addCity({
+            reqObj: req.body
+        }));
+    });
 };

@@ -1,6 +1,7 @@
 const CountryUtility = require('../db/utilities/CountryUtility');
 const errors = require("../errors");
 const StateUtility = require('../db/utilities/StateUtility');
+const CityUtility = require('../db/utilities/CityUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
@@ -9,6 +10,7 @@ class LocationService {
     constructor() {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
+        this.cityUtilityInst = new CityUtility();
     }
 
     async getLocationStats() {
@@ -115,6 +117,36 @@ class LocationService {
             Promise.resolve()
         } catch (e) {
             console.log("Error in editState() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async addCity(data = {}) {
+        try {
+            let reqObj = data.reqObj;
+            let country = await this.countryUtilityInst.findOne({ id: reqObj.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: reqObj.state_id,
+                country_id: reqObj.country_id
+            })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const city = await this.cityUtilityInst.findOne({ name: regex, state_id: reqObj.state_id });
+            if (!_.isEmpty(city)) {
+                return Promise.reject(new errors.Conflict("City already added"));
+            }
+            await this.cityUtilityInst.insert({ name: reqObj.name, state_id: reqObj.state_id })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in addCity() of LocationService", e);
             return Promise.reject(e);
         }
     }
