@@ -2,7 +2,7 @@ const MemberTypeUtility = require('../db/utilities/MemberTypeUtility');
 
 class MemberTypeService {
 
-	constructor(){
+    constructor() {
         this.memberTypeUtilityInst = new MemberTypeUtility();
     }
     async addMemberTypes(data = []) {
