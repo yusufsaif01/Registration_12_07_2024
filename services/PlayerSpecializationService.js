@@ -3,6 +3,7 @@ const errors = require("../errors");
 const AbilityUtility = require('../db/utilities/AbilityUtility');
 const ParameterUtility = require('../db/utilities/ParameterUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
+const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
 
 class PlayerSpecializationService {
 
@@ -89,6 +90,27 @@ class PlayerSpecializationService {
             Promise.resolve()
         } catch (e) {
             console.log("Error in addParameter() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async getParameterList(ability_id) {
+        try {
+            let response = {}, totalRecords = 0;
+            let foundAbility = await this.abilityUtilityInst.findOne({ id: ability_id });
+            if (_.isEmpty(foundAbility)) {
+                return Promise.reject(new errors.NotFound("Ability not found"));
+            }
+            totalRecords = await this.parameterUtilityInst.countList({ ability_id: ability_id });
+            let projection = { id: 1, name: 1 }
+            let data = await this.parameterUtilityInst.find({ ability_id: ability_id }, projection);
+            data = new ParameterListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getParameterList() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
