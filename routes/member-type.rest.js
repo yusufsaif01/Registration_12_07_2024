@@ -21,7 +21,7 @@ module.exports = (router) => {
      *                  "category":"Player",
      *                  "sub_category":"Grassroot"
      *               }]
-     *
+     *     }
      *
      * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
      *     HTTP/1.1 500 Internal server error
