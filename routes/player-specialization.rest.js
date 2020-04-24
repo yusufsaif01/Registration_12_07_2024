@@ -114,7 +114,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "ability already added",
+	 *       "message": "Ability already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -122,7 +122,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} NOT_FOUND
      *     HTTP/1.1 404 Not found
      *     {
-     *       "message": "ability not found",
+     *       "message": "Ability not found",
      *       "code": "NOT_FOUND",
      *       "httpCode": 404
      *     }
@@ -130,7 +130,7 @@ module.exports = (router) => {
      */
 
     router.put("/master/player-specialization/ability/:id", checkAuthToken,
-        playerSpecializationValidator.addAbilityAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.AbilityAPIValidation, checkRole(["admin"]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.editAbility({ reqObj: req.body, ability_id: req.params.id }));
         });
