@@ -33,7 +33,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "ability already added",
+	 *       "message": "Ability already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -41,7 +41,7 @@ module.exports = (router) => {
      */
 
     router.post("/master/player-specialization/ability/add", checkAuthToken,
-        playerSpecializationValidator.addAbilityAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.AbilityAPIValidation, checkRole(["admin"]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
         });

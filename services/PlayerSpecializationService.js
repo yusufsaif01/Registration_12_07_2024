@@ -18,7 +18,7 @@ class PlayerSpecializationService {
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const ability = await this.abilityUtilityInst.findOne({ name: regex });
             if (!_.isEmpty(ability)) {
-                return Promise.reject(new errors.Conflict("ability already added"));
+                return Promise.reject(new errors.Conflict("Ability already added"));
             }
             await this.abilityUtilityInst.insert({ name: reqObj.name })
             Promise.resolve()
