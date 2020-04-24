@@ -205,6 +205,43 @@ class LocationService {
         }
         return condition;
     }
+    async editCity(data = {}) {
+        try {
+            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: data.state_id,
+                country_id: data.country_id
+            })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            let foundCity = await this.cityUtilityInst.findOne({
+                id: data.city_id,
+                state_id: data.state_id
+            })
+            if (_.isEmpty(foundCity)) {
+                return Promise.reject(new errors.NotFound("City not found"));
+            }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const city = await this.cityUtilityInst.findOne({ name: regex, state_id: data.state_id });
+            if (!_.isEmpty(city)) {
+                return Promise.reject(new errors.Conflict("City already added"));
+            }
+            await this.cityUtilityInst.updateOne({ id: data.city_id }, { name: reqObj.name })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editCity() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = LocationService;
