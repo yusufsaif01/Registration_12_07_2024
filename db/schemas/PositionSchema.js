@@ -1,6 +1,4 @@
 const uuidv4 = require("uuid/v4");
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 module.exports = {
     fields: {
@@ -18,9 +16,9 @@ module.exports = {
         abbreviation: {
             type: String
         },
-        abilities: [
-            { type: Schema.Types.ObjectId, ref: 'ability' }
-        ]
+        abilities: {
+            type: Array
+        }
     },
     schemaName: "position",
     options: {
