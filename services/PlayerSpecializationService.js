@@ -2,6 +2,7 @@ const _ = require("lodash");
 const errors = require("../errors");
 const AbilityUtility = require('../db/utilities/AbilityUtility');
 const ParameterUtility = require('../db/utilities/ParameterUtility');
+const PositionUtility = require('../db/utilities/PositionUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
 const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
 
@@ -10,6 +11,7 @@ class PlayerSpecializationService {
     constructor() {
         this.abilityUtilityInst = new AbilityUtility();
         this.parameterUtilityInst = new ParameterUtility();
+        this.positionUtilityInst = new PositionUtility();
     }
     async addAbility(data = {}) {
         try {
@@ -138,6 +140,49 @@ class PlayerSpecializationService {
             Promise.resolve()
         } catch (e) {
             console.log("Error in editParameter() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async addPosition(data = {}) {
+        try {
+            let reqObj = data.reqObj;
+            await this.positionValidation(reqObj)
+            let record = {
+                name: reqObj.name,
+                abbreviation: reqObj.abbreviation
+            }
+            if (reqObj.abilities && reqObj.abilities.length)
+                record.abilities = reqObj.abilities;
+            await this.positionUtilityInst.insert(record)
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in addPosition() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async positionValidation(reqObj = {}) {
+        try {
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            reqObj.abbreviation = reqObj.abbreviation.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            if (_.isEmpty(reqObj.abbreviation)) {
+                return Promise.reject(new errors.ValidationFailed("abbreviation cannot be empty"));
+            }
+            let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const positionName = await this.positionUtilityInst.findOne({ name: nameRegex });
+            if (!_.isEmpty(positionName)) {
+                return Promise.reject(new errors.Conflict("Position with this name already added"));
+            }
+            let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
+            const positionAbbreviation = await this.positionUtilityInst.findOne({ abbreviation: abbreviationRegex });
+            if (!_.isEmpty(positionAbbreviation)) {
+                return Promise.reject(new errors.Conflict("Position with this abbreviation already added"));
+            }
+            return Promise.resolve()
+        }
+        catch (e) {
             return Promise.reject(e);
         }
     }
