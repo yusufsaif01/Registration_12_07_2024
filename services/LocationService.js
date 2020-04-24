@@ -182,7 +182,7 @@ class LocationService {
             }
             return response;
         } catch (e) {
-            console.log("Error in getStateList() of LocationService", e);
+            console.log("Error in getCityList() of LocationService", e);
             return Promise.reject(e);
         }
     }
