@@ -258,4 +258,55 @@ module.exports = (router) => {
             reqObj: req.body
         }));
     });
+    /**
+     * @api {get} /master/city/list/:country_id/:state_id?page_size=<10>&page_no=<1>&search=<text> city listing
+     * @apiName city listing
+     * @apiGroup Location
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":1,
+     *         "records":[
+     *           {
+     *             "name": "New Delhi",
+     *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996"
+     *           }
+     *         ]
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     */
+
+    router.get("/master/city/list/:country_id/:state_id", function (req, res) {
+        let paginationOptions = {};
+        let filter = {};
+
+        paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+        filter = {
+            search: (req.query && req.query.search) ? req.query.search : null
+        }
+        let serviceInst = new LocationService();
+        return responseHandler(req, res, serviceInst.getCityList({
+            country_id: req.params.country_id,
+            state_id: req.params.state_id, paginationOptions, filter
+        }));
+    });
 };

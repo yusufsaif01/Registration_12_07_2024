@@ -5,6 +5,7 @@ const CityUtility = require('../db/utilities/CityUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
+const CityListResponseMapper = require("../dataModels/responseMapper/CityListResponseMapper");
 
 class LocationService {
     constructor() {
@@ -149,6 +150,60 @@ class LocationService {
             console.log("Error in addCity() of LocationService", e);
             return Promise.reject(e);
         }
+    }
+    async getCityList(requestedData = {}) {
+        try {
+            let conditions = this._prepareSearchCondition(requestedData.filter);
+
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+
+            let response = {}, totalRecords = 0;
+            let country = await this.countryUtilityInst.findOne({ id: requestedData.country_id });
+            if (_.isEmpty(country)) {
+                return Promise.reject(new errors.NotFound("Country not found"));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: requestedData.state_id,
+                country_id: requestedData.country_id
+            })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound("State not found"));
+            }
+            conditions.state_id = requestedData.state_id;
+            totalRecords = await this.cityUtilityInst.countList(conditions);
+            let projection = { name: 1, id: 1 };
+            let data = await this.cityUtilityInst.find(conditions, projection, options);
+            data = new CityListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getCityList() of LocationService", e);
+            return Promise.reject(e);
+        }
+    }
+    _prepareSearchCondition(filters = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filters.search) {
+            filters.search = filters.search.trim().replace(/\s\s+/g, ' ');
+            let searchArr = filters.search.split(/\s+/)
+            if (searchArr.length) {
+                let name = [];
+                searchArr.forEach(search => {
+                    name.push({ name: new RegExp(search, 'i') })
+                });
+                filterArr.push({ $or: name })
+            }
+            condition = {
+                $or: filterArr
+            };
+        }
+        return condition;
     }
 }
 
