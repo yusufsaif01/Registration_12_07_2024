@@ -3,6 +3,7 @@ const authRoutes = require('./auth.rest');
 const userProfileRoutes = require('./userProfile.rest');
 const locationRoutes = require('./location.rest');
 const memberRoutes = require('./member.rest');
+const memberTypeRoutes = require('./member-type.rest');
 const achievementRoutes = require('./achievement.rest');
 
 class Route {
@@ -13,6 +14,7 @@ class Route {
 		userProfileRoutes(apiRouter);
 		locationRoutes(apiRouter);
 		memberRoutes(apiRouter);
+		memberTypeRoutes(apiRouter);
 		achievementRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
