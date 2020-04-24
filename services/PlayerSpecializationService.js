@@ -44,6 +44,29 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
+    async editAbility(data = {}) {
+        try {
+            let foundAbility = await this.abilityUtilityInst.findOne({ id: data.ability_id });
+            if (_.isEmpty(foundAbility)) {
+                return Promise.reject(new errors.NotFound("Ability not found"));
+            }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const ability = await this.abilityUtilityInst.findOne({ name: regex });
+            if (!_.isEmpty(ability)) {
+                return Promise.reject(new errors.Conflict("Ability already added"));
+            }
+            await this.abilityUtilityInst.updateOne({ id: data.ability_id }, { name: reqObj.name })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editAbility() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = PlayerSpecializationService;
