@@ -1,6 +1,7 @@
 const PlayerSpecializationService = require('../services/PlayerSpecializationService');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
+const playerSpecializationValidator = require("../middleware/validators").playerSpecializationValidator;
 
 module.exports = (router) => {
     /**
@@ -39,8 +40,9 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/player-specialization/ability/add", checkAuthToken, checkRole(["admin"]), function (req, res) {
-        let serviceInst = new PlayerSpecializationService();
-        return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
-    });
+    router.post("/master/player-specialization/ability/add", checkAuthToken,
+        playerSpecializationValidator.addAbilityAPIValidation, checkRole(["admin"]), function (req, res) {
+            let serviceInst = new PlayerSpecializationService();
+            return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
+        });
 };
