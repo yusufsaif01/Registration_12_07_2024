@@ -191,15 +191,17 @@ class PlayerSpecializationService {
         try {
             let response = {}, totalRecords = 0;
             totalRecords = await this.positionUtilityInst.countList({});
-            let data = await this.positionUtilityInst.aggregate([{
-                $lookup: { from: "abilities", localField: "abilities", foreignField: "id", as: "output" }
-            },
-            {
-                $project: {
-                    id: 1, name: 1, abbreviation: 1,
-                    abilities: { $map: { input: "$output", as: "ability", in: { id: "$$ability.id", name: "$$ability.name" } } }
-                }
-            }])
+            let data = await this.positionUtilityInst.aggregate([
+                { $sort: { createdAt: -1 } },
+                {
+                    $lookup: { from: "abilities", localField: "abilities", foreignField: "id", as: "output" }
+                },
+                {
+                    $project: {
+                        id: 1, name: 1, abbreviation: 1,
+                        abilities: { $map: { input: "$output", as: "ability", in: { id: "$$ability.id", name: "$$ability.name" } } }
+                    }
+                }])
             data = new PositionListResponseMapper().map(data);
             response = {
                 total: totalRecords,
