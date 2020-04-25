@@ -378,4 +378,55 @@ module.exports = (router) => {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getPositionList());
     });
+
+    /**
+     * @api {put} /master/player-specialization/position/:position_id edit position
+     * @apiName edit position
+     * @apiGroup Player specialization
+     *
+     * @apiParam (body) {String} name position name
+     * @apiParam (body) {String} abbreviation abbreviation
+     * @apiParam (body) {Array} abilities array of ability_id
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Position with this name already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Position with this abbreviation already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     */
+
+    router.put("/master/player-specialization/position/:position_id", checkAuthToken,
+        playerSpecializationValidator.PositionAPIValidation, checkRole(["admin"]), function (req, res) {
+            let serviceInst = new PlayerSpecializationService();
+            return responseHandler(req, res, serviceInst.editPosition({ reqObj: req.body, position_id: req.params.position_id }));
+        });
 };
