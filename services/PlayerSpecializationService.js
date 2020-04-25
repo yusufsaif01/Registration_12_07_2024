@@ -147,7 +147,7 @@ class PlayerSpecializationService {
     async addPosition(data = {}) {
         try {
             let reqObj = data.reqObj;
-            await this.positionValidation(reqObj)
+            await this.addPositionValidation(reqObj)
             let record = {
                 name: reqObj.name,
                 abbreviation: reqObj.abbreviation
@@ -161,7 +161,7 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
-    async positionValidation(reqObj = {}) {
+    async addPositionValidation(reqObj = {}) {
         try {
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             reqObj.abbreviation = reqObj.abbreviation.trim().replace(/\s\s+/g, ' ');
