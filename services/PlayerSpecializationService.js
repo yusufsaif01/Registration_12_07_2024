@@ -114,6 +114,33 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
+    async editParameter(data = {}) {
+        try {
+            let foundAbility = await this.abilityUtilityInst.findOne({ id: data.ability_id });
+            if (_.isEmpty(foundAbility)) {
+                return Promise.reject(new errors.NotFound("Ability not found"));
+            }
+            let foundParameter = await this.parameterUtilityInst.findOne({ id: data.parameter_id, ability_id: data.ability_id });
+            if (_.isEmpty(foundParameter)) {
+                return Promise.reject(new errors.NotFound("Parameter not found"));
+            }
+            let reqObj = data.reqObj;
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
+            if (!_.isEmpty(parameter)) {
+                return Promise.reject(new errors.Conflict("Parameter already added"));
+            }
+            await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editParameter() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = PlayerSpecializationService;
