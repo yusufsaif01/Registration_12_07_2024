@@ -215,7 +215,7 @@ class UserProfileService {
         return Promise.resolve()
     }
 
-    async uploadProfileDocuments(reqObj = {}, files = null, user_id) {
+    async uploadProfileDocuments(reqObj = {}, files = null) {
         try {
             if (files) {
                 reqObj.documents = [];
