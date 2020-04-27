@@ -196,7 +196,7 @@ class UserProfileService {
         return Promise.resolve()
     }
 
-    async uploadProfileDocuments(reqObj = {}, files = null, member_type, user_id) {
+    async uploadProfileDocuments(reqObj = {}, files = null, user_id) {
         try {
             if (files) {
                 reqObj.documents = [];
@@ -204,7 +204,7 @@ class UserProfileService {
                 if (files.aadhar) {
                     let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
                     let details;
-                    details = await this.playerUtilityInst.findOne({ user_id: user_id });
+                    details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
                     if (details && details.documents && details.documents.length) {
                         let documents = details.documents;
                         let is_aadhar = false;
@@ -229,21 +229,35 @@ class UserProfileService {
                 if (files.employment_contract) {
                     let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
                     let details;
-                    details = await this.playerUtilityInst.findOne({ user_id: user_id });
+                    details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
                     if (details && details.documents && details.documents.length) {
                         let documents = details.documents;
-                        documents.forEach(document => {
-                            if (document.type === 'employment_contract') {
-                                document.link = file_url
-                            }
-                        })
+                        let aadhar;
+                        let is_aadhar = false;
+                        let is_contract = false;
                         if (reqObj.documents && reqObj.documents.length) {
                             reqObj.documents.forEach(document => {
                                 if (document.type === 'aadhar') {
-                                    documents.push(document)
+                                    aadhar = document;
                                 }
                             })
                         }
+                        documents.forEach(document => {
+                            if (document.type === 'employment_contract') {
+                                is_contract = true;
+                                document.link = file_url
+                            }
+                            if (document.type === 'aadhar') {
+                                is_aadhar = true;
+                                if (aadhar)
+                                    document.link = aadhar.link
+                            }
+                        })
+                        if (!is_aadhar && aadhar) {
+                            documents.push(aadhar)
+                        }
+                        if (!is_contract)
+                            documents.push({ link: file_url, type: 'employment_contract' })
                         reqObj.documents = documents
                     }
                     else
