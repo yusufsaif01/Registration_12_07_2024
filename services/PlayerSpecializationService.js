@@ -171,14 +171,11 @@ class PlayerSpecializationService {
                 return Promise.reject(new errors.ValidationFailed("abbreviation cannot be empty"));
             }
             let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const positionName = await this.positionUtilityInst.findOne({ name: nameRegex });
-            if (!_.isEmpty(positionName)) {
-                return Promise.reject(new errors.Conflict("Position with this name already added"));
-            }
             let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
-            const positionAbbreviation = await this.positionUtilityInst.findOne({ abbreviation: abbreviationRegex });
-            if (!_.isEmpty(positionAbbreviation)) {
-                return Promise.reject(new errors.Conflict("Position with this abbreviation already added"));
+            let conditions = { $or: [{ name: nameRegex }, { abbreviation: abbreviationRegex }] }
+            const position = await this.positionUtilityInst.findOne(conditions);
+            if (!_.isEmpty(position)) {
+                return Promise.reject(new errors.Conflict("Position already added"));
             }
             return Promise.resolve()
         }
