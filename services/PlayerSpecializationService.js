@@ -5,6 +5,7 @@ const ParameterUtility = require('../db/utilities/ParameterUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
 const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
+const PositionListResponseMapper = require("../dataModels/responseMapper/PositionListResponseMapper");
 
 class PlayerSpecializationService {
 
@@ -176,6 +177,77 @@ class PlayerSpecializationService {
             const position = await this.positionUtilityInst.findOne(conditions);
             if (!_.isEmpty(position)) {
                 return Promise.reject(new errors.Conflict("Position already added"));
+            }
+            return Promise.resolve()
+        }
+        catch (e) {
+            return Promise.reject(e);
+        }
+    }
+    async getPositionList() {
+        try {
+            let response = {}, totalRecords = 0;
+            totalRecords = await this.positionUtilityInst.countList({});
+            let data = await this.positionUtilityInst.aggregate([
+                { $sort: { createdAt: -1 } },
+                {
+                    $lookup: { from: "abilities", localField: "abilities", foreignField: "id", as: "output" }
+                },
+                {
+                    $project: {
+                        id: 1, name: 1, abbreviation: 1,
+                        abilities: { $map: { input: "$output", as: "ability", in: { id: "$$ability.id", name: "$$ability.name" } } }
+                    }
+                }])
+            data = new PositionListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPositionList() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async editPosition(data = {}) {
+        try {
+            let reqObj = data.reqObj;
+            await this.editPositionValidation(reqObj, data.position_id)
+            let record = {
+                name: reqObj.name,
+                abbreviation: reqObj.abbreviation
+            }
+            if (reqObj.abilities)
+                record.abilities = reqObj.abilities;
+            await this.positionUtilityInst.updateOne({ id: data.position_id }, record)
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in editPosition() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async editPositionValidation(reqObj = {}, position_id) {
+        try {
+            const position = await this.positionUtilityInst.findOne({ id: position_id });
+            if (_.isEmpty(position)) {
+                return Promise.reject(new errors.ValidationFailed("Position not found"));
+            }
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            reqObj.abbreviation = reqObj.abbreviation.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            if (_.isEmpty(reqObj.abbreviation)) {
+                return Promise.reject(new errors.ValidationFailed("abbreviation cannot be empty"));
+            }
+            let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
+            let conditions = { $or: [{ name: nameRegex }, { abbreviation: abbreviationRegex }] }
+            const foundPosition = await this.positionUtilityInst.findOne(conditions);
+            if (!_.isEmpty(foundPosition)) {
+                if (reqObj.name !== position.name || reqObj.abbreviation !== position.abbreviation)
+                    return Promise.reject(new errors.Conflict("Position already added"))
             }
             return Promise.resolve()
         }
