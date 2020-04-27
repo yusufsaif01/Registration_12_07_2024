@@ -1,5 +1,6 @@
 const MemberTypeService = require('../services/MemberTypeService');
 const responseHandler = require('../ResponseHandler');
+const { checkAuthToken, checkRole } = require('../middleware/auth');
 
 module.exports = (router) => {
 
@@ -33,7 +34,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/member-type/list", function (req, res) {
+    router.get("/member-type/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
         let serviceInst = new MemberTypeService();
         return responseHandler(req, res, serviceInst.getMemberTypeList());
     });
