@@ -40,12 +40,31 @@ class UserProfileService {
     async updateProfileDetails(requestedData = {}) {
         await this.updateProfileDetailsValidation(requestedData.updateValues);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
-
         if (requestedData.member_type == MEMBER.PLAYER) {
-            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+            let playerData = await this.prepareDocumentObj(profileData, requestedData.id);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, playerData);
         } else {
             await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         }
+    }
+    async prepareDocumentObj(reqObj = {}, user_id) {
+        if (!reqObj.documents)
+            return Promise.resolve(reqObj)
+        let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+        if (details && details.documents && details.documents.length) {
+            let documents = details.documents;
+            let aadharDB = _.find(documents, { type: "aadhar" });
+            let playerContractDB = _.find(documents, { type: "employment_contract" });
+            let aadharReqObj = _.find(reqObj.documents, { type: "aadhar" })
+            let playerContractReqObj = _.find(reqObj.documents, { type: "employment_contract" })
+            if (aadharReqObj && !playerContractReqObj && playerContractDB) {
+                reqObj.documents.push(playerContractDB)
+            }
+            if (playerContractReqObj && !aadharReqObj && aadharDB) {
+                reqObj.documents.push(aadharDB)
+            }
+        }
+        return Promise.resolve(reqObj)
     }
 
     prepareProfileData(member_type, data) {
