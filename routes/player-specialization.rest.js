@@ -80,7 +80,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/ability/list", function (req, res) {
+    router.get("/master/player-specialization/ability/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getAbilityList());
     });
@@ -219,7 +219,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/parameter/list/:ability_id", function (req, res) {
+    router.get("/master/player-specialization/parameter/list/:ability_id", checkAuthToken, checkRole(["admin"]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getParameterList(req.params.ability_id));
     });
@@ -374,7 +374,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/position/list", function (req, res) {
+    router.get("/master/player-specialization/position/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getPositionList());
     });
