@@ -226,7 +226,7 @@ class PlayerSpecializationService {
             await this.positionUtilityInst.updateOne({ id: data.position_id }, record)
             Promise.resolve()
         } catch (e) {
-            console.log("Error in editposition() of PlayerSpecializationService", e);
+            console.log("Error in editPosition() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
