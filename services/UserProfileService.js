@@ -40,12 +40,31 @@ class UserProfileService {
     async updateProfileDetails(requestedData = {}) {
         await this.updateProfileDetailsValidation(requestedData.updateValues);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
-
         if (requestedData.member_type == MEMBER.PLAYER) {
-            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
+            let playerData = await this.prepareDocumentObj(profileData, requestedData.id);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, playerData);
         } else {
             await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         }
+    }
+    async prepareDocumentObj(reqObj = {}, user_id) {
+        if (!reqObj.documents)
+            return Promise.resolve(reqObj)
+        let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+        if (details && details.documents && details.documents.length) {
+            let documents = details.documents;
+            let aadharDB = _.find(documents, { type: "aadhar" });
+            let playerContractDB = _.find(documents, { type: "employment_contract" });
+            let aadharReqObj = _.find(reqObj.documents, { type: "aadhar" })
+            let playerContractReqObj = _.find(reqObj.documents, { type: "employment_contract" })
+            if (aadharReqObj && !playerContractReqObj && playerContractDB) {
+                reqObj.documents.push(playerContractDB)
+            }
+            if (playerContractReqObj && !aadharReqObj && aadharDB) {
+                reqObj.documents.push(aadharDB)
+            }
+        }
+        return Promise.resolve(reqObj)
     }
 
     prepareProfileData(member_type, data) {
@@ -203,24 +222,7 @@ class UserProfileService {
                 const _fileInst = new FileService();
                 if (files.aadhar) {
                     let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
-                    let details;
-                    details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
-                    if (details && details.documents && details.documents.length) {
-                        let documents = details.documents;
-                        let is_aadhar = false;
-                        documents.forEach(document => {
-                            if (document.type === 'aadhar') {
-                                is_aadhar = true;
-                                document.link = file_url;
-                            }
-                        })
-                        if (!is_aadhar)
-                            reqObj.documents.push({ link: file_url, type: 'aadhar' })
-                        else
-                            reqObj.documents = documents
-                    }
-                    else
-                        reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
                 }
                 if (files.aiff) {
                     let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
@@ -228,40 +230,7 @@ class UserProfileService {
                 }
                 if (files.employment_contract) {
                     let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
-                    let details;
-                    details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
-                    if (details && details.documents && details.documents.length) {
-                        let documents = details.documents;
-                        let aadhar;
-                        let is_aadhar = false;
-                        let is_contract = false;
-                        if (reqObj.documents && reqObj.documents.length) {
-                            reqObj.documents.forEach(document => {
-                                if (document.type === 'aadhar') {
-                                    aadhar = document;
-                                }
-                            })
-                        }
-                        documents.forEach(document => {
-                            if (document.type === 'employment_contract') {
-                                is_contract = true;
-                                document.link = file_url
-                            }
-                            if (document.type === 'aadhar') {
-                                is_aadhar = true;
-                                if (aadhar)
-                                    document.link = aadhar.link
-                            }
-                        })
-                        if (!is_aadhar && aadhar) {
-                            documents.push(aadhar)
-                        }
-                        if (!is_contract)
-                            documents.push({ link: file_url, type: 'employment_contract' })
-                        reqObj.documents = documents
-                    }
-                    else
-                        reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
                     let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
