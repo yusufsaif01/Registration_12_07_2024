@@ -1,12 +1,15 @@
 const _ = require("lodash");
 const errors = require("../errors");
 const AbilityUtility = require('../db/utilities/AbilityUtility');
+const ParameterUtility = require('../db/utilities/ParameterUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
+const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
 
 class PlayerSpecializationService {
 
     constructor() {
         this.abilityUtilityInst = new AbilityUtility();
+        this.parameterUtilityInst = new ParameterUtility();
     }
     async addAbility(data = {}) {
         try {
@@ -64,6 +67,50 @@ class PlayerSpecializationService {
             Promise.resolve()
         } catch (e) {
             console.log("Error in editAbility() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async addParameter(data = {}) {
+        try {
+            let reqObj = data.reqObj;
+            let foundAbility = await this.abilityUtilityInst.findOne({ id: reqObj.ability_id });
+            if (_.isEmpty(foundAbility)) {
+                return Promise.reject(new errors.NotFound("Ability not found"));
+            }
+            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
+            if (_.isEmpty(reqObj.name)) {
+                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+            }
+            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
+            const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: reqObj.ability_id });
+            if (!_.isEmpty(parameter)) {
+                return Promise.reject(new errors.Conflict("Parameter already added"));
+            }
+            await this.parameterUtilityInst.insert({ name: reqObj.name, ability_id: reqObj.ability_id })
+            Promise.resolve()
+        } catch (e) {
+            console.log("Error in addParameter() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+    async getParameterList(ability_id) {
+        try {
+            let response = {}, totalRecords = 0;
+            let foundAbility = await this.abilityUtilityInst.findOne({ id: ability_id });
+            if (_.isEmpty(foundAbility)) {
+                return Promise.reject(new errors.NotFound("Ability not found"));
+            }
+            totalRecords = await this.parameterUtilityInst.countList({ ability_id: ability_id });
+            let projection = { id: 1, name: 1 }
+            let data = await this.parameterUtilityInst.find({ ability_id: ability_id }, projection);
+            data = new ParameterListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getParameterList() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
