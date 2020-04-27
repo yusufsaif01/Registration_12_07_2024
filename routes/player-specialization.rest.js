@@ -80,7 +80,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/ability/list", function (req, res) {
+    router.get("/master/player-specialization/ability/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getAbilityList());
     });
