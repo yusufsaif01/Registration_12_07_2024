@@ -283,4 +283,48 @@ module.exports = (router) => {
                 ability_id: req.params.ability_id, parameter_id: req.params.parameter_id
             }));
         });
+
+    /**
+     * @api {post} /master/player-specialization/position/add add position
+     * @apiName add position
+     * @apiGroup Player specialization
+     *
+     * @apiParam (body) {String} name position name
+     * @apiParam (body) {String} abbreviation abbreviation
+     * @apiParam (body) {Array} abilities array of ability_id
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Position already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     */
+
+    router.post("/master/player-specialization/position/add", checkAuthToken,
+        playerSpecializationValidator.PositionAPIValidation, checkRole(["admin"]), function (req, res) {
+            let serviceInst = new PlayerSpecializationService();
+            return responseHandler(req, res, serviceInst.addPosition({ reqObj: req.body }));
+        });
 };
