@@ -58,7 +58,7 @@ class AuthUtility {
             return jwt.verify(token.split(' ')[1], secretKey, function (err, data) {
                 if (err) {
                     console.log(err)
-                    return reject(new errors.Unauthorized());
+                    return reject(new errors.InvalidToken());
                 }
 
                 return resolve(data);
