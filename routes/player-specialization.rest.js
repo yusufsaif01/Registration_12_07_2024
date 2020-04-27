@@ -45,4 +45,43 @@ module.exports = (router) => {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
         });
+
+    /**
+     * @api {get} /master/player-specialization/ability/list ability listing
+     * @apiName ability listing
+     * @apiGroup Player specialization
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":1,
+     *         "records":[
+     *           {
+     *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *             "name": "Physical"
+     *           }
+     *         ]
+     *     }
+     *
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+
+    router.get("/master/player-specialization/ability/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
+        let serviceInst = new PlayerSpecializationService();
+        return responseHandler(req, res, serviceInst.getAbilityList());
+    });
 };
