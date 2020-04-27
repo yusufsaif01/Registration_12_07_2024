@@ -196,14 +196,31 @@ class UserProfileService {
         return Promise.resolve()
     }
 
-    async uploadProfileDocuments(reqObj = {}, files = null) {
+    async uploadProfileDocuments(reqObj = {}, files = null, member_type, user_id) {
         try {
             if (files) {
                 reqObj.documents = [];
                 const _fileInst = new FileService();
                 if (files.aadhar) {
                     let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
-                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                    let details;
+                    details = await this.playerUtilityInst.findOne({ user_id: user_id });
+                    if (details && details.documents && details.documents.length) {
+                        let documents = details.documents;
+                        let is_aadhar = false;
+                        documents.forEach(document => {
+                            if (document.type === 'aadhar') {
+                                is_aadhar = true;
+                                document.link = file_url;
+                            }
+                        })
+                        if (!is_aadhar)
+                            reqObj.documents.push({ link: file_url, type: 'aadhar' })
+                        else
+                            reqObj.documents = documents
+                    }
+                    else
+                        reqObj.documents.push({ link: file_url, type: 'aadhar' });
                 }
                 if (files.aiff) {
                     let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
@@ -211,7 +228,26 @@ class UserProfileService {
                 }
                 if (files.employment_contract) {
                     let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
-                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                    let details;
+                    details = await this.playerUtilityInst.findOne({ user_id: user_id });
+                    if (details && details.documents && details.documents.length) {
+                        let documents = details.documents;
+                        documents.forEach(document => {
+                            if (document.type === 'employment_contract') {
+                                document.link = file_url
+                            }
+                        })
+                        if (reqObj.documents && reqObj.documents.length) {
+                            reqObj.documents.forEach(document => {
+                                if (document.type === 'aadhar') {
+                                    documents.push(document)
+                                }
+                            })
+                        }
+                        reqObj.documents = documents
+                    }
+                    else
+                        reqObj.documents.push({ link: file_url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
                     let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
