@@ -246,7 +246,8 @@ class PlayerSpecializationService {
             let conditions = { $or: [{ name: nameRegex }, { abbreviation: abbreviationRegex }] }
             const foundPosition = await this.positionUtilityInst.findOne(conditions);
             if (!_.isEmpty(foundPosition)) {
-                return Promise.reject(new errors.Conflict("Position already added"));
+                if (reqObj.name !== position.name || reqObj.abbreviation !== position.abbreviation)
+                    return Promise.reject(new errors.Conflict("Position already added"))
             }
             return Promise.resolve()
         }
