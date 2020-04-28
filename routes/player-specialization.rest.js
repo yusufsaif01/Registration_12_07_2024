@@ -401,7 +401,15 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "Position already added",
+	 *       "message": "Position with same name already added",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }    
+     * 
+     *  @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Position with same abbreviation already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
