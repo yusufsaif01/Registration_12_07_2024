@@ -38,7 +38,7 @@ class UserProfileService {
      */
 
     async updateProfileDetails(requestedData = {}) {
-        await this.updateProfileDetailsValidation(requestedData.updateValues);
+        await this.updateProfileDetailsValidation(requestedData.updateValues, requestedData.member_type, requestedData.id);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
         if (requestedData.member_type == MEMBER.PLAYER) {
             let playerData = await this.prepareDocumentObj(profileData, requestedData.id);
@@ -182,8 +182,8 @@ class UserProfileService {
         return Promise.resolve(data)
     }
 
-    updateProfileDetailsValidation(data) {
-        const { founded_in, trophies } = data
+    async updateProfileDetailsValidation(data, member_type, user_id) {
+        const { founded_in, trophies, documents } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -220,6 +220,22 @@ class UserProfileService {
             });
             if (msg) {
                 return Promise.reject(new errors.ValidationFailed(msg));
+            }
+        }
+        if (documents && member_type) {
+            if (member_type === MEMBER.ACADEMY && data.number) {
+                const details = await this.clubAcademyUtilityInst.findOne(
+                    {
+                        member_type: member_type, documents: {
+                            $elemMatch: {
+                                document_number: data.number
+                            }
+                        }
+                    }, { documents: 1, user_id: 1 });
+                if (!_.isEmpty(details)) {
+                    if (details.user_id !== user_id)
+                        return Promise.reject(new errors.Conflict("document number already in use"));
+                }
             }
         }
         return Promise.resolve()
