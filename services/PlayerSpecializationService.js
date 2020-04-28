@@ -243,11 +243,15 @@ class PlayerSpecializationService {
             }
             let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
-            let conditions = { $or: [{ name: nameRegex }, { abbreviation: abbreviationRegex }] }
-            const foundPosition = await this.positionUtilityInst.findOne(conditions);
+            const foundPosition = await this.positionUtilityInst.findOne({ name: nameRegex });
             if (!_.isEmpty(foundPosition)) {
-                if (reqObj.name !== position.name || reqObj.abbreviation !== position.abbreviation)
-                    return Promise.reject(new errors.Conflict("Position already added"))
+                if (reqObj.name !== position.name)
+                    return Promise.reject(new errors.Conflict("Position with same name already added"))
+            }
+            const foundAbbreviation = await this.positionUtilityInst.findOne({ abbreviation: abbreviationRegex });
+            if (!_.isEmpty(foundAbbreviation)) {
+                if (reqObj.abbreviation !== position.abbreviation)
+                    return Promise.reject(new errors.Conflict("Position with same abbreviation already added"))
             }
             return Promise.resolve()
         }
