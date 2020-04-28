@@ -43,6 +43,7 @@ class UserValidator {
             "address": Joi.string().trim().allow(""),
             "stadium_name": Joi.string().trim().allow(""),
             "document_type": Joi.string().trim().allow(""),
+            "number": Joi.string().trim(),
             "associated_players": Joi.number().allow(""),
             "head_coach": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),

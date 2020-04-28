@@ -130,6 +130,16 @@ class UserProfileService {
 
             if (!_.isEmpty(owner))
                 data.owner = owner;
+
+            if (data.documents) {
+                if (member_type === MEMBER.ACADEMY && data.document_type && data.number) {
+                    let documentReqObj = _.find(data.documents, { type: data.document_type })
+                    if (documentReqObj) {
+                        documentReqObj.document_number = data.number
+                        data.documents = [documentReqObj]
+                    }
+                }
+            }
         }
         return Promise.resolve(data)
     }

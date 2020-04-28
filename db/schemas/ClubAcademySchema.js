@@ -16,9 +16,9 @@ module.exports = {
         user_id: {
             type: String
         },
-		deleted_at: {
-			type: Date
-		},
+        deleted_at: {
+            type: Date
+        },
         name: {
             type: String
         },
@@ -88,6 +88,9 @@ module.exports = {
         },
         documents: [{
             link: {
+                type: String
+            },
+            document_number: {
                 type: String
             },
             is_verified: {
