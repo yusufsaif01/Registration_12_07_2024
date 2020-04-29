@@ -144,6 +144,13 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
+    async addPositions(data = []) {
+        try {
+            await this.positionUtilityInst.insertMany(data)
+        } catch (err) {
+            return err;
+        }
+    }
     async addPosition(data = {}) {
         try {
             let reqObj = data.reqObj;
