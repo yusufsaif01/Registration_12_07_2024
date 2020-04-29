@@ -149,14 +149,41 @@ class ResponseMessage {
     static get CITY_NOT_FOUND() {
         return "City not found"
     }
+    static get ABILITY_NOT_FOUND() {
+        return "Ability not found"
+    }
+    static get PARAMETER_NOT_FOUND() {
+        return "Parameter not found"
+    }
+    static get POSITION_NOT_FOUND() {
+        return "Position not found"
+    }
     static get STATE_ALREADY_ADDED() {
         return "State already added"
     }
     static get CITY_ALREADY_ADDED() {
         return "City already added"
     }
+    static get ABILITY_ALREADY_ADDED() {
+        return "Ability already added"
+    }
+    static get PARAMETER_ALREADY_ADDED() {
+        return "Parameter already added"
+    }
+    static get POSITION_ALREADY_ADDED() {
+        return "Position already added"
+    }
+    static get POSITION_WITH_SAME_NAME_ALREADY_ADDED() {
+        return "Position with same name already added"
+    }
+    static get POSITION_WITH_SAME_ABBREVIATION_ALREADY_ADDED() {
+        return "Position with same abbreviation already added"
+    }
     static get NAME_CANNOT_BE_EMPTY() {
         return "Name cannot be empty"
+    }
+    static get ABBREVIATION_CANNOT_BE_EMPTY() {
+        return "Abbreviation cannot be empty"
     }
 
 }
