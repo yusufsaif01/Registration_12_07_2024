@@ -93,6 +93,23 @@ class ResponseMessage {
     static get TROPHY_YEAR_CANNOT_BE_ZERO() {
         return "Trophy year cannot be zero"
     }
+    static get YEAR_GREATER_THAN_CURRENT_YEAR() {
+        let d = new Date();
+        let currentYear = d.getFullYear();
+        return "Year is greater than " + currentYear
+    }
+    static get YEAR_CANNOT_BE_NEGATIVE() {
+        return "Year cannot be negative"
+    }
+    static get YEAR_CANNOT_BE_ZERO() {
+        return "Year cannot be zero"
+    }
+    static get YEAR_REQUIRED() {
+        return "Year is required"
+    }
+    static get YEAR_LESS__THAN_1970() {
+        return "Year is less than 1970"
+    }
     static get INVALID_VALUE_CONTACT_PERSONS() {
         return "Invalid value for contact_persons"
     }
@@ -119,6 +136,9 @@ class ResponseMessage {
     }
     static get STATUS_ALREADY_BLOCKED() {
         return "Status is already blocked"
+    }
+    static get ACHIEVEMENT_NOT_FOUND() {
+        return "Achievement not found"
     }
 
 }
