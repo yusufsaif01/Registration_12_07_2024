@@ -2,6 +2,7 @@ const PlayerSpecializationService = require('../services/PlayerSpecializationSer
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
 const playerSpecializationValidator = require("../middleware/validators").playerSpecializationValidator;
+const ROLE = require('../constants/Role')
 
 module.exports = (router) => {
     /**
@@ -41,7 +42,7 @@ module.exports = (router) => {
      */
 
     router.post("/master/player-specialization/ability/add", checkAuthToken,
-        playerSpecializationValidator.AbilityAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.AbilityAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
         });
@@ -80,7 +81,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/ability/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
+    router.get("/master/player-specialization/ability/list", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getAbilityList());
     });
@@ -130,7 +131,7 @@ module.exports = (router) => {
      */
 
     router.put("/master/player-specialization/ability/:ability_id", checkAuthToken,
-        playerSpecializationValidator.AbilityAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.AbilityAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.editAbility({ reqObj: req.body, ability_id: req.params.ability_id }));
         });
@@ -179,7 +180,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/player-specialization/parameter/add", checkAuthToken, checkRole(["admin"]),
+    router.post("/master/player-specialization/parameter/add", checkAuthToken, checkRole([ROLE.ADMIN]),
         playerSpecializationValidator.addParameterAPIValidation, function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addParameter({ reqObj: req.body }));
@@ -219,7 +220,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/parameter/list/:ability_id", checkAuthToken, checkRole(["admin"]), function (req, res) {
+    router.get("/master/player-specialization/parameter/list/:ability_id", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getParameterList(req.params.ability_id));
     });
@@ -275,7 +276,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/player-specialization/parameter/:ability_id/:parameter_id", checkAuthToken, checkRole(["admin"]),
+    router.put("/master/player-specialization/parameter/:ability_id/:parameter_id", checkAuthToken, checkRole([ROLE.ADMIN]),
         playerSpecializationValidator.editParameterAPIValidation, function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.editParameter({
@@ -323,7 +324,7 @@ module.exports = (router) => {
      */
 
     router.post("/master/player-specialization/position/add", checkAuthToken,
-        playerSpecializationValidator.PositionAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.PositionAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.addPosition({ reqObj: req.body }));
         });
@@ -366,7 +367,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/position/list", checkAuthToken, checkRole(["admin"]), function (req, res) {
+    router.get("/master/player-specialization/position/list", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getPositionList());
     });
@@ -417,7 +418,7 @@ module.exports = (router) => {
      */
 
     router.put("/master/player-specialization/position/:position_id", checkAuthToken,
-        playerSpecializationValidator.PositionAPIValidation, checkRole(["admin"]), function (req, res) {
+        playerSpecializationValidator.PositionAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
             let serviceInst = new PlayerSpecializationService();
             return responseHandler(req, res, serviceInst.editPosition({ reqObj: req.body, position_id: req.params.position_id }));
         });
