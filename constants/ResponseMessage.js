@@ -140,6 +140,24 @@ class ResponseMessage {
     static get ACHIEVEMENT_NOT_FOUND() {
         return "Achievement not found"
     }
+    static get COUNTRY_NOT_FOUND() {
+        return "Country not found"
+    }
+    static get STATE_NOT_FOUND() {
+        return "State not found"
+    }
+    static get CITY_NOT_FOUND() {
+        return "City not found"
+    }
+    static get STATE_ALREADY_ADDED() {
+        return "State already added"
+    }
+    static get CITY_ALREADY_ADDED() {
+        return "City already added"
+    }
+    static get NAME_CANNOT_BE_EMPTY() {
+        return "Name cannot be empty"
+    }
 
 }
 
