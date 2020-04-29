@@ -107,7 +107,7 @@ class ResponseMessage {
     static get YEAR_REQUIRED() {
         return "Year is required"
     }
-    static get YEAR_LESS__THAN_1970() {
+    static get YEAR_LESS_THAN_1970() {
         return "Year is less than 1970"
     }
     static get INVALID_VALUE_CONTACT_PERSONS() {

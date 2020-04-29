@@ -110,7 +110,7 @@ class AchievementService extends BaseService {
 				msg = RESPONSE_MESSAGE.YEAR_GREATER_THAN_CURRENT_YEAR;
 			}
 			if (year < 1970) {
-				msg = RESPONSE_MESSAGE.YEAR_LESS__THAN_1970;
+				msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_1970;
 			}
 			if (year < 0) {
 				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_NEGATIVE;
