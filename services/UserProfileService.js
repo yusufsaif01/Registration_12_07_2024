@@ -230,6 +230,12 @@ class UserProfileService {
             }
         }
         if (documents && member_type) {
+            if (member_type === MEMBER.ACADEMY && !data.number) {
+                return Promise.reject(new errors.ValidationFailed("PAN/ COI/ Tin Number is required"));
+            }
+            if (member_type === MEMBER.CLUB && !data.reg_number) {
+                return Promise.reject(new errors.ValidationFailed("AIFF Registration Number is required"));
+            }
             if (member_type !== MEMBER.PLAYER && (data.number || data.reg_number)) {
                 let documentNum = data.number ? data.number : data.reg_number
                 const details = await this.clubAcademyUtilityInst.findOne(
