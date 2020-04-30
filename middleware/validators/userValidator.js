@@ -87,7 +87,7 @@ class UserValidator {
             "college": Joi.string().trim().allow(""),
             "university": Joi.string().trim().allow(""),
 
-            "head_coach": Joi.string().trim().allow(""),
+            "head_coach_name": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
             "former_club": Joi.string().trim().allow(""),
