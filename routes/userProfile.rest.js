@@ -110,7 +110,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} position player position 
      * @apiParam (body) {String} strong_foot player strong foot
      * @apiParam (body) {String} weak_foot player weak foot
-     * @apiParam (body) {String} head_coach head coach name
+     * @apiParam (body) {String} head_coach_name head coach name
      * @apiParam (body) {String} head_coach_email head coach email
      * @apiParam (body) {String} head_coach_phone head coach phone number
      * @apiParam (body) {String} former_club player former club
