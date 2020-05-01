@@ -2,6 +2,7 @@ const LocationService = require('../services/LocationService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const locationValidator = require("../middleware/validators").locationValidator;
+const ROLE = require('../constants/Role')
 
 module.exports = (router) => {
 
@@ -86,7 +87,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/state/add", checkAuthToken, checkRole(["admin"]), locationValidator.addStateAPIValidation, function (req, res) {
+    router.post("/master/state/add", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.addStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.addState({ reqObj: req.body }));
     });
@@ -190,7 +191,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/state/:country_id/:state_id", checkAuthToken, checkRole(["admin"]), locationValidator.editStateAPIValidation, function (req, res) {
+    router.put("/master/state/:country_id/:state_id", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.editStateAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.editState({
             reqObj: req.body,
@@ -252,7 +253,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/city/add", checkAuthToken, checkRole(["admin"]), locationValidator.addCityAPIValidation, function (req, res) {
+    router.post("/master/city/add", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.addCityAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.addCity({
             reqObj: req.body
@@ -370,7 +371,7 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/city/:country_id/:state_id/:city_id", checkAuthToken, checkRole(["admin"]), locationValidator.editCityAPIValidation, function (req, res) {
+    router.put("/master/city/:country_id/:state_id/:city_id", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.editCityAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.editCity({
             reqObj: req.body,

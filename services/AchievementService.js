@@ -3,6 +3,7 @@ const _ = require("lodash");
 const AchievementUtility = require("../db/utilities/AchievementUtility");
 const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 const errors = require("../errors");
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 
 class AchievementService extends BaseService {
 
@@ -70,7 +71,7 @@ class AchievementService extends BaseService {
 		try {
 			let foundAchievement = await this.achievementUtilityInst.findOne({ id: requestedData.id, user_id: requestedData.user_id })
 			if (!foundAchievement) {
-				return Promise.reject(new errors.NotFound("Achievement not found"));
+				return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ACHIEVEMENT_NOT_FOUND));
 			}
 			let achievement = requestedData.reqObj;
 			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
@@ -92,7 +93,7 @@ class AchievementService extends BaseService {
 				await this.achievementUtilityInst.findOneAndUpdate({ id: id }, { is_deleted: true, deleted_at: Date.now() })
 				return Promise.resolve()
 			}
-			throw new errors.NotFound("Achievement not found");
+			throw new errors.NotFound(RESPONSE_MESSAGE.ACHIEVEMENT_NOT_FOUND);
 		} catch (e) {
 			console.log("Error in delete() of AchievementService", e);
 			return Promise.reject(e);
@@ -106,16 +107,16 @@ class AchievementService extends BaseService {
 			let currentYear = d.getFullYear();
 
 			if (year > currentYear) {
-				msg = "year is greater than " + currentYear
+				msg = RESPONSE_MESSAGE.YEAR_GREATER_THAN_CURRENT_YEAR;
 			}
 			if (year < 1970) {
-				msg = "year is less than 1970"
+				msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_1970;
 			}
 			if (year < 0) {
-				msg = "year cannot be negative"
+				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_NEGATIVE;
 			}
 			if (year == 0) {
-				msg = "year cannot be zero"
+				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_ZERO;
 			}
 			if (msg) {
 				return Promise.reject(new errors.ValidationFailed(msg));
@@ -124,7 +125,7 @@ class AchievementService extends BaseService {
 				return Promise.resolve();
 		}
 		else
-			return Promise.reject(new errors.ValidationFailed("year is required"));
+			return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.YEAR_REQUIRED));
 	}
 }
 
