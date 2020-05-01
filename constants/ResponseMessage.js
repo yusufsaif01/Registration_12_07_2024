@@ -93,6 +93,23 @@ class ResponseMessage {
     static get TROPHY_YEAR_CANNOT_BE_ZERO() {
         return "Trophy year cannot be zero"
     }
+    static get YEAR_GREATER_THAN_CURRENT_YEAR() {
+        let d = new Date();
+        let currentYear = d.getFullYear();
+        return "Year is greater than " + currentYear
+    }
+    static get YEAR_CANNOT_BE_NEGATIVE() {
+        return "Year cannot be negative"
+    }
+    static get YEAR_CANNOT_BE_ZERO() {
+        return "Year cannot be zero"
+    }
+    static get YEAR_REQUIRED() {
+        return "Year is required"
+    }
+    static get YEAR_LESS_THAN_1970() {
+        return "Year is less than 1970"
+    }
     static get INVALID_VALUE_CONTACT_PERSONS() {
         return "Invalid value for contact_persons"
     }
@@ -119,6 +136,54 @@ class ResponseMessage {
     }
     static get STATUS_ALREADY_BLOCKED() {
         return "Status is already blocked"
+    }
+    static get ACHIEVEMENT_NOT_FOUND() {
+        return "Achievement not found"
+    }
+    static get COUNTRY_NOT_FOUND() {
+        return "Country not found"
+    }
+    static get STATE_NOT_FOUND() {
+        return "State not found"
+    }
+    static get CITY_NOT_FOUND() {
+        return "City not found"
+    }
+    static get ABILITY_NOT_FOUND() {
+        return "Ability not found"
+    }
+    static get PARAMETER_NOT_FOUND() {
+        return "Parameter not found"
+    }
+    static get POSITION_NOT_FOUND() {
+        return "Position not found"
+    }
+    static get STATE_ALREADY_ADDED() {
+        return "State already added"
+    }
+    static get CITY_ALREADY_ADDED() {
+        return "City already added"
+    }
+    static get ABILITY_ALREADY_ADDED() {
+        return "Ability already added"
+    }
+    static get PARAMETER_ALREADY_ADDED() {
+        return "Parameter already added"
+    }
+    static get POSITION_ALREADY_ADDED() {
+        return "Position already added"
+    }
+    static get POSITION_WITH_SAME_NAME_ALREADY_ADDED() {
+        return "Position with same name already added"
+    }
+    static get POSITION_WITH_SAME_ABBREVIATION_ALREADY_ADDED() {
+        return "Position with same abbreviation already added"
+    }
+    static get NAME_CANNOT_BE_EMPTY() {
+        return "Name cannot be empty"
+    }
+    static get ABBREVIATION_CANNOT_BE_EMPTY() {
+        return "Abbreviation cannot be empty"
     }
 
 }

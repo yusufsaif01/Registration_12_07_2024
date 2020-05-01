@@ -6,6 +6,7 @@ const PositionUtility = require('../db/utilities/PositionUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
 const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
 const PositionListResponseMapper = require("../dataModels/responseMapper/PositionListResponseMapper");
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 
 class PlayerSpecializationService {
 
@@ -19,12 +20,12 @@ class PlayerSpecializationService {
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const ability = await this.abilityUtilityInst.findOne({ name: regex });
             if (!_.isEmpty(ability)) {
-                return Promise.reject(new errors.Conflict("Ability already added"));
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
             }
             await this.abilityUtilityInst.insert({ name: reqObj.name })
             Promise.resolve()
@@ -54,18 +55,18 @@ class PlayerSpecializationService {
         try {
             let foundAbility = await this.abilityUtilityInst.findOne({ id: data.ability_id });
             if (_.isEmpty(foundAbility)) {
-                return Promise.reject(new errors.NotFound("Ability not found"));
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const ability = await this.abilityUtilityInst.findOne({ name: regex });
             if (!_.isEmpty(ability)) {
                 if (foundAbility.id !== ability.id)
-                    return Promise.reject(new errors.Conflict("Ability already added"));
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
             }
             await this.abilityUtilityInst.updateOne({ id: data.ability_id }, { name: reqObj.name })
             Promise.resolve()
@@ -79,16 +80,16 @@ class PlayerSpecializationService {
             let reqObj = data.reqObj;
             let foundAbility = await this.abilityUtilityInst.findOne({ id: reqObj.ability_id });
             if (_.isEmpty(foundAbility)) {
-                return Promise.reject(new errors.NotFound("Ability not found"));
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: reqObj.ability_id });
             if (!_.isEmpty(parameter)) {
-                return Promise.reject(new errors.Conflict("Parameter already added"));
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.insert({ name: reqObj.name, ability_id: reqObj.ability_id })
             Promise.resolve()
@@ -102,7 +103,7 @@ class PlayerSpecializationService {
             let response = {}, totalRecords = 0;
             let foundAbility = await this.abilityUtilityInst.findOne({ id: ability_id });
             if (_.isEmpty(foundAbility)) {
-                return Promise.reject(new errors.NotFound("Ability not found"));
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
             totalRecords = await this.parameterUtilityInst.countList({ ability_id: ability_id });
             let projection = { id: 1, name: 1 }
@@ -125,21 +126,21 @@ class PlayerSpecializationService {
         try {
             let foundAbility = await this.abilityUtilityInst.findOne({ id: data.ability_id });
             if (_.isEmpty(foundAbility)) {
-                return Promise.reject(new errors.NotFound("Ability not found"));
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
             let foundParameter = await this.parameterUtilityInst.findOne({ id: data.parameter_id, ability_id: data.ability_id });
             if (_.isEmpty(foundParameter)) {
-                return Promise.reject(new errors.NotFound("Parameter not found"));
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.PARAMETER_NOT_FOUND));
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
             if (!_.isEmpty(parameter)) {
-                return Promise.reject(new errors.Conflict("Parameter already added"));
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
             Promise.resolve()
@@ -177,17 +178,17 @@ class PlayerSpecializationService {
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             reqObj.abbreviation = reqObj.abbreviation.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             if (_.isEmpty(reqObj.abbreviation)) {
-                return Promise.reject(new errors.ValidationFailed("abbreviation cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ABBREVIATION_CANNOT_BE_EMPTY));
             }
             let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
             let conditions = { $or: [{ name: nameRegex }, { abbreviation: abbreviationRegex }] }
             const position = await this.positionUtilityInst.findOne(conditions);
             if (!_.isEmpty(position)) {
-                return Promise.reject(new errors.Conflict("Position already added"));
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.POSITION_ALREADY_ADDED));
             }
             return Promise.resolve()
         }
@@ -242,27 +243,27 @@ class PlayerSpecializationService {
         try {
             const position = await this.positionUtilityInst.findOne({ id: position_id });
             if (_.isEmpty(position)) {
-                return Promise.reject(new errors.ValidationFailed("Position not found"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.POSITION_NOT_FOUND));
             }
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
             reqObj.abbreviation = reqObj.abbreviation.trim().replace(/\s\s+/g, ' ');
             if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed("name cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             if (_.isEmpty(reqObj.abbreviation)) {
-                return Promise.reject(new errors.ValidationFailed("abbreviation cannot be empty"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ABBREVIATION_CANNOT_BE_EMPTY));
             }
             let nameRegex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
             const foundPosition = await this.positionUtilityInst.findOne({ name: nameRegex });
             if (!_.isEmpty(foundPosition)) {
                 if (reqObj.name !== position.name)
-                    return Promise.reject(new errors.Conflict("Position with same name already added"))
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.POSITION_WITH_SAME_NAME_ALREADY_ADDED))
             }
             const foundAbbreviation = await this.positionUtilityInst.findOne({ abbreviation: abbreviationRegex });
             if (!_.isEmpty(foundAbbreviation)) {
                 if (reqObj.abbreviation !== position.abbreviation)
-                    return Promise.reject(new errors.Conflict("Position with same abbreviation already added"))
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.POSITION_WITH_SAME_ABBREVIATION_ALREADY_ADDED))
             }
             return Promise.resolve()
         }
