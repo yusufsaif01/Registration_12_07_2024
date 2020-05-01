@@ -46,6 +46,7 @@ module.exports = (router) => {
      *             "type":"grassroot/professional/amateur",
      *             "email":"email of the player",
      *             "status":"verified/unverified",
+     *             "account_status":"active/inactive/blocked/pending",
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *           }
      *         ],
@@ -131,6 +132,7 @@ module.exports = (router) => {
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
      *             "status":"verified/unverified",
+     *             "account_status":"active/inactive/blocked/pending",
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
@@ -211,6 +213,7 @@ module.exports = (router) => {
      *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
      *             "status":"verified/unverified",
+     *             "account_status":"active/inactive/blocked/pending",
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *            }
      *         ]
