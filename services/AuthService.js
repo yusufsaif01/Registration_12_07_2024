@@ -142,6 +142,9 @@ class AuthService {
             await this.passwordValidator(email);
             let loginDetails = await this.loginUtilityInst.findOne({ username: email });
             if (loginDetails) {
+                if (loginDetails.status === ACCOUNT.BLOCKED) {
+                    return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED));
+                }
                 if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
                 }
