@@ -108,7 +108,10 @@ class PlayerSpecializationService {
             let projection = { id: 1, name: 1 }
             let data = await this.parameterUtilityInst.find({ ability_id: ability_id }, projection);
             data = new ParameterListResponseMapper().map(data);
+            let abilityName = "";
+            abilityName = foundAbility.name ? foundAbility.name : "";
             response = {
+                ability: abilityName,
                 total: totalRecords,
                 records: data
             }

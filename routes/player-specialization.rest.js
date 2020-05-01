@@ -200,6 +200,7 @@ module.exports = (router) => {
      *       "status": "success",
      *       "message": "Successfully done",
      *       "data": { 
+     *         "ability": "Physical",
      *         "total":1,
      *         "records":[
      *           {
