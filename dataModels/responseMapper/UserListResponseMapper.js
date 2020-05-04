@@ -11,6 +11,7 @@ class UserListResponseMapper {
                     "email": user.email || "-",
                     "status": "-",
                     "account_status": "-",
+                    "is_email_verified": "false",
                     "user_id": user.user_id
                 };
 
@@ -28,6 +29,10 @@ class UserListResponseMapper {
                     data.account_status = user.login_details.status;
                 }
 
+                if (user.login_details && user.login_details.is_email_verified) {
+                    data.is_email_verified = user.login_details.is_email_verified;
+                }
+
                 response.push(data);
             });
         } else {
@@ -38,17 +43,21 @@ class UserListResponseMapper {
                     "email": user.email || "-",
                     "status": "",
                     "account_status": "-",
+                    "is_email_verified": "false",
                     "user_id": user.user_id
                 };
 
                 if (user.login_details && user.login_details.profile_status) {
                     data.status = user.login_details.profile_status;
                 }
-                
+
                 if (user.login_details && user.login_details.status) {
                     data.account_status = user.login_details.status;
                 }
 
+                if (user.login_details && user.login_details.is_email_verified) {
+                    data.is_email_verified = user.login_details.is_email_verified;
+                }
                 response.push(data);
             });
         }
