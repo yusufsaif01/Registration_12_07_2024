@@ -20,8 +20,8 @@ module.exports = {
 		},
 		profile_status: {
 			type: String,
-			enum: [PROFILE.VERIFIED, PROFILE.UNVERIFIED],
-			default: PROFILE.UNVERIFIED
+			enum: [PROFILE.VERIFIED, PROFILE.NON_VERIFIED],
+			default: PROFILE.NON_VERIFIED
 		},
 		status: {
 			type: String,
