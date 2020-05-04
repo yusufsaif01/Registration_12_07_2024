@@ -30,7 +30,7 @@ class UserListResponseMapper {
                 }
 
                 if (user.login_details && user.login_details.is_email_verified) {
-                    data.is_email_verified = user.login_details.is_email_verified;
+                    data.is_email_verified = "true";
                 }
 
                 response.push(data);
@@ -56,7 +56,7 @@ class UserListResponseMapper {
                 }
 
                 if (user.login_details && user.login_details.is_email_verified) {
-                    data.is_email_verified = user.login_details.is_email_verified;
+                    data.is_email_verified = "true";
                 }
                 response.push(data);
             });
