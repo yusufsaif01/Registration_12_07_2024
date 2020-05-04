@@ -113,7 +113,8 @@ class LocationService {
                 country_id: data.country_id
             });
             if (!_.isEmpty(state)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
+                if (state.id !== foundState.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
             }
             await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
             Promise.resolve()
