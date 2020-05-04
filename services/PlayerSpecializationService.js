@@ -140,7 +140,8 @@ class PlayerSpecializationService {
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
             if (!_.isEmpty(parameter)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
+                if (parameter.id !== foundParameter.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
             Promise.resolve()
