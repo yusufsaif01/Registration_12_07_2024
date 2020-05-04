@@ -24,7 +24,7 @@ class ResponseMessage {
         return "User not found";
     }
     static get USER_BLOCKED() {
-        return "User is blocked";
+        return "Your profile id Deactivated, please contact for help";
     }
     static get USER_INACTIVE() {
         return "User is not active";
