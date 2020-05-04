@@ -113,7 +113,8 @@ class LocationService {
                 country_id: data.country_id
             });
             if (!_.isEmpty(state)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
+                if (state.id !== foundState.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
             }
             await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
             Promise.resolve()
@@ -234,7 +235,8 @@ class LocationService {
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const city = await this.cityUtilityInst.findOne({ name: regex, state_id: data.state_id });
             if (!_.isEmpty(city)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
+                if (city.id !== foundCity.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
             }
             await this.cityUtilityInst.updateOne({ id: data.city_id }, { name: reqObj.name })
             Promise.resolve()

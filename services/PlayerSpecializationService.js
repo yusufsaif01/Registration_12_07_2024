@@ -65,7 +65,8 @@ class PlayerSpecializationService {
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const ability = await this.abilityUtilityInst.findOne({ name: regex });
             if (!_.isEmpty(ability)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
+                if (foundAbility.id !== ability.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
             }
             await this.abilityUtilityInst.updateOne({ id: data.ability_id }, { name: reqObj.name })
             Promise.resolve()
@@ -139,7 +140,8 @@ class PlayerSpecializationService {
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
             const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
             if (!_.isEmpty(parameter)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
+                if (parameter.id !== foundParameter.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
             Promise.resolve()
@@ -256,12 +258,12 @@ class PlayerSpecializationService {
             let abbreviationRegex = new RegExp(["^", reqObj.abbreviation, "$"].join(""), "i");
             const foundPosition = await this.positionUtilityInst.findOne({ name: nameRegex });
             if (!_.isEmpty(foundPosition)) {
-                if (reqObj.name !== position.name)
+                if (foundPosition.id !== position.id)
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.POSITION_WITH_SAME_NAME_ALREADY_ADDED))
             }
             const foundAbbreviation = await this.positionUtilityInst.findOne({ abbreviation: abbreviationRegex });
             if (!_.isEmpty(foundAbbreviation)) {
-                if (reqObj.abbreviation !== position.abbreviation)
+                if (foundAbbreviation.id !== position.id)
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.POSITION_WITH_SAME_ABBREVIATION_ALREADY_ADDED))
             }
             return Promise.resolve()
