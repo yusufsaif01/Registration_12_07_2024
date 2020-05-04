@@ -2,8 +2,8 @@ class ProfileStatus {
     static get VERIFIED() {
         return "verified";
     }
-    static get UNVERIFIED() {
-        return "unverified";
+    static get NON_VERIFIED() {
+        return "non-verified";
     }
 }
 
