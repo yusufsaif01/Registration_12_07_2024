@@ -150,7 +150,7 @@ class UserValidator {
             "name": Joi.string(),
             "position": Joi.string(),
             "type": Joi.string(),
-            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.NON_VERIFIED]),
             "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
         try {
@@ -174,7 +174,7 @@ class UserValidator {
             "search": Joi.string(),
             "email": Joi.string(),
             "name": Joi.string(),
-            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.UNVERIFIED]),
+            "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.NON_VERIFIED]),
             "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
         })
         try {
