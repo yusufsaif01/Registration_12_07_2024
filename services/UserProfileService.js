@@ -38,7 +38,7 @@ class UserProfileService {
      */
 
     async updateProfileDetails(requestedData = {}) {
-        await this.updateProfileDetailsValidation(requestedData.updateValues);
+        await this.updateProfileDetailsValidation(requestedData.updateValues, requestedData.member_type, requestedData.id);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
         if (requestedData.member_type == MEMBER.PLAYER) {
             let playerData = await this.prepareDocumentObj(profileData, requestedData.id);
@@ -130,6 +130,23 @@ class UserProfileService {
 
             if (!_.isEmpty(owner))
                 data.owner = owner;
+
+            if (data.documents) {
+                if (member_type === MEMBER.ACADEMY && data.document_type && data.number) {
+                    let documentReqObj = _.find(data.documents, { type: data.document_type })
+                    if (documentReqObj) {
+                        documentReqObj.document_number = data.number
+                        data.documents = [documentReqObj]
+                    }
+                }
+                if (member_type === MEMBER.CLUB && data.reg_number) {
+                    let documentReqObj = _.find(data.documents, { type: "aiff" })
+                    if (documentReqObj) {
+                        documentReqObj.document_number = data.reg_number
+                        data.documents = [documentReqObj]
+                    }
+                }
+            }
         }
         return Promise.resolve(data)
     }
@@ -172,8 +189,8 @@ class UserProfileService {
         return Promise.resolve(data)
     }
 
-    updateProfileDetailsValidation(data) {
-        const { founded_in, trophies } = data
+    async updateProfileDetailsValidation(data, member_type, user_id) {
+        const { founded_in, trophies, documents } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -210,6 +227,29 @@ class UserProfileService {
             });
             if (msg) {
                 return Promise.reject(new errors.ValidationFailed(msg));
+            }
+        }
+        if (documents && member_type) {
+            if (member_type === MEMBER.ACADEMY && !data.number) {
+                return Promise.reject(new errors.ValidationFailed("PAN/ COI/ Tin Number is required"));
+            }
+            if (member_type === MEMBER.CLUB && !data.reg_number) {
+                return Promise.reject(new errors.ValidationFailed("AIFF Registration Number is required"));
+            }
+            if (member_type !== MEMBER.PLAYER && (data.number || data.reg_number)) {
+                let documentNum = data.number ? data.number : data.reg_number
+                const details = await this.clubAcademyUtilityInst.findOne(
+                    {
+                        member_type: member_type, documents: {
+                            $elemMatch: {
+                                document_number: documentNum
+                            }
+                        }
+                    }, { documents: 1, user_id: 1 });
+                if (!_.isEmpty(details)) {
+                    if (details.user_id !== user_id)
+                        return Promise.reject(new errors.Conflict("document number already in use"));
+                }
             }
         }
         return Promise.resolve()
