@@ -467,7 +467,7 @@ module.exports = (router) => {
      *
      */
 
-    router.get('/member/search', checkAuthToken, userValidator.playerListQueryValidation, function (req, res) {
+    router.get('/member/search', checkAuthToken, userValidator.memberSearchQueryValidation, function (req, res) {
         let filter = {};
 
         filter = {

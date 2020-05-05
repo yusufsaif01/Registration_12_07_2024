@@ -472,8 +472,17 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            filterArr.push({ name: new RegExp(filters.search, 'i') })
-
+            let searchArr = filters.search.split(/\s+/)
+            if (searchArr.length) {
+                let name = [];
+                searchArr.forEach(search => {
+                    name.push({ name: new RegExp(search, 'i') })
+                });
+                filterArr.push({ $or: name })
+            }
+            else {
+                filterArr.push({ name: new RegExp(filters.search, 'i') })
+            }
             filterArr.push({
                 email: new RegExp(filters.search, "i")
             })
