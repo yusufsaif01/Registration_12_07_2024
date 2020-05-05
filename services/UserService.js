@@ -146,6 +146,27 @@ class UserService extends BaseService {
             throw e;
         }
     }
+    async getList(requestedData = {}) {
+        try {
+
+            let response = {};
+            let conditions = this._prepareMemberSearchCondition(requestedData.filter);
+            let paginationOptions = requestedData.paginationOptions || {};
+
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+
+            if (member_type === MEMBER.PLAYER) {
+                response = await this.getPlayerList(conditions, options, member_type);
+            } else {
+                response = await this.getClubAcademyList(conditions, options, member_type);
+            }
+            return response
+        } catch (e) {
+            console.log("Error in getMemberList() of UserUtility", e);
+            return Promise.reject(e);
+        }
+    }
 
     async getDetails(user = {}) {
         try {
