@@ -171,7 +171,7 @@ class UserService extends BaseService {
             let response = { total: totalRecords, records: data }
             return response;
         } catch (e) {
-            console.log("Error in getMemberList() of UserUtility", e);
+            console.log("Error in getMemberList() of UserService", e);
             return Promise.reject(e);
         }
     }
