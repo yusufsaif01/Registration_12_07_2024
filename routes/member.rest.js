@@ -430,13 +430,11 @@ module.exports = (router) => {
     })
         
     /**
-     * @api {get} /member/search?search=<text>&page_no=1&page_size=10
+     * @api {get} /member/search?search=<text> member search
      * @apiName member search
      * @apiGroup Member
      * 
-	 * @apiParam (query) {String} page_no page number.
-	 * @apiParam (query) {String} page_size records per page
-     * @apiParam (query) {String} search text search, this search will be done on name, position, email, type, status
+     * @apiParam (query) {String} search text search, this search will be done on name,email
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -470,21 +468,13 @@ module.exports = (router) => {
      */
 
     router.get('/member/search', checkAuthToken, userValidator.playerListQueryValidation, function (req, res) {
-        let paginationOptions = {};
         let filter = {};
 
-        paginationOptions = {
-            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
-            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
-        };
         filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         };
         
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getMemberList({
-            paginationOptions, sortOptions, filter, filterConditions,
-            member_type: MEMBER.PLAYER
-        }));
+        responseHandler(req, res, serviceInst.getMemberList({ filter }));
     });
 };
