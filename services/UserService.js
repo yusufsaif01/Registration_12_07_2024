@@ -171,7 +171,7 @@ class UserService extends BaseService {
             }
             return response;
         } catch (e) {
-            console.log("Error in getPublicAchievementList() of UserService", e);
+            console.log("Error in getPublicProfileAchievementList() of UserService", e);
             return Promise.reject(e);
         }
     }
