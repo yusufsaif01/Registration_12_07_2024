@@ -12,6 +12,7 @@ const EMAIL_VERIFIED = require('../constants/EmailVerified');
 const PLAYER = require('../constants/PlayerType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
+const AchievementUtility = require("../db/utilities/AchievementUtility");
 
 class UserService extends BaseService {
 
@@ -19,6 +20,7 @@ class UserService extends BaseService {
         super();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.achievementUtilityInst = new AchievementUtility();
         this.authUtilityInst = new AuthUtility();
         this.loginUtilityInst = new LoginUtility();
     }
@@ -189,6 +191,10 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    let achievementCount = 0, tournamentCount = 0;
+                    achievementCount = await this.achievementUtilityInst.countList({ user_id: user.user_id });
+                    data.achievements = achievementCount;
+                    data.tournaments = tournamentCount;
                     return data;
                 } else {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
@@ -208,7 +214,7 @@ class UserService extends BaseService {
         former_academy, specialization, player_type, name, avatar_url, state,
         country, city, founded_in, address, stadium_name, owner, manager, short_name,
         contact_person, trophies, club_academy_details, top_signings, associated_players,
-        member_type, social_profiles, type, league, league_other
+        member_type, social_profiles, type, league, league_other, achievements, tournaments
     }) {
         return {
             nationality, top_players, first_name, last_name, height, weight, dob,
@@ -216,7 +222,7 @@ class UserService extends BaseService {
             former_academy, specialization, player_type, name, avatar_url, state,
             country, city, founded_in, address, stadium_name, owner, manager, short_name,
             contact_person, trophies, club_academy_details, top_signings, associated_players,
-            social_profiles, member_type, type, league, league_other
+            social_profiles, member_type, type, league, league_other, achievements, tournaments
         };
     }
 
