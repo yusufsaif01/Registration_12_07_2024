@@ -228,6 +228,47 @@ class UserService extends BaseService {
         }
     }
 
+    async getPublicProfileDetails(user = {}) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
+            if (loginDetails) {
+
+                let data = {}, projection = {};
+                projection = this.getPublicProfileProjection();
+                if (loginDetails.member_type === MEMBER.PLAYER) {
+                    data = await this.playerUtilityInst.findOne({ user_id: user.user_id }, projection);
+                } else {
+                    data = await this.clubAcademyUtilityInst.findOne({ user_id: user.user_id }, projection);
+                }
+                if (!_.isEmpty(data)) {
+                    data.member_type = loginDetails.member_type;
+                    let achievementCount = 0, tournamentCount = 0;
+                    achievementCount = await this.achievementUtilityInst.countList({ user_id: user.user_id });
+                    data.achievements = achievementCount;
+                    data.tournaments = tournamentCount;
+                    return Promise.resolve(data);
+                } else {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
+                }
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND);
+
+        } catch (e) {
+            console.log("Error in getPublicProfileDetails() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    getPublicProfileProjection() {
+        return {
+            nationality: 1, top_players: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1,
+            institute: 1, about: 1, bio: 1, position: 1, strong_foot: 1, weak_foot: 1, former_club: 1,
+            former_academy: 1, player_type: 1, name: 1, avatar_url: 1, state: 1, league: 1, league_other: 1,
+            country: 1, city: 1, founded_in: 1, address: 1, stadium_name: 1, owner: 1, manager: 1, short_name: 1,
+            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, associated_players: 1, _id: 0
+        };
+    }
+
     async update(requestedData = {}) {
         try {
             return this.playerUtilityInst.findOneAndUpdate({ "id": requestedData.id }, requestedData.updateValues);
