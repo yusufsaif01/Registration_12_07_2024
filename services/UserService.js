@@ -12,6 +12,8 @@ const EMAIL_VERIFIED = require('../constants/EmailVerified');
 const PLAYER = require('../constants/PlayerType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
+const AchievementUtility = require("../db/utilities/AchievementUtility");
+const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 
 class UserService extends BaseService {
 
@@ -19,6 +21,7 @@ class UserService extends BaseService {
         super();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.achievementUtilityInst = new AchievementUtility();
         this.authUtilityInst = new AuthUtility();
         this.loginUtilityInst = new LoginUtility();
     }
@@ -144,6 +147,32 @@ class UserService extends BaseService {
         } catch (e) {
             console.log("Error in getPlayerList() of UserService", e);
             throw e;
+        }
+    }
+
+    async getPublicProfileAchievementList(requestedData = {}) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: requestedData.user_id });
+            if (!loginDetails) {
+                return Promise.reject(new errors.NotFound("Member not found"));
+            }
+            let response = {}, totalRecords = 0;
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
+
+            totalRecords = await this.achievementUtilityInst.countList({ user_id: requestedData.user_id });
+            let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
+            let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
+            data = new AchievementListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPublicAchievementList() of UserService", e);
+            return Promise.reject(e);
         }
     }
 
