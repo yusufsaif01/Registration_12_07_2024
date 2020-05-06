@@ -153,18 +153,17 @@ class UserService extends BaseService {
             let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
             let totalRecords = 0, totalPlayers = 0, totalClubAcademy = 0;
 
-            totalPlayers = await this.playerUtilityInst.countList(playerConditions);
-            totalClubAcademy = await this.clubAcademyUtilityInst.countList(clubAcademyConditions);
-            totalRecords = totalPlayers + totalClubAcademy;
-
             let playerOptions = { sort: { first_name: 1, last_name: 1 } };
             let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, id: 1, avatar_url: 1 };
             let playerData = await this.playerUtilityInst.find(playerConditions, playerProjection, playerOptions);
+            totalPlayers = playerData.length;
             playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
 
             let clubAcademyOptions = { sort: { name: 1 } };
             let clubAcademyProjection = { name: 1, avatar_url: 1, id: 1, member_type: 1 }
             let clubAcademyData = await this.clubAcademyUtilityInst.find(clubAcademyConditions, clubAcademyProjection, clubAcademyOptions);
+            totalClubAcademy = clubAcademyData.length;
+            totalRecords = totalPlayers + totalClubAcademy;
             clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
 
             let data = clubAcademyData.concat(playerData)
