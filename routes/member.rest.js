@@ -4,8 +4,8 @@ const { checkAuthToken } = require('../middleware/auth');
 const errors = require('../errors');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
-const MEMBER =  require('../constants/MemberType')
-const RESPONSE_MESSAGE =  require('../constants/ResponseMessage')
+const MEMBER = require('../constants/MemberType')
+const RESPONSE_MESSAGE = require('../constants/ResponseMessage')
 
 
 module.exports = (router) => {
@@ -64,15 +64,13 @@ module.exports = (router) => {
     router.get('/member/public/profile/:user_id', checkAuthToken, function (req, res) {
         try {
             let serviceInst = new UserService();
-            responseHandler(req, res, serviceInst.getPublicProfileDetails({ user_id: req.params.user_id }).then((user) => {
-                return serviceInst.toPublicProfileAPIResponse(user);
-            }));
+            responseHandler(req, res, serviceInst.getPublicProfileDetails({ user_id: req.params.user_id }))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
         }
     });
-    
+
     /**
      * @api {get} /member/player/list?page_no=<1>&page_size=<20>&sort_by=<created_at>&sort_order=<1>&search=<text>&from=<from_date>&to=<to_date>&email=<email>&name=<name>&position=<position>&type=<type>&profile_status=<profile_status>&email_verified=<email_verified>  player listing
      * @apiName player listing
@@ -131,7 +129,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/player/list', checkAuthToken, userValidator.playerListQueryValidation,function (req, res) {
+    router.get('/member/player/list', checkAuthToken, userValidator.playerListQueryValidation, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -214,7 +212,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/club/list', checkAuthToken,userValidator.clubAcademyListQueryValidation,function (req, res) {
+    router.get('/member/club/list', checkAuthToken, userValidator.clubAcademyListQueryValidation, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -296,7 +294,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/member/academy/list', checkAuthToken,userValidator.clubAcademyListQueryValidation, function (req, res) {
+    router.get('/member/academy/list', checkAuthToken, userValidator.clubAcademyListQueryValidation, function (req, res) {
         let paginationOptions = {};
         let sortOptions = {};
         let filter = {};
@@ -376,52 +374,52 @@ module.exports = (router) => {
             }
             let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.activate(user_id))
+            responseHandler(req, res, serviceInst.activate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
         }
     })
-        /**
-     * @api {put} /member/status-deactivate/:user_id status deactivate
-     * @apiName Status-deactivate
-     * @apiGroup Member
-     *
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} UNAUTHORIZED
-	 *     HTTP/1.1 401 Unauthorized
-	 *     {
-	 *       "message": "Unauthorized",
-     *       "code": "UNAUTHORIZED",
-     *       "httpCode": 401
-	 *     }
-     * 
-     *@apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "status is already blocked",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     */
+    /**
+ * @api {put} /member/status-deactivate/:user_id status deactivate
+ * @apiName Status-deactivate
+ * @apiGroup Member
+ *
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done"
+ *     }
+ *
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ * @apiErrorExample {json} UNAUTHORIZED
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized",
+ *       "code": "UNAUTHORIZED",
+ *       "httpCode": 401
+ *     }
+ * 
+ *@apiErrorExample {json} CONFLICT
+ *     HTTP/1.1 409 Conflict
+ *     {
+ *       "message": "status is already blocked",
+ *       "code": "CONFLICT",
+ *       "httpCode": 409
+ *     }
+ * 
+ */
     router.put('/member/status-deactivate/:user_id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.user_id) {
@@ -431,52 +429,52 @@ module.exports = (router) => {
             }
             let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.deactivate(user_id))
+            responseHandler(req, res, serviceInst.deactivate(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
         }
     })
-        /**
-     * @api {delete} /member/delete/:user_id delete
-     * @apiName Delete
-     * @apiGroup Member
-     *
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} UNAUTHORIZED
-	 *     HTTP/1.1 401 Unauthorized
-	 *     {
-	 *       "message": "Unauthorized",
-     *       "code": "UNAUTHORIZED",
-     *       "httpCode": 401
-	 *     }
-     * 
-     * @apiErrorExample {json} NOT_FOUND
-	 *     HTTP/1.1 404 Not found
-	 *     {
-	 *       "message": "User not found",
-     *       "code": "NOT_FOUND",
-     *       "httpCode": 404
-	 *     }
-     * 
-     */
+    /**
+ * @api {delete} /member/delete/:user_id delete
+ * @apiName Delete
+ * @apiGroup Member
+ *
+ * @apiSuccess {String} status success
+ * @apiSuccess {String} message Successfully done
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "message": "Successfully done"
+ *     }
+ *
+ * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+ *     HTTP/1.1 500 Internal server error
+ *     {
+ *       "message": "Internal Server Error",
+ *       "code": "INTERNAL_SERVER_ERROR",
+ *       "httpCode": 500
+ *     }
+ *
+ * @apiErrorExample {json} UNAUTHORIZED
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized",
+ *       "code": "UNAUTHORIZED",
+ *       "httpCode": 401
+ *     }
+ * 
+ * @apiErrorExample {json} NOT_FOUND
+ *     HTTP/1.1 404 Not found
+ *     {
+ *       "message": "User not found",
+ *       "code": "NOT_FOUND",
+ *       "httpCode": 404
+ *     }
+ * 
+ */
     router.delete('/member/delete/:user_id', checkAuthToken, function (req, res) {
         try {
             if (!req.params.user_id) {
@@ -486,7 +484,7 @@ module.exports = (router) => {
             }
             let user_id = req.params.user_id
             let serviceInst = new UserService();
-            responseHandler(req, res,serviceInst.delete(user_id))
+            responseHandler(req, res, serviceInst.delete(user_id))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));

@@ -183,11 +183,12 @@ class UserService extends BaseService {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
             if (loginDetails) {
 
-                let data = {};
+                let data = {}, projection = {};
+                projection = this.getPublicProfileProjection();
                 if (loginDetails.member_type === MEMBER.PLAYER) {
-                    data = await this.playerUtilityInst.findOne({ user_id: user.user_id });
+                    data = await this.playerUtilityInst.findOne({ user_id: user.user_id }, projection);
                 } else {
-                    data = await this.clubAcademyUtilityInst.findOne({ user_id: user.user_id });
+                    data = await this.clubAcademyUtilityInst.findOne({ user_id: user.user_id }, projection);
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
@@ -195,7 +196,7 @@ class UserService extends BaseService {
                     achievementCount = await this.achievementUtilityInst.countList({ user_id: user.user_id });
                     data.achievements = achievementCount;
                     data.tournaments = tournamentCount;
-                    return data;
+                    return Promise.resolve(data);
                 } else {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
                 }
@@ -208,21 +209,13 @@ class UserService extends BaseService {
         }
     }
 
-    toPublicProfileAPIResponse({
-        nationality, top_players, first_name, last_name, height, weight, dob,
-        institute, about, bio, position, strong_foot, weak_foot, former_club,
-        former_academy, specialization, player_type, name, avatar_url, state,
-        country, city, founded_in, address, stadium_name, owner, manager, short_name,
-        contact_person, trophies, club_academy_details, top_signings, associated_players,
-        member_type, social_profiles, type, league, league_other, achievements, tournaments
-    }) {
+    getPublicProfileProjection() {
         return {
-            nationality, top_players, first_name, last_name, height, weight, dob,
-            institute, about, bio, position, strong_foot, weak_foot, former_club,
-            former_academy, specialization, player_type, name, avatar_url, state,
-            country, city, founded_in, address, stadium_name, owner, manager, short_name,
-            contact_person, trophies, club_academy_details, top_signings, associated_players,
-            social_profiles, member_type, type, league, league_other, achievements, tournaments
+            nationality: 1, top_players: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1,
+            institute: 1, about: 1, bio: 1, position: 1, strong_foot: 1, weak_foot: 1, former_club: 1,
+            former_academy: 1, player_type: 1, name: 1, avatar_url: 1, state: 1, league: 1, league_other: 1,
+            country: 1, city: 1, founded_in: 1, address: 1, stadium_name: 1, owner: 1, manager: 1, short_name: 1,
+            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, associated_players: 1, _id: 0
         };
     }
 
