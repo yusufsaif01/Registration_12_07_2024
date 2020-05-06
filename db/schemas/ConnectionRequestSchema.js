@@ -19,7 +19,8 @@ module.exports = {
         },
         status: {
             type: String,
-            enum: [CONNECTION_REQUEST.ACCEPTED, CONNECTION_REQUEST.REJECTED, CONNECTION_REQUEST.PENDING]
+            enum: [CONNECTION_REQUEST.ACCEPTED, CONNECTION_REQUEST.REJECTED, CONNECTION_REQUEST.PENDING],
+            default: CONNECTION_REQUEST.PENDING
         },
         is_deleted: {
             type: Boolean,
@@ -29,7 +30,7 @@ module.exports = {
             type: Date
         }
     },
-    schemaName: "Connections",
+    schemaName: "connection_requests",
     options: {
         timestamps: true
     }
