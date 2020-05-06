@@ -428,4 +428,53 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     })
+        
+    /**
+     * @api {get} /member/search?search=<text> member search
+     * @apiName member search
+     * @apiGroup Member
+     * 
+     * @apiParam (query) {String} search text search, this search will be done on name,email
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":100,
+     *         "records":[
+     *           {
+     *             "member_type": "player",
+     *             "player_type": "grassroot/professional/amateur",
+     *             "name": "test result",
+     *             "position": "Goalkeeper",
+     *             "avatar": "\\uploads\\documents\\Sample.jpg",
+     *             "id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
+     *           }]
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     */
+
+    router.get('/member/search', checkAuthToken, userValidator.memberSearchQueryValidation, function (req, res) {
+        let filter = {};
+
+        filter = {
+            search: (req.query && req.query.search) ? req.query.search : null
+        };
+        
+        let serviceInst = new UserService();
+        responseHandler(req, res, serviceInst.getMemberList({ filter }));
+    });
 };
