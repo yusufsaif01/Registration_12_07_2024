@@ -188,6 +188,20 @@ class UserValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+    async memberSearchQueryValidation(req, res, next) {
+
+        const query = Joi.object().keys({
+            "search": Joi.string().trim().min(3)
+        })
+        try {
+
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new UserValidator();
