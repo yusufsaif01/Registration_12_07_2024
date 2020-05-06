@@ -62,6 +62,9 @@ class ResponseMessage {
     static get OLD_PASSWORD_INCORRECT() {
         return "Old password is incorrect"
     }
+    static get SAME_PASSWORD() {
+        return "New password cannot be same as current password"
+    }
     static get NEW_PASSWORD_REQUIRED() {
         return "New password is required"
     }
