@@ -7,12 +7,14 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const BaseService = require("./BaseService");
 const _ = require("lodash");
 const UserListResponseMapper = require("../dataModels/responseMapper/UserListResponseMapper");
+const MemberListResponseMapper = require("../dataModels/responseMapper/MemberListResponseMapper");
 const MEMBER = require('../constants/MemberType');
 const EMAIL_VERIFIED = require('../constants/EmailVerified');
 const PLAYER = require('../constants/PlayerType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
 const AchievementUtility = require("../db/utilities/AchievementUtility");
+const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 
 class UserService extends BaseService {
 
@@ -146,6 +148,54 @@ class UserService extends BaseService {
         } catch (e) {
             console.log("Error in getPlayerList() of UserService", e);
             throw e;
+        }
+    }
+    async getMemberList(requestedData = {}) {
+        try {
+            let playerConditions = this._preparePlayerSearchCondition(requestedData.filter);
+            let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
+            let totalRecords = 0, totalPlayers = 0, totalClubAcademy = 0;
+
+            let playerOptions = { sort: { first_name: 1, last_name: 1 } };
+            let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, id: 1, avatar_url: 1 };
+            let playerData = await this.playerUtilityInst.find(playerConditions, playerProjection, playerOptions);
+            totalPlayers = playerData.length;
+            playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
+
+            let clubAcademyOptions = { sort: { name: 1 } };
+            let clubAcademyProjection = { name: 1, avatar_url: 1, id: 1, member_type: 1 }
+            let clubAcademyData = await this.clubAcademyUtilityInst.find(clubAcademyConditions, clubAcademyProjection, clubAcademyOptions);
+            totalClubAcademy = clubAcademyData.length;
+            totalRecords = totalPlayers + totalClubAcademy;
+            clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
+
+            let data = clubAcademyData.concat(playerData)
+            let response = { total: totalRecords, records: data }
+            return response;
+        } catch (e) {
+            console.log("Error in getMemberList() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async getPublicProfileAchievementList(requestedData = {}) {
+        try {
+            let response = {}, totalRecords = 0;
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
+            let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
+            let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
+            totalRecords = data.length;
+            data = new AchievementListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPublicProfileAchievementList() of UserService", e);
+            return Promise.reject(e);
         }
     }
 
@@ -483,7 +533,58 @@ class UserService extends BaseService {
         }
         return condition;
     }
-
+    _prepareClubAcademySearchCondition(filters = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filters.search) {
+            filters.search = filters.search.trim()
+            let searchArr = filters.search.split(/\s+/)
+            if (searchArr.length) {
+                let name = [];
+                searchArr.forEach(search => {
+                    name.push({ name: new RegExp(search, 'i') })
+                });
+                filterArr.push({ $or: name })
+            }
+            else {
+                filterArr.push({ name: new RegExp(filters.search, 'i') })
+            }
+            filterArr.push({
+                email: new RegExp(filters.search, "i")
+            })
+            condition = {
+                $or: filterArr
+            };
+        }
+        return condition;
+    }
+    _preparePlayerSearchCondition(filters = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filters.search) {
+            filters.search = filters.search.trim()
+            let searchArr = filters.search.split(/\s+/)
+            if (searchArr.length) {
+                let name = [];
+                searchArr.forEach(search => {
+                    name.push({ first_name: new RegExp(search, 'i') })
+                    name.push({ last_name: new RegExp(search, 'i') })
+                });
+                filterArr.push({ $or: name })
+            }
+            else {
+                filterArr.push({ first_name: new RegExp(filters.search, 'i') })
+                filterArr.push({ last_name: new RegExp(filters.search, 'i') })
+            }
+            filterArr.push({
+                email: new RegExp(filters.search, "i")
+            })
+            condition = {
+                $or: filterArr
+            };
+        }
+        return condition;
+    }
 }
 
 module.exports = UserService;
