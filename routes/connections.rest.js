@@ -1,6 +1,7 @@
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const connectionValidator = require("../middleware/validators").connectionValidator;
+const ConnectionService = require('../services/ConnectionService');
 
 module.exports = (router) => {
 
@@ -119,9 +120,8 @@ module.exports = (router) => {
      *
      */
     router.patch('/connection/follow', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let follow_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.followMember({ sent_by: req.authUser.user_id, send_to: req.body.to }));
     });
 
     /**
