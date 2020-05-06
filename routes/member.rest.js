@@ -29,7 +29,9 @@ module.exports = (router) => {
      *                  "avatar_url": "/uploads/avatar/user-avatar.png",
      *                  "state": "mumbai",
      *                  "country": "india",
-     *                  "member_type": "player"
+     *                  "member_type": "player",
+     *                  "achievements": 10,
+     *                  "tournaments": 10
      *               }  
      *     }
      * 
