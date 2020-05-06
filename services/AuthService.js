@@ -182,6 +182,10 @@ class AuthService {
                 }
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
+                let isSamePassword = await this.authUtilityInst.bcryptTokenCompare(old_password, password);
+                if (isSamePassword) {
+                    return Promise.reject(new errors.BadRequest(RESPONSE_MESSAGE.SAME_PASSWORD));
+                }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
                 await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
