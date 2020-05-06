@@ -310,14 +310,6 @@ module.exports = (router) => {
     *       "httpCode": 401
     *     } 
     * 
-    * @apiErrorExample {json} NOT_FOUND
-    *     HTTP/1.1 404 Not found
-    *     {
-    *       "message": "Member not found",
-    *       "code": "NOT_FOUND",
-    *       "httpCode": 404
-    *     }
-    * 
     */
 
     router.get('/member/public/achievement/:user_id', checkAuthToken, function (req, res) {

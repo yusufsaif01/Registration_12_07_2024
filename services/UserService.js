@@ -152,10 +152,6 @@ class UserService extends BaseService {
 
     async getPublicProfileAchievementList(requestedData = {}) {
         try {
-            let loginDetails = await this.loginUtilityInst.findOne({ user_id: requestedData.user_id });
-            if (!loginDetails) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
-            }
             let response = {}, totalRecords = 0;
             let paginationOptions = requestedData.paginationOptions || {};
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;

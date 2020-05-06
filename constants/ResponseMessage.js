@@ -23,9 +23,6 @@ class ResponseMessage {
     static get USER_NOT_FOUND() {
         return "User not found";
     }
-    static get MEMBER_NOT_FOUND() {
-        return "Member not found";
-    }
     static get USER_BLOCKED() {
         return "Your profile id Deactivated, please contact for help";
     }
