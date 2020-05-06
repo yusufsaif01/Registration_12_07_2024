@@ -58,5 +58,29 @@ class ConnectionService {
         followings_of_sent_by.push(send_to);
         await this.connectionUtilityInst.updateOne({ user_id: connection_of_sent_by.user_id }, { followings: followings_of_sent_by });
     }
+
+    async unfollowMember(requestedData = {}) {
+        try {
+            let { followings } = await this.connectionUtilityInst.findOne({ user_id: requestedData.sent_by }, { followings: 1, _id: 0 });
+            let { followers } = await this.connectionUtilityInst.findOne({ user_id: requestedData.send_to }, { followers: 1, _id: 0 });
+
+            _.remove(followings, function (member) {
+                return member === requestedData.send_to;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { followings: followings });
+
+            _.remove(followers, function (member) {
+                return member === requestedData.sent_by;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { followers: followers });
+
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in unfollowMember() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+
+    }
 }
 module.exports = ConnectionService;
