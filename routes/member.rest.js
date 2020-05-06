@@ -10,6 +10,68 @@ const RESPONSE_MESSAGE =  require('../constants/ResponseMessage')
 
 module.exports = (router) => {
     /**
+     * @api {get} /member/public/profile/:user_id Public profile
+     * @apiName Public profile
+     * @apiGroup Member
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *                  "first_name": "name",
+     *                  "last_name": "last name",
+     *                  "position": [],
+     *                  "avatar_url": "/uploads/avatar/user-avatar.png",
+     *                  "state": "mumbai",
+     *                  "country": "india",
+     *                  "member_type": "player"
+     *               }  
+     *     }
+     * 
+     * @apiErrorExample {json} UNAUTHORIZED
+	 *     HTTP/1.1 401 Unauthorized
+	 *     {
+	 *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+	 *     }
+     * 
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Member not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     *
+     */
+
+    router.get('/member/public/profile/:user_id', checkAuthToken, function (req, res) {
+        try {
+            let serviceInst = new UserService();
+            responseHandler(req, res, serviceInst.getPublicProfileDetails({ user_id: req.params.user_id }).then((user) => {
+                return serviceInst.toPublicProfileAPIResponse(user);
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    });
+    
+    /**
      * @api {get} /member/player/list?page_no=<1>&page_size=<20>&sort_by=<created_at>&sort_order=<1>&search=<text>&from=<from_date>&to=<to_date>&email=<email>&name=<name>&position=<position>&type=<type>&profile_status=<profile_status>&email_verified=<email_verified>  player listing
      * @apiName player listing
      * @apiGroup Member

@@ -176,6 +176,50 @@ class UserService extends BaseService {
         }
     }
 
+    async getPublicProfileDetails(user = {}) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
+            if (loginDetails) {
+
+                let data = {};
+                if (loginDetails.member_type === MEMBER.PLAYER) {
+                    data = await this.playerUtilityInst.findOne({ user_id: user.user_id });
+                } else {
+                    data = await this.clubAcademyUtilityInst.findOne({ user_id: user.user_id });
+                }
+                if (!_.isEmpty(data)) {
+                    data.member_type = loginDetails.member_type;
+                    return data;
+                } else {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
+                }
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND);
+
+        } catch (e) {
+            console.log("Error in getPublicProfileDetails() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    toPublicProfileAPIResponse({
+        nationality, top_players, first_name, last_name, height, weight, dob,
+        institute, about, bio, position, strong_foot, weak_foot, former_club,
+        former_academy, specialization, player_type, name, avatar_url, state,
+        country, city, founded_in, address, stadium_name, owner, manager, short_name,
+        contact_person, trophies, club_academy_details, top_signings, associated_players,
+        member_type, social_profiles, type, league, league_other
+    }) {
+        return {
+            nationality, top_players, first_name, last_name, height, weight, dob,
+            institute, about, bio, position, strong_foot, weak_foot, former_club,
+            former_academy, specialization, player_type, name, avatar_url, state,
+            country, city, founded_in, address, stadium_name, owner, manager, short_name,
+            contact_person, trophies, club_academy_details, top_signings, associated_players,
+            social_profiles, member_type, type, league, league_other
+        };
+    }
+
     async update(requestedData = {}) {
         try {
             return this.playerUtilityInst.findOneAndUpdate({ "id": requestedData.id }, requestedData.updateValues);
