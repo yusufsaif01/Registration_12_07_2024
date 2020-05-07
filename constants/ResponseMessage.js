@@ -188,11 +188,17 @@ class ResponseMessage {
     static get CANNOT_FOLLOW_YOURSELF() {
         return "Cannot follow yourself"
     }
-    static get UNFOLLOW_FAILED() {
-        return "Unfollow failed"
+    static get CANNOT_UNFOLLOW_YOURSELF() {
+        return "Cannot unfollow yourself"
+    }
+    static get ALREADY_UNFOLLOWED() {
+        return "Already Unfollowed"
     }
     static get MEMBER_TO_BE_FOLLOWED_NOT_FOUND() {
         return "Member to be followed not found"
+    }
+    static get MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND() {
+        return "Member to be unfollowed not found"
     }
 
 }
