@@ -4,7 +4,6 @@ const errors = require("../errors");
 const _ = require("lodash");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const LoginUtility = require('../db/utilities/LoginUtility');
-const MEMBER = require('../constants/MemberType');
 
 class ConnectionService {
     constructor() {
@@ -132,38 +131,6 @@ class ConnectionService {
         }
 
         return Promise.resolve({ followings: connection_of_sent_by.followings, followers: connection_of_send_to.followers });
-    }
-
-    async sendFootMateRequest(requestedData = {}) {
-        try {
-            await this.footMateRequestValidator(requestedData);
-            await this.connectionRequestUtilityInst.insert({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
-            return Promise.resolve();
-        }
-        catch (e) {
-            console.log("Error in sendFootMateRequest() of ConnectionService", e);
-            return Promise.reject(e);
-        }
-    }
-
-    async footMateRequestValidator(requestedData = {}) {
-        if (requestedData.member_type !== MEMBER.PLAYER) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST));
-        }
-        if (requestedData.send_to === requestedData.sent_by) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_FOOTMATE_REQUEST_TO_YOURSELF));
-        }
-        if (requestedData.send_to) {
-            let to_be_footMate = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to, member_type: MEMBER.PLAYER });
-            if (_.isEmpty(to_be_footMate)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTMATE_NOT_FOUND));
-            }
-        }
-        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
-        if (!_.isEmpty(footMateRequest)) {
-            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.FOOTMATE_REQUEST_ALREADY_SENT));
-        }
-        return Promise.resolve();
     }
 }
 module.exports = ConnectionService;
