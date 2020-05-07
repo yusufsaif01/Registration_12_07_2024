@@ -14,6 +14,7 @@ const PLAYER = require('../constants/PlayerType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
 const AchievementUtility = require("../db/utilities/AchievementUtility");
+const ConnectionUtility = require("../db/utilities/ConnectionUtility");
 const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 
 class UserService extends BaseService {
@@ -23,6 +24,7 @@ class UserService extends BaseService {
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.achievementUtilityInst = new AchievementUtility();
+        this.connectionUtilityInst = new ConnectionUtility();
         this.authUtilityInst = new AuthUtility();
         this.loginUtilityInst = new LoginUtility();
     }
@@ -246,6 +248,7 @@ class UserService extends BaseService {
                     achievementCount = await this.achievementUtilityInst.countList({ user_id: user.user_id });
                     data.achievements = achievementCount;
                     data.tournaments = tournamentCount;
+                    data.is_followed = await this.isFollowed({ sent_by: user.sent_by, send_to: user.user_id });
                     return Promise.resolve(data);
                 } else {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
@@ -257,6 +260,17 @@ class UserService extends BaseService {
             console.log("Error in getPublicProfileDetails() of UserService", e);
             return Promise.reject(e);
         }
+    }
+    
+    async isFollowed(requestedData = {}) {
+        let following = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.sent_by, followings: requestedData.send_to
+        }, { followings: 1, _id: 0 });
+
+        if(_.isEmpty(following)){
+            return false;
+        }
+        return true;
     }
 
     getPublicProfileProjection() {
