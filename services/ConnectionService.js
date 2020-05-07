@@ -136,7 +136,7 @@ class ConnectionService {
 
     async sendFootMateRequest(requestedData = {}) {
         try {
-            await this.footMateRequestValidator(requestedData);
+            await this.sendFootMateRequestValidator(requestedData);
             await this.connectionRequestUtilityInst.insert({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
             return Promise.resolve();
         }
@@ -146,7 +146,7 @@ class ConnectionService {
         }
     }
 
-    async footMateRequestValidator(requestedData = {}) {
+    async sendFootMateRequestValidator(requestedData = {}) {
         if (requestedData.member_type !== MEMBER.PLAYER) {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST));
         }
