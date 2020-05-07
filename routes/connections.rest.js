@@ -41,7 +41,10 @@ module.exports = (router) => {
      */
     router.post('/connection/request/send', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
         let serviceInst = new ConnectionService();
-        responseHandler(req, res, serviceInst.sendFootMateRequest({ sent_by: req.authUser.user_id, send_to: req.body.to }));
+        responseHandler(req, res, serviceInst.sendFootMateRequest({
+            member_type: req.authUser.member_type,
+            sent_by: req.authUser.user_id, send_to: req.body.to
+        }));
     });
 
     /**

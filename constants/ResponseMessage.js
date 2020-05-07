@@ -194,6 +194,9 @@ class ResponseMessage {
     static get CANNOT_SEND_FOOTMATE_REQUEST_TO_YOURSELF() {
         return "Cannot send footmate request to yourself"
     }
+    static get ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST() {
+        return "Only player can send footmate request"
+    }
     static get ALREADY_UNFOLLOWED() {
         return "Already Unfollowed"
     }
