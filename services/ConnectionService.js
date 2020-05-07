@@ -236,5 +236,61 @@ class ConnectionService {
             return Promise.reject(e);
         }
     }
+
+    async cancelFootMate(requestedData = {}) {
+        try {
+            let data = await this.cancelFootMateValiation(requestedData);
+            let connection_of_sent_by = data.connection_of_sent_by, connection_of_send_to = data.connection_of_send_to;
+            _.remove(connection_of_sent_by.footmates, function (member) {
+                return member === requestedData.send_to;
+            })
+            _.remove(connection_of_sent_by.followers, function (member) {
+                return member === requestedData.send_to;
+            })
+            _.remove(connection_of_sent_by.followings, function (member) {
+                return member === requestedData.send_to;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, connection_of_sent_by);
+            _.remove(connection_of_send_to.footmates, function (member) {
+                return member === requestedData.sent_by;
+            })
+            _.remove(connection_of_send_to.followers, function (member) {
+                return member === requestedData.sent_by;
+            })
+            _.remove(connection_of_send_to.followings, function (member) {
+                return member === requestedData.sent_by;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, connection_of_send_to);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in cancelFootMate() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async cancelFootMateValiation(requestedData = {}) {
+        if (requestedData.send_to === requestedData.sent_by) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_CANCEL_FOOTMATE_REQUEST_TO_YOURSELF));
+        }
+        if (requestedData.send_to) {
+            let to_be_cancelled_footmate = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to });
+            if (_.isEmpty(to_be_cancelled_footmate)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.FOOTMATE_TO_BE_CANCELLED_NOT_FOUND));
+            }
+        }
+        let connection_of_sent_by = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.sent_by, footmates: requestedData.send_to
+        }, { footmates: 1, followers: 1, followings: 1, _id: 0 });
+        let connection_of_send_to = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.send_to, footmates: requestedData.sent_by
+        }, { footmates: 1, followers: 1, followings: 1, _id: 0 });
+
+        if (_.isEmpty(connection_of_sent_by) || _.isEmpty(connection_of_send_to)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_CANCELLED_FOOTMATE));
+        }
+
+        return Promise.resolve({ connection_of_sent_by: connection_of_sent_by, connection_of_send_to: connection_of_send_to });
+    }
 }
 module.exports = ConnectionService;
