@@ -178,7 +178,7 @@ class ConnectionService {
 
     async acceptFootMateRequest(requestedData = {}) {
         try {
-            let sent_by = await this.acceptfootMateRequestValidator(requestedData);
+            let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.ACCEPTED, is_deleted: true, deleted_at: Date.now() };
             await this.connectionRequestUtilityInst.updateOne({ request_id: requestedData.request_id }, updatedDoc);
             let footMateRequestSentByMe = await this.connectionRequestUtilityInst.findOne({
@@ -210,7 +210,7 @@ class ConnectionService {
         await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { footmates: footmates_of_send_to });
     }
 
-    async acceptfootMateRequestValidator(requestedData = {}) {
+    async footMateRequestValidator(requestedData = {}) {
         let footMateRequest = await this.connectionRequestUtilityInst.findOne({ request_id: requestedData.request_id, send_to: requestedData.user_id });
         if (_.isEmpty(footMateRequest)) {
             return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND));
@@ -220,7 +220,7 @@ class ConnectionService {
 
     async rejectFootMateRequest(requestedData = {}) {
         try {
-            let sent_by = await this.rejectFootMateRequestValidator(requestedData);
+            let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.REJECTED, is_deleted: true, deleted_at: Date.now() };
             await this.connectionRequestUtilityInst.updateOne({ request_id: requestedData.request_id }, updatedDoc);
             let footMateRequestSentByMe = await this.connectionRequestUtilityInst.findOne({
@@ -235,14 +235,6 @@ class ConnectionService {
             console.log("Error in rejectFootMateRequest() of ConnectionService", e);
             return Promise.reject(e);
         }
-    }
-
-    async rejectFootMateRequestValidator(requestedData = {}) {
-        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ request_id: requestedData.request_id, send_to: requestedData.user_id });
-        if (_.isEmpty(footMateRequest)) {
-            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND));
-        }
-        return Promise.resolve(footMateRequest.sent_by);
     }
 }
 module.exports = ConnectionService;
