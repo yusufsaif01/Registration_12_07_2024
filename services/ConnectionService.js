@@ -179,7 +179,6 @@ class ConnectionService {
                 sent_by: requestedData.user_id, send_to: sent_by
             });
             if (!_.isEmpty(footMateRequestSentByMe)) {
-                updatedDoc.footmates = []
                 await this.connectionRequestUtilityInst.updateOne({ request_id: footMateRequestSentByMe.request_id }, updatedDoc);
             }
             await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
