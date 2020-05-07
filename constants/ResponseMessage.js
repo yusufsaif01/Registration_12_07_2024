@@ -191,6 +191,9 @@ class ResponseMessage {
     static get CANNOT_UNFOLLOW_YOURSELF() {
         return "Cannot unfollow yourself"
     }
+    static get CANNOT_SEND_FOOTMATE_REQUEST_TO_YOURSELF() {
+        return "Cannot send footmate request to yourself"
+    }
     static get ALREADY_UNFOLLOWED() {
         return "Already Unfollowed"
     }
@@ -202,6 +205,12 @@ class ResponseMessage {
     }
     static get MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND() {
         return "Member to be unfollowed not found"
+    }
+    static get MEMBER_TO_BE_FOOTMATE_NOT_FOUND() {
+        return "Member to be footmate not found"
+    }
+    static get FOOTMATE_REQUEST_ALREADY_SENT() {
+        return "Footmate request already sent"
     }
 
 }
