@@ -30,6 +30,13 @@ class ConnectionService {
                 await this.addFollowers(requestedData.sent_by, requestedData.send_to, connection_of_send_to);
             }
             else {
+                let following = await this.connectionUtilityInst.findOne({
+                    user_id: requestedData.sent_by, followings: requestedData.send_to
+                }, { followings: 1, _id: 0 });
+
+                if (!_.isEmpty(following)) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_FOLLOWED));
+                }
                 await this.addFollowings(connection_of_sent_by, requestedData.sent_by, requestedData.send_to);
                 await this.addFollowers(requestedData.sent_by, requestedData.send_to, connection_of_send_to);
             }

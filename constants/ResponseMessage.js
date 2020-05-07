@@ -194,6 +194,9 @@ class ResponseMessage {
     static get ALREADY_UNFOLLOWED() {
         return "Already Unfollowed"
     }
+    static get ALREADY_FOLLOWED() {
+        return "Already followed"
+    }
     static get MEMBER_TO_BE_FOLLOWED_NOT_FOUND() {
         return "Member to be followed not found"
     }
