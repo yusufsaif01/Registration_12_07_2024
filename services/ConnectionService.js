@@ -127,7 +127,7 @@ class ConnectionService {
         }, { followers: 1, _id: 0 });
 
         if (_.isEmpty(connection_of_sent_by) || _.isEmpty(connection_of_send_to)) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_UNFOLLOWED));
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_UNFOLLOWED));
         }
 
         return Promise.resolve({ followings: connection_of_sent_by.followings, followers: connection_of_send_to.followers });
