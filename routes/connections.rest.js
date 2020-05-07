@@ -238,10 +238,9 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.patch('/connection/request/reject/:request_id', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let connectionRequestId = req.params.request_id;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+    router.patch('/connection/request/reject/:request_id', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.rejectFootMateRequest({ user_id: req.authUser.user_id, request_id: req.params.request_id }));
     });
 
     /**

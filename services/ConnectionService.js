@@ -206,5 +206,32 @@ class ConnectionService {
         }
         return Promise.resolve(footMateRequest.sent_by);
     }
+
+    async rejectFootMateRequest(requestedData = {}) {
+        try {
+            let sent_by = await this.rejectFootMateRequestValidator(requestedData);
+            let updatedDoc = { status: CONNECTION_REQUEST.REJECTED, is_deleted: true, deleted_at: Date.now() };
+            await this.connectionRequestUtilityInst.updateOne({ request_id: requestedData.request_id }, updatedDoc);
+            let footMateRequestSentByMe = await this.connectionRequestUtilityInst.findOne({
+                sent_by: requestedData.user_id, send_to: sent_by
+            });
+            if (!_.isEmpty(footMateRequestSentByMe)) {
+                await this.connectionRequestUtilityInst.updateOne({ request_id: footMateRequestSentByMe.request_id }, updatedDoc);
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in rejectFootMateRequest() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async rejectFootMateRequestValidator(requestedData = {}) {
+        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ request_id: requestedData.request_id, send_to: requestedData.user_id });
+        if (_.isEmpty(footMateRequest)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND));
+        }
+        return Promise.resolve(footMateRequest.sent_by);
+    }
 }
 module.exports = ConnectionService;
