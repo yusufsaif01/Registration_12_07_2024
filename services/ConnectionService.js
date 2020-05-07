@@ -35,7 +35,7 @@ class ConnectionService {
                 }, { followings: 1, _id: 0 });
 
                 if (!_.isEmpty(following)) {
-                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_FOLLOWED));
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOLLOWED));
                 }
                 await this.addFollowings(connection_of_sent_by, requestedData.sent_by, requestedData.send_to);
                 await this.addFollowers(requestedData.sent_by, requestedData.send_to, connection_of_send_to);
