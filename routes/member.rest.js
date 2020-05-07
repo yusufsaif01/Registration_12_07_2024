@@ -32,7 +32,8 @@ module.exports = (router) => {
      *                  "member_type": "player",
      *                  "achievements": 10,
      *                  "tournaments": 10,
-     *                  "is_followed": false
+     *                  "is_followed": false,
+     *                  "is_footmate": "pending/accepted/not_footmate"
      *               }  
      *     }
      * 
