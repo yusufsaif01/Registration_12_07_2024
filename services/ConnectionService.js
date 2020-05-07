@@ -167,6 +167,12 @@ class ConnectionService {
         if (!_.isEmpty(footMateRequest)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.FOOTMATE_REQUEST_ALREADY_SENT));
         }
+        let connection = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.sent_by, footmates: requestedData.send_to
+        }, { footmates: 1, _id: 0 });
+        if (!_.isEmpty(connection)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTMATE));
+        }
         return Promise.resolve();
     }
 

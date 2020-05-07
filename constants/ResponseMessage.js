@@ -218,6 +218,9 @@ class ResponseMessage {
     static get FOOTMATE_REQUEST_NOT_FOUND() {
         return "Footmate request not found"
     }
+    static get ALREADY_FOOTMATE() {
+        return "Already footmate"
+    }
 
 }
 
