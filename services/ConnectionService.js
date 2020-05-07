@@ -140,7 +140,7 @@ class ConnectionService {
 
     async sendFootMateRequest(requestedData = {}) {
         try {
-            await this.footMateRequestValidator(requestedData);
+            await this.sendFootMateRequestValidator(requestedData);
             await this.connectionRequestUtilityInst.insert({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
             return Promise.resolve();
         }
@@ -150,7 +150,7 @@ class ConnectionService {
         }
     }
 
-    async footMateRequestValidator(requestedData = {}) {
+    async sendFootMateRequestValidator(requestedData = {}) {
         if (requestedData.member_type !== MEMBER.PLAYER) {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST));
         }
@@ -189,14 +189,25 @@ class ConnectionService {
             }
             await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
             await this.followMember({ sent_by: requestedData.user_id, send_to: sent_by }, true);
-            await this.connectionUtilityInst.updateOne({ user_id: sent_by }, { footmates: [requestedData.user_id] });
-            await this.connectionUtilityInst.updateOne({ user_id: requestedData.user_id }, { footmates: [sent_by] });
+            await this.makeFootmates({ sent_by: sent_by, send_to: requestedData.user_id });
             return Promise.resolve();
         }
         catch (e) {
             console.log("Error in acceptFootMateRequest() of ConnectionService", e);
             return Promise.reject(e);
         }
+    }
+
+    async makeFootmates(requestedData = {}) {
+        let connection_of_sent_by = await this.connectionUtilityInst.findOne({ user_id: requestedData.sent_by }, { footmates: 1 });
+        let connection_of_send_to = await this.connectionUtilityInst.findOne({ user_id: requestedData.send_to }, { footmates: 1 });
+
+        let footmates_of_sent_by = connection_of_sent_by.footmates || [];
+        footmates_of_sent_by.push(requestedData.send_to);
+        let footmates_of_send_to = connection_of_send_to.footmates || [];
+        footmates_of_send_to.push(requestedData.sent_by);
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { footmates: footmates_of_sent_by });
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { footmates: footmates_of_send_to });
     }
 
     async acceptfootMateRequestValidator(requestedData = {}) {
