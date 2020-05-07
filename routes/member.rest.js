@@ -453,7 +453,7 @@ module.exports = (router) => {
      *             "name": "test result",
      *             "position": "Goalkeeper",
      *             "avatar": "\\uploads\\documents\\Sample.jpg",
-     *             "id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526"
      *           }]
      *     }
      *

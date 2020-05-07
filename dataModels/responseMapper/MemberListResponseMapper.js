@@ -11,7 +11,7 @@ class MemberListResponseMapper {
                         "name": (user.first_name || "") + " " + (user.last_name || ""),
                         "position": "-",
                         "avatar": user.avatar_url || "-",
-                        "id": user.id
+                        "user_id": user.user_id
                     };
                     data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";
 
@@ -25,7 +25,7 @@ class MemberListResponseMapper {
                         "member_type": user.member_type,
                         "name": user.name,
                         "avatar": user.avatar_url || "-",
-                        "id": user.id
+                        "user_id": user.user_id
                     };
                     response.push(data);
                 }
