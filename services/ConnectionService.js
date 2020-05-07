@@ -19,7 +19,7 @@ class ConnectionService {
             let connection_of_send_to = await this.connectionUtilityInst.findOne({ user_id: requestedData.send_to }, { followers: 1 });
 
             if (!connection_of_sent_by && !connection_of_send_to) {
-                this.createConnectionsAddFollwingsAddFollowers(requestedData.sent_by, requestedData.send_to);
+                await this.createConnectionsAddFollwingsAddFollowers(requestedData.sent_by, requestedData.send_to);
             }
             else if (connection_of_sent_by && !connection_of_send_to) {
                 await this.addFollowings(connection_of_sent_by, requestedData.sent_by, requestedData.send_to);
