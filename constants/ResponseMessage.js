@@ -188,6 +188,15 @@ class ResponseMessage {
     static get ABBREVIATION_CANNOT_BE_EMPTY() {
         return "Abbreviation cannot be empty"
     }
+    static get CANNOT_FOLLOW_YOURSELF() {
+        return "Cannot follow yourself"
+    }
+    static get ALREADY_FOLLOWED() {
+        return "Already followed"
+    }
+    static get MEMBER_TO_BE_FOLLOWED_NOT_FOUND() {
+        return "Member to be followed not found"
+    }
 
 }
 
