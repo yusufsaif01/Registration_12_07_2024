@@ -33,7 +33,7 @@ module.exports = (router) => {
      *                  "achievements": 10,
      *                  "tournaments": 10,
      *                  "is_followed": false,
-     *                  "is_footmate": "pending/accepted/not_footmate"
+     *                  "is_footmate": "Pending/Accepted/Not_footmate"
      *               }  
      *     }
      * 

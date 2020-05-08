@@ -11,6 +11,7 @@ const MemberListResponseMapper = require("../dataModels/responseMapper/MemberLis
 const MEMBER = require('../constants/MemberType');
 const EMAIL_VERIFIED = require('../constants/EmailVerified');
 const PLAYER = require('../constants/PlayerType');
+const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
 const AchievementUtility = require("../db/utilities/AchievementUtility");
@@ -280,15 +281,15 @@ class UserService extends BaseService {
     async isFootMate(requestedData = {}) {
         let footMateRequest = await this.connectionRequestUtilityInst.findOne({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
         if (!_.isEmpty(footMateRequest)) {
-            return "pending";
+            return CONNECTION_REQUEST.PENDING;
         }
         let connection = await this.connectionUtilityInst.findOne({
             user_id: requestedData.sent_by, footmates: requestedData.send_to
         }, { footmates: 1, _id: 0 });
         if (!_.isEmpty(connection)) {
-            return "accepted";
+            return CONNECTION_REQUEST.ACCEPTED;
         }
-        return "not_footmate";
+        return CONNECTION_REQUEST.NOT_FOOTMATE;
     }
 
     getPublicProfileProjection() {
