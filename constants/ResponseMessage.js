@@ -194,8 +194,8 @@ class ResponseMessage {
     static get CANNOT_SEND_FOOTMATE_REQUEST_TO_YOURSELF() {
         return "Cannot send footmate request to yourself"
     }
-    static get CANNOT_SEND_CANCEL_FOOTMATE_REQUEST_TO_YOURSELF() {
-        return "Cannot send cancel footmate request to yourself"
+    static get CANNOT_SEND_CANCEL_FOOTMATE_TO_YOURSELF() {
+        return "Cannot send cancel footmate to yourself"
     }
     static get ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST() {
         return "Only player can send footmate request"

@@ -266,7 +266,7 @@ class ConnectionService {
 
     async cancelFootMateValiation(requestedData = {}) {
         if (requestedData.send_to === requestedData.sent_by) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_CANCEL_FOOTMATE_REQUEST_TO_YOURSELF));
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_CANCEL_FOOTMATE_TO_YOURSELF));
         }
         if (requestedData.send_to) {
             let to_be_cancelled_footmate = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to });
