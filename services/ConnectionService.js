@@ -124,13 +124,10 @@ class ConnectionService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND));
             }
         }
-        let connection_of_sent_by = await this.connectionUtilityInst.findOne({
-            user_id: requestedData.sent_by, followings: requestedData.send_to
-        }, { followings: 1, _id: 0 });
-        let connection_of_send_to = await this.connectionUtilityInst.findOne({
-            user_id: requestedData.send_to, followers: requestedData.sent_by
-        }, { followers: 1, _id: 0 });
-
+        let condition = { $or: [{ user_id: requestedData.sent_by, followings: requestedData.send_to }, { user_id: requestedData.send_to, followers: requestedData.sent_by }] }
+        let connections = await this.connectionUtilityInst.find(condition, { followings: 1, followers: 1, user_id: 1, _id: 0 });
+        let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
+        let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
         if (_.isEmpty(connection_of_sent_by) || _.isEmpty(connection_of_send_to)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_UNFOLLOWED));
         }
