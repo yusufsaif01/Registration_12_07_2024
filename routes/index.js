@@ -6,6 +6,7 @@ const memberRoutes = require('./member.rest');
 const memberTypeRoutes = require('./member-type.rest');
 const achievementRoutes = require('./achievement.rest');
 const playerSpecializationRoutes = require('./player-specialization.rest');
+const connectionsRoutes = require('./connections.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -18,6 +19,7 @@ class Route {
 		memberTypeRoutes(apiRouter);
 		achievementRoutes(apiRouter);
 		playerSpecializationRoutes(apiRouter);
+		connectionsRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));
