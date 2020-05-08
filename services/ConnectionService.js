@@ -87,5 +87,47 @@ class ConnectionService {
         followings_of_sent_by.push(send_to);
         await this.connectionUtilityInst.updateOne({ user_id: sent_by }, { followings: followings_of_sent_by });
     }
+
+    async unfollowMember(requestedData = {}) {
+        try {
+            let data = await this.unfollowMemberValiation(requestedData);
+            let followers = data.followers, followings = data.followings;
+            _.remove(followings, function (member) {
+                return member === requestedData.send_to;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { followings: followings });
+
+            _.remove(followers, function (member) {
+                return member === requestedData.sent_by;
+            })
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { followers: followers });
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in unfollowMember() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async unfollowMemberValiation(requestedData = {}) {
+        if (requestedData.send_to === requestedData.sent_by) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_UNFOLLOW_YOURSELF));
+        }
+        if (requestedData.send_to) {
+            let to_be_followed_member = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to });
+            if (_.isEmpty(to_be_followed_member)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND));
+            }
+        }
+        let condition = { $or: [{ user_id: requestedData.sent_by, followings: requestedData.send_to }, { user_id: requestedData.send_to, followers: requestedData.sent_by }] }
+        let connections = await this.connectionUtilityInst.find(condition, { followings: 1, followers: 1, user_id: 1, _id: 0 });
+        let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
+        let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
+        if (_.isEmpty(connection_of_sent_by) || _.isEmpty(connection_of_send_to)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_UNFOLLOWED));
+        }
+
+        return Promise.resolve({ followings: connection_of_sent_by.followings, followers: connection_of_send_to.followers });
+    }
 }
 module.exports = ConnectionService;
