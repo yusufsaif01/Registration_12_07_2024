@@ -292,7 +292,7 @@ class ConnectionService {
             { $unwind: { path: "$connection_sent_by", preserveNullAndEmptyArrays: true } },
             { "$lookup": { "from": "connections", "localField": "send_to", "foreignField": "user_id", "as": "connection_send_to" } },
             { $unwind: { path: "$connection_send_to", preserveNullAndEmptyArrays: true } },
-            { $project: { request_id: 1, _id: 0, sent_by: 1, send_to: 1, mutual: { $size: { $setIntersection: ["$connection_sent_by.footmates", "$connection_send_to.footmates"] } } } },
+            { $project: { request_id: 1, _id: 0, sent_by: 1, send_to: 1, mutual: { $setIntersection: ["$connection_sent_by.footmates", "$connection_send_to.footmates"] } } },
             { "$lookup": { "from": "player_details", "localField": "sent_by", "foreignField": "user_id", "as": "player_details" } },
             { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
             { $project: { request_id: 1, player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1 } }
