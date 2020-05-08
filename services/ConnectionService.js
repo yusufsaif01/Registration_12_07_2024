@@ -175,15 +175,11 @@ class ConnectionService {
 
     async acceptFootMateRequest(requestedData = {}) {
         try {
-            let sent_by = await this.acceptfootMateRequestValidator(requestedData);
+            let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.ACCEPTED, is_deleted: true, deleted_at: Date.now() };
-            await this.connectionRequestUtilityInst.updateOne({ request_id: requestedData.request_id }, updatedDoc);
-            let footMateRequestSentByMe = await this.connectionRequestUtilityInst.findOne({
-                sent_by: requestedData.user_id, send_to: sent_by
-            });
-            if (!_.isEmpty(footMateRequestSentByMe)) {
-                await this.connectionRequestUtilityInst.updateOne({ request_id: footMateRequestSentByMe.request_id }, updatedDoc);
-            }
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+
+            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
             await this.followMember({ sent_by: requestedData.user_id, send_to: sent_by }, true);
             await this.makeFootmates({ sent_by: sent_by, send_to: requestedData.user_id });
@@ -196,8 +192,10 @@ class ConnectionService {
     }
 
     async makeFootmates(requestedData = {}) {
-        let connection_of_sent_by = await this.connectionUtilityInst.findOne({ user_id: requestedData.sent_by }, { footmates: 1 });
-        let connection_of_send_to = await this.connectionUtilityInst.findOne({ user_id: requestedData.send_to }, { footmates: 1 });
+        let condition = { $or: [{ user_id: requestedData.sent_by }, { user_id: requestedData.send_to }] };
+        let connections = await this.connectionUtilityInst.find(condition, { user_id: 1, footmates: 1 });
+        let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
+        let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
 
         let footmates_of_sent_by = connection_of_sent_by.footmates || [];
         footmates_of_sent_by.push(requestedData.send_to);
@@ -207,8 +205,8 @@ class ConnectionService {
         await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { footmates: footmates_of_send_to });
     }
 
-    async acceptfootMateRequestValidator(requestedData = {}) {
-        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ request_id: requestedData.request_id, send_to: requestedData.user_id });
+    async footMateRequestValidator(requestedData = {}) {
+        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ status: CONNECTION_REQUEST.PENDING, request_id: requestedData.request_id, send_to: requestedData.user_id });
         if (_.isEmpty(footMateRequest)) {
             return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND));
         }
