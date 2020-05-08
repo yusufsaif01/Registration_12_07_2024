@@ -217,13 +217,8 @@ class ConnectionService {
         try {
             let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.REJECTED, is_deleted: true, deleted_at: Date.now() };
-            await this.connectionRequestUtilityInst.updateOne({ request_id: requestedData.request_id }, updatedDoc);
-            let footMateRequestSentByMe = await this.connectionRequestUtilityInst.findOne({
-                sent_by: requestedData.user_id, send_to: sent_by
-            });
-            if (!_.isEmpty(footMateRequestSentByMe)) {
-                await this.connectionRequestUtilityInst.updateOne({ request_id: footMateRequestSentByMe.request_id }, updatedDoc);
-            }
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             return Promise.resolve();
         }
         catch (e) {
