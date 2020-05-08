@@ -274,13 +274,10 @@ class ConnectionService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.FOOTMATE_TO_BE_CANCELLED_NOT_FOUND));
             }
         }
-        let connection_of_sent_by = await this.connectionUtilityInst.findOne({
-            user_id: requestedData.sent_by, footmates: requestedData.send_to
-        }, { footmates: 1, followers: 1, followings: 1, _id: 0 });
-        let connection_of_send_to = await this.connectionUtilityInst.findOne({
-            user_id: requestedData.send_to, footmates: requestedData.sent_by
-        }, { footmates: 1, followers: 1, followings: 1, _id: 0 });
-
+        let condition = { $or: [{ user_id: requestedData.sent_by, footmates: requestedData.send_to }, { user_id: requestedData.send_to, footmates: requestedData.sent_by }] };
+        let connections = await this.connectionUtilityInst.find(condition, { footmates: 1, followings: 1, followers: 1, user_id: 1, _id: 0 });
+        let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
+        let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
         if (_.isEmpty(connection_of_sent_by) || _.isEmpty(connection_of_send_to)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_CANCELLED_FOOTMATE));
         }
