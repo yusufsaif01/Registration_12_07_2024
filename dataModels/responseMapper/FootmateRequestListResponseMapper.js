@@ -18,8 +18,7 @@ class FootmateRequestListResponseMapper {
                 if (footmateRequest.player_details.position && footmateRequest.player_details.position.length > 0 && footmateRequest.player_details.position[0] && footmateRequest.player_details.position[0].name) {
                     data.position = footmateRequest.player_details.position[0].name;
                 }
-                if(footmateRequest.mutual && footmateRequest.mutual.length)
-                {
+                if (footmateRequest.mutual && footmateRequest.mutual.length) {
                     data.mutuals = footmateRequest.mutual.length;
                 }
                 response.push(data);
