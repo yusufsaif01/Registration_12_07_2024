@@ -299,7 +299,7 @@ class ConnectionService {
             ]);
             data = new FootmateRequestListResponseMapper().map(data);
             let totalRecords = await this.connectionRequestUtilityInst.countList({ send_to: requestedData.user_id, status: CONNECTION_REQUEST.PENDING });
-            let response = { total: totalRecords, record: data }
+            let response = { total: totalRecords, records: data }
             return Promise.resolve(response);
         }
         catch (e) {
