@@ -274,7 +274,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test123",
-     *                   "request_id": "request1",
      *                   "mutuals": 5
      *               },
      *               {
@@ -283,7 +282,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test1234",
-     *                   "request_id": "request2",
      *                   "mutuals": 10
      *               },
      *               {
@@ -292,7 +290,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test12345",
-     *                   "request_id": "request3",
      *                   "mutuals": 4
      *               }
      *           ]
@@ -317,8 +314,10 @@ module.exports = (router) => {
      * 
      */
     router.get('/connection/list', checkAuthToken, function (req, res) {
-        let page_no = req.query.page_no;
-        let page_size = req.query.page_size;
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
 
         let filters = {
             position: (req.query && req.query.position) ? req.query.position.split(",") : null,
@@ -329,39 +328,8 @@ module.exports = (router) => {
             city: (req.query && req.query.city) ? req.query.city : null,
             strong_foot: (req.query && req.query.strong_foot) ? req.query.strong_foot.split(",") : null,
         };
-
-        responseHandler(req, res, Promise.resolve({
-            "total": "10",
-            "records": [
-                {
-                    "name": "Nishikant",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test123",
-                    "request_id": "request1",
-                    "mutuals": 5
-                },
-                {
-                    "name": "Pushpam",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test1234",
-                    "request_id": "request2",
-                    "mutuals": 10
-                },
-                {
-                    "name": "Deepak",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test12345",
-                    "request_id": "request3",
-                    "mutuals": 4
-                }
-            ]
-        }));
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.getFootMateList({ user_id: req.authUser.user_id, paginationOptions, filters }));
     });
 
     /**
