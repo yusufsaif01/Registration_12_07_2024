@@ -301,7 +301,7 @@ class ConnectionService {
             ]);
             data = new FootmateRequestListResponseMapper().map(data);
             let totalRecords = await this.connectionRequestUtilityInst.countList({ send_to: requestedData.user_id, status: CONNECTION_REQUEST.PENDING });
-            let response = { total: totalRecords, record: data }
+            let response = { total: totalRecords, records: data }
             return Promise.resolve(response);
         }
         catch (e) {
@@ -313,18 +313,17 @@ class ConnectionService {
     async getMutualFootMateList(requestedData = {}) {
         try {
             await this.getMutualFootMateListValidator(requestedData);
-            let connection_of_current_user = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id }, { footmates: 1 });
-            let data = [];
-            if (connection_of_current_user && connection_of_current_user.footmates && connection_of_current_user.footmates.length) {
-                data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.mutual_with } },
-                { $project: { _id: 0, mutual: { $setIntersection: ["$footmates", connection_of_current_user.footmates] } } },
-                { $unwind: { path: "$mutual" } },
-                { "$lookup": { "from": "player_details", "localField": "mutual", "foreignField": "user_id", "as": "player_details" } },
-                { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
-                { $project: { player_details: { first_name: 1, last_name: 1, position: 1, player_type: 1, avatar_url: 1, user_id: 1 } } }
-                ]);
-                data = new MutualFootmateListResponseMapper().map(data);
-            }
+            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            { $project: { _id: 0, footmates_of_current_user: "$footmates", user_id_mutual_with: requestedData.mutual_with } },
+            { "$lookup": { "from": "connections", "localField": "user_id_mutual_with", "foreignField": "user_id", "as": "connection_of_mutual_with" } },
+            { $unwind: { path: "$connection_of_mutual_with" } },
+            { $project: { _id: 0, mutual: { $setIntersection: ["$footmates_of_current_user", "$connection_of_mutual_with.footmates"] } } },
+            { $unwind: { path: "$mutual" } },
+            { "$lookup": { "from": "player_details", "localField": "mutual", "foreignField": "user_id", "as": "player_details" } },
+            { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
+            { $project: { player_details: { first_name: 1, last_name: 1, position: 1, player_type: 1, avatar_url: 1, user_id: 1 } } }
+            ]);
+            data = new MutualFootmateListResponseMapper().map(data);
             return Promise.resolve({ total: data.length, records: data });
         }
         catch (e) {
