@@ -334,7 +334,7 @@ class ConnectionService {
     async getMutualFootMateListValidator(requestedData = {}) {
         let mutual_with_login_detail = await this.loginUtilityInst.findOne({ user_id: requestedData.mutual_with, member_type: MEMBER.PLAYER });
         if (_.isEmpty(mutual_with_login_detail)) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MUTUAL_WITH_FOOTMATE_NOT_FOUND));
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MUTUAL_WITH_USER_NOT_FOUND));
         }
     }
 }
