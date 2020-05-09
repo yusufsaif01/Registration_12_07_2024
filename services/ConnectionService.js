@@ -342,18 +342,28 @@ class ConnectionService {
     async getFootMateList(requestedData = {}) {
         try {
             let paginationOptions = requestedData.paginationOptions || {};
+            let filterConditions = this._prepareFootMateFilterCondition(requestedData.filters);
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
             let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
             { $project: { footmates: 1, current_user_footmates: "$footmates", _id: 0 } }, { $unwind: { path: "$footmates" } },
             { "$lookup": { "from": "connections", "localField": "footmates", "foreignField": "user_id", "as": "connection_of_current_user_footmate" } },
-            { $unwind: { path: "$connection_of_current_user_footmate" } }, { $skip: options.skip }, { $limit: options.limit },
+            { $unwind: { path: "$connection_of_current_user_footmate" } },
             { $project: { connection_of_current_user_footmate: { footmates: 1, user_id: 1 }, current_user_footmates: 1 } },
             { $project: { user_id_footmate: "$connection_of_current_user_footmate.user_id", mutual: { $size: { $setIntersection: ["$current_user_footmates", "$connection_of_current_user_footmate.footmates"] } } } },
             { $unwind: { path: "$mutual" } },
             { "$lookup": { "from": "player_details", "localField": "user_id_footmate", "foreignField": "user_id", "as": "player_details" } },
             { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
-            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1 } }
+            {
+                $project: {
+                    player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1,
+                    age: {
+                        $subtract: [{ $subtract: [{ $year: "$$NOW" }, { $year: { $toDate: { $arrayElemAt: [{ $split: ["$player_details.dob", "("] }, 0] } } }] },
+                        { $cond: [{ $gt: [0, { $subtract: [{ $dayOfYear: "$$NOW" }, { $dayOfYear: { $toDate: { $arrayElemAt: [{ $split: ["$player_details.dob", "("] }, 0] } } }] }] }, 1, 0] }]
+                    }
+                }
+            },
+            { $match: filterConditions }, { $skip: options.skip }, { $limit: options.limit }
             ]);
             data = new FootmateListResponseMapper().map(data);
 
@@ -369,6 +379,72 @@ class ConnectionService {
             console.log("Error in getFootMateList() of ConnectionService", e);
             return Promise.reject(e);
         }
+    }
+
+    _prepareFootMateFilterCondition(filterConditions = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filterConditions) {
+            if (filterConditions.age) {
+                let Age = [];
+                filterConditions.age.forEach(val => {
+                    let [lowerEndAge, higherEndAge] = val.split("-")
+                    Age.push({
+                        age: {
+                            $gte: Number(lowerEndAge),
+                            $lte: Number(higherEndAge)
+                        }
+                    });
+                });
+                filterArr.push({ $or: Age })
+            }
+            if (filterConditions.country) {
+                filterArr.push({
+                    "player_details.country": new RegExp(filterConditions.country, 'i')
+                });
+            }
+            if (filterConditions.state) {
+                filterArr.push({
+                    "player_details.state": new RegExp(filterConditions.state, 'i')
+                });
+            }
+            if (filterConditions.city) {
+                filterArr.push({
+                    "player_details.city": new RegExp(filterConditions.city, 'i')
+                });
+            }
+            if (filterConditions.strong_foot) {
+                let strong_foot = [];
+                filterConditions.strong_foot.forEach(val => {
+                    strong_foot.push({ "player_details.strong_foot": new RegExp(val, 'i') })
+                });
+                filterArr.push({ $or: strong_foot })
+            }
+            if (filterConditions.position && filterConditions.position.length) {
+                let position = [];
+                filterConditions.position.forEach(val => {
+                    position.push({
+                        "player_details.position": {
+                            $elemMatch: {
+                                name: new RegExp(val, 'i'),
+                            }
+                        }
+                    })
+                });
+                filterArr.push({ $or: position })
+            }
+            if (filterConditions.player_type && filterConditions.player_type.length) {
+                let player_type = [];
+                filterConditions.player_type.forEach(val => {
+                    player_type.push({ "player_details.player_type": new RegExp(val, 'i') })
+                });
+                filterArr.push({ $or: player_type })
+            }
+            condition = {
+                $and: filterArr
+            }
+        }
+        return filterArr.length ? condition : {}
     }
 }
 module.exports = ConnectionService;
