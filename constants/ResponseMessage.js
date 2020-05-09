@@ -218,6 +218,9 @@ class ResponseMessage {
     static get FOOTMATE_TO_BE_CANCELLED_NOT_FOUND() {
         return "Footmate to be cancelled not found"
     }
+    static get MUTUAL_WITH_FOOTMATE_NOT_FOUND() {
+        return "Mutual with footmate not found"
+    }
     static get MEMBER_TO_BE_FOOTMATE_NOT_FOUND() {
         return "Member to be footmate not found"
     }
