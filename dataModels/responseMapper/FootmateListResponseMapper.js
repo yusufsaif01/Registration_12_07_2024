@@ -10,7 +10,6 @@ class FootmateListResponseMapper {
                     "player_type": footmate.player_details.player_type || "-",
                     "avatar": footmate.player_details.avatar_url || "-",
                     "user_id": footmate.player_details.user_id,
-                    "request_id": footmate.request_id,
                     "mutuals": footmate.mutual
                 };
                 data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";

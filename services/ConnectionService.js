@@ -363,8 +363,8 @@ class ConnectionService {
                     }
                 }
             },
-            { $match: filterConditions }, { $skip: options.skip }, { $limit: options.limit }
-            ]);
+            { $match: filterConditions }, { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
+            { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
 
             let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id }, { footmates: 1, _id: 0 });
