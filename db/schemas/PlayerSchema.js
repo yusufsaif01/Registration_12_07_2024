@@ -40,7 +40,7 @@ module.exports = {
             type: String,
         },
         dob: {
-            type: String
+            type: Date
         },
         country: {
             type: String

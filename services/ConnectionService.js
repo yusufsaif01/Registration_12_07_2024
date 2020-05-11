@@ -358,8 +358,8 @@ class ConnectionService {
                 $project: {
                     player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1,
                     age: {
-                        $subtract: [{ $subtract: [{ $year: "$$NOW" }, { $year: { $toDate: { $arrayElemAt: [{ $split: ["$player_details.dob", "("] }, 0] } } }] },
-                        { $cond: [{ $gt: [0, { $subtract: [{ $dayOfYear: "$$NOW" }, { $dayOfYear: { $toDate: { $arrayElemAt: [{ $split: ["$player_details.dob", "("] }, 0] } } }] }] }, 1, 0] }]
+                        $subtract: [{ $subtract: [{ $year: "$$NOW" }, { $year: "$player_details.dob" }] },
+                        { $cond: [{ $gt: [0, { $subtract: [{ $dayOfYear: "$$NOW" }, { $dayOfYear: "$player_details.dob" }] }] }, 1, 0] }]
                     }
                 }
             },
