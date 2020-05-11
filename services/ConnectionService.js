@@ -399,7 +399,7 @@ class ConnectionService {
         let condition = {};
         let filterArr = []
         if (filterConditions) {
-            if (filterConditions.age) {
+            if (filterConditions.age && filterConditions.age.length) {
                 let age = [];
                 let date = new Date();
                 let current_year = date.getFullYear()
@@ -438,7 +438,7 @@ class ConnectionService {
                     "player_details.city": new RegExp(filterConditions.city, 'i')
                 });
             }
-            if (filterConditions.strong_foot) {
+            if (filterConditions.strong_foot && filterConditions.strong_foot.length) {
                 let strong_foot = [];
                 filterConditions.strong_foot.forEach(val => {
                     strong_foot.push({ "player_details.strong_foot": new RegExp(val, 'i') })
