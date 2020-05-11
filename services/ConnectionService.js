@@ -5,6 +5,7 @@ const _ = require("lodash");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const MEMBER = require('../constants/MemberType');
+const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 
 class ConnectionService {
     constructor() {
@@ -13,9 +14,11 @@ class ConnectionService {
         this.loginUtilityInst = new LoginUtility();
     }
 
-    async followMember(requestedData = {}) {
+    async followMember(requestedData = {}, isUsedByAcceptRequestFunc) {
         try {
-            await this.followMemberValiation(requestedData);
+            if (!isUsedByAcceptRequestFunc)
+                await this.followMemberValiation(requestedData);
+
             let connection_of_sent_by = await this.connectionUtilityInst.findOne({ user_id: requestedData.sent_by }, { followings: 1 });
             let connection_of_send_to = await this.connectionUtilityInst.findOne({ user_id: requestedData.send_to }, { followers: 1 });
 
@@ -34,12 +37,13 @@ class ConnectionService {
                 let following = await this.connectionUtilityInst.findOne({
                     user_id: requestedData.sent_by, followings: requestedData.send_to
                 }, { followings: 1, _id: 0 });
-
-                if (!_.isEmpty(following)) {
+                if (_.isEmpty(following)) {
+                    await this.addFollowings(connection_of_sent_by, requestedData.sent_by, requestedData.send_to);
+                    await this.addFollowers(requestedData.sent_by, requestedData.send_to, connection_of_send_to);
+                }
+                else if (!isUsedByAcceptRequestFunc) {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOLLOWED));
                 }
-                await this.addFollowings(connection_of_sent_by, requestedData.sent_by, requestedData.send_to);
-                await this.addFollowers(requestedData.sent_by, requestedData.send_to, connection_of_send_to);
             }
             return Promise.resolve();
         }
@@ -167,6 +171,46 @@ class ConnectionService {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTMATE));
         }
         return Promise.resolve();
+    }
+
+    async acceptFootMateRequest(requestedData = {}) {
+        try {
+            let sent_by = await this.footMateRequestValidator(requestedData);
+            let updatedDoc = { status: CONNECTION_REQUEST.ACCEPTED, is_deleted: true, deleted_at: Date.now() };
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+
+            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
+            await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
+            await this.followMember({ sent_by: requestedData.user_id, send_to: sent_by }, true);
+            await this.makeFootmates({ sent_by: sent_by, send_to: requestedData.user_id });
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in acceptFootMateRequest() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async makeFootmates(requestedData = {}) {
+        let condition = { $or: [{ user_id: requestedData.sent_by }, { user_id: requestedData.send_to }] };
+        let connections = await this.connectionUtilityInst.find(condition, { user_id: 1, footmates: 1 });
+        let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
+        let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
+
+        let footmates_of_sent_by = connection_of_sent_by.footmates || [];
+        footmates_of_sent_by.push(requestedData.send_to);
+        let footmates_of_send_to = connection_of_send_to.footmates || [];
+        footmates_of_send_to.push(requestedData.sent_by);
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { footmates: footmates_of_sent_by });
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { footmates: footmates_of_send_to });
+    }
+
+    async footMateRequestValidator(requestedData = {}) {
+        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ status: CONNECTION_REQUEST.PENDING, request_id: requestedData.request_id, send_to: requestedData.user_id });
+        if (_.isEmpty(footMateRequest)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND));
+        }
+        return Promise.resolve(footMateRequest.sent_by);
     }
 }
 module.exports = ConnectionService;

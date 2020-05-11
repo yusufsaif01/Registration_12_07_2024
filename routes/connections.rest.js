@@ -123,7 +123,7 @@ module.exports = (router) => {
      */
     router.patch('/connection/follow', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
         let serviceInst = new ConnectionService();
-        responseHandler(req, res, serviceInst.followMember({ sent_by: req.authUser.user_id, send_to: req.body.to }));
+        responseHandler(req, res, serviceInst.followMember({ sent_by: req.authUser.user_id, send_to: req.body.to }, false));
     });
 
     /**
@@ -199,10 +199,9 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.patch('/connection/request/accept/:request_id', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let connectionRequestId = req.params.request_id;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+    router.patch('/connection/request/accept/:request_id', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.acceptFootMateRequest({ user_id: req.authUser.user_id, request_id: req.params.request_id }));
     });
 
     /**
