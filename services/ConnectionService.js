@@ -381,13 +381,9 @@ class ConnectionService {
             { $unwind: { path: "$mutual" } },
             { "$lookup": { "from": "player_details", "localField": "user_id_footmate", "foreignField": "user_id", "as": "player_details" } },
             { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
-            {
-                $project: {
-                    player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1,
-                }
-            },
+            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1 } },
             { $match: filterConditions },
-             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
+            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
             { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
             let response = { total: data.length, records: data }
