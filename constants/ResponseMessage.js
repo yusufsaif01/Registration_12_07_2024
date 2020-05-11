@@ -218,6 +218,9 @@ class ResponseMessage {
     static get FOOTMATE_REQUEST_ALREADY_SENT() {
         return "Footmate request already sent"
     }
+    static get ALREADY_FOOTMATE() {
+        return "Already footmate"
+    }
 
 }
 
