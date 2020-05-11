@@ -197,11 +197,17 @@ class ResponseMessage {
     static get CANNOT_SEND_FOOTMATE_REQUEST_TO_YOURSELF() {
         return "Cannot send footmate request to yourself"
     }
+    static get CANNOT_SEND_CANCEL_FOOTMATE_TO_YOURSELF() {
+        return "Cannot send cancel footmate to yourself"
+    }
     static get ONLY_PLAYER_CAN_SEND_FOOTMATE_REQUEST() {
         return "Only player can send footmate request"
     }
     static get ALREADY_UNFOLLOWED() {
-        return "Already Unfollowed"
+        return "Already unfollowed"
+    }
+    static get ALREADY_CANCELLED_FOOTMATE() {
+        return "Already cancelled footmate"
     }
     static get ALREADY_FOLLOWED() {
         return "Already followed"
@@ -211,6 +217,9 @@ class ResponseMessage {
     }
     static get MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND() {
         return "Member to be unfollowed not found"
+    }
+    static get FOOTMATE_TO_BE_CANCELLED_NOT_FOUND() {
+        return "Footmate to be cancelled not found"
     }
     static get MEMBER_TO_BE_FOOTMATE_NOT_FOUND() {
         return "Member to be footmate not found"

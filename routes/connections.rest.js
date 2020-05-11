@@ -82,9 +82,8 @@ module.exports = (router) => {
      *
      */
     router.patch('/connection/request/cancel', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let sent_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.cancelFootMate({ sent_by: req.authUser.user_id, send_to: req.body.to }));
     });
 
     /**
