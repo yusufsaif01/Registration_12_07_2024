@@ -212,5 +212,19 @@ class ConnectionService {
         }
         return Promise.resolve(footMateRequest.sent_by);
     }
+
+    async rejectFootMateRequest(requestedData = {}) {
+        try {
+            let sent_by = await this.footMateRequestValidator(requestedData);
+            let updatedDoc = { status: CONNECTION_REQUEST.REJECTED, is_deleted: true, deleted_at: Date.now() };
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in rejectFootMateRequest() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 module.exports = ConnectionService;
