@@ -247,10 +247,6 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
-                    let achievementCount = 0, tournamentCount = 0;
-                    achievementCount = await this.achievementUtilityInst.countList({ user_id: user.user_id });
-                    data.achievements = achievementCount;
-                    data.tournaments = tournamentCount;
                     data.is_followed = await this.isFollowed({ sent_by: user.sent_by, send_to: user.user_id });
                     if (loginDetails.member_type === MEMBER.PLAYER)
                         data.footmate_status = await this.isFootMate({ sent_by: user.sent_by, send_to: user.user_id });
