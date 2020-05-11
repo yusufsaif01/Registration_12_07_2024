@@ -299,8 +299,7 @@ class ConnectionService {
             { $project: { request_id: 1, player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1 } }
             ]);
             data = new FootmateRequestListResponseMapper().map(data);
-            let totalRecords = await this.connectionRequestUtilityInst.countList({ send_to: requestedData.user_id, status: CONNECTION_REQUEST.PENDING });
-            let response = { total: totalRecords, records: data }
+            let response = { total: data.length, records: data }
             return Promise.resolve(response);
         }
         catch (e) {
