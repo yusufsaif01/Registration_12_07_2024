@@ -8,6 +8,9 @@ class ConnectionRequestStatus {
     static get PENDING() {
         return "Pending";
     }
+    static get NOT_FOOTMATE() {
+        return "Not_footmate";
+    }
 }
 
 module.exports = ConnectionRequestStatus

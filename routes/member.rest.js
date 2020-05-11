@@ -31,7 +31,9 @@ module.exports = (router) => {
      *                  "country": "india",
      *                  "member_type": "player",
      *                  "achievements": 10,
-     *                  "tournaments": 10
+     *                  "tournaments": 10,
+     *                  "is_followed": false,
+     *                  "is_footmate": "Pending/Accepted/Not_footmate"
      *               }  
      *     }
      * 
@@ -64,7 +66,7 @@ module.exports = (router) => {
     router.get('/member/public/profile/:user_id', checkAuthToken, function (req, res) {
         try {
             let serviceInst = new UserService();
-            responseHandler(req, res, serviceInst.getPublicProfileDetails({ user_id: req.params.user_id }))
+            responseHandler(req, res, serviceInst.getPublicProfileDetails({ sent_by: req.authUser.user_id, user_id: req.params.user_id }))
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
