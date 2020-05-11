@@ -396,6 +396,47 @@ module.exports = (router) => {
         let serviceInst = new ConnectionService();
         responseHandler(req, res, serviceInst.getMutualFootMateList({ mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
     });
+    /**
+     * @api {get} /connection/stats  connection stats
+     * @apiName Connection stats
+     * @apiGroup Connections
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {
+     *                  footmate_requests: 2,
+     *                  footmates: 8,
+     *                  followers: 8,
+     *                  followings: 8 
+     *               }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} UNAUTHORIZED
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     } 
+     * 
+     */
+    router.get('/connection/stats', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.getConnectionStats({ user_id: req.authUser.user_id }));
+    });
 
     /**
      * @api {get} connection/request/list?page_no=1&page_size=10 footmates request listing
