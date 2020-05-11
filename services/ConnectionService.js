@@ -9,6 +9,7 @@ const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 const FootmateRequestListResponseMapper = require("../dataModels/responseMapper/FootmateRequestListResponseMapper");
 const MutualFootmateListResponseMapper = require("../dataModels/responseMapper/MutualFootmateListResponseMapper");
 const FootmateListResponseMapper = require("../dataModels/responseMapper/FootmateListResponseMapper");
+const moment = require('moment');
 
 class ConnectionService {
     constructor() {
@@ -357,13 +358,10 @@ class ConnectionService {
             {
                 $project: {
                     player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1,
-                    age: {
-                        $subtract: [{ $subtract: [{ $year: "$$NOW" }, { $year: "$player_details.dob" }] },
-                        { $cond: [{ $gt: [0, { $subtract: [{ $dayOfYear: "$$NOW" }, { $dayOfYear: "$player_details.dob" }] }] }, 1, 0] }]
-                    }
                 }
             },
-            { $match: filterConditions }, { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
+            { $match: filterConditions },
+             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
             { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
 
@@ -386,17 +384,28 @@ class ConnectionService {
         let filterArr = []
         if (filterConditions) {
             if (filterConditions.age) {
-                let Age = [];
+                let age = [];
+                let date = new Date();
+                let current_year = date.getFullYear()
+                let current_month = date.getMonth()
+                let current_day = date.getDate()
+
                 filterConditions.age.forEach(val => {
                     let [lowerEndAge, higherEndAge] = val.split("-")
-                    Age.push({
-                        age: {
-                            $gte: Number(lowerEndAge),
-                            $lte: Number(higherEndAge)
+                    let gteYear = Number(current_year) - Number(higherEndAge);
+                    let lteYear = Number(current_year) - Number(lowerEndAge)
+                    let gteDate = new Date(gteYear, current_month, current_day);
+                    let lteDate = new Date(lteYear, current_month, current_day);
+                    let momentGteDate = moment(gteDate).format("YYYY-MM-DD");
+                    let momentLteDate = moment(lteDate).format("YYYY-MM-DD");
+                    age.push({
+                        "player_details.dob": {
+                            $gte: momentGteDate,
+                            $lte: momentLteDate
                         }
                     });
                 });
-                filterArr.push({ $or: Age })
+                filterArr.push({ $or: age })
             }
             if (filterConditions.country) {
                 filterArr.push({
