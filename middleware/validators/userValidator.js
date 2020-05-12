@@ -2,6 +2,7 @@ const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const MEMBER = require('../../constants/MemberType');
+const TYPE = require('../../constants/ClubAcademyType');
 const PLAYER = require('../../constants/PlayerType');
 const STRONG_FOOT = require('../../constants/StrongFoot');
 const SORT_ORDER = require('../../constants/SortOrder');
@@ -43,7 +44,7 @@ class UserValidator {
             "address": Joi.string().trim().allow(""),
             "stadium_name": Joi.string().trim().allow(""),
             "document_type": Joi.string().trim().allow(""),
-            "type": Joi.string().trim(),
+            "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "number": Joi.string().trim(),
             "reg_number": Joi.string().trim(),
             "associated_players": Joi.number().allow(""),
