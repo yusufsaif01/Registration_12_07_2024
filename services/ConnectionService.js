@@ -7,6 +7,7 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const MEMBER = require('../constants/MemberType');
 const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 const FootmateRequestListResponseMapper = require("../dataModels/responseMapper/FootmateRequestListResponseMapper");
+const MutualFootmateListResponseMapper = require("../dataModels/responseMapper/MutualFootmateListResponseMapper");
 
 class ConnectionService {
     constructor() {
@@ -304,6 +305,35 @@ class ConnectionService {
         catch (e) {
             console.log("Error in getFootMateRequestList() of ConnectionService", e);
             return Promise.reject(e);
+        }
+    }
+
+    async getMutualFootMateList(requestedData = {}) {
+        try {
+            await this.getMutualFootMateListValidator(requestedData);
+            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            { $project: { _id: 0, footmates_of_current_user: "$footmates", user_id_mutual_with: requestedData.mutual_with } },
+            { "$lookup": { "from": "connections", "localField": "user_id_mutual_with", "foreignField": "user_id", "as": "connection_of_mutual_with" } },
+            { $unwind: { path: "$connection_of_mutual_with" } },
+            { $project: { _id: 0, mutual: { $setIntersection: ["$footmates_of_current_user", "$connection_of_mutual_with.footmates"] } } },
+            { $unwind: { path: "$mutual" } },
+            { "$lookup": { "from": "player_details", "localField": "mutual", "foreignField": "user_id", "as": "player_details" } },
+            { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
+            { $project: { player_details: { first_name: 1, last_name: 1, position: 1, player_type: 1, avatar_url: 1, user_id: 1 } } }
+            ]);
+            data = new MutualFootmateListResponseMapper().map(data);
+            return Promise.resolve({ total: data.length, records: data });
+        }
+        catch (e) {
+            console.log("Error in getMutualFootMateList() of ConnectionService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async getMutualFootMateListValidator(requestedData = {}) {
+        let mutual_with_login_detail = await this.loginUtilityInst.findOne({ user_id: requestedData.mutual_with, member_type: MEMBER.PLAYER });
+        if (_.isEmpty(mutual_with_login_detail)) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MUTUAL_WITH_USER_NOT_FOUND));
         }
     }
 }

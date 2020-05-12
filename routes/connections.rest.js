@@ -424,27 +424,9 @@ module.exports = (router) => {
      *     } 
      * 
      */
-    router.get('/connection/mutuals/:mutual_with', connectionValidator.mutualAPIValidation, checkAuthToken, function (req, res) {
-        let mutual_with = req.params.mutual_with;
-        responseHandler(req, res, Promise.resolve({
-            "total": "10",
-            "records": [
-                {
-                    "name": "Nishikant",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test123"
-                },
-                {
-                    "name": "Pushpam",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test1234"
-                }
-            ]
-        }));
+    router.get('/connection/mutuals/:mutual_with', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.getMutualFootMateList({ mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
     });
 
     /**
