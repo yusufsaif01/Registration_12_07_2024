@@ -1,6 +1,7 @@
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const connectionValidator = require("../middleware/validators").connectionValidator;
+const ConnectionService = require('../services/ConnectionService');
 
 module.exports = (router) => {
 
@@ -39,9 +40,11 @@ module.exports = (router) => {
      *
      */
     router.post('/connection/request/send', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let sent_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.sendFootMateRequest({
+            member_type: req.authUser.member_type,
+            sent_by: req.authUser.user_id, send_to: req.body.to
+        }));
     });
 
     /**
@@ -79,9 +82,8 @@ module.exports = (router) => {
      *
      */
     router.patch('/connection/request/cancel', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let sent_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.cancelFootMate({ sent_by: req.authUser.user_id, send_to: req.body.to }));
     });
 
     /**
@@ -119,9 +121,8 @@ module.exports = (router) => {
      *
      */
     router.patch('/connection/follow', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let follow_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.followMember({ sent_by: req.authUser.user_id, send_to: req.body.to }, false));
     });
 
     /**
@@ -159,9 +160,8 @@ module.exports = (router) => {
      *
      */
     router.patch('/connection/unfollow', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let un_follow_to = req.body.to;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.unfollowMember({ sent_by: req.authUser.user_id, send_to: req.body.to }));
     });
 
     /**
@@ -198,10 +198,9 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.patch('/connection/request/accept/:request_id', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let connectionRequestId = req.params.request_id;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+    router.patch('/connection/request/accept/:request_id', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.acceptFootMateRequest({ user_id: req.authUser.user_id, request_id: req.params.request_id }));
     });
 
     /**
@@ -238,10 +237,9 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.patch('/connection/request/reject/:request_id', connectionValidator.connectionRequestAPIValidation, checkAuthToken, function (req, res) {
-        let connectionRequestId = req.params.request_id;
-        let send_by = req.user.user_id;
-        responseHandler(req, res, Promise.resolve());
+    router.patch('/connection/request/reject/:request_id', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.rejectFootMateRequest({ user_id: req.authUser.user_id, request_id: req.params.request_id }));
     });
 
     /**
