@@ -274,7 +274,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test123",
-     *                   "request_id": "request1",
      *                   "mutuals": 5
      *               },
      *               {
@@ -283,7 +282,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test1234",
-     *                   "request_id": "request2",
      *                   "mutuals": 10
      *               },
      *               {
@@ -292,7 +290,6 @@ module.exports = (router) => {
      *                   "player_type": "grassroot",
      *                   "avatar": "/uploads/avatar/user-avatar.png",
      *                   "user_id": "test12345",
-     *                   "request_id": "request3",
      *                   "mutuals": 4
      *               }
      *           ]
@@ -317,8 +314,10 @@ module.exports = (router) => {
      * 
      */
     router.get('/connection/list', checkAuthToken, function (req, res) {
-        let page_no = req.query.page_no;
-        let page_size = req.query.page_size;
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
 
         let filters = {
             position: (req.query && req.query.position) ? req.query.position.split(",") : null,
@@ -329,39 +328,8 @@ module.exports = (router) => {
             city: (req.query && req.query.city) ? req.query.city : null,
             strong_foot: (req.query && req.query.strong_foot) ? req.query.strong_foot.split(",") : null,
         };
-
-        responseHandler(req, res, Promise.resolve({
-            "total": "10",
-            "records": [
-                {
-                    "name": "Nishikant",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test123",
-                    "request_id": "request1",
-                    "mutuals": 5
-                },
-                {
-                    "name": "Pushpam",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test1234",
-                    "request_id": "request2",
-                    "mutuals": 10
-                },
-                {
-                    "name": "Deepak",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test12345",
-                    "request_id": "request3",
-                    "mutuals": 4
-                }
-            ]
-        }));
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.getFootMateList({ user_id: req.authUser.user_id, paginationOptions, filters }));
     });
 
     /**
@@ -427,6 +395,50 @@ module.exports = (router) => {
     router.get('/connection/mutuals/:mutual_with', checkAuthToken, function (req, res) {
         let serviceInst = new ConnectionService();
         responseHandler(req, res, serviceInst.getMutualFootMateList({ mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
+    });
+    /**
+     * @api {get} /connection/stats?user_id=<user_id_of_the_user_in_case_of_public>  connection stats
+     * @apiName Connection stats
+     * @apiGroup Connections
+     * 
+     * @apiParam (query) {String} user_id user_id of the user in case of public
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {
+     *                  footmate_requests: 2,
+     *                  footmates: 8,
+     *                  followers: 8,
+     *                  followings: 8 
+     *               }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} UNAUTHORIZED
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     } 
+     * 
+     */
+    router.get('/connection/stats', checkAuthToken, function (req, res) {
+        let serviceInst = new ConnectionService();
+        let user_id = (req.query && req.query.user_id) ? req.query.user_id : req.authUser.user_id;
+        responseHandler(req, res, serviceInst.getConnectionStats({ user_id: user_id }));
     });
 
     /**
