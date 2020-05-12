@@ -6,9 +6,11 @@ const achievementValidator = require("../middleware/validators").achievementVali
 
 module.exports = (router) => {
     /**
- * @api {get} /timeline/achievement/stats achievement stats
+ * @api {get} /achievement/stats?user_id=<user_id_of_the_user_in_case_of_public> achievement stats
  * @apiName achievement stats
  * @apiGroup Achievement 
+ * 
+ * @apiParam (query) {String} user_id user_id of the user in case of public
  * 
  * @apiSuccess {String} status success
  * @apiSuccess {String} message Successfully done
@@ -41,9 +43,10 @@ module.exports = (router) => {
  *     } 
  *
  */
-    router.get('/timeline/achievement/stats', checkAuthToken, function (req, res) {
+    router.get('/achievement/stats', checkAuthToken, function (req, res) {
+        let user_id = (req.query && req.query.user_id) ? req.query.user_id : req.authUser.user_id;
         let serviceInst = new AchievementService();
-        responseHandler(req, res, serviceInst.stats(req.authUser.user_id));
+        responseHandler(req, res, serviceInst.stats(user_id));
     });
 
     /**

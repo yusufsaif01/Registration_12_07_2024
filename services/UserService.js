@@ -11,8 +11,13 @@ const MemberListResponseMapper = require("../dataModels/responseMapper/MemberLis
 const MEMBER = require('../constants/MemberType');
 const EMAIL_VERIFIED = require('../constants/EmailVerified');
 const PLAYER = require('../constants/PlayerType');
+const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const ACCOUNT = require('../constants/AccountStatus');
+const AchievementUtility = require("../db/utilities/AchievementUtility");
+const ConnectionUtility = require("../db/utilities/ConnectionUtility");
+const ConnectionRequestUtility = require('../db/utilities/ConnectionRequestUtility');
+const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 
 class UserService extends BaseService {
 
@@ -20,6 +25,9 @@ class UserService extends BaseService {
         super();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.achievementUtilityInst = new AchievementUtility();
+        this.connectionUtilityInst = new ConnectionUtility();
+        this.connectionRequestUtilityInst = new ConnectionRequestUtility();
         this.authUtilityInst = new AuthUtility();
         this.loginUtilityInst = new LoginUtility();
     }
@@ -153,18 +161,17 @@ class UserService extends BaseService {
             let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
             let totalRecords = 0, totalPlayers = 0, totalClubAcademy = 0;
 
-            totalPlayers = await this.playerUtilityInst.countList(playerConditions);
-            totalClubAcademy = await this.clubAcademyUtilityInst.countList(clubAcademyConditions);
-            totalRecords = totalPlayers + totalClubAcademy;
-
             let playerOptions = { sort: { first_name: 1, last_name: 1 } };
-            let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, id: 1, avatar_url: 1 };
+            let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, user_id: 1, avatar_url: 1 };
             let playerData = await this.playerUtilityInst.find(playerConditions, playerProjection, playerOptions);
+            totalPlayers = playerData.length;
             playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
 
             let clubAcademyOptions = { sort: { name: 1 } };
-            let clubAcademyProjection = { name: 1, avatar_url: 1, id: 1, member_type: 1 }
+            let clubAcademyProjection = { name: 1, avatar_url: 1, user_id: 1, member_type: 1 }
             let clubAcademyData = await this.clubAcademyUtilityInst.find(clubAcademyConditions, clubAcademyProjection, clubAcademyOptions);
+            totalClubAcademy = clubAcademyData.length;
+            totalRecords = totalPlayers + totalClubAcademy;
             clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
 
             let data = clubAcademyData.concat(playerData)
@@ -172,6 +179,27 @@ class UserService extends BaseService {
             return response;
         } catch (e) {
             console.log("Error in getMemberList() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async getPublicProfileAchievementList(requestedData = {}) {
+        try {
+            let response = {}, totalRecords = 0;
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
+            let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
+            let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
+            totalRecords = data.length;
+            data = new AchievementListResponseMapper().map(data);
+            response = {
+                total: totalRecords,
+                records: data
+            }
+            return response;
+        } catch (e) {
+            console.log("Error in getPublicProfileAchievementList() of UserService", e);
             return Promise.reject(e);
         }
     }
@@ -203,6 +231,71 @@ class UserService extends BaseService {
             console.log("Error in getDetails() of UserUtility", e);
             return Promise.reject(e);
         }
+    }
+
+    async getPublicProfileDetails(user = {}) {
+        try {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user.user_id });
+            if (loginDetails) {
+
+                let data = {}, projection = {};
+                projection = this.getPublicProfileProjection();
+                if (loginDetails.member_type === MEMBER.PLAYER) {
+                    data = await this.playerUtilityInst.findOne({ user_id: user.user_id }, projection);
+                } else {
+                    data = await this.clubAcademyUtilityInst.findOne({ user_id: user.user_id }, projection);
+                }
+                if (!_.isEmpty(data)) {
+                    data.member_type = loginDetails.member_type;
+                    data.is_followed = await this.isFollowed({ sent_by: user.sent_by, send_to: user.user_id });
+                    if (loginDetails.member_type === MEMBER.PLAYER)
+                        data.footmate_status = await this.isFootMate({ sent_by: user.sent_by, send_to: user.user_id });
+                    return Promise.resolve(data);
+                } else {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND));
+                }
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND);
+
+        } catch (e) {
+            console.log("Error in getPublicProfileDetails() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async isFollowed(requestedData = {}) {
+        let following = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.sent_by, followings: requestedData.send_to
+        }, { followings: 1, _id: 0 });
+
+        if (_.isEmpty(following)) {
+            return false;
+        }
+        return true;
+    }
+
+    async isFootMate(requestedData = {}) {
+        let footMateRequest = await this.connectionRequestUtilityInst.findOne({ sent_by: requestedData.sent_by, send_to: requestedData.send_to });
+        if (!_.isEmpty(footMateRequest)) {
+            return CONNECTION_REQUEST.PENDING;
+        }
+        let connection = await this.connectionUtilityInst.findOne({
+            user_id: requestedData.sent_by, footmates: requestedData.send_to
+        }, { footmates: 1, _id: 0 });
+        if (!_.isEmpty(connection)) {
+            return CONNECTION_REQUEST.ACCEPTED;
+        }
+        return CONNECTION_REQUEST.NOT_FOOTMATE;
+    }
+
+    getPublicProfileProjection() {
+        return {
+            nationality: 1, top_players: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1,
+            institute: 1, about: 1, bio: 1, position: 1, strong_foot: 1, weak_foot: 1, former_club: 1,
+            former_academy: 1, player_type: 1, name: 1, avatar_url: 1, state: 1, league: 1, league_other: 1,
+            country: 1, city: 1, founded_in: 1, address: 1, stadium_name: 1, owner: 1, manager: 1, short_name: 1,
+            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, associated_players: 1, _id: 0
+        };
     }
 
     async update(requestedData = {}) {
