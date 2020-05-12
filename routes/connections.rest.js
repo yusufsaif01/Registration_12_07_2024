@@ -515,31 +515,13 @@ module.exports = (router) => {
      * 
      */
     router.get('/connection/request/list', checkAuthToken, function (req, res) {
-        let page_no = req.query.page_no;
-        let page_size = req.query.page_size;
+        let paginationOptions = {};
 
-        responseHandler(req, res, Promise.resolve({
-            "total": "10",
-            "records": [
-                {
-                    "name": "Nishikant",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test123",
-                    "request_id": "request1",
-                    "mutuals": 5
-                },
-                {
-                    "name": "Pushpam",
-                    "position": "goalkeeper",
-                    "player_type": "grassroot",
-                    "avatar": "/uploads/avatar/user-avatar.png",
-                    "user_id": "test1234",
-                    "request_id": "request2",
-                    "mutuals": 10
-                }
-            ]
-        }));
+        paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+        let serviceInst = new ConnectionService();
+        responseHandler(req, res, serviceInst.getFootMateRequestList({ paginationOptions, user_id: req.authUser.user_id }));
     });
 }

@@ -6,6 +6,7 @@ const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const MEMBER = require('../constants/MemberType');
 const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
+const FootmateRequestListResponseMapper = require("../dataModels/responseMapper/FootmateRequestListResponseMapper");
 
 class ConnectionService {
     constructor() {
@@ -278,6 +279,32 @@ class ConnectionService {
         }
 
         return Promise.resolve({ connection_of_sent_by: connection_of_sent_by, connection_of_send_to: connection_of_send_to });
+    }
+
+    async getFootMateRequestList(requestedData = {}) {
+        try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+            let data = await this.connectionRequestUtilityInst.aggregate([{ $match: { send_to: requestedData.user_id, status: CONNECTION_REQUEST.PENDING } },
+            { $skip: options.skip }, { $limit: options.limit },
+            { "$lookup": { "from": "connections", "localField": "sent_by", "foreignField": "user_id", "as": "connection_sent_by" } },
+            { $unwind: { path: "$connection_sent_by", preserveNullAndEmptyArrays: true } },
+            { "$lookup": { "from": "connections", "localField": "send_to", "foreignField": "user_id", "as": "connection_send_to" } },
+            { $unwind: { path: "$connection_send_to", preserveNullAndEmptyArrays: true } },
+            { $project: { request_id: 1, _id: 0, sent_by: 1, send_to: 1, mutual: { $setIntersection: ["$connection_sent_by.footmates", "$connection_send_to.footmates"] } } },
+            { "$lookup": { "from": "player_details", "localField": "sent_by", "foreignField": "user_id", "as": "player_details" } },
+            { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
+            { $project: { request_id: 1, player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1 } }
+            ]);
+            data = new FootmateRequestListResponseMapper().map(data);
+            let response = { total: data.length, records: data }
+            return Promise.resolve(response);
+        }
+        catch (e) {
+            console.log("Error in getFootMateRequestList() of ConnectionService", e);
+            return Promise.reject(e);
+        }
     }
 }
 module.exports = ConnectionService;
