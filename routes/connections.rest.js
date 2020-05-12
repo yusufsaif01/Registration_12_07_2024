@@ -397,9 +397,11 @@ module.exports = (router) => {
         responseHandler(req, res, serviceInst.getMutualFootMateList({ mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
     });
     /**
-     * @api {get} /connection/stats  connection stats
+     * @api {get} /connection/stats?user_id=<user_id_of_the_user_in_case_of_public>  connection stats
      * @apiName Connection stats
      * @apiGroup Connections
+     * 
+     * @apiParam (query) {String} user_id user_id of the user in case of public
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -435,7 +437,8 @@ module.exports = (router) => {
      */
     router.get('/connection/stats', checkAuthToken, function (req, res) {
         let serviceInst = new ConnectionService();
-        responseHandler(req, res, serviceInst.getConnectionStats({ user_id: req.authUser.user_id }));
+        let user_id = (req.query && req.query.user_id) ? req.query.user_id : req.authUser.user_id;
+        responseHandler(req, res, serviceInst.getConnectionStats({ user_id: user_id }));
     });
 
     /**
