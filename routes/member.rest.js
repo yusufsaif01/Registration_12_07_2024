@@ -30,8 +30,6 @@ module.exports = (router) => {
      *                  "state": "mumbai",
      *                  "country": "india",
      *                  "member_type": "player",
-     *                  "achievements": 10,
-     *                  "tournaments": 10,
      *                  "is_followed": false,
      *                  "is_footmate": "Pending/Accepted/Not_footmate"
      *               }  
