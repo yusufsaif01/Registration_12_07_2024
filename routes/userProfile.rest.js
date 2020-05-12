@@ -117,6 +117,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} pincode club/academy pincode
      * @apiParam (body) {String} address club/academy address
      * @apiParam (body) {String} document_type club/academy document_type
+     * @apiParam (body) {String} type club/academy type
      * @apiParam (body) {String} number academy PAN/ COI/ Tin Number
      * @apiParam (body) {String} reg_number club AIFF Registration Number
      * @apiParam (body) {String} stadium_name club/academy stadium name

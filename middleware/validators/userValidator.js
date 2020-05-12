@@ -2,6 +2,7 @@ const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const MEMBER = require('../../constants/MemberType');
+const TYPE = require('../../constants/ClubAcademyType');
 const PLAYER = require('../../constants/PlayerType');
 const STRONG_FOOT = require('../../constants/StrongFoot');
 const SORT_ORDER = require('../../constants/SortOrder');
@@ -43,6 +44,7 @@ class UserValidator {
             "address": Joi.string().trim().allow(""),
             "stadium_name": Joi.string().trim().allow(""),
             "document_type": Joi.string().trim().allow(""),
+            "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "number": Joi.string().trim(),
             "reg_number": Joi.string().trim(),
             "associated_players": Joi.number().allow(""),
@@ -178,6 +180,20 @@ class UserValidator {
             "name": Joi.string(),
             "profile_status": Joi.string().valid([PROFILE.VERIFIED, PROFILE.NON_VERIFIED]),
             "email_verified": Joi.string().valid([EMAIL_VERIFIED.TRUE, EMAIL_VERIFIED.FALSE]),
+        })
+        try {
+
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
+    async memberSearchQueryValidation(req, res, next) {
+
+        const query = Joi.object().keys({
+            "search": Joi.string().trim().min(3)
         })
         try {
 

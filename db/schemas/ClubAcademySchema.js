@@ -1,7 +1,8 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const MEMBER = require('../../constants/MemberType')
+const MEMBER = require('../../constants/MemberType');
+const TYPE = require('../../constants/ClubAcademyType');
 
 module.exports = {
     fields: {
@@ -25,6 +26,10 @@ module.exports = {
         member_type: {
             type: String,
             enum: [MEMBER.CLUB, MEMBER.ACADEMY]
+        },
+        type: {
+            type: String,
+            enum: [TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL]
         },
         founded_in: {
             type: String
