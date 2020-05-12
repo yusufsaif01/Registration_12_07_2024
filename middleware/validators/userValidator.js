@@ -54,6 +54,8 @@ class UserValidator {
 
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
+            "association": Joi.string().trim().min(1),
+            "association_other": Joi.string().trim().min(1),
 
             "owner": Joi.string(),
             "manager": Joi.string(),
