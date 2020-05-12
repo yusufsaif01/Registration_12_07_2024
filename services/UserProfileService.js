@@ -8,7 +8,7 @@ const errors = require("../errors");
 const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
-
+const moment = require('moment');
 
 /**
  *
@@ -68,6 +68,9 @@ class UserProfileService {
     }
 
     prepareProfileData(member_type, data) {
+        if (data.dob) {
+            data.dob = moment(data.dob).format("YYYY-MM-DD");
+        }
         if (member_type == MEMBER.PLAYER) {
             let institute = {
                 "school": data.school ? data.school : null,
