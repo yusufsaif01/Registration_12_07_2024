@@ -126,6 +126,8 @@ module.exports = (router) => {
      * @apiParam (body) {string} name club/academy name
      * @apiParam (body) {string} league club/academy league
      * @apiParam (body) {string} league_other club/academy other league
+     * @apiParam (body) {string} association club/academy State association affiliated under
+     * @apiParam (body) {string} association_other club/academy other association
      * @apiParam (body) {string} short_name club/academy short name
      * @apiParam (body) {string} founded_in club/academy founded year
      * @apiParam (body) {string} owner club/academy owner
