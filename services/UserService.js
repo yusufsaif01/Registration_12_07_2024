@@ -165,16 +165,15 @@ class UserService extends BaseService {
             let clubAcademyData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }] } },
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
-            { $unwind: { path: "$club_academy_detail" } },
-            { $sort: { "club_academy_detail.name": 1 } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } }, { $match: clubAcademyConditions }
+            { $unwind: { path: "$club_academy_detail" } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
+            { $match: clubAcademyConditions }, { $sort: { "club_academy_detail.name": 1 } },
             ]);
             clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
             let playerData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, member_type: MEMBER.PLAYER } },
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail" } },
-            { $sort: { "player_detail.first_name": 1, "player_detail.last_name": 1 } }, { $project: { user_id: 1, player_detail: playerProjection } },
-            { $match: playerConditions }
+            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection } },
+            { $match: playerConditions }, { $sort: { "player_detail.first_name": 1 } }, { $sort: { "player_detail.last_name": 1 } }
             ]);
             playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
             let data = clubAcademyData.concat(playerData);
