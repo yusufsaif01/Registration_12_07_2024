@@ -172,7 +172,7 @@ class UserService extends BaseService {
             let playerData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, member_type: MEMBER.PLAYER } },
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection } },
+            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
             { $match: playerConditions }, { $sort: { "player_detail.first_name": 1 } }, { $sort: { "player_detail.last_name": 1 } }
             ]);
             playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
@@ -570,23 +570,9 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            let searchArr = filters.search.split(/\s+/)
-            if (searchArr.length) {
-                let name = [];
-                searchArr.forEach(search => {
-                    name.push({ "club_academy_detail.name": new RegExp(search, 'i') })
-                });
-                filterArr.push({ $or: name })
-            }
-            else {
-                filterArr.push({ "club_academy_detail.name": new RegExp(filters.search, 'i') })
-            }
-            filterArr.push({
-                "club_academy_detail.email": new RegExp(filters.search, "i")
-            })
-            condition = {
-                $or: filterArr
-            };
+            filterArr.push({ "club_academy_detail.name": new RegExp(filters.search, 'i') })
+            filterArr.push({ "club_academy_detail.email": new RegExp(filters.search, "i") })
+            condition = { $or: filterArr };
         }
         return condition;
     }
@@ -595,19 +581,9 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            let searchArr = filters.search.split(/\s+/)
-            if (searchArr.length) {
-                let name = [];
-                searchArr.forEach(search => {
-                    name.push({ "player_detail.first_name": new RegExp(search, 'i') })
-                    name.push({ "player_detail.last_name": new RegExp(search, 'i') })
-                });
-                filterArr.push({ $or: name })
-            }
-            else {
-                filterArr.push({ "player_detail.first_name": new RegExp(filters.search, 'i') })
-                filterArr.push({ "player_detail.last_name": new RegExp(filters.search, 'i') })
-            }
+            filterArr.push({ "full_name": new RegExp(filters.search, 'i') });
+            filterArr.push({ "player_detail.first_name": new RegExp(filters.search, 'i') })
+            filterArr.push({ "player_detail.last_name": new RegExp(filters.search, 'i') })
             filterArr.push({
                 "player_detail.email": new RegExp(filters.search, "i")
             })
