@@ -315,7 +315,7 @@ module.exports = (router) => {
 	 */
 	router.post('/forgot-password', function (req, res) {
 		const authServiceInst = new AuthService();
-		responseHandler(req, res, authServiceInst.forgotPassword(req.body.email));
+		responseHandler(req, res, authServiceInst.forgotPassword(req.body.email, req.authUser));
 	});
 	/**
 * @api {post} /change-password change password

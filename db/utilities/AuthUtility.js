@@ -67,11 +67,22 @@ class AuthUtility {
         })
     }
 
-    async getUserFromCacheByKey(id) {
+    async getUserFromCacheByKey(key) {
         try {
-            let user = await client.getAsync(id);
-            user = JSON.parse(user)
-            return user;
+            let result = await client.getAsync(key);
+            result = JSON.parse(result)
+            return result;
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
+    async getUserIdFromCacheByKey(key) {
+        try {
+            let result = await client.getAsync(key);
+            return result;
         }
         catch (e) {
             console.log(e);
@@ -81,10 +92,13 @@ class AuthUtility {
 
     async getUserByToken(token, isCheckStatus, isCheckForgotPassToken) {
         try {
-            const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
-            const project = ["user_id", "username", "role", "member_type", "status", "forgot_password_token"];
-            let userFromCache = await this.getUserFromCacheByKey(id);
-            let user = userFromCache ? userFromCache : await this.loginUtility.findOne({ user_id: id }, project);
+            token = token.split(' ')[1];
+            const user_id = await this.getUserIdFromCacheByKey(token);
+            if (!user_id) {
+                return Promise.reject(new errors.InvalidToken());
+            }
+            let user = await this.getUserFromCacheByKey(user_id);
+            user.token = token;
             if (user) {
                 if (isCheckStatus) {
                     let status = user.status;
