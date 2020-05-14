@@ -301,7 +301,8 @@ class ConnectionService {
             { $project: { request_id: 1, player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1 } }
             ]);
             data = new FootmateRequestListResponseMapper().map(data);
-            let response = { total: data.length, records: data }
+            let totalRecords = await this.connectionRequestUtilityInst.countList({ send_to: requestedData.user_id, status: CONNECTION_REQUEST.PENDING });
+            let response = { total: totalRecords, records: data }
             return Promise.resolve(response);
         }
         catch (e) {
@@ -386,7 +387,12 @@ class ConnectionService {
             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
             { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
-            let response = { total: data.length, records: data }
+            let totalRecords = 0;
+            let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id },
+                { footmates: 1, _id: 0 });
+            if (connection_of_user && connection_of_user.footmates && connection_of_user.footmates.length)
+                totalRecords = connection_of_user.footmates.length;
+            let response = { total: totalRecords, records: data }
             return Promise.resolve(response);
         }
         catch (e) {

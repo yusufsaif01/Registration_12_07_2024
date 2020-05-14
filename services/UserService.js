@@ -193,7 +193,7 @@ class UserService extends BaseService {
             let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
             let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
             let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
-            totalRecords = data.length;
+            totalRecords = await this.achievementUtilityInst.countList({ user_id: requestedData.user_id });
             data = new AchievementListResponseMapper().map(data);
             response = {
                 total: totalRecords,
