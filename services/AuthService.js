@@ -14,6 +14,7 @@ const ACCOUNT = require('../constants/AccountStatus');
 const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
+const client = require('../redis');
 
 class AuthService {
 
@@ -64,6 +65,7 @@ class AuthService {
                 const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
                 avatarUrl = avatar_url
             }
+            client.set(loginDetails.user_id, JSON.stringify({ ...loginDetails, avatar_url: avatarUrl, token: tokenForAuthentication }));
             return { ...loginDetails, avatar_url: avatarUrl, token: tokenForAuthentication };
         } catch (e) {
             console.log(e);
@@ -121,6 +123,7 @@ class AuthService {
         try {
             await this.loginUtilityInst.updateOne({ user_id: data.user_id }, { token: "" });
             await ActivityService.loginActivity(data.user_id, ACTIVITY.LOGOUT);
+            client.del(data.user_id);
             return Promise.resolve();
         } catch (err) {
             console.log(err);
@@ -154,7 +157,7 @@ class AuthService {
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
                     forgot_password_token: tokenForForgetPassword
                 });
-
+                client.del(loginDetails.user_id);
                 await this.emailService.forgotPassword(email, resetPasswordURL);
                 return Promise.resolve();
             }
@@ -183,6 +186,7 @@ class AuthService {
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
+                client.del(loginDetails.user_id);
                 await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
             }
@@ -263,6 +267,7 @@ class AuthService {
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
+                client.del(loginDetails.user_id);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
