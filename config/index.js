@@ -8,6 +8,7 @@ const db = require("./configs/db");
 const helper = require("./configs/helper");
 const jwt = require("./configs/jwt");
 const fileupload = require("./configs/fileupload");
+const redis = require("./configs/redis")
 
 // Define a schema
 var config = convict({
@@ -18,7 +19,8 @@ var config = convict({
 	server,
 	helper,
 	jwt,
-	fileupload
+	fileupload,
+	redis
 });
 
 // Perform validation
