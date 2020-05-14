@@ -7,6 +7,7 @@ const errors = require('../../errors');
 const LoginUtility = require("./LoginUtility");
 const ACCOUNT = require("../../constants/AccountStatus")
 const RESPONSE_MESSAGE = require("../../constants/ResponseMessage")
+const client = Promise.promisifyAll(require("../../redis"))
 
 class AuthUtility {
 
@@ -66,11 +67,24 @@ class AuthUtility {
         })
     }
 
+    async getUserFromCacheByKey(id) {
+        try {
+            let user = await client.getAsync(id);
+            user = JSON.parse(user)
+            return user;
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
     async getUserByToken(token, isCheckStatus, isCheckForgotPassToken) {
         try {
             const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
             const project = ["user_id", "username", "role", "member_type", "status", "forgot_password_token"];
-            let user = await this.loginUtility.findOne({ user_id: id }, project);
+            let userFromCache = await this.getUserFromCacheByKey(id);
+            let user = userFromCache ? userFromCache : await this.loginUtility.findOne({ user_id: id }, project);
             if (user) {
                 if (isCheckStatus) {
                     let status = user.status;

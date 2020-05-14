@@ -109,7 +109,9 @@ class AuthService {
                     "user_id": loginDetails.user_id,
                     "email": loginDetails.username,
                     "role": loginDetails.role,
-                    "member_type": loginDetails.member_type
+                    "member_type": loginDetails.member_type,
+                    "status": loginDetails.status ? loginDetails.status : '-',
+                    "forgot_password_token": loginDetails.forgot_password_token ? loginDetails.forgot_password_token : '-',
                 };
             }
             throw new errors.InvalidCredentials(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
