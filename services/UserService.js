@@ -173,7 +173,7 @@ class UserService extends BaseService {
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
             { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
-            { $match: playerConditions }, { $sort: { "player_detail.first_name": 1 } }, { $sort: { "player_detail.last_name": 1 } }
+            { $match: playerConditions }, { $sort: { full_name: 1 } }
             ]);
             playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
             let data = clubAcademyData.concat(playerData);
