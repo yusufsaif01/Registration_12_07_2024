@@ -155,27 +155,29 @@ class UserService extends BaseService {
             throw e;
         }
     }
+
     async getMemberList(requestedData = {}) {
         try {
             let playerConditions = this._preparePlayerSearchCondition(requestedData.filter);
             let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
-            let totalRecords = 0, totalPlayers = 0, totalClubAcademy = 0;
-
-            let playerOptions = { sort: { first_name: 1, last_name: 1 } };
-            let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, user_id: 1, avatar_url: 1 };
-            let playerData = await this.playerUtilityInst.find(playerConditions, playerProjection, playerOptions);
-            totalPlayers = playerData.length;
-            playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
-
-            let clubAcademyOptions = { sort: { name: 1 } };
-            let clubAcademyProjection = { name: 1, avatar_url: 1, user_id: 1, member_type: 1 }
-            let clubAcademyData = await this.clubAcademyUtilityInst.find(clubAcademyConditions, clubAcademyProjection, clubAcademyOptions);
-            totalClubAcademy = clubAcademyData.length;
-            totalRecords = totalPlayers + totalClubAcademy;
+            let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, user_id: 1, avatar_url: 1, email: 1 };
+            let clubAcademyProjection = { name: 1, avatar_url: 1, user_id: 1, member_type: 1, email: 1 };
+            let clubAcademyData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }] } },
+            { $project: { user_id: 1, _id: 0 } },
+            { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail" } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
+            { $match: clubAcademyConditions }, { $sort: { "club_academy_detail.name": 1 } },
+            ]);
             clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
-
-            let data = clubAcademyData.concat(playerData)
-            let response = { total: totalRecords, records: data }
+            let playerData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, member_type: MEMBER.PLAYER } },
+            { $project: { user_id: 1, _id: 0 } },
+            { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
+            { $match: playerConditions }, { $sort: { "player_detail.first_name": 1 } }, { $sort: { "player_detail.last_name": 1 } }
+            ]);
+            playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
+            let data = clubAcademyData.concat(playerData);
+            let response = { total: data.length, records: data }
             return response;
         } catch (e) {
             console.log("Error in getMemberList() of UserService", e);
@@ -568,23 +570,9 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            let searchArr = filters.search.split(/\s+/)
-            if (searchArr.length) {
-                let name = [];
-                searchArr.forEach(search => {
-                    name.push({ name: new RegExp(search, 'i') })
-                });
-                filterArr.push({ $or: name })
-            }
-            else {
-                filterArr.push({ name: new RegExp(filters.search, 'i') })
-            }
-            filterArr.push({
-                email: new RegExp(filters.search, "i")
-            })
-            condition = {
-                $or: filterArr
-            };
+            filterArr.push({ "club_academy_detail.name": new RegExp(filters.search, 'i') })
+            filterArr.push({ "club_academy_detail.email": new RegExp(filters.search, "i") })
+            condition = { $or: filterArr };
         }
         return condition;
     }
@@ -593,21 +581,11 @@ class UserService extends BaseService {
         let filterArr = []
         if (filters.search) {
             filters.search = filters.search.trim()
-            let searchArr = filters.search.split(/\s+/)
-            if (searchArr.length) {
-                let name = [];
-                searchArr.forEach(search => {
-                    name.push({ first_name: new RegExp(search, 'i') })
-                    name.push({ last_name: new RegExp(search, 'i') })
-                });
-                filterArr.push({ $or: name })
-            }
-            else {
-                filterArr.push({ first_name: new RegExp(filters.search, 'i') })
-                filterArr.push({ last_name: new RegExp(filters.search, 'i') })
-            }
+            filterArr.push({ "full_name": new RegExp(filters.search, 'i') });
+            filterArr.push({ "player_detail.first_name": new RegExp(filters.search, 'i') })
+            filterArr.push({ "player_detail.last_name": new RegExp(filters.search, 'i') })
             filterArr.push({
-                email: new RegExp(filters.search, "i")
+                "player_detail.email": new RegExp(filters.search, "i")
             })
             condition = {
                 $or: filterArr
