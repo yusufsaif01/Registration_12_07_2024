@@ -593,13 +593,15 @@ module.exports = (router) => {
      */
 
     router.get('/member/search', checkAuthToken, userValidator.memberSearchQueryValidation, function (req, res) {
-        let filter = {};
-
-        filter = {
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+        let filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         };
         
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getMemberList({ filter }));
+        responseHandler(req, res, serviceInst.getMemberList({ filter, paginationOptions }));
     });
 };
