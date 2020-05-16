@@ -555,11 +555,13 @@ module.exports = (router) => {
     })
         
     /**
-     * @api {get} /member/search?search=<text> member search
+     * @api {get} /member/search?search=<text>&page_no=<1>&page_size=<20> member search
      * @apiName member search
      * @apiGroup Member
      * 
      * @apiParam (query) {String} search text search, this search will be done on name,email
+     * @apiParam (query) {Number} page_no page number.
+	 * @apiParam (query) {Number} page_size records per page
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
