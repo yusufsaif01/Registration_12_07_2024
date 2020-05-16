@@ -174,8 +174,9 @@ class UserService extends BaseService {
             { $match: { $or: [clubAcademyConditions, playerConditions] } }, { $sort: { full_name: 1, "club_academy_detail.name": 1 } },
             { $skip: options.skip }, { $limit: options.limit }
             ]);
+            let totalRecords = await this.loginUtilityInst.countList({ status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }, { member_type: MEMBER.PLAYER }] })
             data = new MemberListResponseMapper().map(data);
-            let response = { total: data.length, records: data }
+            let response = { total: totalRecords, records: data }
             return response;
         } catch (e) {
             console.log("Error in getMemberList() of UserService", e);
