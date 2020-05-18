@@ -333,11 +333,13 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {get} /connection/mutuals/:mutual_with mutual footmates listing
+     * @api {get} /connection/mutuals/:mutual_with?page_no=1&page_size=10 mutual footmates listing
      * @apiName Mutual Footmates listing
      * @apiGroup Connections
      *
      * @apiParam (params) {String} mutual_with user_id of the user to which mutual with
+     * @apiParam (query) {String} page_no page number
+     * @apiParam (query) {String} page_size records per page
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -393,8 +395,12 @@ module.exports = (router) => {
      * 
      */
     router.get('/connection/mutuals/:mutual_with', checkAuthToken, function (req, res) {
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
         let serviceInst = new ConnectionService();
-        responseHandler(req, res, serviceInst.getMutualFootMateList({ mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
+        responseHandler(req, res, serviceInst.getMutualFootMateList({ paginationOptions, mutual_with: req.params.mutual_with, user_id: req.authUser.user_id }));
     });
     /**
      * @api {get} /connection/stats?user_id=<user_id_of_the_user_in_case_of_public>  connection stats

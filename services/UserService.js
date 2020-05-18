@@ -158,26 +158,32 @@ class UserService extends BaseService {
 
     async getMemberList(requestedData = {}) {
         try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
             let playerConditions = this._preparePlayerSearchCondition(requestedData.filter);
             let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
             let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, user_id: 1, avatar_url: 1, email: 1 };
             let clubAcademyProjection = { name: 1, avatar_url: 1, user_id: 1, member_type: 1, email: 1 };
-            let clubAcademyData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }] } },
+            let data = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }, { member_type: MEMBER.PLAYER }] } },
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
-            { $unwind: { path: "$club_academy_detail" } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
-            { $match: clubAcademyConditions }, { $sort: { "club_academy_detail.name": 1 } },
-            ]);
-            clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
-            let playerData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, member_type: MEMBER.PLAYER } },
-            { $project: { user_id: 1, _id: 0 } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { clubAcademyNameLowerCase: { $toLower: "$club_academy_detail.name" }, user_id: 1, club_academy_detail: clubAcademyProjection } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
-            { $match: playerConditions }, { $sort: { full_name: 1 } }
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { clubAcademyNameLowerCase: 1, club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $toLower: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } } },
+            { $match: { $or: [clubAcademyConditions, playerConditions] } }, { $sort: { full_name: 1, clubAcademyNameLowerCase: 1 } },
+            { $skip: options.skip }, { $limit: options.limit }
             ]);
-            playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
-            let data = clubAcademyData.concat(playerData);
-            let response = { total: data.length, records: data }
+            let totalRecords = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }, { member_type: MEMBER.PLAYER }] } },
+            { $project: { user_id: 1, _id: 0 } },
+            { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
+            { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
+            { $match: { $or: [clubAcademyConditions, playerConditions] } }
+            ]);
+            data = new MemberListResponseMapper().map(data);
+            let response = { total: totalRecords.length, records: data }
             return response;
         } catch (e) {
             console.log("Error in getMemberList() of UserService", e);

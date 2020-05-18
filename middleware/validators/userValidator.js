@@ -195,7 +195,9 @@ class UserValidator {
     async memberSearchQueryValidation(req, res, next) {
 
         const query = Joi.object().keys({
-            "search": Joi.string().trim().min(3)
+            "search": Joi.string().trim().min(3),
+            "page_size":Joi.number(),
+            "page_no":Joi.number()
         })
         try {
 

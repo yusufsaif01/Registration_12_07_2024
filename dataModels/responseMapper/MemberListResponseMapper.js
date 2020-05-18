@@ -1,12 +1,12 @@
 const MEMBER = require('../../constants/MemberType')
 class MemberListResponseMapper {
-    map(users, member_type) {
+    map(users) {
         let response = [];
         if (users.length) {
             users.forEach((user) => {
-                if (member_type === MEMBER.PLAYER) {
+                if (user.player_detail) {
                     let data = {
-                        "member_type": member_type,
+                        "member_type": MEMBER.PLAYER,
                         "player_type": user.player_detail.player_type || "-",
                         "name": (user.player_detail.first_name || "") + " " + (user.player_detail.last_name || ""),
                         "position": "-",
@@ -20,7 +20,7 @@ class MemberListResponseMapper {
                     }
                     response.push(data);
                 }
-                else {
+                else if (user.club_academy_detail) {
                     let data = {
                         "member_type": user.club_academy_detail.member_type,
                         "name": user.club_academy_detail.name,
