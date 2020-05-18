@@ -20,7 +20,7 @@ class MemberListResponseMapper {
                     }
                     response.push(data);
                 }
-                else {
+                else if (user.club_academy_detail) {
                     let data = {
                         "member_type": user.club_academy_detail.member_type,
                         "name": user.club_academy_detail.name,
