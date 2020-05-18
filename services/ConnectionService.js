@@ -397,12 +397,18 @@ class ConnectionService {
             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
             { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
-            let totalRecords = 0;
-            let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id },
-                { footmates: 1, _id: 0 });
-            if (connection_of_user && connection_of_user.footmates && connection_of_user.footmates.length)
-                totalRecords = connection_of_user.footmates.length;
-            let response = { total: totalRecords, records: data }
+            let totalRecords = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            { $project: { footmates: 1, current_user_footmates: "$footmates", _id: 0 } }, { $unwind: { path: "$footmates" } },
+            { "$lookup": { "from": "connections", "localField": "footmates", "foreignField": "user_id", "as": "connection_of_current_user_footmate" } },
+            { $unwind: { path: "$connection_of_current_user_footmate" } },
+            { $project: { connection_of_current_user_footmate: { footmates: 1, user_id: 1 }, current_user_footmates: 1 } },
+            { $project: { user_id_footmate: "$connection_of_current_user_footmate.user_id", mutual: { $size: { $setIntersection: ["$current_user_footmates", "$connection_of_current_user_footmate.footmates"] } } } },
+            { $unwind: { path: "$mutual" } },
+            { "$lookup": { "from": "player_details", "localField": "user_id_footmate", "foreignField": "user_id", "as": "player_details" } },
+            { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
+            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1 } },
+            { $match: filterConditions }]);
+            let response = { total: totalRecords.length, records: data }
             return Promise.resolve(response);
         }
         catch (e) {
