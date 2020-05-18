@@ -6,7 +6,7 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
 const MEMBER = require('../constants/MemberType')
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage')
-
+const AchievementService = require('../services/AchievementService');
 
 module.exports = (router) => {
     /**
@@ -382,8 +382,8 @@ module.exports = (router) => {
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
 
-        let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getPublicProfileAchievementList({
+        let serviceInst = new AchievementService();
+        responseHandler(req, res, serviceInst.getList({
             paginationOptions, user_id: req.params.user_id
         }));
     });
