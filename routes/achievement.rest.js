@@ -99,20 +99,15 @@ module.exports = (router) => {
 
     router.get('/achievement/list', checkAuthToken, function (req, res) {
         let paginationOptions = {};
-        let sortOptions = {};
 
         paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
-        sortOptions = {
-            sort_by: "year",
-            sort_order: "-1"
-        };
 
         let serviceInst = new AchievementService();
         responseHandler(req, res, serviceInst.getList({
-            paginationOptions, sortOptions, user_id: req.authUser.user_id
+            paginationOptions, user_id: req.authUser.user_id
         }));
     });
     /**
