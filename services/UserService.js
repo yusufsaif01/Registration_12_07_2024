@@ -170,7 +170,7 @@ class UserService extends BaseService {
             { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
             { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $toLower: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } } },
             { $match: { $or: [clubAcademyConditions, playerConditions] } }, { $sort: { full_name: 1, "club_academy_detail.name": 1 } },
             { $skip: options.skip }, { $limit: options.limit }
             ]);
