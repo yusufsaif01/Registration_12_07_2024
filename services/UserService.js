@@ -190,7 +190,7 @@ class UserService extends BaseService {
             let response = {}, totalRecords = 0;
             let paginationOptions = requestedData.paginationOptions || {};
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
-            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
+            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: -1 } };
             let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
             let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
             totalRecords = await this.achievementUtilityInst.countList({ user_id: requestedData.user_id });
