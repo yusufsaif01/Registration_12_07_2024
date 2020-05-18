@@ -6,7 +6,7 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const userValidator = require("../middleware/validators").userValidator;
 const MEMBER = require('../constants/MemberType')
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage')
-
+const AchievementService = require('../services/AchievementService');
 
 module.exports = (router) => {
     /**
@@ -382,8 +382,8 @@ module.exports = (router) => {
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
 
-        let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getPublicProfileAchievementList({
+        let serviceInst = new AchievementService();
+        responseHandler(req, res, serviceInst.getList({
             paginationOptions, user_id: req.params.user_id
         }));
     });
@@ -555,11 +555,13 @@ module.exports = (router) => {
     })
         
     /**
-     * @api {get} /member/search?search=<text> member search
+     * @api {get} /member/search?search=<text>&page_no=<1>&page_size=<20> member search
      * @apiName member search
      * @apiGroup Member
      * 
      * @apiParam (query) {String} search text search, this search will be done on name,email
+     * @apiParam (query) {Number} page_no page number.
+	 * @apiParam (query) {Number} page_size records per page
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -593,13 +595,15 @@ module.exports = (router) => {
      */
 
     router.get('/member/search', checkAuthToken, userValidator.memberSearchQueryValidation, function (req, res) {
-        let filter = {};
-
-        filter = {
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+        let filter = {
             search: (req.query && req.query.search) ? req.query.search : null
         };
         
         let serviceInst = new UserService();
-        responseHandler(req, res, serviceInst.getMemberList({ filter }));
+        responseHandler(req, res, serviceInst.getMemberList({ filter, paginationOptions }));
     });
 };
