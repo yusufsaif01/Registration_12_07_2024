@@ -360,21 +360,22 @@ class UserService extends BaseService {
     async manageConnection(user_id) {
         try {
             let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: user_id });
-
-            if (connection_of_user && connection_of_user.footmates) {
-                await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.footmates } }, { $pull: { footmates: user_id } })
+            if (connection_of_user) {
+                if (connection_of_user.footmates) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.footmates } }, { $pull: { footmates: user_id } })
+                }
+                if (connection_of_user.followers) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followers } }, { $pull: { followings: user_id } })
+                }
+                if (connection_of_user.followings) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followings } }, { $pull: { followers: user_id } })
+                }
+                let updatedDoc = { is_deleted: true, deleted_at: Date.now() };
+                await this.connectionUtilityInst.updateOne({ user_id: user_id }, updatedDoc);
+                let condition = { $or: [{ sent_by: user_id, status: CONNECTION_REQUEST.PENDING }, { send_to: user_id, status: CONNECTION_REQUEST.PENDING }] };
+                updatedDoc.status = CONNECTION_REQUEST.REJECTED;
+                await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             }
-            if (connection_of_user && connection_of_user.followers) {
-                await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followers } }, { $pull: { followings: user_id } })
-            }
-            if (connection_of_user && connection_of_user.followings) {
-                await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followings } }, { $pull: { followers: user_id } })
-            }
-            let updatedDoc = { is_deleted: true, deleted_at: Date.now() };
-            await this.connectionUtilityInst.updateOne({ user_id: user_id }, updatedDoc);
-            let condition = { $or: [{ sent_by: user_id, status: CONNECTION_REQUEST.PENDING }, { send_to: user_id, status: CONNECTION_REQUEST.PENDING }] };
-            updatedDoc.status = CONNECTION_REQUEST.REJECTED;
-            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             return Promise.resolve();
         }
         catch (e) {
