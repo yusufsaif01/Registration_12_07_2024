@@ -112,7 +112,7 @@ class AuthService {
             }
             let loginDetailsOfDeletedUser = await this.loginUtilityInst.aggregate([{ $match: { username: email, is_deleted: true } }]);
             if (loginDetailsOfDeletedUser.length) {
-                throw new errors.InvalidCredentials(RESPONSE_MESSAGE.USER_DELETED);
+                throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_DELETED);
             }
             throw new errors.InvalidCredentials(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
         } catch (err) {
