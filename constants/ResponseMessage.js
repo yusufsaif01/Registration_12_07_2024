@@ -17,6 +17,9 @@ class ResponseMessage {
     static get USER_NOT_REGISTERED() {
         return "User is not registered";
     }
+    static get USER_DELETED() {
+        return "Your account has been deleted. Please contact admin for help";
+    }
     static get USER_AUTHENTICATION_FAILED() {
         return "User authentication failed";
     }
