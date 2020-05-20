@@ -11,6 +11,13 @@ module.exports = {
         },
         followings: {
             type: Array
+        },
+        is_deleted: {
+            type: Boolean,
+            default: false
+        },
+        deleted_at: {
+            type: Date
         }
     },
     schemaName: "Connections",
