@@ -88,13 +88,13 @@ class ConnectionService {
     async addFollowers(sent_by, send_to, connection_of_send_to) {
         let followers_of_send_to = connection_of_send_to.followers || [];
         followers_of_send_to.push(sent_by);
-        await this.connectionUtilityInst.updateOne({ user_id: send_to }, { followers: followers_of_send_to });
+        await this.connectionUtilityInst.updateOne({ user_id: send_to, is_deleted: false }, { followers: followers_of_send_to });
     }
 
     async addFollowings(connection_of_sent_by, sent_by, send_to) {
         let followings_of_sent_by = connection_of_sent_by.followings || [];
         followings_of_sent_by.push(send_to);
-        await this.connectionUtilityInst.updateOne({ user_id: sent_by }, { followings: followings_of_sent_by });
+        await this.connectionUtilityInst.updateOne({ user_id: sent_by, is_deleted: false }, { followings: followings_of_sent_by });
     }
 
     async unfollowMember(requestedData = {}) {
@@ -104,12 +104,12 @@ class ConnectionService {
             _.remove(followings, function (member) {
                 return member === requestedData.send_to;
             })
-            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { followings: followings });
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by, is_deleted: false }, { followings: followings });
 
             _.remove(followers, function (member) {
                 return member === requestedData.sent_by;
             })
-            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { followers: followers });
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to, is_deleted: false }, { followers: followers });
             return Promise.resolve();
         }
         catch (e) {
@@ -128,7 +128,7 @@ class ConnectionService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_UNFOLLOWED_NOT_FOUND));
             }
         }
-        let condition = { $or: [{ user_id: requestedData.sent_by, followings: requestedData.send_to }, { user_id: requestedData.send_to, followers: requestedData.sent_by }] }
+        let condition = { $or: [{ user_id: requestedData.sent_by, followings: requestedData.send_to, is_deleted: false }, { user_id: requestedData.send_to, followers: requestedData.sent_by, is_deleted: false }] }
         let connections = await this.connectionUtilityInst.find(condition, { followings: 1, followers: 1, user_id: 1, _id: 0 });
         let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
         let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
@@ -181,7 +181,7 @@ class ConnectionService {
         try {
             let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.ACCEPTED, is_deleted: true, deleted_at: Date.now() };
-            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by, is_deleted: false }, { sent_by: sent_by, send_to: requestedData.user_id, is_deleted: false }] };
 
             await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
@@ -196,7 +196,7 @@ class ConnectionService {
     }
 
     async makeFootmates(requestedData = {}) {
-        let condition = { $or: [{ user_id: requestedData.sent_by }, { user_id: requestedData.send_to }] };
+        let condition = { $or: [{ user_id: requestedData.sent_by, is_deleted: false }, { user_id: requestedData.send_to, is_deleted: false }] };
         let connections = await this.connectionUtilityInst.find(condition, { user_id: 1, footmates: 1 });
         let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
         let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
@@ -205,8 +205,8 @@ class ConnectionService {
         footmates_of_sent_by.push(requestedData.send_to);
         let footmates_of_send_to = connection_of_send_to.footmates || [];
         footmates_of_send_to.push(requestedData.sent_by);
-        await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, { footmates: footmates_of_sent_by });
-        await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, { footmates: footmates_of_send_to });
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by, is_deleted: false }, { footmates: footmates_of_sent_by });
+        await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to, is_deleted: false }, { footmates: footmates_of_send_to });
     }
 
     async footMateRequestValidator(requestedData = {}) {
@@ -221,7 +221,7 @@ class ConnectionService {
         try {
             let sent_by = await this.footMateRequestValidator(requestedData);
             let updatedDoc = { status: CONNECTION_REQUEST.REJECTED, is_deleted: true, deleted_at: Date.now() };
-            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by }, { sent_by: sent_by, send_to: requestedData.user_id }] };
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by, is_deleted: false }, { sent_by: sent_by, send_to: requestedData.user_id, is_deleted: false }] };
             await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
             return Promise.resolve();
         }
@@ -244,7 +244,7 @@ class ConnectionService {
             _.remove(connection_of_sent_by.followings, function (member) {
                 return member === requestedData.send_to;
             })
-            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by }, connection_of_sent_by);
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.sent_by, is_deleted: false }, connection_of_sent_by);
             _.remove(connection_of_send_to.footmates, function (member) {
                 return member === requestedData.sent_by;
             })
@@ -254,7 +254,7 @@ class ConnectionService {
             _.remove(connection_of_send_to.followings, function (member) {
                 return member === requestedData.sent_by;
             })
-            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to }, connection_of_send_to);
+            await this.connectionUtilityInst.updateOne({ user_id: requestedData.send_to, is_deleted: false }, connection_of_send_to);
             return Promise.resolve();
         }
         catch (e) {
@@ -273,7 +273,7 @@ class ConnectionService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.FOOTMATE_TO_BE_CANCELLED_NOT_FOUND));
             }
         }
-        let condition = { $or: [{ user_id: requestedData.sent_by, footmates: requestedData.send_to }, { user_id: requestedData.send_to, footmates: requestedData.sent_by }] };
+        let condition = { $or: [{ user_id: requestedData.sent_by, footmates: requestedData.send_to, is_deleted: false }, { user_id: requestedData.send_to, footmates: requestedData.sent_by, is_deleted: false }] };
         let connections = await this.connectionUtilityInst.find(condition, { footmates: 1, followings: 1, followers: 1, user_id: 1, _id: 0 });
         let connection_of_sent_by = _.find(connections, { user_id: requestedData.sent_by });
         let connection_of_send_to = _.find(connections, { user_id: requestedData.send_to });
@@ -317,7 +317,7 @@ class ConnectionService {
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
             await this.getMutualFootMateListValidator(requestedData);
-            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
             { $project: { _id: 0, footmates_of_current_user: "$footmates", user_id_mutual_with: requestedData.mutual_with } },
             { "$lookup": { "from": "connections", "localField": "user_id_mutual_with", "foreignField": "user_id", "as": "connection_of_mutual_with" } },
             { $unwind: { path: "$connection_of_mutual_with" } },
@@ -328,7 +328,7 @@ class ConnectionService {
             { $project: { player_details: { first_name: 1, last_name: 1, position: 1, player_type: 1, avatar_url: 1, user_id: 1 } } },
             { $skip: options.skip }, { $limit: options.limit }
             ]);
-            let totalMutuals = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            let totalMutuals = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
             { $project: { _id: 0, footmates_of_current_user: "$footmates", user_id_mutual_with: requestedData.mutual_with } },
             { "$lookup": { "from": "connections", "localField": "user_id_mutual_with", "foreignField": "user_id", "as": "connection_of_mutual_with" } },
             { $unwind: { path: "$connection_of_mutual_with" } },
@@ -383,7 +383,7 @@ class ConnectionService {
             let filterConditions = this._prepareFootMateFilterCondition(requestedData.filters);
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
-            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
             { $project: { footmates: 1, current_user_footmates: "$footmates", _id: 0 } }, { $unwind: { path: "$footmates" } },
             { "$lookup": { "from": "connections", "localField": "footmates", "foreignField": "user_id", "as": "connection_of_current_user_footmate" } },
             { $unwind: { path: "$connection_of_current_user_footmate" } },
@@ -397,7 +397,7 @@ class ConnectionService {
             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
             { $skip: options.skip }, { $limit: options.limit }]);
             data = new FootmateListResponseMapper().map(data);
-            let totalRecords = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id } },
+            let totalRecords = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
             { $project: { footmates: 1, current_user_footmates: "$footmates", _id: 0 } }, { $unwind: { path: "$footmates" } },
             { "$lookup": { "from": "connections", "localField": "footmates", "foreignField": "user_id", "as": "connection_of_current_user_footmate" } },
             { $unwind: { path: "$connection_of_current_user_footmate" } },
