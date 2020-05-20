@@ -341,6 +341,7 @@ class UserService extends BaseService {
             if (loginDetails) {
                 let date = Date.now()
                 await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { is_deleted: true, deleted_at: date })
+                await this.manageConnection(user_id);
                 if (loginDetails.member_type === MEMBER.PLAYER) {
                     await this.playerUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
                 }
@@ -352,6 +353,33 @@ class UserService extends BaseService {
             throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (e) {
             console.log("Error in delete() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async manageConnection(user_id) {
+        try {
+            let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: user_id });
+            if (connection_of_user) {
+                if (connection_of_user.footmates) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.footmates } }, { $pull: { footmates: user_id } })
+                }
+                if (connection_of_user.followers) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followers } }, { $pull: { followings: user_id } })
+                }
+                if (connection_of_user.followings) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followings } }, { $pull: { followers: user_id } })
+                }
+                let updatedDoc = { is_deleted: true, deleted_at: Date.now() };
+                await this.connectionUtilityInst.updateOne({ user_id: user_id }, updatedDoc);
+                let condition = { $or: [{ sent_by: user_id, status: CONNECTION_REQUEST.PENDING }, { send_to: user_id, status: CONNECTION_REQUEST.PENDING }] };
+                updatedDoc.status = CONNECTION_REQUEST.REJECTED;
+                await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in manageConnection() of UserService", e);
             return Promise.reject(e);
         }
     }
