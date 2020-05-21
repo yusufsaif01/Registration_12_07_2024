@@ -58,14 +58,14 @@ class PostService {
         if (!reqObj.text && reqObj.media) {
             record.media = {
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.type ? reqObj.media.type : ""
+                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
             }
         }
         if (reqObj.text && reqObj.media) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.type ? reqObj.media.type : ""
+                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
             }
         }
         return Promise.resolve(record);

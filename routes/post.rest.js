@@ -12,7 +12,7 @@ module.exports = (router) => {
      * @apiGroup Post
      * 
      * @apiParam (body) {String} text text of post
-     * @apiParam (body) {String} media image file for the post
+     * @apiParam (body) {String} media media file for the post
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
