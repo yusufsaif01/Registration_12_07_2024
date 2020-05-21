@@ -248,6 +248,14 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "Already liked",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }
+     * 
      */
     router.post('/post/:post_id/like', checkAuthToken, function (req, res) {
         let serviceInst = new PostService();

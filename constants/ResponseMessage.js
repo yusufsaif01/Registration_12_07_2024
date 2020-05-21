@@ -248,6 +248,9 @@ class ResponseMessage {
     static get ALREADY_DISLIKED() {
         return "Already disliked"
     }
+    static get ALREADY_LIKED() {
+        return "Already liked"
+    }
 }
 
 module.exports = ResponseMessage
