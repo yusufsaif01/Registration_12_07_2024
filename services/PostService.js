@@ -233,6 +233,7 @@ class PostService {
         try {
             let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id });
             if (foundPost) {
+                await this.isFollowingPostOwner(requestedData, foundPost);
                 let likeRecord = await this.likeUtilityInst.findOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id });
                 if (likeRecord && likeRecord.is_deleted === false) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_LIKED));
@@ -244,6 +245,29 @@ class PostService {
             throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
         } catch (e) {
             console.log("Error in likePost() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * checks if the user follows the post owner
+     *
+     * @param {*} [requestedData={}]
+     * @param {*} [postData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async isFollowingPostOwner(requestedData = {}, postData = {}) {
+        try {
+            let following = await this.connectionUtilityInst.findOne({
+                user_id: requestedData.user_id, followings: postData.posted_by
+            }, { followings: 1, _id: 0 });
+            if (!following) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.YOU_DO_NOT_FOLLOW_THE_POST_OWNER));
+            }
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in isFollowingPostOwner() of PostService", e);
             return Promise.reject(e);
         }
     }

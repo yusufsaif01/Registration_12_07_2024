@@ -245,6 +245,9 @@ class ResponseMessage {
     static get POST_NOT_FOUND() {
         return "Post not found"
     }
+    static get YOU_DO_NOT_FOLLOW_THE_POST_OWNER() {
+        return "You do not follow the post owner"
+    }
     static get ALREADY_LIKED() {
         return "Already liked"
     }
