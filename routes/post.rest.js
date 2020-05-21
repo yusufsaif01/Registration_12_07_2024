@@ -254,6 +254,14 @@ module.exports = (router) => {
 	 *       "message": "Already liked",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
+	 *     }     
+     * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "You do not follow the post owner",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
 	 *     }
      * 
      */
