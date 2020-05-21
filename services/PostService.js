@@ -112,6 +112,93 @@ class PostService {
             return Promise.reject(e);
         }
     }
+
+    /**
+     * edit post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async editPost(requestedData = {}) {
+        try {
+            let currentDataOfPost = await this.editPostValiation(requestedData);
+            let updatedRecord = await this.prepareUpdatedPostData(requestedData, currentDataOfPost);
+            await this.postUtilityInst.updateOne({ id: requestedData.post_id }, updatedRecord);
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in editPost() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates request data for editPost
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async editPostValiation(requestedData = {}) {
+        try {
+            let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id, posted_by: requestedData.user_id });
+            if (!foundPost) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND));
+            }
+            if (!requestedData.reqObj.text && !requestedData.reqObj.media) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.TEXT_OR_IMAGE_REQUIRED));
+            }
+            return Promise.resolve(foundPost);
+        } catch (e) {
+            console.log("Error in editPostValidation() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * prepare updated post data
+     *
+     * @param {*} [requestedData={}]
+     * @param {*} [currentDataOfPost={}]
+     * @returns updated record
+     * @memberof PostService
+     */
+    async prepareUpdatedPostData(requestedData = {}, currentDataOfPost = {}) {
+        let record = {
+            updated_at: Date.now()
+        };
+        let reqObj = requestedData.reqObj;
+        if (reqObj.text && !reqObj.media) {
+            if (currentDataOfPost.media && currentDataOfPost.media.text && !currentDataOfPost.media.media_url) {
+                record.media = { text: reqObj.text };
+            }
+            if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
+                currentDataOfPost.media.text = reqObj.text;
+                record.media = currentDataOfPost.media;
+            }
+        }
+        if (!reqObj.text && reqObj.media) {
+            if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
+                record.media = {
+                    media_url: reqObj.media_url,
+                    media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                }
+            }
+            if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
+                currentDataOfPost.media.media_url = reqObj.media_url;
+                currentDataOfPost.media.media_type = reqObj.media.name ? reqObj.media.name.split('.')[1] : "";
+                record.media = currentDataOfPost.media;
+            }
+        }
+        if (reqObj.text && reqObj.media) {
+            record.media = {
+                text: reqObj.text,
+                media_url: reqObj.media_url,
+                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+            }
+        }
+        return Promise.resolve(record);
+    }
 }
 
 module.exports = PostService;
