@@ -233,7 +233,11 @@ class PostService {
         try {
             let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id });
             if (foundPost) {
-                let updatedRecord = { id: uuidv4(), post_id: requestedData.post_id, liked_by: requestedData.user_id, created_at: Date.now(), is_deleted: false };
+                let likeRecord = await this.likeUtilityInst.findOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id });
+                if (likeRecord && likeRecord.is_deleted === false) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_LIKED));
+                }
+                let updatedRecord = { id: likeRecord ? likeRecord.id : uuidv4(), post_id: requestedData.post_id, liked_by: requestedData.user_id, created_at: Date.now(), is_deleted: false };
                 await this.likeUtilityInst.updateOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id }, updatedRecord, { upsert: true });
                 return Promise.resolve()
             }

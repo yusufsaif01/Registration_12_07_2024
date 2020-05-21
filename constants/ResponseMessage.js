@@ -245,6 +245,9 @@ class ResponseMessage {
     static get POST_NOT_FOUND() {
         return "Post not found"
     }
+    static get ALREADY_LIKED() {
+        return "Already liked"
+    }
 }
 
 module.exports = ResponseMessage
