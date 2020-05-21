@@ -1,11 +1,18 @@
 const PostUtility = require('../db/utilities/PostUtility');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const errors = require("../errors");
+const ConnectionUtility = require('../db/utilities/ConnectionUtility');
+const CommentUtility = require('../db/utilities/CommentUtility');
+const LikeUtility = require('../db/utilities/LikeUtility');
+const PostsListResponseMapper = require("../dataModels/responseMapper/PostsListResponseMapper");
 
 class PostService {
 
     constructor() {
         this.postUtilityInst = new PostUtility();
+        this.connectionUtilityInst = new ConnectionUtility();
+        this.commentUtilityInst = new CommentUtility();
+        this.likeUtilityInst = new LikeUtility();
     }
 
     /**
@@ -71,6 +78,39 @@ class PostService {
             }
         }
         return Promise.resolve(record);
+    }
+
+    /**
+     * get posts list
+     *
+     * @param {*} [requestedData={}]
+     * @returns list of posts
+     * @memberof PostService
+     */
+    async getPostsList(requestedData = {}) {
+        try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
+            { $project: { user_id_for_post: { $concatArrays: ["$footmates", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
+            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
+            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
+            ]);
+            let totalPosts = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
+            { $project: { user_id_for_post: { $concatArrays: ["$footmates", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
+            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
+            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            ]);
+            data = new PostsListResponseMapper().map(data);
+            let record = { total: totalPosts.length, records: data }
+            return Promise.resolve(record)
+        }
+        catch (e) {
+            console.log("Error in getPostsList() of PostService", e);
+            return Promise.reject(e);
+        }
     }
 }
 

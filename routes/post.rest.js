@@ -54,4 +54,68 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     });
+
+    /**
+     * @api {get} /posts/list?page_no=1&page_size=20 posts listing
+     * @apiName posts listing
+     * @apiGroup Post
+     *
+     * @apiParam (query) {Number} page_no page number.
+     * @apiParam (query) {Number} page_size records per page
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":100,
+     *         "records":[
+     *           {
+     *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *             "posts": {
+     *                        "text": "",
+     *                        "media_url": "",
+     *                        "media_type": "" },
+     *             "likes": 5,
+     *             "comments": 10,
+     *             "created_at": 15 min
+     *           }
+     *         ]}
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} UNAUTHORIZED
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     } 
+     * 
+     */
+
+    router.get('/posts/list', checkAuthToken, function (req, res) {
+        let paginationOptions = {};
+
+        paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.getPostsList({
+            paginationOptions, user_id: req.authUser.user_id
+        }));
+    });
 };
