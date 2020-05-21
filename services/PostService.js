@@ -9,6 +9,7 @@ const uuidv4 = require('uuid/v4');
 const MEMBER = require('../constants/MemberType');
 const PLAYER = require('../constants/PlayerType');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
+const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
 
 class PostService {
 
@@ -352,6 +353,37 @@ class PostService {
         }
         catch (e) {
             console.log("Error in isAllowedToComment() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * get comments list for a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns list of comments for a post
+     * @memberof PostService
+     */
+    async getCommentsList(requestedData = {}) {
+        try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+            let data = await this.commentUtilityInst.aggregate([{ $match: { post_id: requestedData.post_id, is_deleted: false } },
+            { $project: { comment: 1, commented_by: 1, created_at: 1, _id: 0 } },
+            { "$lookup": { "from": "club_academy_details", "localField": "commented_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, commented_by: 1, club_academy_detail: { avatar_url: 1, name: 1, member_type: 1, user_id: 1 } } },
+            { "$lookup": { "from": "player_details", "localField": "commented_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, club_academy_detail: 1, user_id: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
+            { $sort: { created_at: -1 } }, { $skip: options.skip }, { $limit: options.limit }
+            ]);
+            data = new CommentsListResponseMapper().map(data);
+            let totalComments = await this.commentUtilityInst.countList({ post_id: requestedData.post_id, is_deleted: false });
+            let record = { total: totalComments, records: data }
+            return Promise.resolve(record)
+        }
+        catch (e) {
+            console.log("Error in getPostsList() of PostService", e);
             return Promise.reject(e);
         }
     }

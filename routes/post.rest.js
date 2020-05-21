@@ -388,4 +388,68 @@ module.exports = (router) => {
             post_id: req.params.post_id
         }));
     });
+
+    /**
+     * @api {get} /post/:post_id/comments?page_no=1&page_size=20 comment listing
+     * @apiName comment listing
+     * @apiGroup Post
+     *
+     * @apiParam (query) {Number} page_no page number.
+     * @apiParam (query) {Number} page_size records per page
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": { 
+     *         "total":100,
+     *         "records":[
+     *           {
+     *              "comment": "first comment",
+     *              "commented_by": {
+     *              "avatar": "/uploads/avatar/user-avatar.png",
+     *              "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *              "name": "yuvraj singh",
+     *              "type": "professional/club/accademy",
+     *              "position": "position of first priority" },
+     *              commented_at: "15 min"
+     *           }
+     *         ]}
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} UNAUTHORIZED
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     } 
+     * 
+     */
+
+    router.get('/post/:post_id/comments', checkAuthToken, function (req, res) {
+        let paginationOptions = {};
+
+        paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.getCommentsList({
+            paginationOptions, user_id: req.authUser.user_id, post_id: req.params.post_id
+        }));
+    });
 };
