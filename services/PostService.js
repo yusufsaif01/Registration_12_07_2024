@@ -1,5 +1,6 @@
 const PostUtility = require('../db/utilities/PostUtility');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const errors = require("../errors");
 
 class PostService {
 
@@ -17,7 +18,7 @@ class PostService {
     async addPost(requestedData = {}) {
         try {
             await this.addPostValiation(requestedData);
-            let record = await this.preparePostData(requestedData.reqObj);
+            let record = await this.preparePostData(requestedData);
             await this.postUtilityInst.insert(record)
             return Promise.resolve();
         } catch (e) {
@@ -43,15 +44,16 @@ class PostService {
     /**
      * prepares post data
      *
-     * @param {*} [reqObj={}]
+     * @param {*} [requestedData={}]
      * @returns post data
      * @memberof PostService
      */
-    async preparePostData(reqObj = {}) {
+    async preparePostData(requestedData = {}) {
         let record = {
             posted_by: requestedData.user_id,
             created_at: Date.now()
         };
+        let reqObj = requestedData.reqObj;
         if (reqObj.text && !reqObj.media) {
             record.media = { text: reqObj.text };
         }

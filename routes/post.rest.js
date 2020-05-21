@@ -1,6 +1,6 @@
 const PostService = require('../services/PostService');
 const responseHandler = require('../ResponseHandler');
-const { checkAuthToken, checkRole } = require('../middleware/auth');
+const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
 const postValidator = require("../middleware/validators").postValidator;
 
