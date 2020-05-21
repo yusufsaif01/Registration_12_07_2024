@@ -312,4 +312,40 @@ module.exports = (router) => {
             post_id: req.params.post_id
         }));
     });
+
+    /**
+     * @api {post} /post/:post_id/comment add post
+     * @apiName add comment
+     * @apiGroup Post
+     * 
+     * @apiParam (body) {String} comment comment text
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.post('/post/:post_id/comment', checkAuthToken, postValidator.addCommentAPIValidation, function (req, res) {
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.addComment({
+            reqObj: req.body,
+            user_id: req.authUser.user_id,
+            member_type: req.authUser.member_type,
+            post_id: req.params.post_id
+        }));
+    });
 };
