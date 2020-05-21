@@ -82,7 +82,7 @@ module.exports = (router) => {
      *                        "media_type": "" },
      *             "likes": 5,
      *             "comments": 10,
-     *             "created_at": 15 min
+     *             "created_at": "15 min"
      *           }
      *         ]}
      *     }
