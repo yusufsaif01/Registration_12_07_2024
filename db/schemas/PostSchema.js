@@ -13,7 +13,15 @@ module.exports = {
             type: String
         },
         media: {
-            type: String
+            text: {
+                type: String
+            },
+            media_url: {
+                type: String
+            },
+            media_type: {
+                type: String
+            }
         },
         created_at: {
             type: Date
