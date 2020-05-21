@@ -264,6 +264,14 @@ module.exports = (router) => {
      *       "httpCode": 422
 	 *     }
      * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
      */
     router.post('/post/:post_id/like', checkAuthToken, function (req, res) {
         let serviceInst = new PostService();
@@ -303,6 +311,14 @@ module.exports = (router) => {
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
 	 *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
      * 
      */
     router.post('/post/:post_id/dislike', checkAuthToken, function (req, res) {
