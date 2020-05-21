@@ -102,6 +102,10 @@ class PostService {
             { $project: { user_id_for_post: { $concatArrays: ["$footmates", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
             { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
             { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
+            { $project: { post: 1, likes: { $size: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } } },
+            { "$lookup": { "from": "comments", "localField": "post.id", "foreignField": "post_id", "as": "comment_documents" } },
+            { $project: { post: 1, likes: 1, comments: { $size: { $filter: { input: "$comment_documents", as: "commentDocument", cond: { $eq: ["$$commentDocument.is_deleted", false] } } } } } },
             { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
             let totalPosts = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },

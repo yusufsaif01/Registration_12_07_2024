@@ -8,8 +8,8 @@ class PostsListResponseMapper {
                     let data = {
                         "id": p.post.id,
                         "post": "-",
-                        "likes": 0,
-                        "comments": 0
+                        "likes": p.likes,
+                        "comments": p.comments
                     };
                     if (p.post.media) {
                         data.post = {
