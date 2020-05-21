@@ -2,6 +2,7 @@ const PostService = require('../services/PostService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const FileService = require('../services/FileService');
+const postValidator = require("../middleware/validators").postValidator;
 
 module.exports = (router) => {
 
@@ -32,7 +33,7 @@ module.exports = (router) => {
      *     }
      * 
      */
-    router.post('/post/add', checkAuthToken, async function (req, res) {
+    router.post('/post/add', checkAuthToken, postValidator.addPostAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
