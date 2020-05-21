@@ -338,6 +338,30 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "You do not follow the post owner",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }
+     * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "Not allowed to comment",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }
+     * 
      */
     router.post('/post/:post_id/comment', checkAuthToken, postValidator.addCommentAPIValidation, function (req, res) {
         let serviceInst = new PostService();
