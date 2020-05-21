@@ -199,6 +199,27 @@ class PostService {
         }
         return Promise.resolve(record);
     }
+
+    /**
+     * delete post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async deletePost(requestedData = {}) {
+        try {
+            let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id, posted_by: requestedData.user_id });
+            if (foundPost) {
+                await this.postUtilityInst.findOneAndUpdate({ id: requestedData.post_id }, { is_deleted: true, deleted_at: Date.now() });
+                return Promise.resolve()
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        } catch (e) {
+            console.log("Error in deletePost() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = PostService;

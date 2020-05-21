@@ -176,4 +176,52 @@ module.exports = (router) => {
             responseHandler(req, res, Promise.reject(e));
         }
     });
+
+    /**
+     * @api {delete} /post/:post_id delete post
+     * @apiName delete post
+     * @apiGroup Post
+     *
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} UNAUTHORIZED
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+    router.delete('/post/:post_id', checkAuthToken, function (req, res) {
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.deletePost({
+            post_id: req.params.post_id,
+            user_id: req.authUser.user_id
+        }));
+    })
 };
