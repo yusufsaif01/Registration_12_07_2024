@@ -224,4 +224,36 @@ module.exports = (router) => {
             user_id: req.authUser.user_id
         }));
     })
+
+    /**
+     * @api {post} /post/:post_id/like like post
+     * @apiName like post
+     * @apiGroup Post
+     *      
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.post('/post/:post_id/like', checkAuthToken, function (req, res) {
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.likePost({
+            user_id: req.authUser.user_id,
+            post_id: req.params.post_id
+        }));
+    });
 };

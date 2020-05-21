@@ -5,6 +5,7 @@ const ConnectionUtility = require('../db/utilities/ConnectionUtility');
 const CommentUtility = require('../db/utilities/CommentUtility');
 const LikeUtility = require('../db/utilities/LikeUtility');
 const PostsListResponseMapper = require("../dataModels/responseMapper/PostsListResponseMapper");
+const uuidv4 = require('uuid/v4');
 
 class PostService {
 
@@ -217,6 +218,28 @@ class PostService {
             throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
         } catch (e) {
             console.log("Error in deletePost() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * like a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async likePost(requestedData = {}) {
+        try {
+            let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id });
+            if (foundPost) {
+                let updatedRecord = { id: uuidv4(), post_id: requestedData.post_id, liked_by: requestedData.user_id, created_at: Date.now(), is_deleted: false };
+                await this.likeUtilityInst.updateOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id }, updatedRecord, { upsert: true });
+                return Promise.resolve()
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        } catch (e) {
+            console.log("Error in likePost() of PostService", e);
             return Promise.reject(e);
         }
     }
