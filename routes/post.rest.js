@@ -120,7 +120,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {put} /post/edit/:post_id edit post
+     * @api {put} /post/:post_id edit post
      * @apiName edit post
      * @apiGroup Post
      * 
@@ -154,7 +154,7 @@ module.exports = (router) => {
      *     }
      * 
      */
-    router.put('/post/edit/:post_id', checkAuthToken, postValidator.addPostAPIValidation, async function (req, res) {
+    router.put('/post/:post_id', checkAuthToken, postValidator.addPostAPIValidation, async function (req, res) {
         let reqObj = req.body
         try {
             if (req.files) {
