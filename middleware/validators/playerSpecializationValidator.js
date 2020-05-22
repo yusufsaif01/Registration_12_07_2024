@@ -1,13 +1,14 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
+const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 
 class PlayerSpecializationValidator {
     async AbilityAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             })
         });
@@ -23,7 +24,7 @@ class PlayerSpecializationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             }),
             "ability_id": Joi.string().required()
@@ -40,7 +41,7 @@ class PlayerSpecializationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             })
         });
@@ -56,12 +57,12 @@ class PlayerSpecializationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             }),
             "abbreviation": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
-                    message: 'Invalid abbreviation',
+                    message: RESPONSE_MESSAGE.ABBREVIATION_INVALID,
                 };
             }),
             "abilities": Joi.array()

@@ -1,6 +1,7 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
+const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 
 class AchievementValidator {
     async addAchievementAPIValidation(req, res, next) {
@@ -8,13 +9,13 @@ class AchievementValidator {
             "type": Joi.string().required(),
             "name": Joi.string().regex(/^[a-zA-Z0-9\&\@\(\)\#\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             }),
             "year": Joi.date().required(),
             "position": Joi.string().regex(/^[a-zA-Z0-9\&\@\(\)\#\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid position',
+                    message: RESPONSE_MESSAGE.POSITION_INVALID,
                 };
             }),
             "achievement": Joi.any()

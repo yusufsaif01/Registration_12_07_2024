@@ -1,13 +1,14 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
+const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 
 class LocationValidator {
     async addStateAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             }),
             "country_id": Joi.string().required()
@@ -24,7 +25,7 @@ class LocationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             })
         });
@@ -40,7 +41,7 @@ class LocationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             }),
             "country_id": Joi.string().required(),
@@ -58,7 +59,7 @@ class LocationValidator {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {
-                    message: 'Invalid name',
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
                 };
             })
         });
