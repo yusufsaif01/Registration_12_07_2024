@@ -5,7 +5,11 @@ const responseHandler = require("../../ResponseHandler");
 class PlayerSpecializationValidator {
     async AbilityAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required()
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            })
         });
         try {
             await Joi.validate(req.body, schema);
@@ -17,7 +21,11 @@ class PlayerSpecializationValidator {
     }
     async addParameterAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required(),
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            }),
             "ability_id": Joi.string().required()
         });
         try {
@@ -30,7 +38,11 @@ class PlayerSpecializationValidator {
     }
     async editParameterAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required()
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            })
         });
         try {
             await Joi.validate(req.body, schema);
@@ -42,8 +54,16 @@ class PlayerSpecializationValidator {
     }
     async PositionAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required(),
-            "abbreviation": Joi.string().required(),
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            }),
+            "abbreviation": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: 'Invalid abbreviation',
+                };
+            }),
             "abilities": Joi.array()
         });
         try {
