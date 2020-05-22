@@ -3,6 +3,7 @@ const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
 const postValidator = require("../middleware/validators").postValidator;
+const POST_MEDIA = require('../constants/PostMedia')
 
 module.exports = (router) => {
 
@@ -39,7 +40,7 @@ module.exports = (router) => {
             if (req.files) {
                 const _fileInst = new FileService();
                 if (req.files.media) {
-                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name);
+                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS);
                     reqObj.media_url = media_url;
                     reqObj.media = req.files.media;
                 }
@@ -83,7 +84,7 @@ module.exports = (router) => {
      *             "is_liked": true,
      *             "likes": 5,
      *             "comments": 10,
-     *             "created_at": "15 min"
+     *             "created_at": "2020-05-22T06:58:45.136Z"
      *           }
      *         ]}
      *     }
@@ -161,7 +162,7 @@ module.exports = (router) => {
             if (req.files) {
                 const _fileInst = new FileService();
                 if (req.files.media) {
-                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name);
+                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS);
                     reqObj.media_url = media_url;
                     reqObj.media = req.files.media;
                 }

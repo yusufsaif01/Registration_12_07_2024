@@ -1,5 +1,6 @@
 const PostUtility = require('../db/utilities/PostUtility');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const POST_MEDIA = require('../constants/PostMedia');
 const errors = require("../errors");
 const ConnectionUtility = require('../db/utilities/ConnectionUtility');
 const CommentUtility = require('../db/utilities/CommentUtility');
@@ -68,14 +69,14 @@ class PostService {
         if (!reqObj.text && reqObj.media) {
             record.media = {
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         if (reqObj.text && reqObj.media) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         return Promise.resolve(record);
@@ -94,21 +95,21 @@ class PostService {
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
             let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
-                { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
-                { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
-                { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
-                { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
-                { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
-                { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
-                { "$lookup": { "from": "comments", "localField": "post.id", "foreignField": "post_id", "as": "comment_documents" } },
-                { $project: { post: 1, likedByMe: 1, likes: 1, comments: { $size: { $filter: { input: "$comment_documents", as: "commentDocument", cond: { $eq: ["$$commentDocument.is_deleted", false] } } } } } },
-                { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
-                ]);
-                let totalPosts = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
-                { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
-                { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
-                { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
-                ]);
+            { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
+            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
+            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
+            { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
+            { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
+            { "$lookup": { "from": "comments", "localField": "post.id", "foreignField": "post_id", "as": "comment_documents" } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { $size: { $filter: { input: "$comment_documents", as: "commentDocument", cond: { $eq: ["$$commentDocument.is_deleted", false] } } } } } },
+            { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
+            ]);
+            let totalPosts = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
+            { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
+            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
+            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            ]);
             data = new PostsListResponseMapper().map(data);
             let record = { total: totalPosts.length, records: data }
             return Promise.resolve(record)
@@ -187,12 +188,12 @@ class PostService {
             if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
                 record.media = {
                     media_url: reqObj.media_url,
-                    media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                    media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
                 }
             }
             if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
                 currentDataOfPost.media.media_url = reqObj.media_url;
-                currentDataOfPost.media.media_type = reqObj.media.name ? reqObj.media.name.split('.')[1] : "";
+                currentDataOfPost.media.media_type = POST_MEDIA.ALLOWED_MEDIA_TYPE;
                 record.media = currentDataOfPost.media;
             }
         }
@@ -200,7 +201,7 @@ class PostService {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         return Promise.resolve(record);
