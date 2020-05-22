@@ -1,5 +1,6 @@
 const PostUtility = require('../db/utilities/PostUtility');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const POST_MEDIA = require('../constants/PostMedia');
 const errors = require("../errors");
 
 class PostService {
@@ -60,14 +61,14 @@ class PostService {
         if (!reqObj.text && reqObj.media) {
             record.media = {
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         if (reqObj.text && reqObj.media) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         return Promise.resolve(record);

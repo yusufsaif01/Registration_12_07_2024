@@ -3,6 +3,7 @@ const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
 const FileService = require('../services/FileService');
 const postValidator = require("../middleware/validators").postValidator;
+const POST_MEDIA = require('../constants/PostMedia')
 
 module.exports = (router) => {
 
@@ -39,7 +40,7 @@ module.exports = (router) => {
             if (req.files) {
                 const _fileInst = new FileService();
                 if (req.files.media) {
-                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, [".jpg", ".jpeg", ".png"]);
+                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS);
                     reqObj.media_url = media_url;
                     reqObj.media = req.files.media;
                 }
