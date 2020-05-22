@@ -84,7 +84,7 @@ module.exports = (router) => {
      *             "is_liked": true,
      *             "likes": 5,
      *             "comments": 10,
-     *             "created_at": "15 min"
+     *             "created_at": "2020-05-22T06:58:45.136Z"
      *           }
      *         ]}
      *     }
