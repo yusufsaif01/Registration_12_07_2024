@@ -80,6 +80,7 @@ module.exports = (router) => {
      *                        "text": "",
      *                        "media_url": "",
      *                        "media_type": "" },
+     *             "is_liked": true,
      *             "likes": 5,
      *             "comments": 10,
      *             "created_at": "15 min"
