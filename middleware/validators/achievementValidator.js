@@ -6,9 +6,17 @@ class AchievementValidator {
     async addAchievementAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "type": Joi.string().required(),
-            "name": Joi.string().allow(""),
+            "name": Joi.string().regex(/^[a-zA-Z0-9\&\@\(\)\#\- ]+$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            }),
             "year": Joi.date().required(),
-            "position": Joi.string().allow(""),
+            "position": Joi.string().regex(/^[a-zA-Z0-9\&\@\(\)\#\- ]+$/).error(() => {
+                return {
+                    message: 'Invalid position',
+                };
+            }),
             "achievement": Joi.any()
         });
         try {
