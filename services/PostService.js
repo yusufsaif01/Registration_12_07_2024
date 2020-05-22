@@ -266,7 +266,7 @@ class PostService {
             let following = await this.connectionUtilityInst.findOne({
                 user_id: requestedData.user_id, followings: postData.posted_by
             }, { followings: 1, _id: 0 });
-            if (!following) {
+            if (!following && requestedData.user_id !== postData.posted_by) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.YOU_DO_NOT_FOLLOW_THE_POST_OWNER));
             }
             return Promise.resolve();
