@@ -332,7 +332,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {post} /post/:post_id/comment add post
+     * @api {post} /post/:post_id/comment add comment
      * @apiName add comment
      * @apiGroup Post
      * 
