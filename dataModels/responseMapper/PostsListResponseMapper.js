@@ -1,4 +1,3 @@
-
 class PostsListResponseMapper {
     map(posts) {
         let response = [];
