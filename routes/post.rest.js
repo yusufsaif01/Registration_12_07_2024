@@ -418,7 +418,7 @@ module.exports = (router) => {
      *              "name": "yuvraj singh",
      *              "type": "professional/club/accademy",
      *              "position": "position of first priority" },
-     *              commented_at: "15 min"
+     *              commented_at: "2020-05-22T06:58:45.136Z"
      *           }
      *         ]}
      *     }
