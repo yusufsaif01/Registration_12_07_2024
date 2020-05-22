@@ -187,12 +187,12 @@ class PostService {
             if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
                 record.media = {
                     media_url: reqObj.media_url,
-                    media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                    media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
                 }
             }
             if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
                 currentDataOfPost.media.media_url = reqObj.media_url;
-                currentDataOfPost.media.media_type = reqObj.media.name ? reqObj.media.name.split('.')[1] : "";
+                currentDataOfPost.media.media_type = POST_MEDIA.ALLOWED_MEDIA_TYPE;
                 record.media = currentDataOfPost.media;
             }
         }
@@ -200,7 +200,7 @@ class PostService {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: reqObj.media.name ? reqObj.media.name.split('.')[1] : ""
+                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
         return Promise.resolve(record);
