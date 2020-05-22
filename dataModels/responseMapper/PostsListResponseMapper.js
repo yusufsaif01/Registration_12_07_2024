@@ -1,4 +1,3 @@
-
 class PostsListResponseMapper {
     map(posts) {
         let response = [];
@@ -8,9 +7,13 @@ class PostsListResponseMapper {
                     let data = {
                         "id": p.post.id,
                         "post": "-",
-                        "likes": 0,
-                        "comments": 0
+                        "is_liked": false,
+                        "likes": p.likes,
+                        "comments": p.comments
                     };
+                    if (p.likedByMe && p.likedByMe.length) {
+                        data.is_liked = true;
+                    }
                     if (p.post.media) {
                         data.post = {
                             text: p.post.media.text ? p.post.media.text : "",
