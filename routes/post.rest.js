@@ -77,10 +77,16 @@ module.exports = (router) => {
      *         "records":[
      *           {
      *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-     *             "posts": {
+     *             "post": {
      *                        "text": "",
      *                        "media_url": "",
      *                        "media_type": "" },
+     *              "posted_by": {
+     *                 "avatar": "/uploads/avatar/user-avatar.png",
+     *                 "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *                 "name": "yuvraj singh",
+     *                 "type": "professional/club/accademy",
+     *                 "position": "position of first priority" },
      *             "is_liked": true,
      *             "likes": 5,
      *             "comments": 10,
