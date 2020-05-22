@@ -385,7 +385,7 @@ class PostService {
             { "$lookup": { "from": "club_academy_details", "localField": "commented_by", "foreignField": "user_id", "as": "club_academy_detail" } },
             { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, commented_by: 1, club_academy_detail: { avatar_url: 1, name: 1, member_type: 1, user_id: 1 } } },
             { "$lookup": { "from": "player_details", "localField": "commented_by", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, club_academy_detail: 1, user_id: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
             { $sort: { created_at: -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
             data = new CommentsListResponseMapper().map(data);
