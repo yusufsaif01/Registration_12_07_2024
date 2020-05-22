@@ -14,11 +14,27 @@ class UserValidator {
         const schema = Joi.object().keys({
             "state": Joi.string().required(),
             "country": Joi.string().required(),
-            "phone": Joi.string().min(10).required(),
+            "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
+                return {
+                    message: 'Invalid phone number',
+                };
+            }),
             "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
-            "name": Joi.string().min(1),
-            "first_name": Joi.string().min(1),
-            "last_name": Joi.string().min(1),
+            "name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            }),
+            "first_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid first name',
+                };
+            }),
+            "last_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid last name',
+                };
+            }),
             "email": Joi.string().email({ minDomainSegments: 2 }).required()
         });
 
@@ -33,11 +49,19 @@ class UserValidator {
 
     async updateDetailsAPIValidation(req, res, next) {
         const academySchema = Joi.object().keys({
-            "name": Joi.string().trim().min(1).required(),
+            "name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid name',
+                };
+            }),
             "founded_in": Joi.number().min(1).required(),
             "country": Joi.string().trim().min(1).required(),
             "city": Joi.string().trim().required(),
-            "phone": Joi.string().trim().min(10).required(),
+            "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
+                return {
+                    message: 'Invalid phone number',
+                };
+            }),
 
             "short_name": Joi.string().trim().allow(""),
             "pincode": Joi.string().trim().allow(""),
@@ -69,15 +93,51 @@ class UserValidator {
             "aiff": Joi.any()
 
         });
+        if (req.body.document_type) {
+            let document_type = req.body.document_type;
+            if (document_type === 'pan') {
+                academySchema.number = Joi.string().min(10).max(10).regex(/^[A-Z]{5}[0-9]{4}[A-Z]/).error(() => {
+                    return {
+                        message: 'Invalid pan number',
+                    };
+                })
+            }
+            if (document_type === 'coi') {
+                academySchema.number = Joi.string().regex(/^[a-z-A-Z0-9]+$/).error(() => {
+                    return {
+                        message: 'Invalid coi number',
+                    };
+                })
+            }
+            if (document_type === 'tin') {
+                academySchema.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
+                    return {
+                        message: 'Invalid tin number',
+                    };
+                })
+            }
+        }
 
         let playerRule = {
             "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
-            "first_name": Joi.string().trim().min(1).max(500).required(),
-            "last_name": Joi.string().trim().min(1).max(500).required(),
+            "first_name": Joi.string().trim().min(1).max(500).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid first name',
+                };
+            }),
+            "last_name": Joi.string().trim().min(1).max(500).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
+                return {
+                    message: 'Invalid first name',
+                };
+            }),
             "dob": Joi.string().trim().required(),
             "country": Joi.string().trim().min(1).required(),
             "state": Joi.string().trim().min(1).required(),
-            "phone": Joi.string().trim().min(10).required(),
+            "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
+                return {
+                    message: 'Invalid phone number',
+                };
+            }),
 
             "position": Joi.string().required(),
 
@@ -196,8 +256,8 @@ class UserValidator {
 
         const query = Joi.object().keys({
             "search": Joi.string().trim().min(3),
-            "page_size":Joi.number(),
-            "page_no":Joi.number()
+            "page_size": Joi.number(),
+            "page_no": Joi.number()
         })
         try {
 
