@@ -39,7 +39,7 @@ module.exports = (router) => {
             if (req.files) {
                 const _fileInst = new FileService();
                 if (req.files.media) {
-                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name);
+                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, [".jpg", ".jpeg", ".png"]);
                     reqObj.media_url = media_url;
                     reqObj.media = req.files.media;
                 }
