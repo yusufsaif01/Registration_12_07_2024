@@ -303,6 +303,7 @@ class PostService {
             throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
         } catch (e) {
             console.log("Error in dislikePost() of PostService", e);
+            return Promise.reject(e);
         }
     }
 
