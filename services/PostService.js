@@ -36,7 +36,7 @@ class PostService {
      * @memberof PostService
      */
     async addPostValiation(requestedData = {}) {
-        if (!requestedData.reqObj.text && !requestedData.reqObj.media) {
+        if (!requestedData.reqObj.text && !requestedData.reqObj.media_url) {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.TEXT_OR_IMAGE_REQUIRED));
         }
         return Promise.resolve();
@@ -55,16 +55,16 @@ class PostService {
             created_at: Date.now()
         };
         let reqObj = requestedData.reqObj;
-        if (reqObj.text && !reqObj.media) {
+        if (reqObj.text && !reqObj.media_url) {
             record.media = { text: reqObj.text };
         }
-        if (!reqObj.text && reqObj.media) {
+        if (!reqObj.text && reqObj.media_url) {
             record.media = {
                 media_url: reqObj.media_url,
                 media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
             }
         }
-        if (reqObj.text && reqObj.media) {
+        if (reqObj.text && reqObj.media_url) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
