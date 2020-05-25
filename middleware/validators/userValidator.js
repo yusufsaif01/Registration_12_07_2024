@@ -13,6 +13,8 @@ class UserValidator {
 
     async createAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
+            "state": Joi.string().required(),
+            "country": Joi.string().required(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
