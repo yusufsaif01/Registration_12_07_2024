@@ -7,6 +7,9 @@ const CommentUtility = require('../db/utilities/CommentUtility');
 const LikeUtility = require('../db/utilities/LikeUtility');
 const PostsListResponseMapper = require("../dataModels/responseMapper/PostsListResponseMapper");
 const uuidv4 = require('uuid/v4');
+const MEMBER = require('../constants/MemberType');
+const PLAYER = require('../constants/PlayerType');
+const PlayerUtility = require('../db/utilities/PlayerUtility');
 
 class PostService {
 
@@ -15,6 +18,7 @@ class PostService {
         this.connectionUtilityInst = new ConnectionUtility();
         this.commentUtilityInst = new CommentUtility();
         this.likeUtilityInst = new LikeUtility();
+        this.playerUtilityInst = new PlayerUtility();
     }
 
     /**
@@ -304,6 +308,61 @@ class PostService {
             throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
         } catch (e) {
             console.log("Error in dislikePost() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * add comment to a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async addComment(requestedData = {}) {
+        try {
+            await this.isAllowedToComment(requestedData);
+            let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id });
+            if (foundPost) {
+                await this.isFollowingPostOwner(requestedData, foundPost);
+                let record = {
+                    post_id: requestedData.post_id,
+                    comment: requestedData.reqObj.comment,
+                    commented_by: requestedData.user_id,
+                    created_at: Date.now()
+                };
+                await this.commentUtilityInst.insert(record);
+                return Promise.resolve();
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        } catch (e) {
+            console.log("Error in addComment() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * checks if the user is allowed to comment on a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async isAllowedToComment(requestedData = {}) {
+        try {
+            if (requestedData.member_type === MEMBER.PLAYER) {
+                let playerDetail = await this.playerUtilityInst.findOne({ user_id: requestedData.user_id }, { player_type: 1 });
+                if (playerDetail && !playerDetail.player_type) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NOT_ALLOWED_TO_COMMENT));
+                }
+                if (playerDetail && playerDetail.player_type && playerDetail.player_type !== PLAYER.PROFESSIONAL) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NOT_ALLOWED_TO_COMMENT));
+                }
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in isAllowedToComment() of PostService", e);
             return Promise.reject(e);
         }
     }

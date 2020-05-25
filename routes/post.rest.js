@@ -334,4 +334,64 @@ module.exports = (router) => {
             post_id: req.params.post_id
         }));
     });
+
+    /**
+     * @api {post} /post/:post_id/comment add comment
+     * @apiName add comment
+     * @apiGroup Post
+     * 
+     * @apiParam (body) {String} comment comment text
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "You do not follow the post owner",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }
+     * 
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "Not allowed to comment",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }
+     * 
+     */
+    router.post('/post/:post_id/comment', checkAuthToken, postValidator.addCommentAPIValidation, function (req, res) {
+        let serviceInst = new PostService();
+        responseHandler(req, res, serviceInst.addComment({
+            reqObj: req.body,
+            user_id: req.authUser.user_id,
+            member_type: req.authUser.member_type,
+            post_id: req.params.post_id
+        }));
+    });
 };

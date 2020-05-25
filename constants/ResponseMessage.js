@@ -284,6 +284,9 @@ class ResponseMessage {
     static get ALREADY_LIKED() {
         return "Already liked"
     }
+    static get NOT_ALLOWED_TO_COMMENT() {
+        return "Not allowed to comment"
+    }
 }
 
 module.exports = ResponseMessage

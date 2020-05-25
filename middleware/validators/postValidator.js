@@ -16,6 +16,19 @@ class PostValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async addCommentAPIValidation(req, res, next) {
+        const schema = Joi.object().keys({
+            "comment": Joi.string().trim().min(1).max(60).required(),
+        });
+        try {
+            await Joi.validate(req.body, schema);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new PostValidator();
