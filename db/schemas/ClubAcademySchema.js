@@ -62,12 +62,6 @@ module.exports = {
             full_address: {
                 type: String
             },
-            city: {
-                type: String
-            },
-            country: {
-                type: String
-            },
             pincode: {
                 type: String
             }
