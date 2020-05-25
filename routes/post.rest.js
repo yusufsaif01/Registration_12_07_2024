@@ -125,4 +125,61 @@ module.exports = (router) => {
             paginationOptions, user_id: req.authUser.user_id
         }));
     });
+
+    /**
+     * @api {put} /post/:post_id edit post
+     * @apiName edit post
+     * @apiGroup Post
+     * 
+     * @apiParam (body) {String} text text of post
+     * @apiParam (body) {String} media media file for the post
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     *  @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Post not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+    router.put('/post/:post_id', checkAuthToken, postValidator.addPostAPIValidation, async function (req, res) {
+        let reqObj = req.body
+        try {
+            if (req.files) {
+                const _fileInst = new FileService();
+                if (req.files.media) {
+                    let media_url = await _fileInst.uploadFile(req.files.media, "./documents/", req.files.media.name, POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS);
+                    reqObj.media_url = media_url;
+                }
+            }
+            let serviceInst = new PostService();
+            responseHandler(req, res, serviceInst.editPost({
+                reqObj: reqObj,
+                user_id: req.authUser.user_id,
+                post_id: req.params.post_id
+            }));
+        } catch (e) {
+            console.log(e);
+            responseHandler(req, res, Promise.reject(e));
+        }
+    });
 };

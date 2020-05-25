@@ -272,6 +272,9 @@ class ResponseMessage {
     static get TEXT_OR_IMAGE_REQUIRED() {
         return "Text or image required"
     }
+    static get POST_NOT_FOUND() {
+        return "Post not found"
+    }
 }
 
 module.exports = ResponseMessage
