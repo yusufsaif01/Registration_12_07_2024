@@ -242,7 +242,9 @@ class ResponseMessage {
     static get ALREADY_FOOTMATE() {
         return "Already footmate"
     }
-
+    static get TEXT_OR_IMAGE_REQUIRED() {
+        return "Text or image required"
+    }
 }
 
 module.exports = ResponseMessage
