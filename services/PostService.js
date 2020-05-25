@@ -10,6 +10,7 @@ const uuidv4 = require('uuid/v4');
 const MEMBER = require('../constants/MemberType');
 const PLAYER = require('../constants/PlayerType');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
+const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
 
 class PostService {
 
@@ -98,10 +99,13 @@ class PostService {
             let paginationOptions = requestedData.paginationOptions || {};
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
-            let data = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
-            { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
-            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
-            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
+            let connection = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id }, { followings: 1 });
+            let user_id_array_for_post = [requestedData.user_id];
+            if (connection && connection.followings) {
+                user_id_array_for_post = user_id_array_for_post.concat(connection.followings);
+            }
+            let data = await this.postUtilityInst.aggregate([{ $match: { posted_by: { $in: user_id_array_for_post }, is_deleted: false } },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
@@ -113,13 +117,9 @@ class PostService {
             { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: 1, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
             { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
-            let totalPosts = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
-            { $project: { user_id_for_post: { $concatArrays: ["$followings", ["$user_id"]] }, _id: 0 } }, { $unwind: { path: "$user_id_for_post" } },
-            { "$lookup": { "from": "posts", "localField": "user_id_for_post", "foreignField": "posted_by", "as": "post" } },
-            { $unwind: { path: "$post" } }, { $match: { "post.is_deleted": false } }, { $project: { post: { id: 1, posted_by: 1, media: 1, created_at: 1 } } },
-            ]);
+            let totalPosts = await this.postUtilityInst.countList({ posted_by: { $in: user_id_array_for_post } });
             data = new PostsListResponseMapper().map(data);
-            let record = { total: totalPosts.length, records: data }
+            let record = { total: totalPosts, records: data }
             return Promise.resolve(record)
         }
         catch (e) {
@@ -363,6 +363,37 @@ class PostService {
         }
         catch (e) {
             console.log("Error in isAllowedToComment() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * get comments list for a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns list of comments for a post
+     * @memberof PostService
+     */
+    async getCommentsList(requestedData = {}) {
+        try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+            let data = await this.commentUtilityInst.aggregate([{ $match: { post_id: requestedData.post_id, is_deleted: false } },
+            { $project: { comment: 1, commented_by: 1, created_at: 1, _id: 0 } },
+            { "$lookup": { "from": "club_academy_details", "localField": "commented_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, commented_by: 1, club_academy_detail: { avatar_url: 1, name: 1, member_type: 1, user_id: 1 } } },
+            { "$lookup": { "from": "player_details", "localField": "commented_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { created_at: 1, comment: 1, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
+            { $sort: { created_at: -1 } }, { $skip: options.skip }, { $limit: options.limit }
+            ]);
+            data = new CommentsListResponseMapper().map(data);
+            let totalComments = await this.commentUtilityInst.countList({ post_id: requestedData.post_id, is_deleted: false });
+            let record = { total: totalComments, records: data }
+            return Promise.resolve(record)
+        }
+        catch (e) {
+            console.log("Error in getPostsList() of PostService", e);
             return Promise.reject(e);
         }
     }
