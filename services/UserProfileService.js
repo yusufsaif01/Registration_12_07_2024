@@ -12,6 +12,7 @@ const moment = require('moment');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
+const PositionUtility = require('../db/utilities/PositionUtility');
 
 /**
  *
@@ -32,6 +33,7 @@ class UserProfileService {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
+        this.positionUtilityInst = new PositionUtility();
     }
 
     /**
@@ -191,7 +193,7 @@ class UserProfileService {
     }
 
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies, documents, country, state, city } = data
+        const { founded_in, trophies, documents, country, state, city, position } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -293,6 +295,30 @@ class UserProfileService {
             })
             if (_.isEmpty(foundCity)) {
                 return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+            }
+        }
+
+        if (position) {
+            let msg = null;
+            position.forEach(async function (element) {
+                if (!element.id) {
+                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
+                }
+                if (!element.name) {
+                    msg = RESPONSE_MESSAGE.POSITION_NAME_REQUIRED
+                }
+                if (element.id && element.name) {
+                    const foundPosition = await this.positionUtilityInst.findOne({ id: element.id, name: element.name });
+                    if (_.isEmpty(foundPosition)) {
+                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+                    }
+                }
+                if (!element.priority) {
+                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
+                }
+            });
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(msg));
             }
         }
         return Promise.resolve()
