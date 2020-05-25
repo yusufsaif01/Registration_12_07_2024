@@ -53,6 +53,33 @@ class ResponseMessage {
     static get NAME_REQUIRED() {
         return "Name is required"
     }
+    static get FIRST_NAME_INVALID() {
+        return "First name is invalid"
+    }
+    static get LAST_NAME_INVALID() {
+        return "Last name is invalid"
+    }
+    static get NAME_INVALID() {
+        return "Name is invalid"
+    }
+    static get POSITION_INVALID() {
+        return "Position is invalid"
+    }
+    static get PAN_NUMBER_INVALID() {
+        return "PAN number is invalid"
+    }
+    static get TIN_NUMBER_INVALID() {
+        return "TIN number is invalid"
+    }
+    static get COI_NUMBER_INVALID() {
+        return "COI number is invalid"
+    }
+    static get ABBREVIATION_INVALID() {
+        return "Abbreviation is invalid"
+    }
+    static get PHONE_NUMBER_INVALID() {
+        return "Phone number is invalid"
+    }
     static get PASSWORD_REQUIRED() {
         return "Password is required"
     }
