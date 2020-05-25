@@ -9,6 +9,9 @@ const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
+const CountryUtility = require('../db/utilities/CountryUtility');
+const StateUtility = require('../db/utilities/StateUtility');
+const CityUtility = require('../db/utilities/CityUtility');
 
 /**
  *
@@ -26,6 +29,9 @@ class UserProfileService {
         this.userUtilityInst = new UserUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.countryUtilityInst = new CountryUtility();
+        this.stateUtilityInst = new StateUtility();
+        this.cityUtilityInst = new CityUtility();
     }
 
     /**
@@ -117,14 +123,6 @@ class UserProfileService {
                 address.pincode = data.pincode
             }
 
-            if (data.country) {
-                address.country = data.country
-            }
-
-            if (data.city) {
-                address.city = data.city
-            }
-
             if (!_.isEmpty(address))
                 data.address = address;
 
@@ -193,7 +191,7 @@ class UserProfileService {
     }
 
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies, documents } = data
+        const { founded_in, trophies, documents, country, state, city } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -253,6 +251,48 @@ class UserProfileService {
                     if (details.user_id !== user_id)
                         return Promise.reject(new errors.Conflict("document number already in use"));
                 }
+            }
+        }
+
+        if (country && state && city) {
+            if (!country.id) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.COUNTRY_ID_REQUIRED));
+            }
+            if (!state.id) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.STATE_ID_REQUIRED));
+            }
+            if (!city.id) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CITY_ID_REQUIRED));
+            }
+            if (!country.name) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.COUNTRY_NAME_REQUIRED));
+            }
+            if (!state.name) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.STATE_NAME_REQUIRED));
+            }
+            if (!city.name) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CITY_NAME_REQUIRED));
+            }
+
+            let foundCountry = await this.countryUtilityInst.findOne({ id: country.id, name: country.name });
+            if (_.isEmpty(foundCountry)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: state.id,
+                country_id: country.id,
+                name: state.name
+            })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
+            }
+            let foundCity = await this.cityUtilityInst.findOne({
+                id: city.id,
+                state_id: state.id,
+                name: city.name
+            })
+            if (_.isEmpty(foundCity)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
             }
         }
         return Promise.resolve()
@@ -346,6 +386,36 @@ class UserProfileService {
                 } catch (e) {
                     console.log(e);
                     throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_SIGNINGS);
+                }
+            }
+
+            if (reqObj.country) {
+                try {
+                    let country = JSON.parse(reqObj.country);
+                    reqObj.country = country;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_COUNTRY);
+                }
+            }
+
+            if (reqObj.state) {
+                try {
+                    let state = JSON.parse(reqObj.state);
+                    reqObj.state = state;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_STATE);
+                }
+            }
+
+            if (reqObj.city) {
+                try {
+                    let city = JSON.parse(reqObj.city);
+                    reqObj.city = city;
+                } catch (e) {
+                    console.log(e);
+                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_CITY);
                 }
             }
 

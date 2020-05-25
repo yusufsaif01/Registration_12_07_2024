@@ -54,8 +54,9 @@ class UserValidator {
                 };
             }),
             "founded_in": Joi.number().min(1).required(),
-            "country": Joi.string().trim().min(1).required(),
-            "city": Joi.string().trim().required(),
+            "country": Joi.string().required(),
+            "state": Joi.string().required(),
+            "city": Joi.string().required(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
@@ -130,8 +131,8 @@ class UserValidator {
                 };
             }),
             "dob": Joi.string().trim().required(),
-            "country": Joi.string().trim().min(1).required(),
-            "state": Joi.string().trim().min(1).required(),
+            "country": Joi.string().required(),
+            "state": Joi.string().required(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
@@ -143,7 +144,7 @@ class UserValidator {
             "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
             "weak_foot": Joi.number().min(1).max(5),
 
-            "city": Joi.string().trim().allow(""),
+            "city": Joi.string().required(),
             "height_feet": Joi.string().trim().allow(""),
             'height_inches': Joi.string().trim().allow(""),
             "weight": Joi.string().trim().allow(""),
@@ -162,10 +163,9 @@ class UserValidator {
             "associated_club": Joi.string()
         };
 
-        if (req.body.player_type === PLAYER.AMATEUR) {
+        if (req.body.player_type === PLAYER.AMATEUR || req.body.player_type === PLAYER.PROFESSIONAL) {
             playerRule.height_feet = Joi.string().trim().required();
             playerRule.height_inches = Joi.string().trim().required();
-            playerRule.city = Joi.string().trim().required();
         }
 
         const playerSchema = Joi.object().keys(playerRule);

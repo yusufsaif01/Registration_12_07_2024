@@ -53,6 +53,24 @@ class ResponseMessage {
     static get NAME_REQUIRED() {
         return "Name is required"
     }
+    static get COUNTRY_NAME_REQUIRED() {
+        return "Country name is required"
+    }
+    static get STATE_NAME_REQUIRED() {
+        return "State name is required"
+    }
+    static get CITY_NAME_REQUIRED() {
+        return "City name is required"
+    }
+    static get COUNTRY_ID_REQUIRED() {
+        return "Country id is required"
+    }
+    static get STATE_ID_REQUIRED() {
+        return "State id is required"
+    }
+    static get CITY_ID_REQUIRED() {
+        return "City id is required"
+    }
     static get FIRST_NAME_INVALID() {
         return "First name is invalid"
     }
@@ -166,6 +184,15 @@ class ResponseMessage {
     }
     static get INVALID_VALUE_TOP_SIGNINGS() {
         return "Invalid value for top_signings"
+    }
+    static get INVALID_VALUE_COUNTRY() {
+        return "Invalid value for country"
+    }
+    static get INVALID_VALUE_STATE() {
+        return "Invalid value for state"
+    }
+    static get INVALID_VALUE_CITY() {
+        return "Invalid value for city"
     }
     static get STATUS_ALREADY_ACTIVE() {
         return "Status is already active"
