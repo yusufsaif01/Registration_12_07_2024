@@ -260,13 +260,13 @@ class PostService {
     }
 
     /**
-     * checks if the user follows the post owner
-     *
-     * @param {*} [requestedData={}]
-     * @param {*} [postData={}]
-     * @returns success or error response
-     * @memberof PostService
-     */
+    * checks if the user follows the post owner
+    *
+    * @param {*} [requestedData={}]
+    * @param {*} [postData={}]
+    * @returns success or error response
+    * @memberof PostService
+    */
     async isFollowingPostOwner(requestedData = {}, postData = {}) {
         try {
             let following = await this.connectionUtilityInst.findOne({
@@ -278,6 +278,32 @@ class PostService {
             return Promise.resolve();
         } catch (e) {
             console.log("Error in isFollowingPostOwner() of PostService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * dislike a post
+     *
+     * @param {*} [requestedData={}]
+     * @returns success or error response
+     * @memberof PostService
+     */
+    async dislikePost(requestedData = {}) {
+        try {
+            let foundPost = await this.postUtilityInst.findOne({ id: requestedData.post_id });
+            if (foundPost) {
+                let likeRecord = await this.likeUtilityInst.findOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id, is_deleted: false });
+                if (!likeRecord) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ALREADY_DISLIKED));
+                }
+                let updatedRecord = { is_deleted: true };
+                await this.likeUtilityInst.updateOne({ post_id: requestedData.post_id, liked_by: requestedData.user_id }, updatedRecord);
+                return Promise.resolve()
+            }
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        } catch (e) {
+            console.log("Error in dislikePost() of PostService", e);
             return Promise.reject(e);
         }
     }
