@@ -284,7 +284,7 @@ class UserProfileService {
                     reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
                 }
                 if (files.employment_contract) {
-                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract.name, options);
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
                     reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
