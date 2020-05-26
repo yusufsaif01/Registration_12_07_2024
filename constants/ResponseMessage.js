@@ -53,32 +53,11 @@ class ResponseMessage {
     static get NAME_REQUIRED() {
         return "Name is required"
     }
-    static get COUNTRY_NAME_REQUIRED() {
-        return "Country name is required"
-    }
-    static get STATE_NAME_REQUIRED() {
-        return "State name is required"
-    }
-    static get CITY_NAME_REQUIRED() {
-        return "City name is required"
-    }
-    static get POSITION_NAME_REQUIRED() {
-        return "Position name is required"
-    }
     static get POSITION_ID_REQUIRED() {
         return "Position id is required"
     }
     static get POSITION_PRIORITY_REQUIRED() {
         return "Position priority is required"
-    }
-    static get COUNTRY_ID_REQUIRED() {
-        return "Country id is required"
-    }
-    static get STATE_ID_REQUIRED() {
-        return "State id is required"
-    }
-    static get CITY_ID_REQUIRED() {
-        return "City id is required"
     }
     static get FIRST_NAME_INVALID() {
         return "First name is invalid"

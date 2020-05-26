@@ -33,7 +33,6 @@ class UserProfileService {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
-        this.positionUtilityInst = new PositionUtility();
     }
 
     /**
@@ -75,9 +74,78 @@ class UserProfileService {
         return Promise.resolve(reqObj)
     }
 
-    prepareProfileData(member_type, data) {
+    async prepareProfileData(member_type, data) {
         if (data.dob) {
             data.dob = moment(data.dob).format("YYYY-MM-DD");
+        }
+        if (data.country && data.state && data.city) {
+            let { country, state, city } = data;
+            let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
+            if (_.isEmpty(foundCountry)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: state,
+                country_id: country,
+            }, { name: 1 })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
+            }
+            let foundCity = await this.cityUtilityInst.findOne({
+                id: city,
+                state_id: state,
+            }, { name: 1 })
+            if (_.isEmpty(foundCity)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+            }
+            let countryObj = {
+                id: country,
+                name: foundCountry.name
+            };
+            let stateObj = {
+                id: state,
+                name: foundState.name
+            };
+            let cityObj = {
+                id: city,
+                name: foundCity.name
+            };
+            data.country = countryObj;
+            data.state = stateObj;
+            data.city = cityObj;
+        }
+        if (data.position) {
+            let { position } = data;
+            let msg = null;
+            let positionArray = [];
+            for (const element of position) {
+                let positionObj = {};
+                if (!element.id) {
+                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
+                }
+                if (element.id) {
+                    let positionUtilityInst = new PositionUtility()
+                    const foundPosition = await positionUtilityInst.findOne({ id: element.id }, { name: 1 });
+                    if (_.isEmpty(foundPosition)) {
+                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+                    }
+                    else {
+                        positionObj.name = foundPosition.name;
+                        positionObj.id = element.id;
+                    }
+                }
+                if (!element.priority) {
+                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
+                }
+                if (element.priority) {
+                    positionObj.priority = element.priority;
+                }
+                positionArray.push(positionObj)
+            };
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(msg));
+            }
+            data.position = positionArray;
         }
         if (member_type == MEMBER.PLAYER) {
             let institute = {
@@ -193,7 +261,7 @@ class UserProfileService {
     }
 
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies, documents, country, state, city, position } = data
+        const { founded_in, trophies, documents } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -253,72 +321,6 @@ class UserProfileService {
                     if (details.user_id !== user_id)
                         return Promise.reject(new errors.Conflict("document number already in use"));
                 }
-            }
-        }
-
-        if (country && state && city) {
-            if (!country.id) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.COUNTRY_ID_REQUIRED));
-            }
-            if (!state.id) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.STATE_ID_REQUIRED));
-            }
-            if (!city.id) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CITY_ID_REQUIRED));
-            }
-            if (!country.name) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.COUNTRY_NAME_REQUIRED));
-            }
-            if (!state.name) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.STATE_NAME_REQUIRED));
-            }
-            if (!city.name) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CITY_NAME_REQUIRED));
-            }
-
-            let foundCountry = await this.countryUtilityInst.findOne({ id: country.id, name: country.name });
-            if (_.isEmpty(foundCountry)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            let foundState = await this.stateUtilityInst.findOne({
-                id: state.id,
-                country_id: country.id,
-                name: state.name
-            })
-            if (_.isEmpty(foundState)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
-            }
-            let foundCity = await this.cityUtilityInst.findOne({
-                id: city.id,
-                state_id: state.id,
-                name: city.name
-            })
-            if (_.isEmpty(foundCity)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
-            }
-        }
-
-        if (position) {
-            let msg = null;
-            position.forEach(async function (element) {
-                if (!element.id) {
-                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
-                }
-                if (!element.name) {
-                    msg = RESPONSE_MESSAGE.POSITION_NAME_REQUIRED
-                }
-                if (element.id && element.name) {
-                    const foundPosition = await this.positionUtilityInst.findOne({ id: element.id, name: element.name });
-                    if (_.isEmpty(foundPosition)) {
-                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
-                    }
-                }
-                if (!element.priority) {
-                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
-                }
-            });
-            if (msg) {
-                return Promise.reject(new errors.ValidationFailed(msg));
             }
         }
         return Promise.resolve()
@@ -414,37 +416,6 @@ class UserProfileService {
                     throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_SIGNINGS);
                 }
             }
-
-            if (reqObj.country) {
-                try {
-                    let country = JSON.parse(reqObj.country);
-                    reqObj.country = country;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_COUNTRY);
-                }
-            }
-
-            if (reqObj.state) {
-                try {
-                    let state = JSON.parse(reqObj.state);
-                    reqObj.state = state;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_STATE);
-                }
-            }
-
-            if (reqObj.city) {
-                try {
-                    let city = JSON.parse(reqObj.city);
-                    reqObj.city = city;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_CITY);
-                }
-            }
-
             return reqObj;
         } catch (e) {
             throw e;
