@@ -3,12 +3,12 @@ const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
-const FileService = require('../services/FileService');
 const errors = require("../errors");
 const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
+const StorageProvider = require('storage-provider');
 
 /**
  *
@@ -262,22 +262,34 @@ class UserProfileService {
         try {
             if (files) {
                 reqObj.documents = [];
-                const _fileInst = new FileService();
+                const configForLocal = {
+                    bucket_name: config.storage.bucket_name,
+                    provider: config.storage.provider
+                };
+                let options = {
+                    allowed_extensions: [],
+                    base_upload_path: __basedir,
+                    fileName: (fileName) => {
+                        let _filename = fileName.split(".");
+                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
+                    }
+                };
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (files.aadhar) {
-                    let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
-                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aadhar' });
                 }
                 if (files.aiff) {
-                    let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
-                    reqObj.documents.push({ link: file_url, type: 'aiff' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aiff, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
                 }
                 if (files.employment_contract) {
-                    let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
-                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract.name, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
-                    let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
-                    reqObj.documents.push({ link: file_url, type: reqObj.document_type });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
                 }
             }
 
