@@ -12,15 +12,14 @@ const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
-        const schema = Joi.object().keys({
-            "state": Joi.string().required(),
-            "country": Joi.string().required(),
+        let registerRule = {
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
                 };
             }),
             "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
+            "type": Joi.string().allow(""),
             "name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.NAME_INVALID,
@@ -37,7 +36,17 @@ class UserValidator {
                 };
             }),
             "email": Joi.string().email({ minDomainSegments: 2 }).required()
-        });
+        };
+
+        if (req.body.type && req.body.member_type) {
+            if (req.body.member_type === MEMBER.PLAYER) {
+                registerRule.type = Joi.string().valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required()
+            }
+            else {
+                registerRule.type = Joi.string().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required()
+            }
+        }
+        const schema = Joi.object().keys(registerRule);
 
         try {
             await Joi.validate(req.body, schema);
@@ -49,7 +58,7 @@ class UserValidator {
     }
 
     async updateDetailsAPIValidation(req, res, next) {
-        const academySchema = Joi.object().keys({
+        let academyRule = {
             "name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.NAME_INVALID,
@@ -93,25 +102,25 @@ class UserValidator {
             "document": Joi.any(),
             "aiff": Joi.any()
 
-        });
+        };
         if (req.body.document_type) {
             let document_type = req.body.document_type;
             if (document_type === 'pan') {
-                academySchema.number = Joi.string().min(10).max(10).regex(/^[A-Z]{5}[0-9]{4}[A-Z]/).error(() => {
+                academyRule.number = Joi.string().min(10).max(10).regex(/^[A-Z]{5}[0-9]{4}[A-Z]/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.PAN_NUMBER_INVALID,
                     };
                 })
             }
             if (document_type === 'coi') {
-                academySchema.number = Joi.string().regex(/^[a-z-A-Z0-9]+$/).error(() => {
+                academyRule.number = Joi.string().regex(/^[a-z-A-Z0-9]+$/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.COI_NUMBER_INVALID,
                     };
                 })
             }
             if (document_type === 'tin') {
-                academySchema.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
+                academyRule.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.TIN_NUMBER_INVALID,
                     };
@@ -171,6 +180,7 @@ class UserValidator {
         }
 
         const playerSchema = Joi.object().keys(playerRule);
+        const academySchema = Joi.object().keys(academyRule);
 
         var schema = academySchema;
 
