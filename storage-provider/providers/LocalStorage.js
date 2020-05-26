@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const errors = require('../../errors');
 class LocalStorage {
     constructor(config) {
         this.uploadFilePath = config.bucket_name;
@@ -40,7 +41,7 @@ class LocalStorage {
     validateFileExtension(fileName = "", allowedExt = []) {
         let fileExtension = path.extname(fileName);
         if (allowedExt.length > 0 && !allowedExt.includes(fileExtension))
-            throw new Error("Invalid file " + fileName + ", allowed extensions - " + allowedExt);
+            throw new errors.InvalidFile("Invalid file " + fileName + ", allowed extensions - " + allowedExt);
         return true;
     }
 }
