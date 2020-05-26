@@ -1,8 +1,9 @@
 const AchievementService = require('../services/AchievementService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken } = require('../middleware/auth');
-const FileService = require('../services/FileService');
 const achievementValidator = require("../middleware/validators").achievementValidator;
+const StorageProvider = require('storage-provider');
+const config = require("../config");
 
 module.exports = (router) => {
     /**
@@ -152,10 +153,22 @@ module.exports = (router) => {
         let reqObj = req.body
         try {
             if (req.files) {
-                const _fileInst = new FileService();
+                const configForLocal = {
+                    bucket_name: config.storage.bucket_name,
+                    provider: config.storage.provider
+                };
+                let options = {
+                    allowed_extensions: [],
+                    base_upload_path: __basedir,
+                    fileName: (fileName) => {
+                        let _filename = fileName.split(".");
+                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
+                    }
+                };
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.achievement) {
-                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.achievement.name);
-                    reqObj.media_url = media_url;
+                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.achievement, options);
+                    reqObj.media_url = uploadResponse.url;
                 }
             }
             let serviceInst = new AchievementService();
@@ -218,10 +231,22 @@ module.exports = (router) => {
         let reqObj = req.body
         try {
             if (req.files) {
-                const _fileInst = new FileService();
+                const configForLocal = {
+                    bucket_name: config.storage.bucket_name,
+                    provider: config.storage.provider
+                };
+                let options = {
+                    allowed_extensions: [],
+                    base_upload_path: __basedir,
+                    fileName: (fileName) => {
+                        let _filename = fileName.split(".");
+                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
+                    }
+                };
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.achievement) {
-                    let media_url = await _fileInst.uploadFile(req.files.achievement, "./documents/", req.files.achievement.name);
-                    reqObj.media_url = media_url;
+                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.achievement, options);
+                    reqObj.media_url = uploadResponse.url;
                 }
             }
             let serviceInst = new AchievementService();

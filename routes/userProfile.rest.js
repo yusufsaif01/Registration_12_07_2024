@@ -5,7 +5,6 @@ const LoginUtility = require('../db/utilities/LoginUtility');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
 const StorageProvider = require('storage-provider');
-const errors = require("../errors");
 const config = require("../config");
 
 module.exports = (router) => {
