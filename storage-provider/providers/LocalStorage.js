@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const errors = require('../../errors');
+const errors = require('../errors');
 class LocalStorage {
     constructor(config) {
         this.uploadFilePath = config.bucket_name;

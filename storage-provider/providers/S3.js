@@ -2,6 +2,7 @@
 const AWS = require('aws-sdk');
 const path = require('path');
 const fs = require('fs');
+const errors = require('../errors');
 class S3 {
     /**
      * {
@@ -164,7 +165,7 @@ class S3 {
     validateFileExtension(fileName = "", allowedExt = []) {
         let fileExtension = path.extname(fileName);
         if (allowedExt.length > 0 && !allowedExt.includes(fileExtension))
-            throw new Error("Invalid file " + fileName + ", allowed extensions - " + allowedExt);
+            throw new errors.InvalidFile("Invalid file " + fileName + ", allowed extensions - " + allowedExt);
         return true;
     }
 }
