@@ -1,0 +1,51 @@
+{
+    "provider": {
+        "doc": "storage-provider",
+        "format": "String",
+        "default": "LOCAL",
+        "env": "STORAGE_PROVIDER",
+        "arg": "storage_provider"
+    },
+    "bucket_name": {
+        "doc": "",
+        "format": "String",
+        "default": "./uploads",
+        "env": "BUCKET_NAME",
+        "arg": "bucket_name"
+    },
+    "bucket_acl": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "BUCKET_acl",
+        "arg": "bucket_acl"
+    },
+    "access_key_id": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STORAGE_ACCESS_KEY_ID",
+        "arg": "storage_access_key_id"
+    },
+    "secret_access_key": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STORAGE_SECRET_ACCESS_KEY",
+        "arg": "storage_secret_access_key"
+    },
+    "region": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "REGION",
+        "arg": "region"
+    },
+    "spaceEndpoint": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "SPACEENDPOINT",
+        "arg": "spaceEndpoint"
+    }
+}

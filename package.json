@@ -10,6 +10,7 @@
     "start": "npm run gen-api-docs && node app.js"
   },
   "dependencies": {
+    "storage-provider": "file:./storage-provider",
     "@hapi/joi": "^15.1.1",
     "aws-sdk": "^2.524.0",
     "bcrypt": "^3.0.6",
