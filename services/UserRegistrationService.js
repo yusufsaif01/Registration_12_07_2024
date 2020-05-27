@@ -99,6 +99,7 @@ class UserRegistrationService extends UserService {
             userData.login_details = loginDetails._id;
 
             if (userData.member_type == MEMBER.PLAYER) {
+                userData.player_type = userData.type;
                 await this.playerUtilityInst.insert(userData);
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
@@ -149,7 +150,7 @@ class UserRegistrationService extends UserService {
             role: ROLE.ADMIN,
             password: adminDetails.password,
             profile_status: PROFILE.VERIFIED,
-            is_email_verified:true
+            is_email_verified: true
         });
         adminDetails.login_details = loginDetails._id;
 

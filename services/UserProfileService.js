@@ -3,12 +3,17 @@ const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
-const FileService = require('../services/FileService');
 const errors = require("../errors");
 const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
+const StorageProvider = require('storage-provider');
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
+const CountryUtility = require('../db/utilities/CountryUtility');
+const StateUtility = require('../db/utilities/StateUtility');
+const CityUtility = require('../db/utilities/CityUtility');
+const PositionUtility = require('../db/utilities/PositionUtility');
 
 /**
  *
@@ -26,6 +31,9 @@ class UserProfileService {
         this.userUtilityInst = new UserUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.countryUtilityInst = new CountryUtility();
+        this.stateUtilityInst = new StateUtility();
+        this.cityUtilityInst = new CityUtility();
     }
 
     /**
@@ -67,9 +75,78 @@ class UserProfileService {
         return Promise.resolve(reqObj)
     }
 
-    prepareProfileData(member_type, data) {
+    async prepareProfileData(member_type, data) {
         if (data.dob) {
             data.dob = moment(data.dob).format("YYYY-MM-DD");
+        }
+        if (data.country && data.state && data.city) {
+            let { country, state, city } = data;
+            let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
+            if (_.isEmpty(foundCountry)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: state,
+                country_id: country,
+            }, { name: 1 })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
+            }
+            let foundCity = await this.cityUtilityInst.findOne({
+                id: city,
+                state_id: state,
+            }, { name: 1 })
+            if (_.isEmpty(foundCity)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+            }
+            let countryObj = {
+                id: country,
+                name: foundCountry.name
+            };
+            let stateObj = {
+                id: state,
+                name: foundState.name
+            };
+            let cityObj = {
+                id: city,
+                name: foundCity.name
+            };
+            data.country = countryObj;
+            data.state = stateObj;
+            data.city = cityObj;
+        }
+        if (data.position) {
+            let { position } = data;
+            let msg = null;
+            let positionArray = [];
+            for (const element of position) {
+                let positionObj = {};
+                if (!element.id) {
+                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
+                }
+                if (element.id) {
+                    let positionUtilityInst = new PositionUtility()
+                    const foundPosition = await positionUtilityInst.findOne({ id: element.id }, { name: 1 });
+                    if (_.isEmpty(foundPosition)) {
+                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+                    }
+                    else {
+                        positionObj.name = foundPosition.name;
+                        positionObj.id = element.id;
+                    }
+                }
+                if (!element.priority) {
+                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
+                }
+                if (element.priority) {
+                    positionObj.priority = element.priority;
+                }
+                positionArray.push(positionObj)
+            };
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(msg));
+            }
+            data.position = positionArray;
         }
         if (member_type == MEMBER.PLAYER) {
             let institute = {
@@ -117,14 +194,6 @@ class UserProfileService {
                 address.pincode = data.pincode
             }
 
-            if (data.country) {
-                address.country = data.country
-            }
-
-            if (data.city) {
-                address.city = data.city
-            }
-
             if (!_.isEmpty(address))
                 data.address = address;
 
@@ -156,22 +225,22 @@ class UserProfileService {
 
     async updateProfileBio(requestedData = {}) {
         let bioData = await this.prepareBioData(requestedData.updateValues);
-        console.log({ 'user_id': requestedData.id }, bioData, requestedData.member_type);
+        let res = {};
         if (requestedData.member_type == MEMBER.PLAYER) {
-            let res = await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
             if (bioData.avatar_url) {
                 const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
                 res.avatar_url = avatar_url;
             }
-            return res;
         } else {
-            let res = await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
             if (bioData.avatar_url) {
                 const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
                 res.avatar_url = avatar_url;
             }
-            return res;
         }
+        return res;
+
     }
 
     prepareBioData(data) {
@@ -262,22 +331,24 @@ class UserProfileService {
         try {
             if (files) {
                 reqObj.documents = [];
-                const _fileInst = new FileService();
+                const configForLocal = config.storage;
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (files.aadhar) {
-                    let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
-                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aadhar' });
                 }
                 if (files.aiff) {
-                    let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
-                    reqObj.documents.push({ link: file_url, type: 'aiff' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aiff, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
                 }
                 if (files.employment_contract) {
-                    let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
-                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
-                    let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
-                    reqObj.documents.push({ link: file_url, type: reqObj.document_type });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
                 }
             }
 
@@ -348,7 +419,6 @@ class UserProfileService {
                     throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_SIGNINGS);
                 }
             }
-
             return reqObj;
         } catch (e) {
             throw e;

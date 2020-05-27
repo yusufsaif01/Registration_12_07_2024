@@ -1,11 +1,16 @@
 const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
+const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 
 class PlayerSpecializationValidator {
     async AbilityAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required()
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
+                };
+            })
         });
         try {
             await Joi.validate(req.body, schema);
@@ -17,7 +22,11 @@ class PlayerSpecializationValidator {
     }
     async addParameterAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required(),
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
+                };
+            }),
             "ability_id": Joi.string().required()
         });
         try {
@@ -30,7 +39,11 @@ class PlayerSpecializationValidator {
     }
     async editParameterAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required()
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
+                };
+            })
         });
         try {
             await Joi.validate(req.body, schema);
@@ -42,8 +55,16 @@ class PlayerSpecializationValidator {
     }
     async PositionAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "name": Joi.string().required(),
-            "abbreviation": Joi.string().required(),
+            "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.NAME_INVALID,
+                };
+            }),
+            "abbreviation": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.ABBREVIATION_INVALID,
+                };
+            }),
             "abilities": Joi.array()
         });
         try {

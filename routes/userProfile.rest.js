@@ -4,8 +4,9 @@ const UserProfileService = require('../services/UserProfileService');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
-const FileService = require('../services/FileService');
-const errors = require("../errors");
+const StorageProvider = require('storage-provider');
+const config = require("../config");
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 
 module.exports = (router) => {
     /**
@@ -100,14 +101,14 @@ module.exports = (router) => {
      * @apiParam (body) {String} player_height_feet player height feett
      * @apiParam (body) {String} player_height_inches player height inches
      * @apiParam (body) {String} weight player weight
-     * @apiParam (body) {String} country member country
-     * @apiParam (body) {String} state player state
-     * @apiParam (body) {String} city member city
+     * @apiParam (body) {String} country country id 
+     * @apiParam (body) {String} state state id
+     * @apiParam (body) {String} city city id
      * @apiParam (body) {String} school player school
      * @apiParam (body) {String} college player college
      * @apiParam (body) {String} university player university
      * @apiParam (body) {String} phone member phone number
-     * @apiParam (body) {String} position player position 
+     * @apiParam (body) {String} position player position (array of object with id and priority)
      * @apiParam (body) {String} strong_foot player strong foot
      * @apiParam (body) {String} weak_foot player weak foot
      * @apiParam (body) {String} head_coach_name head coach name
@@ -241,10 +242,12 @@ module.exports = (router) => {
             let reqObj = req.body;
 
             if (req.files) {
-                const _fileInst = new FileService();
+                const configForLocal = config.storage;
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.avatar) {
-                    let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
-                    reqObj.avatar_url = avatar_url;
+                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.avatar, options);
+                    reqObj.avatar_url = uploadResponse.url;
                 }
             }
             responseHandler(req, res, serviceInst.updateProfileBio({
