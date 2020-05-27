@@ -101,14 +101,14 @@ module.exports = (router) => {
      * @apiParam (body) {String} player_height_feet player height feett
      * @apiParam (body) {String} player_height_inches player height inches
      * @apiParam (body) {String} weight player weight
-     * @apiParam (body) {String} country member country
-     * @apiParam (body) {String} state player state
-     * @apiParam (body) {String} city member city
+     * @apiParam (body) {String} country country id 
+     * @apiParam (body) {String} state state id
+     * @apiParam (body) {String} city city id
      * @apiParam (body) {String} school player school
      * @apiParam (body) {String} college player college
      * @apiParam (body) {String} university player university
      * @apiParam (body) {String} phone member phone number
-     * @apiParam (body) {String} position player position 
+     * @apiParam (body) {String} position player position (array of object with id and priority)
      * @apiParam (body) {String} strong_foot player strong foot
      * @apiParam (body) {String} weak_foot player weak foot
      * @apiParam (body) {String} head_coach_name head coach name

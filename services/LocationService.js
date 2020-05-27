@@ -7,12 +7,16 @@ const LocationListResponseMapper = require("../dataModels/responseMapper/Locatio
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
 const CityListResponseMapper = require("../dataModels/responseMapper/CityListResponseMapper");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
+const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 
 class LocationService {
     constructor() {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
+        this.playerUtilityInst = new PlayerUtility();
+        this.clubAcademyUtilityInst = new ClubAcademyUtility();
     }
 
     async getLocationStats() {
@@ -62,7 +66,7 @@ class LocationService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
             }
             await this.stateUtilityInst.insert({ name: reqObj.name, country_id: reqObj.country_id })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in addState() of LocationService", e);
             return Promise.reject(e);
@@ -117,7 +121,9 @@ class LocationService {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
             }
             await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
-            Promise.resolve()
+            await this.playerUtilityInst.updateMany({ "state.id": data.state_id }, { "state.name": reqObj.name });
+            await this.clubAcademyUtilityInst.updateMany({ "state.id": data.state_id }, { "state.name": reqObj.name });
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in editState() of LocationService", e);
             return Promise.reject(e);
@@ -147,7 +153,7 @@ class LocationService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
             }
             await this.cityUtilityInst.insert({ name: reqObj.name, state_id: reqObj.state_id })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in addCity() of LocationService", e);
             return Promise.reject(e);
@@ -239,7 +245,9 @@ class LocationService {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
             }
             await this.cityUtilityInst.updateOne({ id: data.city_id }, { name: reqObj.name })
-            Promise.resolve()
+            await this.playerUtilityInst.updateMany({ "city.id": data.city_id }, { "city.name": reqObj.name });
+            await this.clubAcademyUtilityInst.updateMany({ "city.id": data.city_id }, { "city.name": reqObj.name });
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in editCity() of LocationService", e);
             return Promise.reject(e);

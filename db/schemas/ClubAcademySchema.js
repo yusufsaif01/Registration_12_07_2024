@@ -35,22 +35,31 @@ module.exports = {
             type: String
         },
         state: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         country: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         city: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         address: {
             full_address: {
-                type: String
-            },
-            city: {
-                type: String
-            },
-            country: {
                 type: String
             },
             pincode: {
