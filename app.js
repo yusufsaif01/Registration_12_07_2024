@@ -8,9 +8,9 @@ const app          = express();
 const db         = require('./db');
 const config       = require('./config');
 const cors = require('cors')
-const fileUpload = require('express-fileupload');
 const responseHandler = require("./ResponseHandler");
 const errors = require("./errors");
+const StorageProvider = require('storage-provider');
 
 global.__basedir = path.resolve(__dirname);
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(fileUpload({
+app.use(StorageProvider.addUploadMiddleware({
   limits: {
       fileSize: 25 * 1024 * 1024 // 15 MB
   },
