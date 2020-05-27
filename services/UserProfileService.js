@@ -9,6 +9,7 @@ const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
 const StorageProvider = require('storage-provider');
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 
 /**
  *
@@ -263,14 +264,7 @@ class UserProfileService {
             if (files) {
                 reqObj.documents = [];
                 const configForLocal = config.storage;
-                let options = {
-                    allowed_extensions: [],
-                    base_upload_path: __basedir,
-                    fileName: (fileName) => {
-                        let _filename = fileName.split(".");
-                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
-                    }
-                };
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (files.aadhar) {
                     let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);

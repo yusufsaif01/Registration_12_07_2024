@@ -5,6 +5,7 @@ const postValidator = require("../middleware/validators").postValidator;
 const POST_MEDIA = require('../constants/PostMedia')
 const StorageProvider = require('storage-provider');
 const config = require("../config");
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 
 module.exports = (router) => {
 
@@ -40,14 +41,8 @@ module.exports = (router) => {
         try {
             if (req.files) {
                 const configForLocal = config.storage;
-                let options = {
-                    allowed_extensions: POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS,
-                    base_upload_path: __basedir,
-                    fileName: (fileName) => {
-                        let _filename = fileName.split(".");
-                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
-                    }
-                };
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                options.allowed_extensions = POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.media) {
                     let uploadResponse = await storageProviderInst.uploadDocument(req.files.media, options);
@@ -176,14 +171,8 @@ module.exports = (router) => {
         try {
             if (req.files) {
                 const configForLocal = config.storage;
-                let options = {
-                    allowed_extensions: POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS,
-                    base_upload_path: __basedir,
-                    fileName: (fileName) => {
-                        let _filename = fileName.split(".");
-                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
-                    }
-                };
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                options.allowed_extensions = POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.media) {
                     let uploadResponse = await storageProviderInst.uploadDocument(req.files.media, options);

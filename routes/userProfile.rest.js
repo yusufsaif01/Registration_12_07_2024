@@ -6,6 +6,7 @@ const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
 const StorageProvider = require('storage-provider');
 const config = require("../config");
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 
 module.exports = (router) => {
     /**
@@ -242,14 +243,7 @@ module.exports = (router) => {
 
             if (req.files) {
                 const configForLocal = config.storage;
-                let options = {
-                    allowed_extensions: [],
-                    base_upload_path: __basedir,
-                    fileName: (fileName) => {
-                        let _filename = fileName.split(".");
-                        return "documents/" + _filename[0] + new Date().getTime() + "." + _filename[1];
-                    }
-                };
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.avatar) {
                     let uploadResponse = await storageProviderInst.uploadDocument(req.files.avatar, options);
