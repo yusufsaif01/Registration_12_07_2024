@@ -19,9 +19,9 @@ module.exports = {
         nationality: {
             type: String
         },
-		deleted_at: {
-			type: Date
-		},
+        deleted_at: {
+            type: Date
+        },
         first_name: {
             type: String,
         },
@@ -43,13 +43,28 @@ module.exports = {
             type: String
         },
         country: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         state: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         city: {
-            type: String
+            id: {
+                type: String
+            },
+            name: {
+                type: String
+            }
         },
         email: {
             type: String
@@ -84,8 +99,15 @@ module.exports = {
             type: String
         },
         position: [{
-            priority: { type: String },
-            name: { type: String }
+            priority: {
+                type: String
+            },
+            name: {
+                type: String
+            },
+            id: {
+                type: String
+            }
         }],
         strong_foot: {
             type: String
