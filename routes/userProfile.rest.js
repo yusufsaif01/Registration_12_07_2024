@@ -4,8 +4,9 @@ const UserProfileService = require('../services/UserProfileService');
 const LoginUtility = require('../db/utilities/LoginUtility');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
-const FileService = require('../services/FileService');
-const errors = require("../errors");
+const StorageProvider = require('storage-provider');
+const config = require("../config");
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 
 module.exports = (router) => {
     /**
@@ -241,10 +242,12 @@ module.exports = (router) => {
             let reqObj = req.body;
 
             if (req.files) {
-                const _fileInst = new FileService();
+                const configForLocal = config.storage;
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.avatar) {
-                    let avatar_url = await _fileInst.uploadFile(req.files.avatar, "./documents/", req.files.avatar.name);
-                    reqObj.avatar_url = avatar_url;
+                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.avatar, options);
+                    reqObj.avatar_url = uploadResponse.url;
                 }
             }
             responseHandler(req, res, serviceInst.updateProfileBio({

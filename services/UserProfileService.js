@@ -3,12 +3,13 @@ const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
-const FileService = require('../services/FileService');
 const errors = require("../errors");
 const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
+const StorageProvider = require('storage-provider');
+const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
@@ -224,22 +225,22 @@ class UserProfileService {
 
     async updateProfileBio(requestedData = {}) {
         let bioData = await this.prepareBioData(requestedData.updateValues);
-        console.log({ 'user_id': requestedData.id }, bioData, requestedData.member_type);
+        let res = {};
         if (requestedData.member_type == MEMBER.PLAYER) {
-            let res = await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
             if (bioData.avatar_url) {
                 const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
                 res.avatar_url = avatar_url;
             }
-            return res;
         } else {
-            let res = await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
+            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
             if (bioData.avatar_url) {
                 const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
                 res.avatar_url = avatar_url;
             }
-            return res;
         }
+        return res;
+
     }
 
     prepareBioData(data) {
@@ -330,22 +331,24 @@ class UserProfileService {
         try {
             if (files) {
                 reqObj.documents = [];
-                const _fileInst = new FileService();
+                const configForLocal = config.storage;
+                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                let storageProviderInst = new StorageProvider(configForLocal);
                 if (files.aadhar) {
-                    let file_url = await _fileInst.uploadFile(files.aadhar, "./documents/", files.aadhar.name);
-                    reqObj.documents.push({ link: file_url, type: 'aadhar' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aadhar' });
                 }
                 if (files.aiff) {
-                    let file_url = await _fileInst.uploadFile(files.aiff, "./documents/", files.aiff.name);
-                    reqObj.documents.push({ link: file_url, type: 'aiff' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.aiff, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
                 }
                 if (files.employment_contract) {
-                    let file_url = await _fileInst.uploadFile(files.employment_contract, "./documents/", files.employment_contract.name);
-                    reqObj.documents.push({ link: file_url, type: 'employment_contract' });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
                 }
                 if (reqObj.document_type && files.document) {
-                    let file_url = await _fileInst.uploadFile(files.document, "./documents/", files.document.name);
-                    reqObj.documents.push({ link: file_url, type: reqObj.document_type });
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
+                    reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
                 }
             }
 
