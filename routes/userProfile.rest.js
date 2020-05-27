@@ -241,10 +241,7 @@ module.exports = (router) => {
             let reqObj = req.body;
 
             if (req.files) {
-                const configForLocal = {
-                    bucket_name: config.storage.bucket_name,
-                    provider: config.storage.provider
-                };
+                const configForLocal = config.storage;
                 let options = {
                     allowed_extensions: [],
                     base_upload_path: __basedir,

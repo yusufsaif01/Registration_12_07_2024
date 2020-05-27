@@ -262,10 +262,7 @@ class UserProfileService {
         try {
             if (files) {
                 reqObj.documents = [];
-                const configForLocal = {
-                    bucket_name: config.storage.bucket_name,
-                    provider: config.storage.provider
-                };
+                const configForLocal = config.storage;
                 let options = {
                     allowed_extensions: [],
                     base_upload_path: __basedir,

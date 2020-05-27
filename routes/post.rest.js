@@ -39,10 +39,7 @@ module.exports = (router) => {
         let reqObj = req.body
         try {
             if (req.files) {
-                const configForLocal = {
-                    bucket_name: config.storage.bucket_name,
-                    provider: config.storage.provider
-                };
+                const configForLocal = config.storage;
                 let options = {
                     allowed_extensions: POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS,
                     base_upload_path: __basedir,
@@ -178,10 +175,7 @@ module.exports = (router) => {
         let reqObj = req.body
         try {
             if (req.files) {
-                const configForLocal = {
-                    bucket_name: config.storage.bucket_name,
-                    provider: config.storage.provider
-                };
+                const configForLocal = config.storage;
                 let options = {
                     allowed_extensions: POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS,
                     base_upload_path: __basedir,
