@@ -1,2 +1,4 @@
 const config = require("../config");
-module.exports = require('redis').createClient(config.redis.port);
+let redisUrl = `redis://${config.redis.host}:${config.redis.port}`;
+console.log(redisUrl);
+module.exports = require('redis').createClient(redisUrl);
