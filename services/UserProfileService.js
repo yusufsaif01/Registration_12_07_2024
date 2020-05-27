@@ -9,6 +9,10 @@ const _ = require("lodash");
 const MEMBER = require('../constants/MemberType');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
+const CountryUtility = require('../db/utilities/CountryUtility');
+const StateUtility = require('../db/utilities/StateUtility');
+const CityUtility = require('../db/utilities/CityUtility');
+const PositionUtility = require('../db/utilities/PositionUtility');
 
 /**
  *
@@ -26,6 +30,9 @@ class UserProfileService {
         this.userUtilityInst = new UserUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.countryUtilityInst = new CountryUtility();
+        this.stateUtilityInst = new StateUtility();
+        this.cityUtilityInst = new CityUtility();
     }
 
     /**
@@ -67,9 +74,78 @@ class UserProfileService {
         return Promise.resolve(reqObj)
     }
 
-    prepareProfileData(member_type, data) {
+    async prepareProfileData(member_type, data) {
         if (data.dob) {
             data.dob = moment(data.dob).format("YYYY-MM-DD");
+        }
+        if (data.country && data.state && data.city) {
+            let { country, state, city } = data;
+            let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
+            if (_.isEmpty(foundCountry)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
+            }
+            let foundState = await this.stateUtilityInst.findOne({
+                id: state,
+                country_id: country,
+            }, { name: 1 })
+            if (_.isEmpty(foundState)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
+            }
+            let foundCity = await this.cityUtilityInst.findOne({
+                id: city,
+                state_id: state,
+            }, { name: 1 })
+            if (_.isEmpty(foundCity)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+            }
+            let countryObj = {
+                id: country,
+                name: foundCountry.name
+            };
+            let stateObj = {
+                id: state,
+                name: foundState.name
+            };
+            let cityObj = {
+                id: city,
+                name: foundCity.name
+            };
+            data.country = countryObj;
+            data.state = stateObj;
+            data.city = cityObj;
+        }
+        if (data.position) {
+            let { position } = data;
+            let msg = null;
+            let positionArray = [];
+            for (const element of position) {
+                let positionObj = {};
+                if (!element.id) {
+                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
+                }
+                if (element.id) {
+                    let positionUtilityInst = new PositionUtility()
+                    const foundPosition = await positionUtilityInst.findOne({ id: element.id }, { name: 1 });
+                    if (_.isEmpty(foundPosition)) {
+                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+                    }
+                    else {
+                        positionObj.name = foundPosition.name;
+                        positionObj.id = element.id;
+                    }
+                }
+                if (!element.priority) {
+                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
+                }
+                if (element.priority) {
+                    positionObj.priority = element.priority;
+                }
+                positionArray.push(positionObj)
+            };
+            if (msg) {
+                return Promise.reject(new errors.ValidationFailed(msg));
+            }
+            data.position = positionArray;
         }
         if (member_type == MEMBER.PLAYER) {
             let institute = {
@@ -115,14 +191,6 @@ class UserProfileService {
 
             if (data.pincode) {
                 address.pincode = data.pincode
-            }
-
-            if (data.country) {
-                address.country = data.country
-            }
-
-            if (data.city) {
-                address.city = data.city
             }
 
             if (!_.isEmpty(address))
@@ -348,7 +416,6 @@ class UserProfileService {
                     throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_SIGNINGS);
                 }
             }
-
             return reqObj;
         } catch (e) {
             throw e;

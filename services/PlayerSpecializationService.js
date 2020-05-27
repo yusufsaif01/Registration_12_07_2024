@@ -7,6 +7,7 @@ const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityL
 const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
 const PositionListResponseMapper = require("../dataModels/responseMapper/PositionListResponseMapper");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
 
 class PlayerSpecializationService {
 
@@ -14,6 +15,7 @@ class PlayerSpecializationService {
         this.abilityUtilityInst = new AbilityUtility();
         this.parameterUtilityInst = new ParameterUtility();
         this.positionUtilityInst = new PositionUtility();
+        this.playerUtilityInst = new PlayerUtility();
     }
     async addAbility(data = {}) {
         try {
@@ -28,7 +30,7 @@ class PlayerSpecializationService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
             }
             await this.abilityUtilityInst.insert({ name: reqObj.name })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in addAbility() of PlayerSpecializationService", e);
             return Promise.reject(e);
@@ -69,7 +71,7 @@ class PlayerSpecializationService {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ABILITY_ALREADY_ADDED));
             }
             await this.abilityUtilityInst.updateOne({ id: data.ability_id }, { name: reqObj.name })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in editAbility() of PlayerSpecializationService", e);
             return Promise.reject(e);
@@ -92,7 +94,7 @@ class PlayerSpecializationService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.insert({ name: reqObj.name, ability_id: reqObj.ability_id })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in addParameter() of PlayerSpecializationService", e);
             return Promise.reject(e);
@@ -144,7 +146,7 @@ class PlayerSpecializationService {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
             }
             await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in editParameter() of PlayerSpecializationService", e);
             return Promise.reject(e);
@@ -168,7 +170,7 @@ class PlayerSpecializationService {
             if (reqObj.abilities && reqObj.abilities.length)
                 record.abilities = reqObj.abilities;
             await this.positionUtilityInst.insert(record)
-            Promise.resolve()
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in addPosition() of PlayerSpecializationService", e);
             return Promise.reject(e);
@@ -234,7 +236,8 @@ class PlayerSpecializationService {
             if (reqObj.abilities)
                 record.abilities = reqObj.abilities;
             await this.positionUtilityInst.updateOne({ id: data.position_id }, record)
-            Promise.resolve()
+            await this.playerUtilityInst.updateMany({ position: { $elemMatch: { id: data.position_id } } }, { "position.$[elem].name": reqObj.name }, { arrayFilters: [{ "elem.id": data.position_id }] });
+            return Promise.resolve()
         } catch (e) {
             console.log("Error in editPosition() of PlayerSpecializationService", e);
             return Promise.reject(e);

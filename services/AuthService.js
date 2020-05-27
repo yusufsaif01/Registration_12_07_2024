@@ -115,6 +115,10 @@ class AuthService {
                     "forgot_password_token": loginDetails.forgot_password_token ? loginDetails.forgot_password_token : '-',
                 };
             }
+            let loginDetailsOfDeletedUser = await this.loginUtilityInst.aggregate([{ $match: { username: email, is_deleted: true } }]);
+            if (loginDetailsOfDeletedUser.length) {
+                throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_DELETED);
+            }
             throw new errors.InvalidCredentials(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
         } catch (err) {
             console.log(err);
@@ -188,6 +192,10 @@ class AuthService {
                 }
 
                 let password = await this.authUtilityInst.bcryptToken(new_password);
+                let isSamePassword = await this.authUtilityInst.bcryptTokenCompare(old_password, password);
+                if (isSamePassword) {
+                    return Promise.reject(new errors.BadRequest(RESPONSE_MESSAGE.SAME_PASSWORD));
+                }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
                 client.del(tokenData.token);
                 await this.emailService.changePassword(loginDetails.username);

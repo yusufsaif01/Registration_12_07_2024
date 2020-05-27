@@ -158,50 +158,35 @@ class UserService extends BaseService {
 
     async getMemberList(requestedData = {}) {
         try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
             let playerConditions = this._preparePlayerSearchCondition(requestedData.filter);
             let clubAcademyConditions = this._prepareClubAcademySearchCondition(requestedData.filter);
             let playerProjection = { first_name: 1, last_name: 1, player_type: 1, position: 1, user_id: 1, avatar_url: 1, email: 1 };
             let clubAcademyProjection = { name: 1, avatar_url: 1, user_id: 1, member_type: 1, email: 1 };
-            let clubAcademyData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }] } },
+            let data = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }, { member_type: MEMBER.PLAYER }] } },
             { $project: { user_id: 1, _id: 0 } },
             { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
-            { $unwind: { path: "$club_academy_detail" } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
-            { $match: clubAcademyConditions }, { $sort: { "club_academy_detail.name": 1 } },
-            ]);
-            clubAcademyData = new MemberListResponseMapper().map(clubAcademyData, MEMBER.CLUB);
-            let playerData = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, member_type: MEMBER.PLAYER } },
-            { $project: { user_id: 1, _id: 0 } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { clubAcademyNameLowerCase: { $toLower: "$club_academy_detail.name" }, user_id: 1, club_academy_detail: clubAcademyProjection } },
             { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
-            { $unwind: { path: "$player_detail" } }, { $project: { user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
-            { $match: playerConditions }, { $sort: { "player_detail.first_name": 1 } }, { $sort: { "player_detail.last_name": 1 } }
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { clubAcademyNameLowerCase: 1, club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $toLower: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } } },
+            { $match: { $or: [clubAcademyConditions, playerConditions] } }, { $sort: { full_name: 1, clubAcademyNameLowerCase: 1 } },
+            { $skip: options.skip }, { $limit: options.limit }
             ]);
-            playerData = new MemberListResponseMapper().map(playerData, MEMBER.PLAYER);
-            let data = clubAcademyData.concat(playerData);
-            let response = { total: data.length, records: data }
+            let totalRecords = await this.loginUtilityInst.aggregate([{ $match: { status: ACCOUNT.ACTIVE, is_deleted: false, $or: [{ member_type: MEMBER.ACADEMY }, { member_type: MEMBER.CLUB }, { member_type: MEMBER.PLAYER }] } },
+            { $project: { user_id: 1, _id: 0 } },
+            { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { user_id: 1, club_academy_detail: clubAcademyProjection } },
+            { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { club_academy_detail: 1, user_id: 1, player_detail: playerProjection, full_name: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } } },
+            { $match: { $or: [clubAcademyConditions, playerConditions] } }
+            ]);
+            data = new MemberListResponseMapper().map(data);
+            let response = { total: totalRecords.length, records: data }
             return response;
         } catch (e) {
             console.log("Error in getMemberList() of UserService", e);
-            return Promise.reject(e);
-        }
-    }
-
-    async getPublicProfileAchievementList(requestedData = {}) {
-        try {
-            let response = {}, totalRecords = 0;
-            let paginationOptions = requestedData.paginationOptions || {};
-            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
-            let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: 1 } };
-            let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
-            let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
-            totalRecords = data.length;
-            data = new AchievementListResponseMapper().map(data);
-            response = {
-                total: totalRecords,
-                records: data
-            }
-            return response;
-        } catch (e) {
-            console.log("Error in getPublicProfileAchievementList() of UserService", e);
             return Promise.reject(e);
         }
     }
@@ -356,6 +341,7 @@ class UserService extends BaseService {
             if (loginDetails) {
                 let date = Date.now()
                 await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { is_deleted: true, deleted_at: date })
+                await this.manageConnection(user_id);
                 if (loginDetails.member_type === MEMBER.PLAYER) {
                     await this.playerUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
                 }
@@ -367,6 +353,33 @@ class UserService extends BaseService {
             throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
         } catch (e) {
             console.log("Error in delete() of UserService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async manageConnection(user_id) {
+        try {
+            let connection_of_user = await this.connectionUtilityInst.findOne({ user_id: user_id });
+            if (connection_of_user) {
+                if (connection_of_user.footmates) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.footmates } }, { $pull: { footmates: user_id } })
+                }
+                if (connection_of_user.followers) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followers } }, { $pull: { followings: user_id } })
+                }
+                if (connection_of_user.followings) {
+                    await this.connectionUtilityInst.updateMany({ user_id: { $in: connection_of_user.followings } }, { $pull: { followers: user_id } })
+                }
+                let updatedDoc = { is_deleted: true, deleted_at: Date.now() };
+                await this.connectionUtilityInst.updateOne({ user_id: user_id }, updatedDoc);
+                let condition = { $or: [{ sent_by: user_id, status: CONNECTION_REQUEST.PENDING }, { send_to: user_id, status: CONNECTION_REQUEST.PENDING }] };
+                updatedDoc.status = CONNECTION_REQUEST.REJECTED;
+                await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in manageConnection() of UserService", e);
             return Promise.reject(e);
         }
     }

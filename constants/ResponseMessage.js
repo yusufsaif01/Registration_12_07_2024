@@ -17,6 +17,9 @@ class ResponseMessage {
     static get USER_NOT_REGISTERED() {
         return "User is not registered";
     }
+    static get USER_DELETED() {
+        return "Your account has been deleted. Please contact admin for help";
+    }
     static get USER_AUTHENTICATION_FAILED() {
         return "User authentication failed";
     }
@@ -27,7 +30,7 @@ class ResponseMessage {
         return "Member not found";
     }
     static get USER_BLOCKED() {
-        return "Your profile id Deactivated, please contact for help";
+        return "Your account has been deactivated. Please contact admin for help";
     }
     static get USER_INACTIVE() {
         return "User is not active";
@@ -50,6 +53,39 @@ class ResponseMessage {
     static get NAME_REQUIRED() {
         return "Name is required"
     }
+    static get POSITION_ID_REQUIRED() {
+        return "Position id is required"
+    }
+    static get POSITION_PRIORITY_REQUIRED() {
+        return "Position priority is required"
+    }
+    static get FIRST_NAME_INVALID() {
+        return "First name is invalid"
+    }
+    static get LAST_NAME_INVALID() {
+        return "Last name is invalid"
+    }
+    static get NAME_INVALID() {
+        return "Name is invalid"
+    }
+    static get POSITION_INVALID() {
+        return "Position is invalid"
+    }
+    static get PAN_NUMBER_INVALID() {
+        return "PAN number is invalid"
+    }
+    static get TIN_NUMBER_INVALID() {
+        return "TIN number is invalid"
+    }
+    static get COI_NUMBER_INVALID() {
+        return "COI number is invalid"
+    }
+    static get ABBREVIATION_INVALID() {
+        return "Abbreviation is invalid"
+    }
+    static get PHONE_NUMBER_INVALID() {
+        return "Phone number is invalid"
+    }
     static get PASSWORD_REQUIRED() {
         return "Password is required"
     }
@@ -64,6 +100,9 @@ class ResponseMessage {
     }
     static get OLD_PASSWORD_INCORRECT() {
         return "Old password is incorrect"
+    }
+    static get SAME_PASSWORD() {
+        return "New password cannot be same as current password"
     }
     static get NEW_PASSWORD_REQUIRED() {
         return "New password is required"
@@ -133,6 +172,15 @@ class ResponseMessage {
     }
     static get INVALID_VALUE_TOP_SIGNINGS() {
         return "Invalid value for top_signings"
+    }
+    static get INVALID_VALUE_COUNTRY() {
+        return "Invalid value for country"
+    }
+    static get INVALID_VALUE_STATE() {
+        return "Invalid value for state"
+    }
+    static get INVALID_VALUE_CITY() {
+        return "Invalid value for city"
     }
     static get STATUS_ALREADY_ACTIVE() {
         return "Status is already active"
@@ -236,7 +284,24 @@ class ResponseMessage {
     static get ALREADY_FOOTMATE() {
         return "Already footmate"
     }
-
+    static get TEXT_OR_IMAGE_REQUIRED() {
+        return "Text or image required"
+    }
+    static get POST_NOT_FOUND() {
+        return "Post not found"
+    }
+    static get ALREADY_DISLIKED() {
+        return "Already disliked"
+    }
+    static get YOU_DO_NOT_FOLLOW_THE_POST_OWNER() {
+        return "You do not follow the post owner"
+    }
+    static get ALREADY_LIKED() {
+        return "Already liked"
+    }
+    static get NOT_ALLOWED_TO_COMMENT() {
+        return "Not allowed to comment"
+    }
 }
 
 module.exports = ResponseMessage
