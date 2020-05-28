@@ -18,6 +18,7 @@ const AchievementUtility = require("../db/utilities/AchievementUtility");
 const ConnectionUtility = require("../db/utilities/ConnectionUtility");
 const ConnectionRequestUtility = require('../db/utilities/ConnectionRequestUtility');
 const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
+const redisServiceInst = require('../redis/RedisService');
 
 class UserService extends BaseService {
 
@@ -326,6 +327,7 @@ class UserService extends BaseService {
                     return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATUS_ALREADY_BLOCKED));
                 }
                 await this.loginUtilityInst.findOneAndUpdate({ user_id: user_id }, { status: ACCOUNT.BLOCKED })
+                await redisServiceInst.clearAllTokensFromCache(user_id);
                 return Promise.resolve()
             }
             throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
@@ -348,6 +350,7 @@ class UserService extends BaseService {
                 else {
                     await this.clubAcademyUtilityInst.findOneAndUpdate({ user_id: user_id }, { deleted_at: date })
                 }
+                await redisServiceInst.clearAllTokensFromCache(user_id);
                 return Promise.resolve()
             }
             throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);

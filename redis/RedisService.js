@@ -44,7 +44,7 @@ class RedisService {
         }
     }
 
-    async clearTokenFromCache(user_id) {
+    async clearAllTokensFromCache(user_id) {
         try {
             let userFromCache = await this.getUserFromCacheByKey(user_id);
             if (userFromCache && userFromCache.tokenArray) {

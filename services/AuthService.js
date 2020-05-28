@@ -198,7 +198,7 @@ class AuthService {
                     return Promise.reject(new errors.BadRequest(RESPONSE_MESSAGE.SAME_PASSWORD));
                 }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
-                await redisServiceInst.clearTokenFromCache(tokenData.user_id);
+                await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
                 await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
             }
@@ -283,7 +283,7 @@ class AuthService {
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
                 client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
-                await redisServiceInst.clearTokenFromCache(tokenData.user_id);
+                await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
