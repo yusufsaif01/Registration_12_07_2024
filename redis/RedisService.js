@@ -61,6 +61,21 @@ class RedisService {
         }
     }
 
+    async setCacheForForgotPassword(user_id, tokenForForgetPassword, userData) {
+        try {
+            let userFromCache = await this.getUserFromCacheByKey(user_id);
+            if (userFromCache && userFromCache.tokenArray) {
+                userData.tokenArray = userFromCache.tokenArray;
+            }
+            client.set(`keyForForgotPassword${tokenForForgetPassword}`, user_id);
+            client.set(user_id, JSON.stringify(userData));
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
     async clearCurrentTokenFromCache(current_token, user_id) {
         try {
             client.del(current_token);

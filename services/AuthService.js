@@ -166,8 +166,7 @@ class AuthService {
                     forgot_password_token: tokenForForgetPassword
                 });
                 loginDetails.forgot_password_token = tokenForForgetPassword;
-                client.set(`keyForForgotPassword${tokenForForgetPassword}`, loginDetails.user_id);
-                client.set(loginDetails.user_id, JSON.stringify({ ...loginDetails }));
+                await redisServiceInst.setCacheForForgotPassword(loginDetails.user_id, tokenForForgetPassword, { ...loginDetails });
                 await this.emailService.forgotPassword(email, resetPasswordURL);
                 return Promise.resolve();
             }
@@ -284,6 +283,7 @@ class AuthService {
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
                 client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
+                await redisServiceInst.clearTokenFromCache(tokenData.user_id);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
