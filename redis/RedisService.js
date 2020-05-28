@@ -1,5 +1,4 @@
-const Promise = require('bluebird');
-const client = Promise.promisifyAll(require("./index"))
+const client = require("./index")
 const _ = require("lodash");
 
 class RedisService {
