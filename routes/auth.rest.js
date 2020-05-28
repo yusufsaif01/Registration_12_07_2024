@@ -1,6 +1,6 @@
 const userValidator = require("../middleware/validators").userValidator;
 const UserRegistrationService = require('../services/UserRegistrationService');
-const { checkAuthToken, checkTokenForAccountActivation } = require('../middleware/auth');
+const { checkAuthToken, checkTokenForAccountActivation, removeAuthToken } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
 const AuthService = require('../services/AuthService');
 
@@ -259,7 +259,7 @@ module.exports = (router) => {
 	*     }
 	* 
 	*/
-	router.post('/logout', checkAuthToken, function (req, res) {
+	router.post('/logout', removeAuthToken, function (req, res) {
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.logout(req.authUser));
 	});
