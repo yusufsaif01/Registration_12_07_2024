@@ -15,6 +15,8 @@ const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
 const client = require('../redis');
+const redisServiceInst = require('../redis/RedisService');
+const _ = require("lodash");
 
 class AuthService {
 
@@ -65,10 +67,27 @@ class AuthService {
                 const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: loginDetails.user_id }, { avatar_url: 1 })
                 avatarUrl = avatar_url
             }
-            client.set(tokenForAuthentication, loginDetails.user_id);
-            client.set(loginDetails.user_id, JSON.stringify({ ...loginDetails, avatar_url: avatarUrl }));
+            await this.setUserCache(tokenForAuthentication, { ...loginDetails, avatar_url: avatarUrl })
             return { ...loginDetails, avatar_url: avatarUrl, token: tokenForAuthentication };
         } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
+    async setUserCache(tokenForAuthentication, userData) {
+        try {
+            let userFromCache = await redisServiceInst.getUserFromCacheByKey(userData.user_id);
+            let tokenArray = [tokenForAuthentication];
+            if (userFromCache && userFromCache.tokenArray) {
+                userFromCache.tokenArray.push(tokenForAuthentication);
+                tokenArray = userFromCache.tokenArray;
+            }
+            userData.tokenArray = tokenArray;
+            client.set(tokenForAuthentication, userData.user_id);
+            client.set(userData.user_id, JSON.stringify(userData));
+        }
+        catch (e) {
             console.log(e);
             return Promise.reject(e);
         }
@@ -128,9 +147,11 @@ class AuthService {
 
     async logout(data) {
         try {
-            await this.loginUtilityInst.updateOne({ user_id: data.user_id }, { token: "" });
-            await ActivityService.loginActivity(data.user_id, ACTIVITY.LOGOUT);
-            client.del(data.token);
+            if (data.user_id && data.token) {
+                await this.loginUtilityInst.updateOne({ user_id: data.user_id }, { token: "" });
+                await ActivityService.loginActivity(data.user_id, ACTIVITY.LOGOUT);
+                await this.clearCurrentTokenFromCache(data.token, data.user_id)
+            }
             return Promise.resolve();
         } catch (err) {
             console.log(err);
@@ -147,10 +168,10 @@ class AuthService {
         return Promise.resolve(email);
     }
 
-    async forgotPassword(email, authUser) {
+    async forgotPassword(email) {
         try {
             await this.passwordValidator(email);
-            let loginDetails = await this.loginUtilityInst.findOne({ username: email });
+            let loginDetails = await this.loginUtilityInst.findOne({ username: email }, {});
             if (loginDetails) {
                 if (loginDetails.status === ACCOUNT.BLOCKED) {
                     return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED));
@@ -164,7 +185,9 @@ class AuthService {
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
                     forgot_password_token: tokenForForgetPassword
                 });
-                client.del(authUser.token);
+                loginDetails.forgot_password_token = tokenForForgetPassword;
+                client.set(`keyForForgotPassword${tokenForForgetPassword}`, loginDetails.user_id);
+                client.set(loginDetails.user_id, JSON.stringify({ ...loginDetails }));
                 await this.emailService.forgotPassword(email, resetPasswordURL);
                 return Promise.resolve();
             }
@@ -181,7 +204,6 @@ class AuthService {
 
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id });
             if (loginDetails) {
-                console.log("loginDetails", loginDetails);
                 if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED))
                 }
@@ -197,7 +219,7 @@ class AuthService {
                     return Promise.reject(new errors.BadRequest(RESPONSE_MESSAGE.SAME_PASSWORD));
                 }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
-                client.del(tokenData.token);
+                await this.clearTokenFromCache(tokenData.user_id);
                 await this.emailService.changePassword(loginDetails.username);
                 return Promise.resolve();
             }
@@ -206,6 +228,40 @@ class AuthService {
         } catch (err) {
             console.log(err);
             return Promise.reject(err);
+        }
+    }
+
+    async clearTokenFromCache(user_id) {
+        try {
+            let userFromCache = await redisServiceInst.getUserFromCacheByKey(user_id);
+            if (userFromCache && userFromCache.tokenArray) {
+                for (const token of userFromCache.tokenArray) {
+                    client.del(token);
+                }
+                client.del(user_id);
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+    async clearCurrentTokenFromCache(current_token, user_id) {
+        try {
+            client.del(current_token);
+            let userFromCache = await redisServiceInst.getUserFromCacheByKey(user_id);
+            if (userFromCache.tokenArray) {
+                _.remove(userFromCache.tokenArray, function (token) {
+                    return token === current_token;
+                })
+                client.set(user_id, JSON.stringify(userFromCache));
+            }
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
         }
     }
 
@@ -273,12 +329,15 @@ class AuthService {
 
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: tokenData.user_id })
             if (loginDetails) {
+                if (loginDetails.status === ACCOUNT.BLOCKED) {
+                    return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED));
+                }
                 if (loginDetails.status !== ACCOUNT.ACTIVE) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
-                client.del(tokenData.token);
+                client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

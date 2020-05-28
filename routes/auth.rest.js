@@ -222,7 +222,7 @@ module.exports = (router) => {
 	*     }
 	*
 	*/
-	router.post('/reset-password', checkAuthToken, checkTokenForAccountActivation, function (req, res) {
+	router.post('/reset-password', checkTokenForAccountActivation, function (req, res) {
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.resetPassword(req.authUser, req.body.password, req.body.confirmPassword));
 	});
@@ -314,7 +314,7 @@ module.exports = (router) => {
 	 */
 	router.post('/forgot-password', function (req, res) {
 		const authServiceInst = new AuthService();
-		responseHandler(req, res, authServiceInst.forgotPassword(req.body.email, req.authUser));
+		responseHandler(req, res, authServiceInst.forgotPassword(req.body.email));
 	});
 	/**
 * @api {post} /change-password change password
