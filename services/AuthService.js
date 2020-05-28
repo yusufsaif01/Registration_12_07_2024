@@ -258,6 +258,7 @@ class AuthService {
                     password: password,
                     forgot_password_token: ""
                 });
+                client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 await this.emailService.welcome(loginDetails.username);
                 return Promise.resolve();
             }

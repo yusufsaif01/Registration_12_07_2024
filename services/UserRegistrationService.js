@@ -15,6 +15,7 @@ const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const PROFILE = require('../constants/ProfileStatus');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const client = require('../redis');
 
 /**
  *
@@ -104,7 +105,8 @@ class UserRegistrationService extends UserService {
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
             }
-
+            client.set(`keyForForgotPassword${tokenForAccountActivation}`, userData.user_id);
+            client.set(userData.user_id, JSON.stringify({ ...userData, forgot_password_token: tokenForAccountActivation }));
             let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
             this.emailService.emailVerification(userData.email, accountActivationURL);
             return Promise.resolve();
