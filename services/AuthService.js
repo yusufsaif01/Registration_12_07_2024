@@ -111,8 +111,7 @@ class AuthService {
                     "email": loginDetails.username,
                     "role": loginDetails.role,
                     "member_type": loginDetails.member_type,
-                    "status": loginDetails.status ? loginDetails.status : '-',
-                    "forgot_password_token": loginDetails.forgot_password_token ? loginDetails.forgot_password_token : '-',
+                    "status": loginDetails.status ? loginDetails.status : '-'
                 };
             }
             let loginDetailsOfDeletedUser = await this.loginUtilityInst.aggregate([{ $match: { username: email, is_deleted: true } }]);
