@@ -3,6 +3,29 @@ const client = Promise.promisifyAll(require("./index"))
 const _ = require("lodash");
 
 class RedisService {
+
+    async setKeyValuePair(key, value) {
+        try {
+            client.set(key, value);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
+    async deleteByKey(key) {
+        try {
+            client.del(key);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
     async getUserFromCacheByKey(key) {
         try {
             let result = await client.getAsync(key);

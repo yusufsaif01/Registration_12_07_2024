@@ -14,7 +14,6 @@ const ACCOUNT = require('../constants/AccountStatus');
 const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
-const client = require('../redis');
 const redisServiceInst = require('../redis/RedisService');
 
 class AuthService {
@@ -258,7 +257,7 @@ class AuthService {
                     password: password,
                     forgot_password_token: ""
                 });
-                client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
+                await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 await this.emailService.welcome(loginDetails.username);
                 return Promise.resolve();
             }
@@ -283,7 +282,7 @@ class AuthService {
                 }
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
-                client.del(`keyForForgotPassword${tokenData.forgot_password_token}`);
+                await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
                 return Promise.resolve();
             }
