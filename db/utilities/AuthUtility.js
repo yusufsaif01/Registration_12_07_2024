@@ -7,7 +7,7 @@ const errors = require('../../errors');
 const LoginUtility = require("./LoginUtility");
 const ACCOUNT = require("../../constants/AccountStatus")
 const RESPONSE_MESSAGE = require("../../constants/ResponseMessage")
-const client = Promise.promisifyAll(require("../../redis"))
+const redisServiceInst = require("../../redis/RedisService")
 
 class AuthUtility {
 
@@ -67,37 +67,14 @@ class AuthUtility {
         })
     }
 
-    async getUserFromCacheByKey(key) {
-        try {
-            let result = await client.getAsync(key);
-            result = JSON.parse(result)
-            return result;
-        }
-        catch (e) {
-            console.log(e);
-            return Promise.reject(e);
-        }
-    }
-
-    async getUserIdFromCacheByKey(key) {
-        try {
-            let result = await client.getAsync(key);
-            return result;
-        }
-        catch (e) {
-            console.log(e);
-            return Promise.reject(e);
-        }
-    }
-
     async getUserByToken(token, isCheckStatus, isCheckForgotPassToken) {
         try {
             token = token.split(' ')[1];
-            const user_id = await this.getUserIdFromCacheByKey(token);
+            let user_id = isCheckForgotPassToken ? await redisServiceInst.getUserIdFromCacheByKey(`keyForForgotPassword${token}`) : await redisServiceInst.getUserIdFromCacheByKey(token);
             if (!user_id) {
                 return Promise.reject(new errors.InvalidToken());
             }
-            let user = await this.getUserFromCacheByKey(user_id);
+            let user = await redisServiceInst.getUserFromCacheByKey(user_id);
             user.token = token;
             if (user) {
                 if (isCheckStatus) {
