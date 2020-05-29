@@ -150,7 +150,7 @@ class AuthService {
     async forgotPassword(email) {
         try {
             await this.passwordValidator(email);
-            let loginDetails = await this.loginUtilityInst.findOne({ username: email }, {});
+            let loginDetails = await this.loginUtilityInst.findOne({ username: email });
             if (loginDetails) {
                 if (loginDetails.status === ACCOUNT.BLOCKED) {
                     return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED));
