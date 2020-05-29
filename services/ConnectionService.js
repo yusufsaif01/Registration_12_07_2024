@@ -447,17 +447,17 @@ class ConnectionService {
             }
             if (filterConditions.country) {
                 filterArr.push({
-                    "player_details.country": new RegExp(filterConditions.country, 'i')
+                    "player_details.country.name": new RegExp(filterConditions.country, 'i')
                 });
             }
             if (filterConditions.state) {
                 filterArr.push({
-                    "player_details.state": new RegExp(filterConditions.state, 'i')
+                    "player_details.state.name": new RegExp(filterConditions.state, 'i')
                 });
             }
             if (filterConditions.city) {
                 filterArr.push({
-                    "player_details.city": new RegExp(filterConditions.city, 'i')
+                    "player_details.city.name": new RegExp(filterConditions.city, 'i')
                 });
             }
             if (filterConditions.strong_foot && filterConditions.strong_foot.length) {
