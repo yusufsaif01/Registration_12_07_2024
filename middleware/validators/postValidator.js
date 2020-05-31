@@ -29,6 +29,23 @@ class PostValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async postListQueryValidation(req, res, next) {
+
+        const query = Joi.object().keys({
+            "page_size": Joi.number(),
+            "page_no": Joi.number(),
+            "comments": Joi.number().valid(1, 0)
+        })
+        try {
+
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new PostValidator();
