@@ -7,6 +7,7 @@ const errors = require('../../errors');
 const LoginUtility = require("./LoginUtility");
 const ACCOUNT = require("../../constants/AccountStatus")
 const RESPONSE_MESSAGE = require("../../constants/ResponseMessage")
+const redisServiceInst = require("../../redis/RedisService")
 
 class AuthUtility {
 
@@ -68,9 +69,13 @@ class AuthUtility {
 
     async getUserByToken(token, isCheckStatus, isCheckForgotPassToken) {
         try {
-            const { id } = await this.jwtVerification(token, config.jwt.jwt_secret);
-            const project = ["user_id", "username", "role", "member_type", "status", "forgot_password_token"];
-            let user = await this.loginUtility.findOne({ user_id: id }, project);
+            token = token.split(' ')[1];
+            let user_id = isCheckForgotPassToken ? await redisServiceInst.getUserIdFromCacheByKey(`keyForForgotPassword${token}`) : await redisServiceInst.getUserIdFromCacheByKey(token);
+            if (!user_id) {
+                return Promise.reject(new errors.InvalidToken());
+            }
+            let user = await redisServiceInst.getUserFromCacheByKey(user_id);
+            user.token = token;
             if (user) {
                 if (isCheckStatus) {
                     let status = user.status;

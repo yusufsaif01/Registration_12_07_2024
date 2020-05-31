@@ -61,12 +61,13 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {get} /posts/list?page_no=1&page_size=20 posts listing
+     * @api {get} /posts/list?page_no=1&page_size=20&comments=1 posts listing
      * @apiName posts listing
      * @apiGroup Post
      *
      * @apiParam (query) {Number} page_no page number.
      * @apiParam (query) {Number} page_size records per page
+     * @apiParam (query) {Number} comments 0 for no data in comments object, 1 for data in comments object
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -93,7 +94,18 @@ module.exports = (router) => {
      *                 "position": "position of first priority" },
      *             "is_liked": true,
      *             "likes": 5,
-     *             "comments": 10,
+     *             "comments": { 
+     *                          "total":100,
+     *                          "data":[{ "comment": "first comment",
+     *                                    "commented_by": {
+     *                                    "avatar": "/uploads/avatar/user-avatar.png",
+     *                                    "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *                                    "name": "yuvraj singh",
+     *                                    "type": "professional/club/accademy",
+     *                                    "position": "position of first priority" },
+     *                                    "commented_at": "2020-05-22T06:58:45.136Z"
+     *                                  }]
+     *                          }
      *             "created_at": "2020-05-22T06:58:45.136Z"
      *           }
      *         ]}
@@ -117,17 +129,20 @@ module.exports = (router) => {
      * 
      */
 
-    router.get('/posts/list', checkAuthToken, function (req, res) {
-        let paginationOptions = {};
+    router.get('/posts/list', checkAuthToken, postValidator.postListQueryValidation, function (req, res) {
 
-        paginationOptions = {
+        let paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         };
 
+        let commentOptions = {
+            comments: (req.query && req.query.comments) ? Number(req.query.comments) : 0
+        }
+
         let serviceInst = new PostService();
         responseHandler(req, res, serviceInst.getPostsList({
-            paginationOptions, user_id: req.authUser.user_id
+            paginationOptions, commentOptions, user_id: req.authUser.user_id
         }));
     });
 
@@ -430,7 +445,7 @@ module.exports = (router) => {
      *              "name": "yuvraj singh",
      *              "type": "professional/club/accademy",
      *              "position": "position of first priority" },
-     *              commented_at: "2020-05-22T06:58:45.136Z"
+     *              "commented_at": "2020-05-22T06:58:45.136Z"
      *           }
      *         ]}
      *     }
