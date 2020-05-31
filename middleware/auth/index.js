@@ -1,6 +1,6 @@
 const errors = require('../../errors');
 const AuthUtility = require('../../db/utilities/AuthUtility');
-
+const redisServiceInst = require('../../redis/RedisService')
 var _checkRole = (req, roles) => {
     if (!req.authUser || !req.authUser.role) {
         return false;
@@ -45,6 +45,28 @@ module.exports = {
             return next(err);
         }
 
+    },
+
+    async removeAuthToken(req, res, next) {
+        try {
+            let token = req.headers.authorization;
+            if (token) {
+                token = token.split(' ')[1];
+                let user_id = await redisServiceInst.getUserIdFromCacheByKey(token);
+                if (user_id) {
+                    let user = await redisServiceInst.getUserFromCacheByKey(user_id);
+                    if (user) {
+                        user.token = token;
+                    }
+                    req.authUser = user;
+                }
+                return next();
+            }
+            throw new errors.Unauthorized();
+        } catch (err) {
+            console.log(err);
+            return next(err);
+        }
     },
 
     async checkTokenForAccountActivation(req, res, next) {

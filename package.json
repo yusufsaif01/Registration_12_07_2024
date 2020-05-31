@@ -29,6 +29,7 @@
     "morgan": "~1.9.1",
     "nodemailer": "^6.3.0",
     "prompts": "^2.2.1",
+    "redis": "^3.0.2",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.1.0"
   },
