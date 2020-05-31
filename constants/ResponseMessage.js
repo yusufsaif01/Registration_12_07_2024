@@ -302,6 +302,9 @@ class ResponseMessage {
     static get NOT_ALLOWED_TO_COMMENT() {
         return "Not allowed to comment"
     }
+    static get MAX_60_WORDS_FOR_COMMENT() {
+        return "Text with maximum 60 words can be entered as a comment"
+    }
 }
 
 module.exports = ResponseMessage
