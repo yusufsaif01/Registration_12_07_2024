@@ -35,7 +35,7 @@ class PostValidator {
                 let comment = prepareCommentText(req.body.comment)
                 let totalWords = comment.split(' ').length;
                 if (totalWords > 60) {
-                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.TEXT_WITH_MAX_60_WORDS_CAN_BE_ENTERED_AS_A_COMMENT)));
+                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MAX_60_WORDS_FOR_COMMENT)));
                 }
                 req.body.comment = comment;
             }

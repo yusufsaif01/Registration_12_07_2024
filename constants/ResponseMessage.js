@@ -302,7 +302,7 @@ class ResponseMessage {
     static get NOT_ALLOWED_TO_COMMENT() {
         return "Not allowed to comment"
     }
-    static get TEXT_WITH_MAX_60_WORDS_CAN_BE_ENTERED_AS_A_COMMENT() {
+    static get MAX_60_WORDS_FOR_COMMENT() {
         return "Text with maximum 60 words can be entered as a comment"
     }
 }
