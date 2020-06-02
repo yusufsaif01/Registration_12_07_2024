@@ -56,4 +56,44 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         return responseHandler(req, res, serviceInst.getPlayersList({ filterConditions, user_id: req.authUser.user_id }));
     });
+
+    /**
+     * @api {post} /footplayer/request send footplayer request
+     * @apiName send footplayer request
+     * @apiGroup Footplayer
+     *   
+     * @apiParam (body) {String} to user_id of the user to whom request will be send
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }   
+     * 
+     * @apiErrorExample {json} Unauthorized
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     }
+     * 
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     */
+
+    router.post('/footplayer/request', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.footplayerRequestAPIValidation, function (req, res) {
+        let serviceInst = new FootPlayerService();
+        responseHandler(req, res, serviceInst.sendFootplayerRequest({ sent_by: req.authUser.user_id, send_to: req.body.to }));
+    });
 };
