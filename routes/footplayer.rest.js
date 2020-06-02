@@ -90,6 +90,22 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Already footplayer",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Footplayer request already sent",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
      */
 
     router.post('/footplayer/request', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.footplayerRequestAPIValidation, function (req, res) {
