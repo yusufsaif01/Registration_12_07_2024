@@ -308,6 +308,15 @@ class ResponseMessage {
     static get EMAIL_OR_PHONE_REQUIRED() {
         return "email or phone required"
     }
+    static get CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF() {
+        return "Cannot send footplayer request to yourself"
+    }
+    static get MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND() {
+        return "Member to be footplayer not found"
+    }
+    static get ALREADY_FOOTPLAYER() {
+        return "Already footplayer"
+    }
 }
 
 module.exports = ResponseMessage
