@@ -305,6 +305,15 @@ class ResponseMessage {
     static get MAX_60_WORDS_FOR_COMMENT() {
         return "Text with maximum 60 words can be entered as a comment"
     }
+    static get AADHAR_NUMBER_INVALID() {
+        return "Aadhar number invalid"
+    }
+    static get AADHAR_FRONT_REQUIRED() {
+        return "Aadhar front image required"
+    }
+    static get AADHAR_BACK_REQUIRED() {
+        return "Aadhar back image required"
+    }
 }
 
 module.exports = ResponseMessage

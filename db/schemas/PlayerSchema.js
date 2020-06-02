@@ -87,6 +87,9 @@ module.exports = {
             link: {
                 type: String
             },
+            document_number: {
+                type: String
+            },
             is_verified: {
                 type: Boolean,
                 default: false

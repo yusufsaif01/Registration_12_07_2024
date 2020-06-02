@@ -168,7 +168,11 @@ class UserValidator {
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
             "former_club": Joi.string().trim().allow(""),
-
+            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
+                };
+            }),
             //need to remove
             "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
@@ -190,6 +194,12 @@ class UserValidator {
 
         try {
             await Joi.validate(req.body, schema);
+            if (req.authUser.member_type == MEMBER.PLAYER && req.body.aadhar_number) {
+                var verhoeff = require('node-verhoeff');
+                if (!verhoeff.validateAadhaar(req.body.aadhar_number)) {
+                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID)));
+                }
+            }
             return next();
         } catch (err) {
             console.log(err.details);
