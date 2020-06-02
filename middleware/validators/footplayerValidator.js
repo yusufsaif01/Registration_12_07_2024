@@ -30,6 +30,19 @@ class FootPlayerValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async footplayerRequestAPIValidation(req, res, next) {
+        const schema = Joi.object().keys({
+            "to": Joi.string().required()
+        });
+        try {
+            await Joi.validate(req.body, schema);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new FootPlayerValidator();
