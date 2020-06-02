@@ -305,6 +305,9 @@ class ResponseMessage {
     static get MAX_60_WORDS_FOR_COMMENT() {
         return "Text with maximum 60 words can be entered as a comment"
     }
+    static get EMAIL_OR_PHONE_REQUIRED() {
+        return "email or phone required"
+    }
 }
 
 module.exports = ResponseMessage
