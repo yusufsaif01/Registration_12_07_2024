@@ -107,12 +107,14 @@ class FootPlayerService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
             }
         }
-        let data = await this.footPlayerUtilityInst.findOne({
-            sent_by: requestedData.sent_by,
-            "send_to.user_id": requestedData.send_to, status: FOOTPLAYER_STATUS.ADDED
-        });
-        if (!_.isEmpty(data)) {
-            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
+        let footplayerRequest = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, "send_to.user_id": requestedData.send_to }, { status: 1, _id: 1 });
+        if (!_.isEmpty(footplayerRequest)) {
+            if (footplayerRequest.status === FOOTPLAYER_STATUS.PENDING) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_ALREADY_SENT));
+            }
+            if (footplayerRequest.status === FOOTPLAYER_STATUS.ADDED) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
+            }
         }
         return Promise.resolve();
     }

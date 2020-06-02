@@ -317,6 +317,9 @@ class ResponseMessage {
     static get ALREADY_FOOTPLAYER() {
         return "Already footplayer"
     }
+    static get FOOTPLAYER_REQUEST_ALREADY_SENT() {
+        return "Footplayer request already sent"
+    }
 }
 
 module.exports = ResponseMessage
