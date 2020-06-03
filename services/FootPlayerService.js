@@ -210,6 +210,13 @@ class FootPlayerService {
         }
     }
 
+    /**
+     * accept footplayer request
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
     async acceptFootplayerRequest(requestedData = {}) {
         try {
             await this.footplayerRequestValidator(requestedData);
@@ -234,6 +241,13 @@ class FootPlayerService {
         }
     }
 
+    /**
+     * validates requestedData for acceptFootplayerRequest
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
     async footplayerRequestValidator(requestedData = {}) {
         let dataOfSentBy = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { member_type: 1, });
         if (_.isEmpty(dataOfSentBy)) {
