@@ -195,38 +195,10 @@ class PostService {
             updated_at: Date.now()
         };
         let reqObj = requestedData.reqObj;
-        if (reqObj.text && !reqObj.media_url) {
-            if (currentDataOfPost.media && currentDataOfPost.media.text && !currentDataOfPost.media.media_url) {
-                record.media = { text: reqObj.text };
-            }
-            if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
-                currentDataOfPost.media.text = reqObj.text;
-                record.media = currentDataOfPost.media;
-            }
-            if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
-                currentDataOfPost.media.text = reqObj.text;
-                record.media = currentDataOfPost.media;
-            }
-        }
-        if (!reqObj.text && reqObj.media_url) {
-            if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
-                record.media = {
-                    media_url: reqObj.media_url,
-                    media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
-                }
-            }
-            if (currentDataOfPost.media && currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
-                currentDataOfPost.media.media_url = reqObj.media_url;
-                currentDataOfPost.media.media_type = POST_MEDIA.ALLOWED_MEDIA_TYPE;
-                record.media = currentDataOfPost.media;
-            }
-        }
-        if (reqObj.text && reqObj.media_url) {
-            record.media = {
-                text: reqObj.text,
-                media_url: reqObj.media_url,
-                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
-            }
+        record.media = {
+            text: reqObj.text || (currentDataOfPost.media ? currentDataOfPost.media.text : ""),
+            media_url: reqObj.media_url || (currentDataOfPost.media ? currentDataOfPost.media.media_url : ""),
+            media_type: currentDataOfPost.media ? currentDataOfPost.media.media_type : POST_MEDIA.ALLOWED_MEDIA_TYPE
         }
         return Promise.resolve(record);
     }
