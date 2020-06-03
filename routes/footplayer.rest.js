@@ -123,4 +123,54 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         responseHandler(req, res, serviceInst.sendFootplayerRequest({ sent_by: req.authUser.user_id, send_to: req.body.to }));
     });
+
+    /**
+     * @api {get} /footplayer/requests?requested_by=<club>&page_no=1&page_size=10 footplayer request list
+     * @apiName footplayer request list
+     * @apiGroup Footplayer
+     * 
+     * @apiParam (query) {String} requested_by requested_by can be club or academy 
+     * @apiParam (query) {String} page_no page number.
+     * @apiParam (query) {String} page_size records per page
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {  
+     *         "total":100,
+     *         "records":[{
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
+     *             "avatar": "number of players associated",
+     *             "name": "/uploads/avatar/user-avatar.png",
+     *             "member_type": "club",
+     *             "sub-category": "Residential",
+     *            }] }
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+
+    router.get("/footplayer/requests", checkAuthToken, checkRole([ROLE.PLAYER]), footplayerValidator.footplayerRequestListValidation, function (req, res) {
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        };
+        let filterConditions = {
+            requested_by: (req.query && req.query.requested_by) ? req.query.requested_by : null,
+        }
+        let serviceInst = new FootPlayerService();
+        return responseHandler(req, res, serviceInst.getFootplayerRequestList({ paginationOptions, filterConditions, user_id: req.authUser.user_id }));
+    });
 };

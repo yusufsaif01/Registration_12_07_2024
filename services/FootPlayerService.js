@@ -4,6 +4,7 @@ const MEMBER = require('../constants/MemberType');
 const PROFILE_STATUS = require('../constants/ProfileStatus');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const FootPlayerSearchListResponseMapper = require("../dataModels/responseMapper/FootPlayerSearchListResponseMapper");
+const FootPlayerRequestListResponseMapper = require("../dataModels/responseMapper/FootplayerRequestListResponseMapper");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const _ = require("lodash");
 const PlayerUtility = require('../db/utilities/PlayerUtility');
@@ -155,6 +156,38 @@ class FootPlayerService {
             }
         }
         return condition;
+    }
+
+    /**
+     * get footplayer requests list
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async getFootplayerRequestList(requestedData = {}) {
+        try {
+            let paginationOptions = requestedData.paginationOptions || {};
+            let requested_by = requestedData.filterConditions.requested_by;
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+            let data = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
+            { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail" } }, { $project: { club_academy_detail: { user_id: 1, name: 1, type: 1, avatar_url: 1, member_type: 1 } } },
+            { $match: { "club_academy_detail.member_type": requested_by } }, { $skip: options.skip }, { $limit: options.limit }
+            ]);
+            let totalRecords = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
+            { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail" } }, { $project: { club_academy_detail: { user_id: 1, name: 1, type: 1, avatar_url: 1, member_type: 1 } } },
+            { $match: { "club_academy_detail.member_type": requested_by } }]);
+            data = new FootPlayerRequestListResponseMapper().map(data);
+            let response = { total: totalRecords.length, records: data }
+            return Promise.resolve(response);
+        }
+        catch (e) {
+            console.log("Error in getFootplayerRequestList() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
     }
 }
 
