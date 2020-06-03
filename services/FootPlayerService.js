@@ -244,7 +244,7 @@ class FootPlayerService {
             return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_NOT_FOUND));
         }
         if (dataOfSentBy && dataOfSentBy.member_type && dataOfSentBy.member_type === MEMBER.CLUB) {
-            await this.isFootplayerOfClub(requestedData.user_id);
+            await this.isFootplayerOfOtherClub(requestedData.user_id);
         }
         return Promise.resolve();
     }
