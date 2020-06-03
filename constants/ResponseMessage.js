@@ -329,6 +329,9 @@ class ResponseMessage {
     static get FOOTPLAYER_REQUEST_NOT_FOUND() {
         return "Footplayer request not found"
     }
+    static get SENT_BY_USER_NOT_FOUND() {
+        return "Sent by user not found"
+    }
 }
 
 module.exports = ResponseMessage
