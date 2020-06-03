@@ -93,6 +93,14 @@ module.exports = (router) => {
      *       "httpCode": 500
      *     }
      *
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "Player is not verified",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }  
+     * 
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {

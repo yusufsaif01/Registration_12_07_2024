@@ -320,6 +320,9 @@ class ResponseMessage {
     static get FOOTPLAYER_REQUEST_ALREADY_SENT() {
         return "Footplayer request already sent"
     }
+    static get PLAYER_NOT_VERIFIED() {
+        return "Player is not verified"
+    }
 }
 
 module.exports = ResponseMessage
