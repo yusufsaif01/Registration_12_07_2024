@@ -189,6 +189,40 @@ class FootPlayerService {
             return Promise.reject(e);
         }
     }
+
+    async acceptFootplayerRequest(requestedData = {}) {
+        try {
+            let sent_by = await this.footplayerRequestValidator(requestedData);
+            let updatedDoc = { status: CONNECTION_REQUEST.ACCEPTED, is_deleted: true, deleted_at: Date.now() };
+            let condition = { $or: [{ sent_by: requestedData.user_id, send_to: sent_by, is_deleted: false }, { sent_by: sent_by, send_to: requestedData.user_id, is_deleted: false }] };
+
+            await this.connectionRequestUtilityInst.updateMany(condition, updatedDoc);
+            await this.followMember({ sent_by: sent_by, send_to: requestedData.user_id }, true);
+            await this.followMember({ sent_by: requestedData.user_id, send_to: sent_by }, true);
+            await this.makeFootmates({ sent_by: sent_by, send_to: requestedData.user_id });
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in acceptFootplayerRequest() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    async footplayerRequestValidator(requestedData = {}) {
+        let footplayerRequest = await this.footPlayerUtilityInst.findOne({ status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id });
+        if (_.isEmpty(footplayerRequest)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_NOT_FOUND));
+        }
+        let alreadyFootplayer = await this.footPlayerUtilityInst.findOne({ "send_to.user_id": requestedData.send_to, status: FOOTPLAYER_STATUS.ADDED }, { sent_by: 1, _id: 0 });
+        if (alreadyFootplayer && alreadyFootplayer.sent_by) {
+            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: alreadyFootplayer.sent_by }, { member_type: 1 });
+            if (sent_by_data && sent_by_data.member_type === MEMBER.CLUB) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER_OF_OTHER_CLUB));
+
+            }
+        }
+        return Promise.resolve();
+    }
 }
 
 module.exports = FootPlayerService;

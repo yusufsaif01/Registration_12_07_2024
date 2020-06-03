@@ -173,4 +173,43 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         return responseHandler(req, res, serviceInst.getFootplayerRequestList({ paginationOptions, filterConditions, user_id: req.authUser.user_id }));
     });
+
+    /**
+     * @api {patch} /footplayer/request/accept/:sent_by Accept footmate request
+     * @apiName Accept footmate request
+     * @apiGroup Connections
+     *   
+     * @apiParam (params) {String} sent_by user_id of sent_by
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }   
+     * 
+     * @apiErrorExample {json} Unauthorized
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     }
+     * 
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     */
+    router.patch('/footplayer/request/accept/:sent_by', checkAuthToken, function (req, res) {
+        let serviceInst = new FootPlayerService();
+        responseHandler(req, res, serviceInst.acceptFootplayerRequest({ user_id: req.authUser.user_id, sent_by: req.params.sent_by }));
+    });
 };
