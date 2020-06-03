@@ -203,6 +203,10 @@ class PostService {
                 currentDataOfPost.media.text = reqObj.text;
                 record.media = currentDataOfPost.media;
             }
+            if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
+                currentDataOfPost.media.text = reqObj.text;
+                record.media = currentDataOfPost.media;
+            }
         }
         if (!reqObj.text && reqObj.media_url) {
             if (currentDataOfPost.media && !currentDataOfPost.media.text && currentDataOfPost.media.media_url) {
