@@ -30,8 +30,11 @@ module.exports = (router) => {
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
      *             "avatar": "number of players associated",
      *             "name": "/uploads/avatar/user-avatar.png",
+     *             "member_type": "player",
      *             "player_type": "professional",
      *             "position": "Goalkeeper",
+     *             "member_type": "player",
+     *             "is_verified": true,
      *             "club_name": "xyz club"
      *            }] }
      *     }
@@ -54,7 +57,7 @@ module.exports = (router) => {
             phone: (req.query && req.query.phone) ? req.query.phone : null,
         }
         let serviceInst = new FootPlayerService();
-        return responseHandler(req, res, serviceInst.getPlayersList({ filterConditions, user_id: req.authUser.user_id }));
+        return responseHandler(req, res, serviceInst.footplayerSearch({ filterConditions, user_id: req.authUser.user_id }));
     });
 
     /**
