@@ -122,15 +122,16 @@ class FootPlayerService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
             }
         }
-        let alreadyFootplayer = await this.footPlayerUtilityInst.findOne({ "send_to.user_id": requestedData.send_to, status: FOOTPLAYER_STATUS.ADDED }, { sent_by: 1, _id: 0 });
-        if (alreadyFootplayer && alreadyFootplayer.sent_by) {
-            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: alreadyFootplayer.sent_by }, { member_type: 1 });
-            if (sent_by_data && sent_by_data.member_type === MEMBER.CLUB) {
+        if (requestedData.member_type === MEMBER.CLUB) {
+            let data = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.send_to, status: FOOTPLAYER_STATUS.ADDED, is_deleted: false } },
+            { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $project: { club: { $filter: { input: "$club_academy_detail", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
+            { $project: { _id: 0, footplayerOfClub: { $cond: { if: { $eq: ["$club", []] }, then: false, else: true } } } }
+            ]);
+            if (data && data.length > 0 && data[0] && data[0].footplayerOfClub) {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER_OF_OTHER_CLUB));
-
             }
         }
-
         return Promise.resolve();
     }
 
