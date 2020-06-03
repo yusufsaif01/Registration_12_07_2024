@@ -2,6 +2,8 @@ const { checkAuthToken } = require("../middleware/auth");
 const responseHandler = require("../ResponseHandler");
 const FootPlayerService = require("../services/FootPlayerService");
 const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
+const errors = require("../errors");
+const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 
 
 const footPlayerInst = new FootPlayerService;
@@ -12,8 +14,12 @@ module.exports = (router) => {
   
   /**
     * @api {get} /footplayers Club'f footplayers
-    * @apiName Club foot players
-    * @apiGroup Club Foor Players
+    * @apiName Club foot players list
+    * @apiGroup Club Foot Players
+    * 
+    * @apiParam (query) {String} search Search query.
+    * @apiParam (query) {String} page_no page number.
+    * @apiParam (query) {String} page_size page size.
     * 
     * @apiSuccess {String} status success
     * @apiSuccess {String} message Successfully done
@@ -78,5 +84,62 @@ module.exports = (router) => {
       })
     );
 
+  });
+
+  
+  /**
+   * @api {delete} /footplayers/:id delete footplayer request
+   * @apiName Club foot players delete
+   * @apiGroup Club Foot Players
+   *
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": "success",
+   *       "message": "Successfully done"
+   *     }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *
+   * @apiErrorExample {json} UNAUTHORIZED
+   *     HTTP/1.1 401 Unauthorized
+   *     {
+   *       "message": "Unauthorized",
+   *       "code": "UNAUTHORIZED",
+   *       "httpCode": 401
+   *     }
+   * 
+   * @apiErrorExample {json} NOT_FOUND
+   *     HTTP/1.1 404 Not found
+   *     {
+   *       "message": "Footmate request not found",
+   *       "code": "NOT_FOUND",
+   *       "httpCode": 404
+   *     }
+   * 
+   */
+  router.delete("/footplayers/:id", checkAuthToken, async (req,res,next) => {
+    try {
+      if (!req.params.id) {
+        return Promise.reject(
+          new errors.ValidationFailed(RESPONSE_MESSAGE.USER_ID_REQUIRED)
+        );
+      }
+      let requestId = req.params.id;
+      
+      responseHandler(req, res, footPlayerInst.deleteRequest(requestId,req.authUser.user_id));
+    } catch (e) {
+      console.log(e);
+      responseHandler(req, res, Promise.reject(e));
+    }
   });
 };

@@ -1,6 +1,8 @@
 const BaseService = require("./BaseService");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
+const errors = require("../errors");
+const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 
 class FootPlayerService extends BaseService {
   constructor() {
@@ -107,22 +109,33 @@ class FootPlayerService extends BaseService {
     return this.footPlayerUtilityInst.aggregate(aggPipes);
   }
 
-  async createDummy({ sentBy, sendTo }) {
-    let sendToUser = await this.playerInst.findOne({
-      user_id: sendTo,
-    });
+  async deleteRequest(requestId, userId) {
+    try {
 
-    return this.footPlayerUtilityInst.insert({
-      sent_by: sentBy,
-      send_to: {
-        user_id: sendTo,
-        f_name: sendToUser.first_name,
-        l_name: sendToUser.last_name,
-        email: sendToUser.email,
-        phone: sendToUser.phone,
-      },
-    });
-  }
+      const $where = {
+        id: requestId,
+        sent_by: userId,
+        is_deleted:false
+      };
+
+      let request = await this.footPlayerUtilityInst.findOne($where);
+
+      if (request) {
+        let date = Date.now();
+        await this.footPlayerUtilityInst.findOneAndUpdate(
+          $where,
+          { is_deleted: true, deleted_at: date }
+        );
+        return Promise.resolve();
+      }
+
+      throw new errors.NotFound(RESPONSE_MESSAGE.FOOTMATE_REQUEST_NOT_FOUND);
+      
+    } catch (error) {
+      console.log(error);
+      return Promise.reject(error);
+    }
+  }; 
 }
 
 module.exports = FootPlayerService;
