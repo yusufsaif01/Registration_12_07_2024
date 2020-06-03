@@ -175,8 +175,8 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {patch} /footplayer/request/accept/:sent_by Accept footplayer request
-     * @apiName Accept footplayer request
+     * @api {patch} /footplayer/request/accept/:sent_by accept footplayer request
+     * @apiName accept footplayer request
      * @apiGroup Footplayer
      *   
      * @apiParam (params) {String} sent_by user_id of sent_by
