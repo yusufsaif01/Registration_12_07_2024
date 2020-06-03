@@ -91,8 +91,8 @@ class FootPlayerService {
                 sent_by: requestedData.sent_by,
                 send_to: { user_id: requestedData.send_to, f_name: send_to_data.first_name, l_name: send_to_data.last_name, email: send_to_data.email, phone: send_to_data.phone }
             });
-            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
-            this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
+            // let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
+            // this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
             return Promise.resolve();
         } catch (e) {
             console.log("Error in sendFootplayerRequest() of FootPlayerService", e);
@@ -122,6 +122,15 @@ class FootPlayerService {
                 return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
             }
         }
+        let alreadyFootplayer = await this.footPlayerUtilityInst.findOne({ "send_to.user_id": requestedData.send_to, status: FOOTPLAYER_STATUS.ADDED }, { sent_by: 1, _id: 0 });
+        if (alreadyFootplayer && alreadyFootplayer.sent_by) {
+            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: alreadyFootplayer.sent_by }, { member_type: 1 });
+            if (sent_by_data && sent_by_data.member_type === MEMBER.CLUB) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER_OF_OTHER_CLUB));
+
+            }
+        }
+
         return Promise.resolve();
     }
 
