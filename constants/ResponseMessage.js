@@ -323,6 +323,15 @@ class ResponseMessage {
     static get DOB_REQUIRED() {
         return "DOB required"
     }
+    static get AADHAR_NUMBER_REQUIRED() {
+        return "Aadhar number is required"
+    }
+    static get DOCUMENT_NUMBER_REQUIRED() {
+        return "PAN/ COI/ Tin Number is required"
+    }
+    static get AIFF_ID_REQUIRED() {
+        return "AIFF Accreditation ID is required"
+    }
 }
 
 module.exports = ResponseMessage

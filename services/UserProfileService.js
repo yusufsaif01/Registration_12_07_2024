@@ -230,10 +230,10 @@ class UserProfileService {
                         data.documents = [documentReqObj]
                     }
                 }
-                if (member_type === MEMBER.CLUB && data.reg_number) {
+                if (member_type === MEMBER.CLUB && data.aiff_id) {
                     let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AIFF })
                     if (documentReqObj) {
-                        documentReqObj.document_number = data.reg_number
+                        documentReqObj.document_number = data.aiff_id
                         data.documents = [documentReqObj]
                     }
                 }
@@ -322,13 +322,16 @@ class UserProfileService {
         }
         if (documents && member_type) {
             if (member_type === MEMBER.ACADEMY && !data.number) {
-                return Promise.reject(new errors.ValidationFailed("PAN/ COI/ Tin Number is required"));
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_NUMBER_REQUIRED));
             }
-            if (member_type === MEMBER.CLUB && !data.reg_number) {
-                return Promise.reject(new errors.ValidationFailed("AIFF Registration Number is required"));
+            if (member_type === MEMBER.CLUB && !data.aiff_id) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AIFF_ID_REQUIRED));
             }
-            if (member_type !== MEMBER.PLAYER && (data.number || data.reg_number)) {
-                let documentNum = data.number ? data.number : data.reg_number
+            if (member_type === MEMBER.PLAYER && !data.aadhar_number) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_NUMBER_REQUIRED));
+            }
+            if (member_type !== MEMBER.PLAYER && (data.number || data.aiff_id)) {
+                let documentNum = data.number ? data.number : data.aiff_id
                 const details = await this.clubAcademyUtilityInst.findOne(
                     {
                         member_type: member_type, documents: {
