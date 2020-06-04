@@ -152,6 +152,19 @@ class UserProfileService {
             data.position = positionArray;
         }
         if (member_type == MEMBER.PLAYER) {
+            if (data.aadhar_number) {
+                let playerDocument = [];
+                let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR })
+                if (documentReqObj) {
+                    documentReqObj.document_number = data.aadhar_number
+                    playerDocument.push(documentReqObj);
+                }
+                let employeContractDocument = _.find(data.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
+                if (employeContractDocument) {
+                    playerDocument.push(employeContractDocument)
+                }
+                data.documents = playerDocument;
+            }
             let institute = {
                 "school": data.school ? data.school : null,
                 "college": data.college ? data.college : null,
@@ -207,19 +220,6 @@ class UserProfileService {
                 data.owner = owner;
 
             if (data.documents) {
-                if (member_type === MEMBER.PLAYER && data.aadhar_number) {
-                    let playerDocument = [];
-                    let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR })
-                    if (documentReqObj) {
-                        documentReqObj.document_number = data.aadhar_number
-                        playerDocument.push(documentReqObj);
-                    }
-                    let employeContractDocument = _.find(data.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
-                    if (employeContractDocument) {
-                        playerDocument.push(employeContractDocument)
-                    }
-                    data.document = playerDocument;
-                }
                 if (member_type === MEMBER.ACADEMY && data.document_type && data.number) {
                     let documentReqObj = _.find(data.documents, { type: data.document_type })
                     if (documentReqObj) {
@@ -390,6 +390,9 @@ class UserProfileService {
                         user_photo = uploadResponse.url
                     }
                     if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
+                        if (!files.aadhar) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_REQUIRED));
+                        }
                         if (files.aadhar) {
                             options.allowed_extensions = AADHAR_MEDIA_TYPE.PDF_EXTENSION;
                             let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
@@ -428,7 +431,7 @@ class UserProfileService {
                     let attachment_type = this.getAttachmentType(files.aiff.name);
                     reqObj.documents.push({
                         type: DOCUMENT_TYPE.AIFF,
-                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
                     });
                 }
                 if (files.employment_contract) {
@@ -437,7 +440,7 @@ class UserProfileService {
                     let attachment_type = this.getAttachmentType(files.employment_contract.name);
                     reqObj.documents.push({
                         type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT,
-                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
                     });
                 }
                 if (reqObj.document_type && files.document) {
@@ -447,7 +450,7 @@ class UserProfileService {
                     let attachment_type = this.getAttachmentType(files.document.name);
                     reqObj.documents.push({
                         type: reqObj.document_type,
-                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
                     });
                 }
             }

@@ -2,6 +2,7 @@ const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const PLAYER = require('../../constants/PlayerType')
+const DOCUMENT_STATUS = require('../../constants/DocumentStatus')
 
 module.exports = {
     fields: {
@@ -110,9 +111,10 @@ module.exports = {
                     type: String
                 }
             },
-            is_verified: {
-                type: Boolean,
-                default: false
+            status: {
+                type: String,
+                enum: [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.DISAPPROVED],
+                default: DOCUMENT_STATUS.PENDING
             }
         }],
         bio: {

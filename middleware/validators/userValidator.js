@@ -10,6 +10,7 @@ const PROFILE = require('../../constants/ProfileStatus');
 const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 const DOCUMENT_TYPE = require('../../constants/DocumentType');
+const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -177,7 +178,8 @@ class UserValidator {
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
             "former_club": Joi.string().trim().allow(""),
-            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
+            "aadhar_media_type": Joi.string().required().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
+            "aadhar_number": Joi.string().required().regex(/^[0-9]{12}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
                 };

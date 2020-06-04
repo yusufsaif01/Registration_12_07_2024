@@ -326,6 +326,9 @@ class ResponseMessage {
     static get PLAYER_PHOTO_REQUIRED() {
         return "player photo required"
     }
+    static get AADHAR_REQUIRED() {
+        return "Aadhar pdf required"
+    }
 }
 
 module.exports = ResponseMessage
