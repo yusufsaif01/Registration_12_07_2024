@@ -11,6 +11,7 @@ const moment = require('moment');
 const StorageProvider = require('storage-provider');
 const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 const AADHAR_MEDIA_TYPE = require('../constants/AadharMediaType');
+const DOCUMENT_MEDIA_TYPE = require('../constants/DocumentMediaType');
 const DOCUMENT_TYPE = require('../constants/DocumentType');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
@@ -63,10 +64,10 @@ class UserProfileService {
         let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
         if (details && details.documents && details.documents.length) {
             let documents = details.documents;
-            let aadharDB = _.find(documents, { type: "aadhar" });
-            let playerContractDB = _.find(documents, { type: "employment_contract" });
-            let aadharReqObj = _.find(reqObj.documents, { type: "aadhar" })
-            let playerContractReqObj = _.find(reqObj.documents, { type: "employment_contract" })
+            let aadharDB = _.find(documents, { type: DOCUMENT_TYPE.AADHAR });
+            let playerContractDB = _.find(documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT });
+            let aadharReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.AADHAR })
+            let playerContractReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
             if (aadharReqObj && !playerContractReqObj && playerContractDB) {
                 reqObj.documents.push(playerContractDB)
             }
@@ -206,29 +207,15 @@ class UserProfileService {
                 data.owner = owner;
 
             if (data.documents) {
-                if (member_type === MEMBER.PLAYER && data.aadhar_number && data.aadhar_media_type) {
+                if (member_type === MEMBER.PLAYER && data.aadhar_number) {
                     let playerDocument = [];
-                    if (data.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
-                        let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR })
-                        if (documentReqObj) {
-                            documentReqObj.document_number = data.aadhar_number
-                            playerDocument.push(documentReqObj);
-                        }
-                    }
-                    if (data.aadhar_media_type === AADHAR_MEDIA_TYPE.IMAGE) {
-                        let documentReqObjFront = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR_FRONT })
-                        let documentReqObjBack = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR_BACK })
-                        if (documentReqObjBack && documentReqObjFront) {
-                            documentReqObjBack.document_number = data.aadhar_number
-                            documentReqObjFront.document_number = data.aadhar_number
-                            let aadharImageDocumentArray = [documentReqObjFront, documentReqObjBack];
-                            playerDocument.push(aadharImageDocumentArray);
-
-                        }
+                    let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AADHAR })
+                    if (documentReqObj) {
+                        documentReqObj.document_number = data.aadhar_number
+                        playerDocument.push(documentReqObj);
                     }
                     let employeContractDocument = _.find(data.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
-                    if(employeContractDocument)
-                    {
+                    if (employeContractDocument) {
                         playerDocument.push(employeContractDocument)
                     }
                     data.document = playerDocument;
@@ -241,7 +228,7 @@ class UserProfileService {
                     }
                 }
                 if (member_type === MEMBER.CLUB && data.reg_number) {
-                    let documentReqObj = _.find(data.documents, { type: "aiff" })
+                    let documentReqObj = _.find(data.documents, { type: DOCUMENT_TYPE.AIFF })
                     if (documentReqObj) {
                         documentReqObj.document_number = data.reg_number
                         data.documents = [documentReqObj]
@@ -348,12 +335,41 @@ class UserProfileService {
                         }
                     }, { documents: 1, user_id: 1 });
                 if (!_.isEmpty(details)) {
+                    if (details.user_id !== user_id) {
+                        if (member_type === MEMBER.CLUB)
+                            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ID_DETAILS_EXISTS));
+                        if (member_type === MEMBER.ACADEMY)
+                            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DOCUMENT_DETAILS_EXISTS));
+                    }
+                }
+            }
+            if (member_type === MEMBER.PLAYER && data.aadhar_number && data.aadhar_media_type) {
+                const details = await this.playerUtilityInst.findOne({
+                    documents: {
+                        $elemMatch: {
+                            document_number: data.aadhar_number,
+                            type: DOCUMENT_TYPE.AADHAR
+                        }
+                    }
+                }, { documents: 1, user_id: 1 })
+                if (!_.isEmpty(details)) {
                     if (details.user_id !== user_id)
-                        return Promise.reject(new errors.Conflict("document number already in use"));
+                        return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.AADHAR_DETAILS_EXISTS));
                 }
             }
         }
         return Promise.resolve()
+    }
+
+    getAttachmentType(fileName) {
+        let attachment_type = DOCUMENT_MEDIA_TYPE.PDF;
+        if (fileName) {
+            let file_extension = fileName.split('.')[1] || null;
+            if (file_extension && file_extension != DOCUMENT_MEDIA_TYPE.PDF) {
+                attachment_type = DOCUMENT_MEDIA_TYPE.IMAGE;
+            }
+        }
+        return attachment_type;
     }
 
     async uploadProfileDocuments(reqObj = {}, files = null) {
@@ -363,43 +379,76 @@ class UserProfileService {
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
-                if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
-                    if (files.aadhar) {
-                        options.allowed_extensions = AADHAR_MEDIA_TYPE.PDF_EXTENSION;
-                        let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
-                        reqObj.documents.push({ link: uploadResponse.url, type: DOCUMENT_TYPE.AADHAR });
-                        options.allowed_extensions = [];
+                if (reqObj.aadhar_media_type) {
+                    if (!files.player_photo) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PHOTO_REQUIRED));
                     }
-                }
-                if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.IMAGE) {
-                    if (!files.aadhar_front) {
-                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_FRONT_REQUIRED));
+                    let user_photo = "";
+                    if (files.player_photo) {
+                        options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
+                        let uploadResponse = await storageProviderInst.uploadDocument(files.player_photo, options);
+                        user_photo = uploadResponse.url
                     }
-                    if (!files.aadhar_back) {
-                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_BACK_REQUIRED));
+                    if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
+                        if (files.aadhar) {
+                            options.allowed_extensions = AADHAR_MEDIA_TYPE.PDF_EXTENSION;
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
+                            reqObj.documents.push({
+                                type: DOCUMENT_TYPE.AADHAR,
+                                added_on: Date.now(), media: { attachment_type: AADHAR_MEDIA_TYPE.PDF, user_photo: user_photo, document: uploadResponse.url }
+                            });
+                        }
                     }
-                    options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
-                    if (files.aadhar_front) {
-                        let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_front, options);
-                        reqObj.documents.push({ link: uploadResponse.url, type: DOCUMENT_TYPE.AADHAR_FRONT });
+                    if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.IMAGE) {
+                        if (!files.aadhar_front) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_FRONT_REQUIRED));
+                        }
+                        if (!files.aadhar_back) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_BACK_REQUIRED));
+                        }
+                        options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
+                        let doc_front = "", doc_back = "";
+                        if (files.aadhar_front) {
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_front, options);
+                            doc_front = uploadResponse.url;
+                        }
+                        if (files.aadhar_back) {
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_back, options);
+                            doc_back = uploadResponse.url;
+                        }
+                        reqObj.documents.push({
+                            type: DOCUMENT_TYPE.AADHAR,
+                            added_on: Date.now(), media: { attachment_type: AADHAR_MEDIA_TYPE.IMAGE, user_photo: user_photo, doc_front: doc_front, doc_back: doc_back }
+                        });
                     }
-                    if (files.aadhar_back) {
-                        let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_back, options);
-                        reqObj.documents.push({ link: uploadResponse.url, type: DOCUMENT_TYPE.AADHAR_BACK });
-                    }
-                    options.allowed_extensions = [];
                 }
                 if (files.aiff) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.aiff, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
+                    let attachment_type = this.getAttachmentType(files.aiff.name);
+                    reqObj.documents.push({
+                        type: DOCUMENT_TYPE.AIFF,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                    });
                 }
                 if (files.employment_contract) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
+                    let attachment_type = this.getAttachmentType(files.employment_contract.name);
+                    reqObj.documents.push({
+                        type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                    });
                 }
                 if (reqObj.document_type && files.document) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
                     reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
+                    let attachment_type = this.getAttachmentType(files.document.name);
+                    reqObj.documents.push({
+                        type: reqObj.document_type,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url  }
+                    });
                 }
             }
 

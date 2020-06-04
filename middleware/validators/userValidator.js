@@ -9,6 +9,7 @@ const SORT_ORDER = require('../../constants/SortOrder');
 const PROFILE = require('../../constants/ProfileStatus');
 const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
+const DOCUMENT_TYPE = require('../../constants/DocumentType');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -104,6 +105,14 @@ class UserValidator {
             "aiff": Joi.any()
 
         };
+        if (req.body.member_type) {
+            let member_type = req.body.member_type
+            if (member_type === MEMBER.CLUB)
+                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
+
+            if (member_type === MEMBER.ACADEMY)
+                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+        }
         if (req.body.document_type) {
             let document_type = req.body.document_type;
             if (document_type === 'pan') {

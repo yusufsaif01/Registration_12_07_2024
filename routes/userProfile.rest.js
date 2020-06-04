@@ -95,6 +95,11 @@ module.exports = (router) => {
      * @apiGroup Profile
      *
      * @apiParam (body) {String} player_type player type can be grassroot/amateur/professional
+     * @apiParam (body) {String} aadhar_number player aadhar number
+     * @apiParam (body) {String} aadhar_media_type image or pdf
+     * @apiParam (body) {String} aadhar_front aadhar front image file
+     * @apiParam (body) {String} aadhar_back aadhar back image file
+     * @apiParam (body) {String} aadhar aadhar pdf file
      * @apiParam (body) {String} first_name player first name
      * @apiParam (body) {String} last_name player last name
      * @apiParam (body) {String} dob player date of birth

@@ -314,6 +314,18 @@ class ResponseMessage {
     static get AADHAR_BACK_REQUIRED() {
         return "Aadhar back image required"
     }
+    static get AADHAR_DETAILS_EXISTS() {
+        return "Aadhaar details already exist"
+    }
+    static get ID_DETAILS_EXISTS() {
+        return "ID details already exist"
+    }
+    static get DOCUMENT_DETAILS_EXISTS() {
+        return "Document details already exist"
+    }
+    static get PLAYER_PHOTO_REQUIRED() {
+        return "player photo required"
+    }
 }
 
 module.exports = ResponseMessage
