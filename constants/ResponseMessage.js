@@ -308,12 +308,6 @@ class ResponseMessage {
     static get AADHAR_NUMBER_INVALID() {
         return "Aadhar number invalid"
     }
-    static get AADHAR_FRONT_REQUIRED() {
-        return "Aadhar front image required"
-    }
-    static get AADHAR_BACK_REQUIRED() {
-        return "Aadhar back image required"
-    }
     static get AADHAR_DETAILS_EXISTS() {
         return "Aadhaar details already exist"
     }
@@ -323,11 +317,11 @@ class ResponseMessage {
     static get DOCUMENT_DETAILS_EXISTS() {
         return "Document details already exist"
     }
-    static get PLAYER_PHOTO_REQUIRED() {
-        return "player photo required"
+    static get DOB_CANNOT_BE_EDITED() {
+        return "DOB cannot be edited"
     }
-    static get AADHAR_REQUIRED() {
-        return "Aadhar pdf required"
+    static get DOB_REQUIRED() {
+        return "DOB required"
     }
 }
 

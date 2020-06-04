@@ -151,7 +151,7 @@ class UserValidator {
                     message: RESPONSE_MESSAGE.LAST_NAME_INVALID,
                 };
             }),
-            "dob": Joi.string().trim().required(),
+            "dob": Joi.string().trim(),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
@@ -178,8 +178,8 @@ class UserValidator {
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
             "former_club": Joi.string().trim().allow(""),
-            "aadhar_media_type": Joi.string().required().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
-            "aadhar_number": Joi.string().required().regex(/^[0-9]{12}$/).error(() => {
+            "aadhar_media_type": Joi.string().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
+            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
                 };

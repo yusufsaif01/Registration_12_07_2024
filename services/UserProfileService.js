@@ -2,6 +2,7 @@ const config = require('../config');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
+const LoginUtility = require('../db/utilities/LoginUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const errors = require("../errors");
 const _ = require("lodash");
@@ -13,6 +14,7 @@ const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 const AADHAR_MEDIA_TYPE = require('../constants/AadharMediaType');
 const DOCUMENT_MEDIA_TYPE = require('../constants/DocumentMediaType');
 const DOCUMENT_TYPE = require('../constants/DocumentType');
+const PROFILE_STATUS = require('../constants/ProfileStatus');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
@@ -37,6 +39,7 @@ class UserProfileService {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
+        this.loginUtilityInst = new LoginUtility();
     }
 
     /**
@@ -358,6 +361,15 @@ class UserProfileService {
                 }
             }
         }
+        if (member_type === MEMBER.PLAYER && user_id) {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id }, { profile_status: 1 });
+            if (loginDetails.profile_status === PROFILE_STATUS.VERIFIED && data.dob) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
+            }
+            if (loginDetails.profile_status != PROFILE_STATUS.VERIFIED && !data.dob) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_REQUIRED));
+            }
+        }
         return Promise.resolve()
     }
 
@@ -380,9 +392,6 @@ class UserProfileService {
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (reqObj.aadhar_media_type) {
-                    if (!files.player_photo) {
-                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PHOTO_REQUIRED));
-                    }
                     let user_photo = "";
                     if (files.player_photo) {
                         options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
@@ -390,9 +399,6 @@ class UserProfileService {
                         user_photo = uploadResponse.url
                     }
                     if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
-                        if (!files.aadhar) {
-                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_REQUIRED));
-                        }
                         if (files.aadhar) {
                             options.allowed_extensions = AADHAR_MEDIA_TYPE.PDF_EXTENSION;
                             let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
@@ -403,12 +409,6 @@ class UserProfileService {
                         }
                     }
                     if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.IMAGE) {
-                        if (!files.aadhar_front) {
-                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_FRONT_REQUIRED));
-                        }
-                        if (!files.aadhar_back) {
-                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_BACK_REQUIRED));
-                        }
                         options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
                         let doc_front = "", doc_back = "";
                         if (files.aadhar_front) {
