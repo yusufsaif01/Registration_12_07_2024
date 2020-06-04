@@ -84,18 +84,35 @@ module.exports = {
             }
         },
         documents: [{
-            link: {
+            type: {
                 type: String
+            },
+            added_on: {
+                type: Date
             },
             document_number: {
                 type: String
             },
+            media: {
+                attachment_type: {
+                    type: String
+                },
+                doc_front: {
+                    type: String
+                },
+                doc_back: {
+                    type: String
+                },
+                user_photo: {
+                    type: String
+                },
+                document: {
+                    type: String
+                }
+            },
             is_verified: {
                 type: Boolean,
                 default: false
-            },
-            type: {
-                type: String
             }
         }],
         bio: {
