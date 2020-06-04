@@ -31,6 +31,13 @@ class EmailService {
             return Promise.resolve();
         }
     }
+
+    async profileVerified (email) {
+        await this.sendMail("profileVerified", {email: email});
+    }
+    async profileDisapproved (email, remarks) {
+        await this.sendMail("profileDisapproved", {email: email, remarks});
+    }
 }
 
 module.exports = EmailService;
