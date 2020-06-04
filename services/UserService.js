@@ -208,6 +208,7 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    data.profile_status = loginDetails.profile_status;
                     return data;
                 } else {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND));
@@ -235,6 +236,7 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    data.profile_status = loginDetails.profile_status;
                     data.is_followed = await this.isFollowed({ sent_by: user.sent_by, send_to: user.user_id });
                     if (loginDetails.member_type === MEMBER.PLAYER)
                         data.footmate_status = await this.isFootMate({ sent_by: user.sent_by, send_to: user.user_id });
