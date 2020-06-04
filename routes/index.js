@@ -8,7 +8,7 @@ const achievementRoutes = require('./achievement.rest');
 const playerSpecializationRoutes = require('./player-specialization.rest');
 const connectionsRoutes = require('./connections.rest');
 const postRoutes = require('./post.rest');
-const footplayers = require('./footplayers.rest');
+const footplayersRoutes = require('./footplayers.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -23,7 +23,7 @@ class Route {
 		playerSpecializationRoutes(apiRouter);
 		connectionsRoutes(apiRouter);
 		postRoutes(apiRouter);
-		footplayers(apiRouter);
+		footplayersRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));
