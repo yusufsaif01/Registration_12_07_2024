@@ -57,7 +57,9 @@ class PlayerDocumentsService {
 
     await this.loginDetailsInst.updateOne($where, {
       $set: {
-        profile_status: ProfileStatus.VERIFIED,
+        profile_status: {
+          status: ProfileStatus.VERIFIED,
+        },
       },
     });
 
