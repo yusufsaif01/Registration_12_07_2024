@@ -85,6 +85,13 @@ class FootPlayerService {
         return filterArr.length ? condition : {}
     }
 
+    /**
+     * send footplayer request
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
     async sendFootplayerRequest(requestedData = {}) {
         try {
             await this.sendFootplayerRequestValidator(requestedData);
@@ -102,6 +109,13 @@ class FootPlayerService {
         }
     }
 
+    /**
+     * validates requestedData for sendFootplayerRequest
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
     async sendFootplayerRequestValidator(requestedData = {}) {
         if (requestedData.send_to === requestedData.sent_by) {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF));
