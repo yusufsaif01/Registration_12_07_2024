@@ -50,11 +50,19 @@ class ClubAcademyDocumentService {
       user_id: user.user_id,
       "documents.type": type,
     };
-    await this.clubAcademyInst.updateOne($where, {
+    let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
         "documents.$[].status": DocumentStatus.APPROVED,
       },
     });
+
+    if (res.nModified) {
+      this.emailService.documentApproval({
+        email: user.email,
+        documentType: type,
+        name: user.name,
+      })
+    }
 
     // reload model
     user = await this.getUser(user.user_id);
@@ -77,13 +85,22 @@ class ClubAcademyDocumentService {
       user_id: user.user_id,
       "documents.type": type,
     };
-    await this.clubAcademyInst.updateOne($where, {
+    let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
         "documents.$[].status": DocumentStatus.DISAPPROVED,
         "documents.$[].remark": remarks,
 
       },
     });
+
+    if (res.nModified) {
+      this.emailService.documentDisApproval({
+        email: user.email,
+        documentType: type,
+        name: user.name,
+        reason: remarks
+      });
+    }
 
     // reload model
     user = await this.getUser(user.user_id);

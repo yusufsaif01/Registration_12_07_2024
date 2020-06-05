@@ -4,6 +4,8 @@ const welcome = require("./welcomeMailTemplate");
 const changePassword = require("./changePasswordMailTemplate");
 const profileVerified = require("./profileVerifiedTemplate");
 const profileDisapproved = require("./profileDisapprovedTemplate");
+const documentApproval = require("./documentApprovalTemplate");
+const documentDisapproval = require("./documentDisApprovalTemplate");
 
 module.exports = {
   forgotPassword,
@@ -12,4 +14,6 @@ module.exports = {
   changePassword,
   profileVerified,
   profileDisapproved,
+  documentApproval,
+  documentDisapproval,
 };
