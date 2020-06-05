@@ -99,12 +99,7 @@ class UserValidator {
             "top_signings": Joi.string(),
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
-            "top_players": Joi.string(),
-
-            // need to remove
-            "document": Joi.any(),
-            "aiff": Joi.any()
-
+            "top_players": Joi.string()
         };
         if (req.body.member_type) {
             let member_type = req.body.member_type
@@ -185,7 +180,6 @@ class UserValidator {
                 };
             }),
             //need to remove
-            "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
         };
 

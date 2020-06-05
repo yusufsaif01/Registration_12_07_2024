@@ -332,6 +332,30 @@ class ResponseMessage {
     static get AIFF_ID_REQUIRED() {
         return "AIFF Accreditation ID is required"
     }
+    static get AADHAR_FRONT_REQUIRED() {
+        return "Aadhar front image required"
+    }
+    static get AADHAR_BACK_REQUIRED() {
+        return "Aadhar back image required"
+    }
+    static get AADHAR_DOCUMENT_REQUIRED() {
+        return "Aadhar document required"
+    }
+    static get PLAYER_PHOTO_REQUIRED() {
+        return "player photo required"
+    }
+    static get EMPLOYMENT_CONTRACT_REQUIRED() {
+        return "Employment contract required"
+    }
+    static get AIFF_REQUIRED() {
+        return "AIFF document is required"
+    }
+    static get DOCUMENT_REQUIRED() {
+        return "Document is required"
+    }
+    static get AADHAR_MEDIA_TYPE_REQUIRED() {
+        return "Aadhar media type required"
+    }
 }
 
 module.exports = ResponseMessage

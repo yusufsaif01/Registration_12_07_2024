@@ -176,7 +176,7 @@ module.exports = (router) => {
     router.put('/update-details', checkAuthToken, userValidator.updateDetailsAPIValidation, async function (req, res) {
         try {
             let serviceInst = new UserProfileService();
-            let reqObj = await serviceInst.uploadProfileDocuments(req.body, req.files);
+            let reqObj = await serviceInst.uploadProfileDocuments(req.body,req.authUser.user_id, req.files);
 
             responseHandler(req, res, serviceInst.updateProfileDetails({
                 member_type: req.authUser.member_type,
