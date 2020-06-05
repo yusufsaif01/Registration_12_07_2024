@@ -10,6 +10,7 @@ const connectionsRoutes = require('./connections.rest');
 const postRoutes = require('./post.rest');
 const playerDocuments = require('./player-documents.rest');
 const clubAcademyDocuments = require('./club-academy-documents.rest');
+const footplayerRoutes = require('./footplayer.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -26,6 +27,7 @@ class Route {
 		postRoutes(apiRouter);
 		playerDocuments(apiRouter);
 		clubAcademyDocuments(apiRouter);
+		footplayerRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));

@@ -17,8 +17,13 @@ class EmailService {
     async welcome(email) {
         await this.sendMail("welcome", { email: email });
     }
+
     async changePassword(email) {
         await this.sendMail("changePassword", { email: email });
+    }
+
+    async footplayerRequest(send_to_email,sent_by={}) {
+        await this.sendMail("footplayerRequest", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name:sent_by.name });
     }
 
     async sendMail(mailTemplate, data) {

@@ -6,6 +6,7 @@ const profileVerified = require("./profileVerifiedTemplate");
 const profileDisapproved = require("./profileDisapprovedTemplate");
 const documentApproval = require("./documentApprovalTemplate");
 const documentDisapproval = require("./documentDisApprovalTemplate");
+const footplayerRequest = require("./footplayerRequestMailTemplate");
 
 module.exports = {
   forgotPassword,
@@ -16,4 +17,5 @@ module.exports = {
   profileDisapproved,
   documentApproval,
   documentDisapproval,
+  footplayerRequest,
 };
