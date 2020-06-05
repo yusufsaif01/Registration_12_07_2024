@@ -31,7 +31,7 @@ module.exports = (router) => {
      *             "avatar": "number of players associated",
      *             "name": "/uploads/avatar/user-avatar.png",
      *             "member_type": "player",
-     *             "player_type": "professional",
+     *             "category": "professional",
      *             "position": "Goalkeeper",
      *             "member_type": "player",
      *             "is_verified": true,
@@ -149,7 +149,7 @@ module.exports = (router) => {
      *             "avatar": "/uploads/avatar/user-avatar.png",
      *             "name": "xyz",
      *             "member_type": "club",
-     *             "sub-category": "Residential",
+     *             "sub_category": "Residential",
      *            }] }
      *     }
      *
