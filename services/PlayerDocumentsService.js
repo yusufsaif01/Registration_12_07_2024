@@ -1,7 +1,6 @@
 const PlayerUtility = require("../db/utilities/PlayerUtility");
 const errors = require("../errors");
 const ResponseMessage = require("../constants/ResponseMessage");
-const PlayerType = require("../constants/PlayerType");
 const ProfileStatus = require("../constants/ProfileStatus");
 const DocumentStatus = require("../constants/DocumentStatus");
 const LoginUtility = require("../db/utilities/LoginUtility");
@@ -23,7 +22,6 @@ class PlayerDocumentsService {
   async getUser(user_id) {
     let user = await this.playerDetailsInst.findOne({
       user_id: user_id,
-      player_type: { $in: [PlayerType.AMATEUR, PlayerType.GRASSROOT] },
     });
     if (!user) {
       throw new errors.NotFound(ResponseMessage.USER_NOT_FOUND);
@@ -31,61 +29,99 @@ class PlayerDocumentsService {
     return user;
   }
 
-  async updateDocumentStatus(user_id, status, remarks) {
+  async updateDocumentStatus(user_id, type, status, remarks) {
     let user = await this.getUser(user_id);
 
     if (status == DocumentStatus.APPROVED) {
-      await this.approvalHandler(user);
+      await this.approvalHandler(user, type);
       return Promise.resolve();
     }
     if (status == DocumentStatus.DISAPPROVED) {
-      await this.disapproveHandler(user, remarks);
+      await this.disapproveHandler(user, type, remarks);
       return Promise.resolve();
     }
-
   }
 
-  async approvalHandler(user) {
+  async approvalHandler(user, type) {
     const $where = {
       user_id: user.user_id,
-    };
-    await this.playerDetailsInst.updateOne($where, {
-      $set: {
-        "documents.$[].status": DocumentStatus.APPROVED,
-      },
-    });
-
-    await this.loginDetailsInst.updateOne($where, {
-      $set: {
-        profile_status: {
-          status: ProfileStatus.VERIFIED,
+      documents: {
+        $elemMatch: {
+          type: type,
         },
       },
+    };
+    let res = await this.playerDetailsInst.updateOne($where, {
+      $set: {
+        "documents.$.status": DocumentStatus.APPROVED,
+        "documents.$.remark": '',
+      },
     });
 
-    await this.emailService.profileVerified(user.email);
+    if (res.nModified) {
+      this.emailService.documentApproval({
+        email: user.email,
+        documentType: type,
+        name: [user.first_name, user.last_name].join(" "),
+      });
+    }
+
+    // reload model
+    user = await this.getUser(user.user_id);
+
+    // complete approval
+    if (user.documents.every((doc) => doc.status == DocumentStatus.APPROVED)) {
+      await this.loginDetailsInst.updateOne($where, {
+        $set: {
+          profile_status: {
+            status: ProfileStatus.VERIFIED,
+          },
+        },
+      });
+      await this.emailService.profileVerified(user.email);
+    }
   }
 
-  async disapproveHandler(user, remarks) {
+  async disapproveHandler(user, type, remarks) {
     const $where = {
       user_id: user.user_id,
-    };
-    await this.playerDetailsInst.updateOne($where, {
-      $set: {
-        "documents.$[].status": DocumentStatus.DISAPPROVED,
-      },
-    });
-
-    await this.loginDetailsInst.updateOne($where, {
-      $set: {
-        profile_status: {
-          status: ProfileStatus.DISAPPROVED,
-          remarks, 
+      documents: {
+        $elemMatch: {
+          type: type,
         },
       },
+    };
+    let res = await this.playerDetailsInst.updateOne($where, {
+      $set: {
+        "documents.$.status": DocumentStatus.DISAPPROVED,
+        "documents.$.remark": remarks,
+      },
     });
+    if (res.nModified) {
+      this.emailService.documentDisApproval({
+        email: user.email,
+        documentType: type,
+        name: [user.first_name, user.last_name].join(" "),
+        reason: remarks,
+      });
+    }
 
-    await this.emailService.profileDisapproved(user.email, remarks);
+    // reload model
+    user = await this.getUser(user.user_id);
+    // complete disapproval
+    if (
+      user.documents.every((doc) => doc.status == DocumentStatus.DISAPPROVED)
+    ) {
+      await this.loginDetailsInst.updateOne($where, {
+        $set: {
+          profile_status: {
+            status: ProfileStatus.DISAPPROVED,
+            remarks,
+          },
+        },
+      });
+      await this.emailService.profileDisapproved(user.email, remarks);
+    }
   }
 }
 

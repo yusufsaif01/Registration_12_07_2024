@@ -39,27 +39,10 @@ class EmailService {
         await this.sendMail("profileDisapproved", {email: email, remarks});
     }
 
-    /**
-     * 
-     * @param {object} data 
-     * @param {string} data.email 
-     * @param {string} data.documentType 
-     * @param {string} data.name 
-     * @param {string} data.memberType  
-     */
     async documentApproval (data) {
         await this.sendMail("documentApproval", data)
     }
 
-    /**
-     * 
-     * @param {object} data 
-     * @param {string} data.email 
-     * @param {string} data.documentType 
-     * @param {string} data.name 
-     * @param {string} data.memberType  
-     * @param {string} data.reason  
-     */
     async documentDisApproval (data) {
         await this.sendMail("documentDisapproval", data);
     }

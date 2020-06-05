@@ -50,13 +50,14 @@ class ClubAcademyDocumentService {
       user_id: user.user_id,
       documents: {
         $elemMatch: {
-          type: type
+          type: type,
         },
       },
     };
     let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
         "documents.$.status": DocumentStatus.APPROVED,
+        "documents.$.remark": '',
       },
     });
 
@@ -65,7 +66,7 @@ class ClubAcademyDocumentService {
         email: user.email,
         documentType: type,
         name: user.name,
-      })
+      });
     }
 
     // reload model
@@ -89,7 +90,7 @@ class ClubAcademyDocumentService {
       user_id: user.user_id,
       documents: {
         $elemMatch: {
-          type: type
+          type: type,
         },
       },
     };

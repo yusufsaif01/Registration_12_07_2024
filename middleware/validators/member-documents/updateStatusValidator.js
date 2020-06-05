@@ -16,7 +16,7 @@ class UpdateStatusValidator {
         PlayerDocumentStatus.DISAPPROVED,
       ]),
       type: Joi.required().valid([
-        DocumentType.AIFF, DocumentType.ADHAAR, DocumentType.EMPLOYEMENT_CONTRACT
+        DocumentType.AIFF, DocumentType.AADHAR, DocumentType.EMPLOYEMENT_CONTRACT
       ]),
       remarks: Joi.when("status", {
         is: PlayerDocumentStatus.DISAPPROVED,

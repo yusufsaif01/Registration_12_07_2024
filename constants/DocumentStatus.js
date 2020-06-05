@@ -10,4 +10,4 @@ class DocumentStatus {
   }
 }
 
-module.exports = DocumentStatus; // rename to documentstatus
+module.exports = DocumentStatus;

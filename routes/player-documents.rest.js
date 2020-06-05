@@ -126,14 +126,14 @@ module.exports = (router) => {
     async (req, res) => {
       let { user_id } = req.params;
 
-      let { status, remarks } = req.body;
+      let { status, remarks, type } = req.body;
 
       try {
         responseHandler(
           req,
           res,
           Promise.resolve(
-            playerDocInst.updateDocumentStatus(user_id, status, remarks)
+            playerDocInst.updateDocumentStatus(user_id, type, status, remarks)
           )
         );
       } catch (error) {
