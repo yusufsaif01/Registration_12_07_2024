@@ -254,13 +254,13 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {post} /footplayer/invite send footplayer invitation
-     * @apiName send footplayer invitation
+     * @api {post} /footplayer/invite send footplayer invite
+     * @apiName send footplayer invite
      * @apiGroup Footplayer
      *   
-     * @apiParam (body) {String} f_name first name
-     * @apiParam (body) {String} l_name last name
-     * @apiParam (body) {String} phone phone number 
+     * @apiParam (body) {String} [f_name] first name
+     * @apiParam (body) {String} [l_name] last name
+     * @apiParam (body) {String} [phone] phone number 
      * @apiParam (body) {String} email email
      * 
      * @apiSuccess {String} status success
@@ -288,19 +288,11 @@ module.exports = (router) => {
      *       "code": "INTERNAL_SERVER_ERROR",
      *       "httpCode": 500
      *     }
-     *
-     * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "Player is not verified",
-     *       "code": "VALIDATION_FAILED",
-     *       "httpCode": 422
-	 *     }  
      * 
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "Already footplayer",
+	 *       "message": "Invite already sent",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -308,7 +300,15 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "Footplayer request already sent",
+	 *       "message": "User with this phone already registered,
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     *      
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Email is already registered",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -316,6 +316,6 @@ module.exports = (router) => {
      */
     router.post('/footplayer/invite', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.footplayerInviteValidation, function (req, res) {
         let serviceInst = new FootPlayerService();
-        responseHandler(req, res, serviceInst.sendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body.to, member_type: req.authUser.member_type }));
+        responseHandler(req, res, serviceInst.sendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body }));
     });
 };

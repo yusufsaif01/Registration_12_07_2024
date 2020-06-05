@@ -12,6 +12,7 @@ const errors = require("../errors");
 const EmailService = require('./EmailService');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const ConnectionService = require('./ConnectionService');
+const config = require("../config");
 
 class FootPlayerService {
 
@@ -303,6 +304,64 @@ class FootPlayerService {
             console.log("Error in rejectFootPlayerRequest() of FootPlayerService", e);
             return Promise.reject(e);
         }
+    }
+
+    /**
+     * sends footplayer invite 
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async sendFootplayerInvite(requestedData = {}) {
+        try {
+            await this.ValidateFootplayerInvite(requestedData);
+            let send_to = requestedData.send_to;
+            let record = {
+                sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED,
+                send_to: {
+                    user_id: "", f_name: send_to.f_name || "", l_name: send_to.l_name || "", email: send_to.email || "", phone: send_to.phone || ""
+                }
+            }
+            await this.footPlayerUtilityInst.insert(record);
+            let registration_link = config.app.baseURL + "register";
+            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
+            this.emailService.sendFootplayerInvite(send_to.email, { member_type: sent_by_data.member_type, name: sent_by_data.name }, registration_link);
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in sendFootPlayerInvitation() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates requestedData for sendFootplayerInvite
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async ValidateFootplayerInvite(requestedData = {}) {
+        let foundUser = await this.loginUtilityInst.findOne({ username: requestedData.send_to.email });
+        if (!_.isEmpty(foundUser)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED));
+        }
+        if (requestedData.send_to.phone) {
+            let foundPlayer = await this.playerUtilityInst.findOne({ phone: requestedData.send_to.phone });
+            if (foundPlayer) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PHONE_NUMBER_EXISTS));
+            }
+            let foundClubAcademy = await this.clubAcademyUtilityInst.findOne({ phone: requestedData.send_to.phone });
+            if (foundClubAcademy) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PHONE_NUMBER_EXISTS));
+            }
+        }
+        let condition = requestedData.send_to.phone ? [{ "send_to.email": requestedData.send_to.email }, { "send_to.phone": requestedData.send_to.phone }] : [{ "send_to.email": requestedData.send_to.email }];
+        let footplayerInvite = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED, $or: condition });
+        if (!_.isEmpty(footplayerInvite)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.INVITE_ALREADY_SENT));
+        }
+        return Promise.resolve();
     }
 }
 
