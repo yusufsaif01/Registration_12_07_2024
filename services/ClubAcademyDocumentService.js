@@ -48,11 +48,15 @@ class ClubAcademyDocumentService {
   async approvalHandler(user, type) {
     const $where = {
       user_id: user.user_id,
-      "documents.type": type,
+      documents: {
+        $elemMatch: {
+          type: type
+        },
+      },
     };
     let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
-        "documents.$[].status": DocumentStatus.APPROVED,
+        "documents.$.status": DocumentStatus.APPROVED,
       },
     });
 
@@ -83,13 +87,16 @@ class ClubAcademyDocumentService {
   async disapproveHandler(user, type, remarks) {
     const $where = {
       user_id: user.user_id,
-      "documents.type": type,
+      documents: {
+        $elemMatch: {
+          type: type
+        },
+      },
     };
     let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
-        "documents.$[].status": DocumentStatus.DISAPPROVED,
-        "documents.$[].remark": remarks,
-
+        "documents.$.status": DocumentStatus.DISAPPROVED,
+        "documents.$.remark": remarks,
       },
     });
 
