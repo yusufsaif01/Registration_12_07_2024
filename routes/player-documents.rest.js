@@ -13,7 +13,7 @@ const playerDocInst = new PlayerDocumentsService();
 module.exports = (router) => {
 
   /**
-    * @api {get} player/:user_id/documents Get player documents listing
+    * @api {get} /player/:user_id/documents Get player documents listing
     * @apiName Player documents listing
     * @apiGroup Player Documents
     * 
@@ -86,7 +86,7 @@ module.exports = (router) => {
   );
 
   /**
-   * @api {put} player/:user_id/documents/status Update player document status
+   * @api {put} /player/:user_id/documents/status Update player document status
    * @apiName Player documents update status
    * @apiGroup Player Documents
    * 

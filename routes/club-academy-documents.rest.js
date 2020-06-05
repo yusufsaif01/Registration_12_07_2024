@@ -13,7 +13,7 @@ const clubAcademyInst = new ClubAcademyDocumentService();
 module.exports = (router) => {
 
   /**
-    * @api {get} club-academy/:user_id/documents Get Club Academy Documents listing
+    * @api {get} /club-academy/:user_id/documents Get Club Academy Documents listing
     * @apiName Club academy documents listing
     * @apiGroup Club Academy Documents
     * 
@@ -84,7 +84,7 @@ module.exports = (router) => {
   );
 
   /**
-   * @api {put} club-academy/:user_id/documents/status Update Club/Academy document status
+   * @api {put} /club-academy/:user_id/documents/status Update Club/Academy document status
    * @apiName Club academy documents update status
    * @apiGroup Club Academy Documents
    * 
