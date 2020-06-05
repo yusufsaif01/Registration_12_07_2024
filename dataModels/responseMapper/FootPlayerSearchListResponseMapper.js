@@ -33,8 +33,7 @@ class FootPlayerSearchListResponseMapper {
                         "member_type": member.club_academy_detail.member_type,
                         "category": member.club_academy_detail.type || "-",
                         "position": "",
-                        "is_verified": member.club_academy_detail.is_verified || false,
-
+                        "is_verified": member.club_academy_detail.is_verified || false
                     };
                     response.push(data);
                 }
