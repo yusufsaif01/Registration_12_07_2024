@@ -11,6 +11,7 @@ const PlayerUtility = require('../db/utilities/PlayerUtility');
 const errors = require("../errors");
 const EmailService = require('./EmailService');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const ConnectionService = require('./ConnectionService');
 
 class FootPlayerService {
 
@@ -228,6 +229,59 @@ class FootPlayerService {
             console.log("Error in getFootplayerRequestList() of FootPlayerService", e);
             return Promise.reject(e);
         }
+    }
+
+    /**
+     * accept footplayer request
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async acceptFootplayerRequest(requestedData = {}) {
+        try {
+            await this.footplayerRequestValidator(requestedData);
+            let updateOneCondition = { status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id };
+            await this.footPlayerUtilityInst.updateOne(updateOneCondition, { status: FOOTPLAYER_STATUS.ADDED });
+            let clubRequestsInPending = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
+            { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $project: { _id: 0, club: { $filter: { input: "$club_academy_detail", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
+            { $unwind: { path: "$club" } }, { $project: { sent_by: "$club.user_id" } }]);
+            if (clubRequestsInPending && clubRequestsInPending.length) {
+                let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+                await this.footPlayerUtilityInst.updateMany({ $or: clubRequestsInPending }, updatedDoc);
+            }
+            let serviceInst = new ConnectionService();
+            await serviceInst.followMember({ sent_by: requestedData.sent_by, send_to: requestedData.user_id }, true);
+            await serviceInst.followMember({ sent_by: requestedData.user_id, send_to: requestedData.sent_by }, true);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in acceptFootplayerRequest() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates requestedData for acceptFootplayerRequest
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async footplayerRequestValidator(requestedData = {}) {
+        let dataOfSentBy = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { member_type: 1, });
+        if (_.isEmpty(dataOfSentBy)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.SENT_BY_USER_NOT_FOUND));
+        }
+        let footplayerRequest = await this.footPlayerUtilityInst.findOne({ status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id });
+        if (_.isEmpty(footplayerRequest)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_NOT_FOUND));
+        }
+        if (dataOfSentBy && dataOfSentBy.member_type && dataOfSentBy.member_type === MEMBER.CLUB) {
+            await this.isFootplayerOfOtherClub(requestedData.user_id);
+        }
+        return Promise.resolve();
     }
 }
 

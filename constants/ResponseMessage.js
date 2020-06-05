@@ -326,6 +326,12 @@ class ResponseMessage {
     static get ALREADY_FOOTPLAYER_OF_OTHER_CLUB() {
         return "Already footplayer of other club"
     }
+    static get FOOTPLAYER_REQUEST_NOT_FOUND() {
+        return "Footplayer request not found"
+    }
+    static get SENT_BY_USER_NOT_FOUND() {
+        return "Sent by user not found"
+    }
 }
 
 module.exports = ResponseMessage
