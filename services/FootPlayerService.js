@@ -283,6 +283,27 @@ class FootPlayerService {
         }
         return Promise.resolve();
     }
+
+    /**
+     * reject footplayer request
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async rejectFootplayerRequest(requestedData = {}) {
+        try {
+            await this.footplayerRequestValidator(requestedData);
+            let updateOneCondition = { status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id };
+            let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+            await this.footPlayerUtilityInst.updateOne(updateOneCondition, updatedDoc);
+            return Promise.resolve();
+        }
+        catch (e) {
+            console.log("Error in rejectFootPlayerRequest() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = FootPlayerService;
