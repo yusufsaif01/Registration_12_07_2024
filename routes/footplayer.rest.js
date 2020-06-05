@@ -149,7 +149,7 @@ module.exports = (router) => {
      *             "avatar": "/uploads/avatar/user-avatar.png",
      *             "name": "xyz",
      *             "member_type": "club",
-     *             "sub-category": "Residential",
+     *             "sub_category": "Residential",
      *            }] }
      *     }
      *
