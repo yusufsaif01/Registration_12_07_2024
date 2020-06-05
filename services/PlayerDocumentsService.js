@@ -54,7 +54,7 @@ class PlayerDocumentsService {
     let res = await this.playerDetailsInst.updateOne($where, {
       $set: {
         "documents.$.status": DocumentStatus.APPROVED,
-        "documents.$.remark": '',
+        "documents.$.remark": "",
       },
     });
 
@@ -71,7 +71,9 @@ class PlayerDocumentsService {
 
     // complete approval
     if (user.documents.every((doc) => doc.status == DocumentStatus.APPROVED)) {
-      await this.loginDetailsInst.updateOne($where, {
+      await this.loginDetailsInst.updateOne({
+        user_id: user.user_id
+      }, {
         $set: {
           profile_status: {
             status: ProfileStatus.VERIFIED,
@@ -98,29 +100,45 @@ class PlayerDocumentsService {
       },
     });
     if (res.nModified) {
+
+      /**
+       * Send email notification
+       */
       this.emailService.documentDisApproval({
         email: user.email,
         documentType: type,
         name: [user.first_name, user.last_name].join(" "),
         reason: remarks,
       });
-    }
 
-    // reload model
-    user = await this.getUser(user.user_id);
-    // complete disapproval
-    if (
-      user.documents.every((doc) => doc.status == DocumentStatus.DISAPPROVED)
-    ) {
-      await this.loginDetailsInst.updateOne($where, {
-        $set: {
-          profile_status: {
-            status: ProfileStatus.DISAPPROVED,
-            remarks,
-          },
+      /**
+       * Update profile status
+       * 1. find existing verified user
+       * 2. change status
+       * 
+       * if the user is already disapproved, modified documents will be zero,
+       * avoiding sending emails multiple times.
+       */
+      let updated = await this.loginDetailsInst.updateOne(
+        {
+          user_id: user.user_id,
+          'profile_status.status': ProfileStatus.VERIFIED,
         },
-      });
-      await this.emailService.profileDisapproved(user.email, remarks);
+        {
+          $set: {
+            profile_status: {
+              status: ProfileStatus.DISAPPROVED,
+              remarks,
+            },
+          },
+        }
+      );
+
+      if (updated.nModified) {
+        // send email for profile disapproval.
+        await this.emailService.profileDisapproved(user.email, remarks);
+      }
+
     }
   }
 }
