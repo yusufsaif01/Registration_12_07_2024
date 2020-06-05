@@ -60,8 +60,12 @@ class FootPlayerService {
         let condition = {};
         let filterArr = []
         if (filterConditions) {
-            filterArr.push({ "player_detail.first_name": new RegExp(filterConditions.first_name, 'i') })
-            filterArr.push({ "player_detail.last_name": new RegExp(filterConditions.last_name, 'i') })
+            if (filterConditions.first_name) {
+                filterArr.push({ "player_detail.first_name": new RegExp(filterConditions.first_name, 'i') })
+            }
+            if (filterConditions.last_name) {
+                filterArr.push({ "player_detail.last_name": new RegExp(filterConditions.last_name, 'i') })
+            }
             if (filterConditions.email) {
                 filterArr.push({ "player_detail.email": filterConditions.email })
             }
