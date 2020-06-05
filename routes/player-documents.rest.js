@@ -91,7 +91,7 @@ module.exports = (router) => {
    * @apiGroup Player Documents
    * 
    * @apiParam (body) {string} status Status enum : pending, approved, disapproved (Required)
-   * @apiParam (body) {string} remarks Status remarks
+   * @apiParam (body) {string} [remarks] Status remarks
    * @apiParam (body) {string} type Type of the document for which the status needs to be updated.(Required)
    * 
    * @apiSuccess {String} status success
