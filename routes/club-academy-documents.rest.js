@@ -2,20 +2,20 @@ const { checkAuthToken } = require("../middleware/auth");
 const responseHandler = require("../ResponseHandler");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
-const PlayerDocumentsService = require("../services/PlayerDocumentsService");
+const ClubAcademyDocumentService = require("../services/ClubAcademyDocumentService");
 const PlayerDocumentsResponseMapper = require("../dataModels/responseMapper/PlayerDocumentsResponseMapper");
 const updateStatusValidator = require("../middleware/validators/member-documents/updateStatusValidator");
 const auth = require("../middleware/auth");
 const Role = require("../constants/Role");
 
-const playerDocInst = new PlayerDocumentsService();
+const clubAcademyInst = new ClubAcademyDocumentService();
 
 module.exports = (router) => {
 
   /**
-    * @api {get} /player/:user_id/documents Get player documents listing
-    * @apiName Player documents listing
-    * @apiGroup Player Documents
+    * @api {get} /club-academy/:user_id/documents Get Club Academy Documents listing
+    * @apiName Club academy documents listing
+    * @apiGroup Club Academy Documents
     * 
     * @apiSuccess {String} status success
     * @apiSuccess {String} message Successfully done
@@ -30,18 +30,16 @@ module.exports = (router) => {
     *         "date_of_birth": "",
     *         "documents": [
     *           {
-    *             "type": "aadhar",
-    *             "added_on": "",
-    *             "document_number": "",
-    *             "media": {
-    *               "attachment_type": "image",
-    *               "doc_front": "",
-    *               "doc_back": "",
-    *               "user_photo": "",
-    *               "document": ""
-    *             },
-    *             "status": "pending"
-    *           }
+    *              "type": "AIFF",
+    *              "added_on": "",
+    *              "document_number": "",
+    *              "media": {
+    *                "attachment_type": "image",
+    *                "document": ""
+    *              },
+    *              "status": "disapproved",
+    *              "remark": "reason of disapproved"
+    *            }
     *         ]
     *       }
     *     }
@@ -63,7 +61,7 @@ module.exports = (router) => {
     * 
     */
   router.get(
-    "/player/:user_id/documents",
+    "/club-academy/:user_id/documents",
     checkAuthToken,
     auth.checkRole([Role.ADMIN]),
     async (req, res) => {
@@ -75,7 +73,7 @@ module.exports = (router) => {
           res,
           Promise.resolve(
             PlayerDocumentsResponseMapper.map(
-              await playerDocInst.getUserDocuments(user_id)
+              await clubAcademyInst.getUserDocuments(user_id)
             )
           )
         );
@@ -86,13 +84,13 @@ module.exports = (router) => {
   );
 
   /**
-   * @api {put} /player/:user_id/documents/status Update player document status
-   * @apiName Player documents update status
-   * @apiGroup Player Documents
+   * @api {put} /club-academy/:user_id/documents/status Update Club/Academy document status
+   * @apiName Club academy documents update status
+   * @apiGroup Club Academy Documents
    * 
-   * @apiParam (body) {string} status Status enum : pending, approved, disapproved (Required)
-   * @apiParam (body) {string} remarks Status remarks
-   * @apiParam (body) {string} type Type of the document for which the status needs to be updated.(Required)
+   * @apiParam (body) {string} status Status enum : pending, approved, disapproved
+   * @apiParam (body) {string} remarks Status remarks (optional, required if status = disapproved)
+   * @apiParam (body) {string} type Type of the document for which the status needs to be updated.
    * 
    * @apiSuccess {String} status success
    * @apiSuccess {String} message Successfully done
@@ -120,7 +118,7 @@ module.exports = (router) => {
    * 
    */
   router.put(
-    "/player/:user_id/documents/status",
+    "/club-academy/:user_id/documents/status",
     checkAuthToken,
     auth.checkRole([Role.ADMIN]),
     updateStatusValidator.addUpdateStatusValidator,
@@ -134,7 +132,7 @@ module.exports = (router) => {
           req,
           res,
           Promise.resolve(
-            playerDocInst.updateDocumentStatus(user_id, type, status, remarks)
+            clubAcademyInst.updateDocumentStatus(user_id, type, status, remarks)
           )
         );
       } catch (error) {

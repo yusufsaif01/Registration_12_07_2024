@@ -1,6 +1,8 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
 const DocumentStatus = require('../../constants/DocumentStatus');
+const AttachmentType = require('../../constants/AttachmentType');
+const DocumentType = require('../../constants/DocumentType');
 
 const Schema = mongoose.Schema;
 const PLAYER = require('../../constants/PlayerType')
@@ -87,7 +89,8 @@ module.exports = {
         },
         documents: [{
             type: {
-                type: String
+                type: String,
+                enum: [DocumentType.AADHAR]
             },
             added_on: {
                 type: Date
@@ -97,7 +100,8 @@ module.exports = {
             },
             media: {
                 attachment_type: {
-                    type: String
+                    type: String,
+                    enum: [AttachmentType.IMAGE,AttachmentType.PDF]
                 },
                 doc_front: {
                     type: String
@@ -115,7 +119,8 @@ module.exports = {
             status: {
                 type: String,
                 enum: [DocumentStatus.APPROVED, DocumentStatus.PENDING, DocumentStatus.DISAPPROVED]
-            }
+            },
+            remark:String
         }],
         bio: {
             type: String

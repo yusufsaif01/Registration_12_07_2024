@@ -38,6 +38,16 @@ class EmailService {
     async profileDisapproved (email, remarks) {
         await this.sendMail("profileDisapproved", {email: email, remarks});
     }
+
+    async documentApproval (data) {
+        await this.sendMail("documentApproval", data)
+    }
+
+    async documentDisApproval (data) {
+        await this.sendMail("documentDisapproval", data);
+    }
+
+
 }
 
 module.exports = EmailService;

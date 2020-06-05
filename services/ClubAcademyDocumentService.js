@@ -1,14 +1,16 @@
-const PlayerUtility = require("../db/utilities/PlayerUtility");
 const errors = require("../errors");
 const ResponseMessage = require("../constants/ResponseMessage");
+const PlayerType = require("../constants/PlayerType");
 const ProfileStatus = require("../constants/ProfileStatus");
 const DocumentStatus = require("../constants/DocumentStatus");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const EmailService = require("./EmailService");
+const MemberType = require("../constants/MemberType");
+const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 
-class PlayerDocumentsService {
+class ClubAcademyDocumentService {
   constructor() {
-    this.playerDetailsInst = new PlayerUtility();
+    this.clubAcademyInst = new ClubAcademyUtility();
     this.loginDetailsInst = new LoginUtility();
     this.emailService = new EmailService();
   }
@@ -20,8 +22,9 @@ class PlayerDocumentsService {
   }
 
   async getUser(user_id) {
-    let user = await this.playerDetailsInst.findOne({
+    let user = await this.clubAcademyInst.findOne({
       user_id: user_id,
+      member_type: { $in: [MemberType.CLUB, MemberType.ACADEMY] },
     });
     if (!user) {
       throw new errors.NotFound(ResponseMessage.USER_NOT_FOUND);
@@ -51,10 +54,10 @@ class PlayerDocumentsService {
         },
       },
     };
-    let res = await this.playerDetailsInst.updateOne($where, {
+    let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
         "documents.$.status": DocumentStatus.APPROVED,
-        "documents.$.remark": "",
+        "documents.$.remark": '',
       },
     });
 
@@ -62,7 +65,7 @@ class PlayerDocumentsService {
       this.emailService.documentApproval({
         email: user.email,
         documentType: type,
-        name: [user.first_name, user.last_name].join(" "),
+        name: user.name,
       });
     }
 
@@ -93,36 +96,27 @@ class PlayerDocumentsService {
         },
       },
     };
-    let res = await this.playerDetailsInst.updateOne($where, {
+    let res = await this.clubAcademyInst.updateOne($where, {
       $set: {
         "documents.$.status": DocumentStatus.DISAPPROVED,
         "documents.$.remark": remarks,
       },
     });
-    if (res.nModified) {
 
-      /**
-       * Send email notification
-       */
+    if (res.nModified) {
+      
+      // email notification
       this.emailService.documentDisApproval({
         email: user.email,
         documentType: type,
-        name: [user.first_name, user.last_name].join(" "),
-        reason: remarks,
+        name: user.name,
+        reason: remarks
       });
 
-      /**
-       * Update profile status
-       * 1. find existing verified user
-       * 2. change status
-       * 
-       * if the user is already disapproved, modified documents will be zero,
-       * avoiding sending emails multiple times.
-       */
       let updated = await this.loginDetailsInst.updateOne(
         {
           user_id: user.user_id,
-          'profile_status.status': ProfileStatus.VERIFIED,
+          "profile_status.status": ProfileStatus.VERIFIED,
         },
         {
           $set: {
@@ -133,14 +127,12 @@ class PlayerDocumentsService {
           },
         }
       );
-
       if (updated.nModified) {
         // send email for profile disapproval.
         await this.emailService.profileDisapproved(user.email, remarks);
       }
-
     }
   }
 }
 
-module.exports = PlayerDocumentsService;
+module.exports = ClubAcademyDocumentService;
