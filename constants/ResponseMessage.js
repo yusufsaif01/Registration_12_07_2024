@@ -327,7 +327,7 @@ class ResponseMessage {
         return "Aadhar number is required"
     }
     static get DOCUMENT_NUMBER_REQUIRED() {
-        return "PAN/ COI/ Tin Number is required"
+        return "AIFF/ PAN/ COI/ Tin Number is required"
     }
     static get AIFF_ID_REQUIRED() {
         return "AIFF Accreditation ID is required"
@@ -355,6 +355,9 @@ class ResponseMessage {
     }
     static get AADHAR_MEDIA_TYPE_REQUIRED() {
         return "Aadhar media type required"
+    }
+    static get DOCUMENT_TYPE_REQUIRED() {
+        return "Document type is required"
     }
 }
 

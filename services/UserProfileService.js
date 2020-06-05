@@ -173,17 +173,25 @@ class UserProfileService {
                 aiffObj.document_number = reqObj.aiff_id;
                 updatedDoc.push(aiffObj);
             }
-            if (member_type === MEMBER.ACADEMY && reqObj.number) {
-                let details = await this.clubAcademyUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
-                let documents = details.documents || []
-                let documentDB = _.find(documents, { type: reqObj.document_type });
-                let documentReqObj = _.find(reqObj.documents, { type: reqObj.document_type })
-                if (!documentDB && !documentReqObj) {
-                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_REQUIRED));
+            if (member_type === MEMBER.ACADEMY) {
+                if (reqObj.number) {
+                    let details = await this.clubAcademyUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+                    let documents = details.documents || []
+                    let documentDB = _.find(documents, { type: reqObj.document_type });
+                    let documentReqObj = _.find(reqObj.documents, { type: reqObj.document_type })
+                    if (!documentDB && !documentReqObj && !reqObj.document_type) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_TYPE_REQUIRED));
+                    }
+                    if (!documentDB && !documentReqObj) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_REQUIRED));
+                    }
+                    let documentObj = documentReqObj || documentDB
+                    documentObj.document_number = reqObj.number
+                    updatedDoc.push(documentObj);
                 }
-                let documentObj = documentReqObj || documentDB
-                documentObj.document_number = reqObj.number;
-                updatedDoc.push(documentObj);
+                if (!reqObj.number && reqObj.documents) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_NUMBER_REQUIRED));
+                }
             }
             reqObj.documents = updatedDoc;
             await this.validateDocNumber(reqObj, member_type, user_id);
@@ -404,7 +412,7 @@ class UserProfileService {
             }
         }
 
-        if (data.profile_status) {
+        if (data.profile_status && member_type === MEMBER.PLAYER) {
             if (data.profile_status === PROFILE_STATUS.VERIFIED && data.dob) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
             }
@@ -501,7 +509,6 @@ class UserProfileService {
                 if (reqObj.document_type && files.document) {
                     options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
                     let attachment_type = this.getAttachmentType(files.document.name);
                     reqObj.documents.push({
                         type: reqObj.document_type,
