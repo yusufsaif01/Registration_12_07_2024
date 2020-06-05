@@ -145,7 +145,7 @@ module.exports = (router) => {
      *         "total":100,
      *         "records":[{
      *             "request_id": "78ea72a6-d749-40f2-b4c1-f14737d10204"
-     *             "sent_by": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
+     *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
      *             "avatar": "/uploads/avatar/user-avatar.png",
      *             "name": "xyz",
      *             "member_type": "club",
