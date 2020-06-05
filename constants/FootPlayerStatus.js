@@ -8,6 +8,9 @@ class FootPlayerStatus {
     static get REJECTED() {
         return "rejected";
     }
+    static get INVITED() {
+        return "invited";
+    }
 }
 
 module.exports = FootPlayerStatus
