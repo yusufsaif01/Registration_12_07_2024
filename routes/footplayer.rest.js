@@ -31,7 +31,7 @@ module.exports = (router) => {
      *             "avatar": "number of players associated",
      *             "name": "/uploads/avatar/user-avatar.png",
      *             "member_type": "player",
-     *             "player_type": "professional",
+     *             "category": "professional",
      *             "position": "Goalkeeper",
      *             "member_type": "player",
      *             "is_verified": true,
@@ -144,11 +144,12 @@ module.exports = (router) => {
      *       "data": {  
      *         "total":100,
      *         "records":[{
+     *             "request_id": "78ea72a6-d749-40f2-b4c1-f14737d10204"
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
-     *             "avatar": "number of players associated",
-     *             "name": "/uploads/avatar/user-avatar.png",
+     *             "avatar": "/uploads/avatar/user-avatar.png",
+     *             "name": "xyz",
      *             "member_type": "club",
-     *             "sub-category": "Residential",
+     *             "sub_category": "Residential",
      *            }] }
      *     }
      *

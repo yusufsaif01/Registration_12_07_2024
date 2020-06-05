@@ -70,8 +70,12 @@ class FootPlayerService {
         let condition = {};
         let filterArr = []
         if (filterConditions) {
-            filterArr.push({ "player_detail.first_name": new RegExp(filterConditions.first_name, 'i') })
-            filterArr.push({ "player_detail.last_name": new RegExp(filterConditions.last_name, 'i') })
+            if (filterConditions.first_name) {
+                filterArr.push({ "player_detail.first_name": new RegExp(filterConditions.first_name, 'i') })
+            }
+            if (filterConditions.last_name) {
+                filterArr.push({ "player_detail.last_name": new RegExp(filterConditions.last_name, 'i') })
+            }
             if (filterConditions.email) {
                 filterArr.push({ "player_detail.email": filterConditions.email })
             }
@@ -206,16 +210,19 @@ class FootPlayerService {
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
             let data = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
+            { $project: { sent_by: 1, request_id: "$id" } },
             { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
-            { $unwind: { path: "$club_academy_detail" } }, { $project: { club_academy_detail: { user_id: 1, name: 1, type: 1, avatar_url: 1, member_type: 1 } } },
-            { $match: { "club_academy_detail.member_type": requested_by } }, { $skip: options.skip }, { $limit: options.limit }
-            ]);
-            let totalRecords = await this.footPlayerUtilityInst.aggregate([{ $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
-            { "$lookup": { "from": "club_academy_details", "localField": "sent_by", "foreignField": "user_id", "as": "club_academy_detail" } },
-            { $unwind: { path: "$club_academy_detail" } }, { $project: { club_academy_detail: { user_id: 1, name: 1, type: 1, avatar_url: 1, member_type: 1 } } },
-            { $match: { "club_academy_detail.member_type": requested_by } }]);
-            data = new FootPlayerRequestListResponseMapper().map(data);
-            let response = { total: totalRecords.length, records: data }
+            { $unwind: { path: "$club_academy_detail" } }, { $project: { club_academy_detail: { request_id: "$request_id", user_id: 1, name: 1, type: 1, avatar_url: 1, member_type: 1 } } },
+            { $match: { "club_academy_detail.member_type": requested_by } },
+            { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }]);
+            let responseData = [], totalRecords = 0;
+            if (data && data.length && data[0] && data[0].data) {
+                responseData = new FootPlayerRequestListResponseMapper().map(data[0].data);
+                if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+                    totalRecords = data[0].total_data[0].count;
+                }
+            }
+            let response = { total: totalRecords, records: responseData }
             return Promise.resolve(response);
         }
         catch (e) {

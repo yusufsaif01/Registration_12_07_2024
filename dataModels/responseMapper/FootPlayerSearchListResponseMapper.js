@@ -10,7 +10,7 @@ class FootPlayerSearchListResponseMapper {
                         "avatar": member.player_detail.avatar_url || "-",
                         "name": (member.player_detail.first_name || "") + " " + (member.player_detail.last_name || ""),
                         "member_type": member.player_detail.member_type,
-                        "player_type": member.player_detail.player_type || "-",
+                        "category": member.player_detail.player_type || "-",
                         "position": "-",
                         "is_verified": member.player_detail.is_verified || false
 
@@ -31,9 +31,9 @@ class FootPlayerSearchListResponseMapper {
                         "avatar": member.club_academy_detail.avatar_url || "-",
                         "name": member.club_academy_detail.name,
                         "member_type": member.club_academy_detail.member_type,
-                        "type": member.club_academy_detail.type || "-",
-                        "is_verified": member.club_academy_detail.is_verified || false,
-
+                        "category": member.club_academy_detail.type || "-",
+                        "position": "",
+                        "is_verified": member.club_academy_detail.is_verified || false
                     };
                     response.push(data);
                 }
