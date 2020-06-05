@@ -4,6 +4,7 @@ const locationValidator = require("./locationValidator");
 const playerSpecializationValidator = require("./playerSpecializationValidator");
 const connectionValidator = require("./connectionValidator");
 const postValidator = require("./postValidator");
+const footplayerValidator = require("./footplayerValidator");
 
 module.exports = {
     userValidator,
@@ -11,5 +12,6 @@ module.exports = {
     locationValidator,
     playerSpecializationValidator,
     connectionValidator,
-    postValidator
+    postValidator,
+    footplayerValidator
 };

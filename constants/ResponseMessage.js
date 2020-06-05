@@ -359,6 +359,33 @@ class ResponseMessage {
     static get DOCUMENT_TYPE_REQUIRED() {
         return "Document type is required"
     }
+    static get EMAIL_OR_PHONE_REQUIRED() {
+        return "email or phone required"
+    }
+    static get CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF() {
+        return "Cannot send footplayer request to yourself"
+    }
+    static get MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND() {
+        return "Member to be footplayer not found"
+    }
+    static get ALREADY_FOOTPLAYER() {
+        return "Already footplayer"
+    }
+    static get FOOTPLAYER_REQUEST_ALREADY_SENT() {
+        return "Footplayer request already sent"
+    }
+    static get PLAYER_NOT_VERIFIED() {
+        return "Player is not verified"
+    }
+    static get ALREADY_FOOTPLAYER_OF_OTHER_CLUB() {
+        return "Already footplayer of other club"
+    }
+    static get FOOTPLAYER_REQUEST_NOT_FOUND() {
+        return "Footplayer request not found"
+    }
+    static get SENT_BY_USER_NOT_FOUND() {
+        return "Sent by user not found"
+    }
 }
 
 module.exports = ResponseMessage
