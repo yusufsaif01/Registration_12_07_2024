@@ -252,4 +252,70 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         responseHandler(req, res, serviceInst.rejectFootplayerRequest({ user_id: req.authUser.user_id, sent_by: req.params.sent_by }));
     });
+
+    /**
+     * @api {post} /footplayer/invite send footplayer invitation
+     * @apiName send footplayer invitation
+     * @apiGroup Footplayer
+     *   
+     * @apiParam (body) {String} f_name first name
+     * @apiParam (body) {String} l_name last name
+     * @apiParam (body) {String} phone phone number 
+     * @apiParam (body) {String} email email
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }   
+     * 
+     * @apiErrorExample {json} Unauthorized
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     }
+     * 
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     *
+     * @apiErrorExample {json} VALIDATION_FAILED
+	 *     HTTP/1.1 422 Validiation Failed
+	 *     {
+	 *       "message": "Player is not verified",
+     *       "code": "VALIDATION_FAILED",
+     *       "httpCode": 422
+	 *     }  
+     * 
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Already footplayer",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     * @apiErrorExample {json} CONFLICT
+	 *     HTTP/1.1 409 Conflict
+	 *     {
+	 *       "message": "Footplayer request already sent",
+     *       "code": "CONFLICT",
+     *       "httpCode": 409
+	 *     }
+     * 
+     */
+    router.post('/footplayer/invite', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.footplayerInviteValidation, function (req, res) {
+        let serviceInst = new FootPlayerService();
+        responseHandler(req, res, serviceInst.sendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body.to, member_type: req.authUser.member_type }));
+    });
 };

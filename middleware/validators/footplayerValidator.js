@@ -53,6 +53,28 @@ class FootPlayerValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async footplayerInviteValidation(req, res, next) {
+        const schema = Joi.object().keys({
+            "f_name": Joi.string(),
+            "l_name": Joi.string(),
+            "phone": Joi.string(),
+            "email": Joi.string().email({ minDomainSegments: 2 }),
+        });
+        try {
+            await Joi.validate(req.body, schema);
+            if (req.body.phone && !req.body.email) {
+                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.INVITE_BY_PHONE_UNAVAILABLE)));
+            }
+            if (!req.body.email) {
+                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMAIL_REQUIRED)));
+            }
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new FootPlayerValidator();

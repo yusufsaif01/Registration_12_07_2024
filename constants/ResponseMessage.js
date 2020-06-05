@@ -332,6 +332,9 @@ class ResponseMessage {
     static get SENT_BY_USER_NOT_FOUND() {
         return "Sent by user not found"
     }
+    static get INVITE_BY_PHONE_UNAVAILABLE() {
+        return "Invite by phone number is not currently supported"
+    }
 }
 
 module.exports = ResponseMessage
