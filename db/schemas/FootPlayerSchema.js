@@ -33,7 +33,7 @@ module.exports = {
         },
         status: {
             type: String,
-            enum: [FOOTPLAYER_STATUS.ADDED, FOOTPLAYER_STATUS.REJECTED, FOOTPLAYER_STATUS.PENDING],
+            enum: [FOOTPLAYER_STATUS.ADDED, FOOTPLAYER_STATUS.REJECTED, FOOTPLAYER_STATUS.PENDING, FOOTPLAYER_STATUS.INVITED],
             default: FOOTPLAYER_STATUS.PENDING
         },
         deleted_at: {
