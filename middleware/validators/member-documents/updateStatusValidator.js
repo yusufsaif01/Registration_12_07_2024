@@ -3,14 +3,20 @@ const errors = require("../../../errors");
 const responseHandler = require("../../../ResponseHandler");
 const RESPONSE_MESSAGE = require("../../../constants/ResponseMessage");
 const PlayerDocumentStatus = require("../../../constants/DocumentStatus");
-
+const DocumentType = require("../../../constants/DocumentType");
+/**
+ * Update status validator for documents.
+ */
 class UpdateStatusValidator {
   async addUpdateStatusValidator(req, res, next) {
     const schema = Joi.object().keys({
-      status: Joi.valid([
+      status: Joi.required().valid([
         PlayerDocumentStatus.APPROVED,
         PlayerDocumentStatus.PENDING,
         PlayerDocumentStatus.DISAPPROVED,
+      ]),
+      type: Joi.required().valid([
+        DocumentType.AIFF, DocumentType.ADHAAR, DocumentType.EMPLOYEMENT_CONTRACT
       ]),
       remarks: Joi.when("status", {
         is: PlayerDocumentStatus.DISAPPROVED,

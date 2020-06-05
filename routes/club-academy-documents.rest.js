@@ -2,13 +2,13 @@ const { checkAuthToken } = require("../middleware/auth");
 const responseHandler = require("../ResponseHandler");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
-const PlayerDocumentsService = require("../services/PlayerDocumentsService");
+const ClubAcademyDocumentService = require("../services/ClubAcademyDocumentService");
 const PlayerDocumentsResponseMapper = require("../dataModels/responseMapper/PlayerDocumentsResponseMapper");
 const updateStatusValidator = require("../middleware/validators/member-documents/updateStatusValidator");
 const auth = require("../middleware/auth");
 const Role = require("../constants/Role");
 
-const playerDocInst = new PlayerDocumentsService();
+const clubAcademyInst = new ClubAcademyDocumentService();
 
 module.exports = (router) => {
 
@@ -63,7 +63,7 @@ module.exports = (router) => {
     * 
     */
   router.get(
-    "/player/:user_id/documents",
+    "/club-academy/:user_id/documents",
     checkAuthToken,
     auth.checkRole([Role.ADMIN]),
     async (req, res) => {
@@ -75,7 +75,7 @@ module.exports = (router) => {
           res,
           Promise.resolve(
             PlayerDocumentsResponseMapper.map(
-              await playerDocInst.getUserDocuments(user_id)
+              await clubAcademyInst.getUserDocuments(user_id)
             )
           )
         );
@@ -119,21 +119,21 @@ module.exports = (router) => {
    * 
    */
   router.put(
-    "/player/:user_id/documents/status",
+    "/club-academy/:user_id/documents/status",
     checkAuthToken,
     auth.checkRole([Role.ADMIN]),
     updateStatusValidator.addUpdateStatusValidator,
     async (req, res) => {
       let { user_id } = req.params;
 
-      let { status, remarks } = req.body;
+      let { status, remarks, type } = req.body;
 
       try {
         responseHandler(
           req,
           res,
           Promise.resolve(
-            playerDocInst.updateDocumentStatus(user_id, status, remarks)
+            clubAcademyInst.updateDocumentStatus(user_id, type, status, remarks)
           )
         );
       } catch (error) {
