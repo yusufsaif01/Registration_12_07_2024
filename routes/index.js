@@ -8,6 +8,8 @@ const achievementRoutes = require('./achievement.rest');
 const playerSpecializationRoutes = require('./player-specialization.rest');
 const connectionsRoutes = require('./connections.rest');
 const postRoutes = require('./post.rest');
+const playerDocuments = require('./player-documents.rest');
+const clubAcademyDocuments = require('./club-academy-documents.rest');
 const footplayerRoutes = require('./footplayer.rest');
 
 class Route {
@@ -23,6 +25,8 @@ class Route {
 		playerSpecializationRoutes(apiRouter);
 		connectionsRoutes(apiRouter);
 		postRoutes(apiRouter);
+		playerDocuments(apiRouter);
+		clubAcademyDocuments(apiRouter);
 		footplayerRoutes(apiRouter);
 
 		app.use('/api', apiRouter);
