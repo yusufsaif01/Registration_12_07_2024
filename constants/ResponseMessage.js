@@ -344,6 +344,9 @@ class ResponseMessage {
     static get USER_PROFILE_NOT_VERIFIED() {
         return "Your profile is not verified"
     }
+    static get INVITE_NOT_FOUND() {
+        return "Invite not found"
+    }
 }
 
 module.exports = ResponseMessage
