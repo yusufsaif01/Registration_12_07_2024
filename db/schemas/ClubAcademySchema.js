@@ -1,5 +1,9 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
+const DocumentStatus = require('../../constants/DocumentStatus');
+const DocumentType = require('../../constants/DocumentType');
+const AttachmentType = require('../../constants/AttachmentType');
+
 const Schema = mongoose.Schema;
 const MEMBER = require('../../constants/MemberType');
 const TYPE = require('../../constants/ClubAcademyType');
@@ -101,19 +105,24 @@ module.exports = {
             type: String
         },
         documents: [{
-            link: {
-                type: String
-            },
-            document_number: {
-                type: String
-            },
-            is_verified: {
-                type: Boolean,
-                default: false
-            },
             type: {
-                type: String
-            }
+                type: String, 
+                enum: [DocumentType.AIFF]
+            },
+            added_on:Date,
+            document_number:String,
+            media: {
+                attachment_type: {
+                    type:String,
+                    enum: [AttachmentType.IMAGE,AttachmentType.PDF]
+                },
+                document:String,
+            },
+            status: {
+                type: String,
+                enum: [DocumentStatus.APPROVED,DocumentStatus.PENDING, DocumentStatus.DISAPPROVED]
+            },
+            remark:String
         }],
         trophies: [{
             name: { type: String },
