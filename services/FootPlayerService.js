@@ -121,7 +121,6 @@ class FootPlayerService {
             if (_.isEmpty(to_be_footplayer)) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
             }
-            console.log(to_be_footplayer)
             if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status.status && to_be_footplayer.profile_status.status != PROFILE_STATUS.VERIFIED) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_VERIFIED));
             }
