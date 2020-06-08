@@ -296,14 +296,6 @@ module.exports = (router) => {
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
-     * 
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "User with this phone already registered,
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
      *      
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict

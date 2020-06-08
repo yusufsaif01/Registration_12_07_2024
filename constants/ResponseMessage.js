@@ -338,9 +338,6 @@ class ResponseMessage {
     static get INVITE_ALREADY_SENT() {
         return "Invite already sent"
     }
-    static get PHONE_NUMBER_EXISTS() {
-        return "User with this phone already registered"
-    }
 }
 
 module.exports = ResponseMessage

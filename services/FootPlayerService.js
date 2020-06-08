@@ -346,18 +346,7 @@ class FootPlayerService {
         if (!_.isEmpty(foundUser)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED));
         }
-        if (requestedData.send_to.phone) {
-            let foundPlayer = await this.playerUtilityInst.findOne({ phone: requestedData.send_to.phone });
-            if (foundPlayer) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PHONE_NUMBER_EXISTS));
-            }
-            let foundClubAcademy = await this.clubAcademyUtilityInst.findOne({ phone: requestedData.send_to.phone });
-            if (foundClubAcademy) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PHONE_NUMBER_EXISTS));
-            }
-        }
-        let condition = requestedData.send_to.phone ? [{ "send_to.email": requestedData.send_to.email }, { "send_to.phone": requestedData.send_to.phone }] : [{ "send_to.email": requestedData.send_to.email }];
-        let footplayerInvite = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED, $or: condition });
+        let footplayerInvite = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED, "send_to.email": requestedData.send_to.email });
         if (!_.isEmpty(footplayerInvite)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.INVITE_ALREADY_SENT));
         }
