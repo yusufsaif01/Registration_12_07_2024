@@ -36,7 +36,7 @@ class FootPlayerService {
             let filterConditions = this._preparePlayerFilterCondition(requestedData.filterConditions)
             let data = await this.loginUtilityInst.aggregate([{ $match: { is_deleted: false, member_type: MEMBER.PLAYER } },
             { $project: { user_id: 1, profile_status: 1, _id: 0 } }, { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } }, { $unwind: { path: "$player_detail" } },
-            { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, last_name: 1, is_verified: { $cond: { if: { $eq: ["$profile_status", PROFILE_STATUS.VERIFIED] }, then: true, else: false } }, position: 1, member_type: MEMBER.PLAYER, player_type: 1, avatar_url: 1, phone: 1 } } },
+            { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, last_name: 1, is_verified: { $cond: { if: { $eq: ["$profile_status.status", PROFILE_STATUS.VERIFIED] }, then: true, else: false } }, position: 1, member_type: MEMBER.PLAYER, player_type: 1, avatar_url: 1, phone: 1 } } },
             { "$lookup": { "from": "foot_players", "localField": "player_detail.user_id", "foreignField": "send_to.user_id", "as": "footplayerDocument" } },
             { $project: { player_detail: 1, filteredfootplayerDocument: { $filter: { input: "$footplayerDocument", as: "element", cond: { $and: [{ $ne: ["$$element.sent_by", requestedData.user_id] }, { $eq: ["$$element.status", FOOTPLAYER_STATUS.ADDED] }, { $eq: ["$$element.is_deleted", false] }] } } } } },
             { $unwind: { path: "$filteredfootplayerDocument", preserveNullAndEmptyArrays: true } },
@@ -49,11 +49,11 @@ class FootPlayerService {
                 filterConditions = this._prepareClubAcademyFilterCondition(requestedData.filterConditions);
                 data = await this.loginUtilityInst.aggregate([{ $match: { is_deleted: false, member_type: { $in: [MEMBER.CLUB, MEMBER.ACADEMY] } } },
                 { $project: { user_id: 1, profile_status: 1, _id: 0 } }, { "$lookup": { "from": "club_academy_details", "localField": "user_id", "foreignField": "user_id", "as": "club_academy_detail" } }, { $unwind: { path: "$club_academy_detail" } },
-                { $project: { club_academy_detail: { user_id: 1, name: 1, member_type: 1, is_verified: { $cond: { if: { $eq: ["$profile_status", PROFILE_STATUS.VERIFIED] }, then: true, else: false } }, type: 1, phone: 1, avatar_url: 1, email: 1 } } },
+                { $project: { club_academy_detail: { user_id: 1, name: 1, member_type: 1, is_verified: { $cond: { if: { $eq: ["$profile_status.status", PROFILE_STATUS.VERIFIED] }, then: true, else: false } }, type: 1, phone: 1, avatar_url: 1, email: 1 } } },
                 { $match: filterConditions }]);
             }
             data = new FootPlayerSearchListResponseMapper().map(data);
-            return { total: data.length, data: data };
+            return { total: data.length, records: data };
         } catch (e) {
             console.log("Error in getPlayerList() of FootPlayerService", e);
             return Promise.reject(e);
@@ -71,12 +71,6 @@ class FootPlayerService {
         let condition = {};
         let filterArr = []
         if (filterConditions) {
-            if (filterConditions.first_name) {
-                filterArr.push({ "player_detail.first_name": new RegExp(filterConditions.first_name, 'i') })
-            }
-            if (filterConditions.last_name) {
-                filterArr.push({ "player_detail.last_name": new RegExp(filterConditions.last_name, 'i') })
-            }
             if (filterConditions.email) {
                 filterArr.push({ "player_detail.email": filterConditions.email })
             }
@@ -103,7 +97,7 @@ class FootPlayerService {
             let send_to_data = await this.playerUtilityInst.findOne({ user_id: requestedData.send_to }, { first_name: 1, last_name: 1, phone: 1, email: 1, _id: 0 });
             await this.footPlayerUtilityInst.insert({
                 sent_by: requestedData.sent_by,
-                send_to: { user_id: requestedData.send_to, f_name: send_to_data.first_name, l_name: send_to_data.last_name, email: send_to_data.email, phone: send_to_data.phone }
+                send_to: { user_id: requestedData.send_to, name: `${send_to_data.first_name} ${send_to_data.last_name}`, email: send_to_data.email, phone: send_to_data.phone }
             });
             let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
             this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
@@ -130,7 +124,7 @@ class FootPlayerService {
             if (_.isEmpty(to_be_footplayer)) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
             }
-            if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status != PROFILE_STATUS.VERIFIED) {
+            if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status.status && to_be_footplayer.profile_status.status != PROFILE_STATUS.VERIFIED) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_VERIFIED));
             }
         }
@@ -271,6 +265,10 @@ class FootPlayerService {
      * @memberof FootPlayerService
      */
     async footplayerRequestValidator(requestedData = {}) {
+        let current_user = await this.loginUtilityInst.findOne({ user_id: requestedData.user_id, member_type: MEMBER.PLAYER }, { profile_status: 1 });
+        if (current_user && current_user.profile_status && current_user.profile_status.status && current_user.profile_status.status != PROFILE_STATUS.VERIFIED) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PROFILE_NOT_VERIFIED));
+        }
         let dataOfSentBy = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { member_type: 1, });
         if (_.isEmpty(dataOfSentBy)) {
             return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.SENT_BY_USER_NOT_FOUND));
