@@ -264,6 +264,10 @@ class FootPlayerService {
      * @memberof FootPlayerService
      */
     async footplayerRequestValidator(requestedData = {}) {
+        let current_user = await this.loginUtilityInst.findOne({ user_id: requestedData.user_id, member_type: MEMBER.PLAYER }, { profile_status: 1 });
+        if (current_user && current_user.profile_status && current_user.profile_status.status && current_user.profile_status.status != PROFILE_STATUS.VERIFIED) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PROFILE_NOT_VERIFIED));
+        }
         let dataOfSentBy = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { member_type: 1, });
         if (_.isEmpty(dataOfSentBy)) {
             return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.SENT_BY_USER_NOT_FOUND));
