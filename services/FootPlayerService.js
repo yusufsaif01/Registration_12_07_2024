@@ -314,11 +314,12 @@ class FootPlayerService {
     async sendFootplayerInvite(requestedData = {}) {
         try {
             await this.ValidateFootplayerInvite(requestedData);
+
             let send_to = requestedData.send_to;
             let record = {
                 sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED,
                 send_to: {
-                    user_id: "", f_name: send_to.f_name || "", l_name: send_to.l_name || "", email: send_to.email || "", phone: send_to.phone || ""
+                    user_id: "", name: send_to.name || "", email: send_to.email || "", phone: send_to.phone || ""
                 }
             }
             await this.footPlayerUtilityInst.insert(record);

@@ -256,8 +256,7 @@ module.exports = (router) => {
      * @apiName send footplayer invite
      * @apiGroup Footplayer
      *   
-     * @apiParam (body) {String} [f_name] first name
-     * @apiParam (body) {String} [l_name] last name
+     * @apiParam (body) {String} [name] name
      * @apiParam (body) {String} [phone] phone number 
      * @apiParam (body) {String} email email
      * 

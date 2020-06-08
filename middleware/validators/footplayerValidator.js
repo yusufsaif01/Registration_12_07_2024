@@ -55,16 +55,7 @@ class FootPlayerValidator {
 
     async footplayerInviteValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "f_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.FIRST_NAME_INVALID,
-                };
-            }),
-            "l_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.LAST_NAME_INVALID,
-                };
-            }),
+            "name": Joi.string(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
