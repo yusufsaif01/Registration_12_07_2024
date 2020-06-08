@@ -90,7 +90,10 @@ module.exports = {
         documents: [{
             type: {
                 type: String,
-                enum: [DocumentType.AADHAR]
+                enum: [
+                    DocumentType.AADHAR,
+                    DocumentType.EMPLOYEMENT_CONTRACT
+                ]
             },
             added_on: {
                 type: Date

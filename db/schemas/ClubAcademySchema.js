@@ -107,7 +107,7 @@ module.exports = {
         documents: [{
             type: {
                 type: String, 
-                enum: [DocumentType.AIFF]
+                enum: [DocumentType.AIFF, DocumentType.PAN, DocumentType.COI, DocumentType.TIN]
             },
             added_on:Date,
             document_number:String,
