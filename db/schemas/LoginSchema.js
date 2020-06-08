@@ -19,9 +19,14 @@ module.exports = {
 			type: String
 		},
 		profile_status: {
-			type: String,
-			enum: [PROFILE.VERIFIED, PROFILE.NON_VERIFIED],
-			default: PROFILE.NON_VERIFIED
+			status: {
+				type: String,
+				enum: [PROFILE.VERIFIED, PROFILE.NON_VERIFIED, PROFILE.DISAPPROVED],
+				default: PROFILE.NON_VERIFIED
+			},
+			remarks: {
+				type:String
+			}
 		},
 		status: {
 			type: String,

@@ -437,7 +437,7 @@ class UserProfileService {
     async uploadProfileDocuments(reqObj = {}, user_id, files = null) {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id }, { profile_status: 1 });
-            reqObj.profile_status = loginDetails.profile_status;
+            reqObj.profile_status = loginDetails.profile_status.status;
             if (files && reqObj.profile_status !== PROFILE_STATUS.VERIFIED) {
                 reqObj.documents = [];
                 const configForLocal = config.storage;
