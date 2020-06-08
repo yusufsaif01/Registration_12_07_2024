@@ -105,10 +105,10 @@ class UserRegistrationService extends UserService {
             if (userData.member_type == MEMBER.PLAYER) {
                 userData.player_type = userData.type;
                 await this.playerUtilityInst.insert(userData);
+                await this.updateFootPlayerCollection({ email: userData.email, user_id: userData.user_id, first_name: userData.first_name, last_name: userData.last_name, phone: userData.phone });
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
             }
-            await this.updateFootPlayerCollection({ email: userData.email, user_id: userData.user_id, first_name: userData.first_name, last_name: userData.last_name, phone: userData.phone })
             await redisServiceInst.setKeyValuePair(`keyForForgotPassword${tokenForAccountActivation}`, userData.user_id)
             await redisServiceInst.setKeyValuePair(userData.user_id, JSON.stringify({ ...userData, forgot_password_token: tokenForAccountActivation }));
             let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
