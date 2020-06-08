@@ -92,10 +92,7 @@ module.exports = {
                 type: String,
                 enum: [
                     DocumentType.AADHAR,
-                    DocumentType.PAN,
                     DocumentType.AIFF,
-                    DocumentType.COI,
-                    DocumentType.TIN,
                     DocumentType.EMPLOYEMENT_CONTRACT
                 ]
             },
