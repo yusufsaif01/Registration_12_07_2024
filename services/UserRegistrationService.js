@@ -16,6 +16,8 @@ const ROLE = require('../constants/Role');
 const PROFILE = require('../constants/ProfileStatus');
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const redisServiceInst = require('../redis/RedisService');
+const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
+const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 
 /**
  *
@@ -37,6 +39,7 @@ class UserRegistrationService extends UserService {
         this.authUtilityInst = new AuthUtility();
         this.emailService = new EmailService();
         this.adminUtilityInst = new AdminUtility();
+        this.footPlayerUtilityInst = new FootPlayerUtility();
     }
 
     /**
@@ -105,12 +108,40 @@ class UserRegistrationService extends UserService {
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
             }
+            await this.updateFootPlayerCollection({ email: userData.email, user_id: userData.user_id, first_name: userData.first_name, last_name: userData.last_name, phone: userData.phone })
             await redisServiceInst.setKeyValuePair(`keyForForgotPassword${tokenForAccountActivation}`, userData.user_id)
             await redisServiceInst.setKeyValuePair(userData.user_id, JSON.stringify({ ...userData, forgot_password_token: tokenForAccountActivation }));
             let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
             this.emailService.emailVerification(userData.email, accountActivationURL);
             return Promise.resolve();
         } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * updates footPlayerCollection
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof UserRegistrationService
+     */
+    async updateFootPlayerCollection(requestedData = {}) {
+        try {
+            let footplayerInvite = await this.footPlayerUtilityInst.findOne({ "send_to.email": requestedData.email, status: FOOTPLAYER_STATUS.INVITED });
+            if (_.isEmpty(footplayerInvite)) {
+                return Promise.resolve();
+            }
+            let updatedDoc = {
+                "send_to.user_id": requestedData.user_id,
+                "send_to.name": `${requestedData.first_name} ${requestedData.last_name}`,
+                "send_to.phone": requestedData.phone,
+                status: FOOTPLAYER_STATUS.PENDING
+            };
+            await this.footPlayerUtilityInst.updateMany({ "send_to.email": requestedData.email, status: FOOTPLAYER_STATUS.INVITED }, updatedDoc);
+        }
+        catch (e) {
             console.log(e);
             return Promise.reject(e);
         }
