@@ -92,7 +92,6 @@ module.exports = {
                 type: String,
                 enum: [
                     DocumentType.AADHAR,
-                    DocumentType.AIFF,
                     DocumentType.EMPLOYEMENT_CONTRACT
                 ]
             },
