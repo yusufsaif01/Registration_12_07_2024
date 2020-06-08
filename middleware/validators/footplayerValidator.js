@@ -8,8 +8,7 @@ class FootPlayerValidator {
     async footplayerSearchQueryValidation(req, res, next) {
 
         const query = Joi.object().keys({
-            "first_name": Joi.string(),
-            "last_name": Joi.string(),
+            "name": Joi.string(),
             "email": Joi.string(),
             "phone": Joi.string()
         })
