@@ -323,6 +323,9 @@ class ResponseMessage {
     static get PLAYER_NOT_VERIFIED() {
         return "Player is not verified"
     }
+    static get PROFILE_NOT_VERIFIED() {
+        return "Verify your documents in order to Accept/ Reject the request"
+    }
     static get ALREADY_FOOTPLAYER_OF_OTHER_CLUB() {
         return "Already footplayer of other club"
     }
