@@ -94,7 +94,7 @@ class FootPlayerService {
             let send_to_data = await this.playerUtilityInst.findOne({ user_id: requestedData.send_to }, { first_name: 1, last_name: 1, phone: 1, email: 1, _id: 0 });
             await this.footPlayerUtilityInst.insert({
                 sent_by: requestedData.sent_by,
-                send_to: { user_id: requestedData.send_to, f_name: send_to_data.first_name, l_name: send_to_data.last_name, email: send_to_data.email, phone: send_to_data.phone }
+                send_to: { user_id: requestedData.send_to, name: `${send_to_data.first_name} ${send_to_data.last_name}`, email: send_to_data.email, phone: send_to_data.phone }
             });
             let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
             this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
@@ -121,7 +121,8 @@ class FootPlayerService {
             if (_.isEmpty(to_be_footplayer)) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
             }
-            if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status != PROFILE_STATUS.VERIFIED) {
+            console.log(to_be_footplayer)
+            if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status.status && to_be_footplayer.profile_status.status != PROFILE_STATUS.VERIFIED) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_VERIFIED));
             }
         }
