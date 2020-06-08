@@ -18,10 +18,7 @@ module.exports = {
             user_id: {
                 type: String
             },
-            f_name: {
-                type: String
-            },
-            l_name: {
+            name: {
                 type: String
             },
             email: {

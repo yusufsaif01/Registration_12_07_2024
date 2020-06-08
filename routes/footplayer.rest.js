@@ -7,12 +7,11 @@ const ROLE = require('../constants/Role')
 module.exports = (router) => {
 
     /**
-     * @api {get} /footplayer/search?first_name=<first_name>&last_name=<last_name>&email=<email>&phone=<phone> find player
+     * @api {get} /footplayer/search?name=<name>&email=<email>&phone=<phone> find player
      * @apiName find player
      * @apiGroup Footplayer
      * 
-     * @apiParam (query) {String} first_name first name
-	 * @apiParam (query) {String} last_name last name
+	 * @apiParam (query) {String} name name
      * @apiParam (query) {String} email email
      * @apiParam (query) {String} phone phone number
      * 
@@ -51,8 +50,7 @@ module.exports = (router) => {
 
     router.get("/footplayer/search", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.footplayerSearchQueryValidation, function (req, res) {
         filterConditions = {
-            first_name: (req.query && req.query.first_name) ? req.query.first_name : null,
-            last_name: (req.query && req.query.last_name) ? req.query.last_name : null,
+            name: (req.query && req.query.name) ? req.query.name : null,
             email: (req.query && req.query.email) ? req.query.email : null,
             phone: (req.query && req.query.phone) ? req.query.phone : null,
         }
