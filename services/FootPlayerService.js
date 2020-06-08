@@ -116,6 +116,10 @@ class FootPlayerService {
      * @memberof FootPlayerService
      */
     async sendFootplayerRequestValidator(requestedData = {}) {
+        let sent_by_details = await this.loginUtilityInst.findOne({ user_id: requestedData.sent_by }, { profile_status: 1 });
+        if (sent_by_details.profile_status && sent_by_details.profile_status.status && sent_by_details.profile_status.status != PROFILE_STATUS.VERIFIED) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
+        }
         if (requestedData.send_to === requestedData.sent_by) {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF));
         }
@@ -341,6 +345,10 @@ class FootPlayerService {
      * @memberof FootPlayerService
      */
     async ValidateFootplayerInvite(requestedData = {}) {
+        let sent_by_details = await this.loginUtilityInst.findOne({ user_id: requestedData.sent_by }, { profile_status: 1 });
+        if (sent_by_details.profile_status && sent_by_details.profile_status.status && sent_by_details.profile_status.status != PROFILE_STATUS.VERIFIED) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
+        }
         let foundUser = await this.loginUtilityInst.findOne({ username: requestedData.send_to.email });
         if (!_.isEmpty(foundUser)) {
             return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED));
