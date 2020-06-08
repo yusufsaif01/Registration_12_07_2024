@@ -1,5 +1,9 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
+const DocumentStatus = require('../../constants/DocumentStatus');
+const AttachmentType = require('../../constants/AttachmentType');
+const DocumentType = require('../../constants/DocumentType');
+
 const Schema = mongoose.Schema;
 const PLAYER = require('../../constants/PlayerType')
 
@@ -84,16 +88,39 @@ module.exports = {
             }
         },
         documents: [{
-            link: {
-                type: String
-            },
-            is_verified: {
-                type: Boolean,
-                default: false
-            },
             type: {
+                type: String,
+                enum: [DocumentType.AADHAR]
+            },
+            added_on: {
+                type: Date
+            },
+            document_number: {
                 type: String
-            }
+            },
+            media: {
+                attachment_type: {
+                    type: String,
+                    enum: [AttachmentType.IMAGE,AttachmentType.PDF]
+                },
+                doc_front: {
+                    type: String
+                },
+                doc_back: {
+                    type: String
+                },
+                user_photo: {
+                    type: String
+                },
+                document: {
+                    type: String
+                }
+            },
+            status: {
+                type: String,
+                enum: [DocumentStatus.APPROVED, DocumentStatus.PENDING, DocumentStatus.DISAPPROVED]
+            },
+            remark:String
         }],
         bio: {
             type: String
