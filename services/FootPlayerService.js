@@ -328,7 +328,7 @@ class FootPlayerService {
             this.emailService.sendFootplayerInvite(send_to.email, { member_type: sent_by_data.member_type, name: sent_by_data.name }, registration_link);
             return Promise.resolve();
         } catch (e) {
-            console.log("Error in sendFootPlayerInvitation() of FootPlayerService", e);
+            console.log("Error in sendFootPlayerInvite() of FootPlayerService", e);
             return Promise.reject(e);
         }
     }
