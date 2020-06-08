@@ -127,7 +127,7 @@ class UserProfileService {
     async manageDocuments(reqObj = {}, member_type, user_id) {
         try {
             let updatedDoc = [];
-            if (reqObj.profile_status && reqObj.profile_status === PROFILE_STATUS.VERIFIED) {
+            if (reqObj.profileStatus && reqObj.profileStatus === PROFILE_STATUS.VERIFIED) {
                 return Promise.resolve(reqObj);
             }
             if (member_type === MEMBER.PLAYER) {
@@ -412,11 +412,11 @@ class UserProfileService {
             }
         }
 
-        if (data.profile_status && member_type === MEMBER.PLAYER) {
-            if (data.profile_status === PROFILE_STATUS.VERIFIED && data.dob) {
+        if (data.profileStatus && member_type === MEMBER.PLAYER) {
+            if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
             }
-            if (data.profile_status != PROFILE_STATUS.VERIFIED && !data.dob) {
+            if (data.profileStatus != PROFILE_STATUS.VERIFIED && !data.dob) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_REQUIRED));
             }
         }
@@ -437,8 +437,8 @@ class UserProfileService {
     async uploadProfileDocuments(reqObj = {}, user_id, files = null) {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id }, { profile_status: 1 });
-            reqObj.profile_status = loginDetails.profile_status.status;
-            if (files && reqObj.profile_status !== PROFILE_STATUS.VERIFIED) {
+            reqObj.profileStatus = loginDetails.profile_status.status;
+            if (files && reqObj.profileStatus !== PROFILE_STATUS.VERIFIED) {
                 reqObj.documents = [];
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
