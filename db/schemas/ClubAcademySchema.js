@@ -1,9 +1,8 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
-const DocumentStatus = require('../../constants/DocumentStatus');
-const DocumentType = require('../../constants/DocumentType');
+const DOCUMENT_STATUS = require('../../constants/DocumentStatus');
+const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const AttachmentType = require('../../constants/AttachmentType');
-
 const Schema = mongoose.Schema;
 const MEMBER = require('../../constants/MemberType');
 const TYPE = require('../../constants/ClubAcademyType');
@@ -106,23 +105,41 @@ module.exports = {
         },
         documents: [{
             type: {
-                type: String, 
-                enum: [DocumentType.AIFF, DocumentType.PAN, DocumentType.COI, DocumentType.TIN]
+                type: String,
+                enum: [DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.COI, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN]
             },
-            added_on:Date,
-            document_number:String,
+            added_on: {
+                type: Date
+            },
+            document_number: {
+                type: String
+            },
             media: {
                 attachment_type: {
-                    type:String,
-                    enum: [AttachmentType.IMAGE,AttachmentType.PDF]
+                    type: String,
+                    enum: [AttachmentType.IMAGE, AttachmentType.PDF]
                 },
-                document:String,
+                doc_front: {
+                    type: String
+                },
+                doc_back: {
+                    type: String
+                },
+                user_photo: {
+                    type: String
+                },
+                document: {
+                    type: String
+                }
             },
             status: {
                 type: String,
-                enum: [DocumentStatus.APPROVED,DocumentStatus.PENDING, DocumentStatus.DISAPPROVED]
+                enum: [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.DISAPPROVED],
+                default: DOCUMENT_STATUS.PENDING
             },
-            remark:String
+            remark: {
+                type: String
+            }
         }],
         trophies: [{
             name: { type: String },

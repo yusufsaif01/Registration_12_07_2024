@@ -1,12 +1,21 @@
 class DocumentType {
   static get AADHAR() {
-    return "aadhar";
+    return 'aadhar';
   }
-  static get EMPLOYEMENT_CONTRACT() {
-    return "employment_contract";
+  static get EMPLOYMENT_CONTRACT() {
+    return 'employment_contract';
+  }
+  static get COI() {
+    return 'coi';
   }
   static get AIFF() {
-    return "aiff";
+    return 'aiff';
+  }
+  static get PAN() {
+    return 'pan';
+  }
+  static get TIN() {
+    return 'tin';
   }
   static get PAN() {
     return 'pan';
@@ -19,4 +28,4 @@ class DocumentType {
   }
 }
 
-module.exports = DocumentType;
+module.exports = DocumentType

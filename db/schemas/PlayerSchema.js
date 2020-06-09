@@ -1,11 +1,10 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
-const DocumentStatus = require('../../constants/DocumentStatus');
-const AttachmentType = require('../../constants/AttachmentType');
-const DocumentType = require('../../constants/DocumentType');
-
+const ATTACHMENT_TYPE = require('../../constants/AttachmentType');
+const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const Schema = mongoose.Schema;
 const PLAYER = require('../../constants/PlayerType')
+const DOCUMENT_STATUS = require('../../constants/DocumentStatus')
 
 module.exports = {
     fields: {
@@ -90,10 +89,7 @@ module.exports = {
         documents: [{
             type: {
                 type: String,
-                enum: [
-                    DocumentType.AADHAR,
-                    DocumentType.EMPLOYEMENT_CONTRACT
-                ]
+                enum: [DOCUMENT_TYPE.AADHAR, DOCUMENT_TYPE.EMPLOYMENT_CONTRACT]
             },
             added_on: {
                 type: Date
@@ -104,7 +100,7 @@ module.exports = {
             media: {
                 attachment_type: {
                     type: String,
-                    enum: [AttachmentType.IMAGE,AttachmentType.PDF]
+                    enum: [ATTACHMENT_TYPE.IMAGE, ATTACHMENT_TYPE.PDF]
                 },
                 doc_front: {
                     type: String
@@ -121,9 +117,12 @@ module.exports = {
             },
             status: {
                 type: String,
-                enum: [DocumentStatus.APPROVED, DocumentStatus.PENDING, DocumentStatus.DISAPPROVED]
+                enum: [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.DISAPPROVED],
+                default: DOCUMENT_STATUS.PENDING
             },
-            remark:String
+            remark: {
+                type: String
+            }
         }],
         bio: {
             type: String

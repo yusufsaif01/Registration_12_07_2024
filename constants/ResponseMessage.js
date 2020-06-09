@@ -305,6 +305,60 @@ class ResponseMessage {
     static get MAX_60_WORDS_FOR_COMMENT() {
         return "Text with maximum 60 words can be entered as a comment"
     }
+    static get AADHAR_NUMBER_INVALID() {
+        return "Aadhar number invalid"
+    }
+    static get AADHAR_DETAILS_EXISTS() {
+        return "Aadhaar details already exist"
+    }
+    static get ID_DETAILS_EXISTS() {
+        return "ID details already exist"
+    }
+    static get DOCUMENT_DETAILS_EXISTS() {
+        return "Document details already exist"
+    }
+    static get DOB_CANNOT_BE_EDITED() {
+        return "DOB cannot be edited"
+    }
+    static get DOB_REQUIRED() {
+        return "DOB required"
+    }
+    static get AADHAR_NUMBER_REQUIRED() {
+        return "Aadhar number is required"
+    }
+    static get DOCUMENT_NUMBER_REQUIRED() {
+        return "AIFF/ PAN/ COI/ Tin Number is required"
+    }
+    static get AIFF_ID_REQUIRED() {
+        return "AIFF Accreditation ID is required"
+    }
+    static get AADHAR_FRONT_REQUIRED() {
+        return "Aadhar front image required"
+    }
+    static get AADHAR_BACK_REQUIRED() {
+        return "Aadhar back image required"
+    }
+    static get AADHAR_DOCUMENT_REQUIRED() {
+        return "Aadhar document required"
+    }
+    static get PLAYER_PHOTO_REQUIRED() {
+        return "player photo required"
+    }
+    static get EMPLOYMENT_CONTRACT_REQUIRED() {
+        return "Employment contract required"
+    }
+    static get AIFF_REQUIRED() {
+        return "AIFF document is required"
+    }
+    static get DOCUMENT_REQUIRED() {
+        return "Document is required"
+    }
+    static get AADHAR_MEDIA_TYPE_REQUIRED() {
+        return "Aadhar media type required"
+    }
+    static get DOCUMENT_TYPE_REQUIRED() {
+        return "Document type is required"
+    }
     static get EMAIL_OR_PHONE_REQUIRED() {
         return "email or phone required"
     }
