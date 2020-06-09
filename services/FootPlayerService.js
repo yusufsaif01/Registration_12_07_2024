@@ -403,8 +403,6 @@ class FootPlayerService {
         return Promise.resolve();
     }
 
-    // merging from yft-719
-
     countDocs(paramas = {}) {
     try {
       const matchCriteria = {

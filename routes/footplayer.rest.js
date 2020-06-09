@@ -2,8 +2,7 @@ const FootPlayerService = require('../services/FootPlayerService');
 const responseHandler = require('../ResponseHandler');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const footplayerValidator = require("../middleware/validators").footplayerValidator;
-const ROLE = require('../constants/Role')
-// merging from 719
+const ROLE = require('../constants/Role');
 const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
@@ -362,8 +361,6 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         responseHandler(req, res, serviceInst.resendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body }));
     });
-
-    // merging routes from 719
     
     /**
     * @api {get} /footplayers Club/Academy footplayers
