@@ -537,13 +537,6 @@ class FootPlayerService {
     };
   }
 
-  getMatchCriteria(paramas) {
-    return {
-      sent_by: paramas.criteria.sentBy,
-      is_deleted: false,
-    };
-  }
-
   async deleteRequest(requestId, userId) {
     try {
       const $where = {
