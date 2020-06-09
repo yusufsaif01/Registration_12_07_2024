@@ -17,6 +17,7 @@ class ClubFootPlayersResponseMapping {
           avatar: userObj.avatar_url,
           category: userObj.player_type,
           name: name,
+          email: request.send_to.email,
           position: '-',
           status: request.status,
         };
