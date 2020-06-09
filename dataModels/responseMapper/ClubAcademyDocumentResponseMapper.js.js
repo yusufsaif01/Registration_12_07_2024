@@ -1,7 +1,7 @@
 class ClubAcademyDocumentResponseMapper {
   map(record) {
     return {
-      name: [record.first_name, record.last_name].join(" "),
+      name: record.name,
       documents: record.documents,
     };
   }

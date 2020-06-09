@@ -3,7 +3,7 @@ const responseHandler = require("../ResponseHandler");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 const ClubAcademyDocumentService = require("../services/ClubAcademyDocumentService");
-const PlayerDocumentsResponseMapper = require("../dataModels/responseMapper/PlayerDocumentsResponseMapper");
+const ClubAcademyDocumentResponseMapper = require("../dataModels/responseMapper/ClubAcademyDocumentResponseMapper.js");
 const updateStatusValidator = require("../middleware/validators/member-documents/updateStatusValidator");
 const auth = require("../middleware/auth");
 const Role = require("../constants/Role");
@@ -26,7 +26,7 @@ module.exports = (router) => {
     *       "status": "success",
     *       "message": "successfully done",
     *       "data": {
-    *         "player_name": "",
+    *         "name": "",
     *         "date_of_birth": "",
     *         "documents": [
     *           {
@@ -72,7 +72,7 @@ module.exports = (router) => {
           req,
           res,
           Promise.resolve(
-            PlayerDocumentsResponseMapper.map(
+            ClubAcademyDocumentResponseMapper.map(
               await clubAcademyInst.getUserDocuments(user_id)
             )
           )
