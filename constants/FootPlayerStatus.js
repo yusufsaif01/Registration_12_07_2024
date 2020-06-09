@@ -1,15 +1,15 @@
 class FootPlayerStatus {
     static get ADDED() {
-        return "Added";
+        return "added";
     }
     static get PENDING() {
-        return "Pending";
+        return "pending";
     }
     static get REJECTED() {
-        return "Rejected";
+        return "rejected";
     }
     static get INVITED() {
-        return "Invited";
+        return "invited";
     }
 }
 
