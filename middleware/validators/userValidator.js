@@ -9,6 +9,8 @@ const SORT_ORDER = require('../../constants/SortOrder');
 const PROFILE = require('../../constants/ProfileStatus');
 const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
+const DOCUMENT_TYPE = require('../../constants/DocumentType');
+const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -81,7 +83,7 @@ class UserValidator {
             "document_type": Joi.string().trim().allow(""),
             "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "number": Joi.string().trim(),
-            "reg_number": Joi.string().trim(),
+            "aiff_id": Joi.string().trim(),
             "associated_players": Joi.number().allow(""),
             "head_coach_name": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
@@ -99,11 +101,18 @@ class UserValidator {
             "trophies": Joi.string(),
             "top_players": Joi.string(),
 
-            // need to remove
+            //need to remove
             "document": Joi.any(),
             "aiff": Joi.any()
-
         };
+        if (req.body.member_type) {
+            let member_type = req.body.member_type
+            if (member_type === MEMBER.CLUB)
+                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
+
+            if (member_type === MEMBER.ACADEMY)
+                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+        }
         if (req.body.document_type) {
             let document_type = req.body.document_type;
             if (document_type === 'pan') {
@@ -141,7 +150,7 @@ class UserValidator {
                     message: RESPONSE_MESSAGE.LAST_NAME_INVALID,
                 };
             }),
-            "dob": Joi.string().trim().required(),
+            "dob": Joi.string().trim(),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
@@ -168,7 +177,12 @@ class UserValidator {
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
             "former_club": Joi.string().trim().allow(""),
-
+            "aadhar_media_type": Joi.string().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
+            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
+                };
+            }),
             //need to remove
             "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
@@ -190,6 +204,12 @@ class UserValidator {
 
         try {
             await Joi.validate(req.body, schema);
+            if (req.authUser.member_type == MEMBER.PLAYER && req.body.aadhar_number) {
+                var verhoeff = require('node-verhoeff');
+                if (!verhoeff.validateAadhaar(req.body.aadhar_number)) {
+                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID)));
+                }
+            }
             return next();
         } catch (err) {
             console.log(err.details);

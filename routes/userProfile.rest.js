@@ -1,7 +1,6 @@
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
 const UserProfileService = require('../services/UserProfileService');
-const LoginUtility = require('../db/utilities/LoginUtility');
 const UserService = require('../services/UserService');
 const userValidator = require("../middleware/validators").userValidator;
 const StorageProvider = require('storage-provider');
@@ -54,7 +53,8 @@ module.exports = (router) => {
      *                 "trophies": [],
      *                 "top_signings": [],
      *                 "associated_players": 100,
-     *                 "member_type": "club"
+     *                 "member_type": "club",
+     *                 "profile_status": "verified"
      *                }
      *     }
      * 
@@ -95,6 +95,11 @@ module.exports = (router) => {
      * @apiGroup Profile
      *
      * @apiParam (body) {String} player_type player type can be grassroot/amateur/professional
+     * @apiParam (body) {String} aadhar_number player aadhar number
+     * @apiParam (body) {String} aadhar_media_type image or pdf
+     * @apiParam (body) {String} aadhar_front aadhar front image file
+     * @apiParam (body) {String} aadhar_back aadhar back image file
+     * @apiParam (body) {String} aadhar aadhar pdf file
      * @apiParam (body) {String} first_name player first name
      * @apiParam (body) {String} last_name player last name
      * @apiParam (body) {String} dob player date of birth
@@ -120,7 +125,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} document_type club/academy document_type
      * @apiParam (body) {String} type club/academy type
      * @apiParam (body) {String} number academy PAN/ COI/ Tin Number
-     * @apiParam (body) {String} reg_number club AIFF Registration Number
+     * @apiParam (body) {String} aiff_id club AIFF Accreditation ID
      * @apiParam (body) {String} stadium_name club/academy stadium name
      * @apiParam (body) {string} trophies club/academy trophies
      * @apiParam (body) {string} associated_players club/academy associated_players 
@@ -171,7 +176,7 @@ module.exports = (router) => {
     router.put('/update-details', checkAuthToken, userValidator.updateDetailsAPIValidation, async function (req, res) {
         try {
             let serviceInst = new UserProfileService();
-            let reqObj = await serviceInst.uploadProfileDocuments(req.body, req.files);
+            let reqObj = await serviceInst.uploadProfileDocuments(req.body,req.authUser.user_id, req.files);
 
             responseHandler(req, res, serviceInst.updateProfileDetails({
                 member_type: req.authUser.member_type,

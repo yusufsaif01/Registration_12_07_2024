@@ -2,6 +2,7 @@ const config = require('../config');
 const AuthUtility = require('../db/utilities/AuthUtility');
 const UserUtility = require('../db/utilities/UserUtility');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
+const LoginUtility = require('../db/utilities/LoginUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const errors = require("../errors");
 const _ = require("lodash");
@@ -10,10 +11,15 @@ const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const moment = require('moment');
 const StorageProvider = require('storage-provider');
 const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
+const AADHAR_MEDIA_TYPE = require('../constants/AadharMediaType');
+const DOCUMENT_MEDIA_TYPE = require('../constants/DocumentMediaType');
+const DOCUMENT_TYPE = require('../constants/DocumentType');
+const PROFILE_STATUS = require('../constants/ProfileStatus');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
+const PLAYER = require('../constants/PlayerType');
 
 /**
  *
@@ -34,6 +40,7 @@ class UserProfileService {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
+        this.loginUtilityInst = new LoginUtility();
     }
 
     /**
@@ -48,31 +55,151 @@ class UserProfileService {
     async updateProfileDetails(requestedData = {}) {
         await this.updateProfileDetailsValidation(requestedData.updateValues, requestedData.member_type, requestedData.id);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
+        profileData = await this.manageDocuments(profileData, requestedData.member_type, requestedData.id);
         if (requestedData.member_type == MEMBER.PLAYER) {
-            let playerData = await this.prepareDocumentObj(profileData, requestedData.id);
-            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, playerData);
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         } else {
             await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         }
     }
-    async prepareDocumentObj(reqObj = {}, user_id) {
-        if (!reqObj.documents)
-            return Promise.resolve(reqObj)
-        let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
-        if (details && details.documents && details.documents.length) {
-            let documents = details.documents;
-            let aadharDB = _.find(documents, { type: "aadhar" });
-            let playerContractDB = _.find(documents, { type: "employment_contract" });
-            let aadharReqObj = _.find(reqObj.documents, { type: "aadhar" })
-            let playerContractReqObj = _.find(reqObj.documents, { type: "employment_contract" })
-            if (aadharReqObj && !playerContractReqObj && playerContractDB) {
-                reqObj.documents.push(playerContractDB)
+
+
+    /**
+     * validates document number
+     *
+     * @param {*} data
+     * @param {*} member_type
+     * @param {*} user_id
+     * @returns
+     * @memberof UserProfileService
+     */
+    async validateDocNumber(data, member_type, user_id) {
+        try {
+            if (member_type !== MEMBER.PLAYER && (data.number || data.aiff_id)) {
+                let documentNum = data.number ? data.number : data.aiff_id
+                const details = await this.clubAcademyUtilityInst.findOne(
+                    {
+                        member_type: member_type, documents: {
+                            $elemMatch: {
+                                document_number: documentNum
+                            }
+                        }
+                    }, { documents: 1, user_id: 1 });
+                if (!_.isEmpty(details)) {
+                    if (details.user_id !== user_id) {
+                        if (member_type === MEMBER.CLUB)
+                            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ID_DETAILS_EXISTS));
+                        if (member_type === MEMBER.ACADEMY)
+                            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DOCUMENT_DETAILS_EXISTS));
+                    }
+                }
             }
-            if (playerContractReqObj && !aadharReqObj && aadharDB) {
-                reqObj.documents.push(aadharDB)
+            if (member_type === MEMBER.PLAYER && data.aadhar_number && data.aadhar_media_type) {
+                const details = await this.playerUtilityInst.findOne({
+                    documents: {
+                        $elemMatch: {
+                            document_number: data.aadhar_number,
+                            type: DOCUMENT_TYPE.AADHAR
+                        }
+                    }
+                }, { documents: 1, user_id: 1 })
+                if (!_.isEmpty(details)) {
+                    if (details.user_id !== user_id)
+                        return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.AADHAR_DETAILS_EXISTS));
+                }
             }
         }
-        return Promise.resolve(reqObj)
+        catch (e) {
+            console.log("Error in validateDocNumber() of UserProfileService", e)
+            return Promise.reject(e)
+        }
+    }
+
+    /**
+     * manages user documents
+     *
+     * @param {*} [reqObj={}]
+     * @param {*} member_type
+     * @param {*} user_id
+     * @returns updated documents array
+     * @memberof UserProfileService
+     */
+    async manageDocuments(reqObj = {}, member_type, user_id) {
+        try {
+            let updatedDoc = [];
+            if (reqObj.profileStatus && reqObj.profileStatus === PROFILE_STATUS.VERIFIED) {
+                return Promise.resolve(reqObj);
+            }
+            if (member_type === MEMBER.PLAYER) {
+                if (!reqObj.aadhar_number) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_NUMBER_REQUIRED));
+                }
+                let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+                let documents = details.documents || []
+                let aadharDB = _.find(documents, { type: DOCUMENT_TYPE.AADHAR });
+                let playerContractDB = _.find(documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT });
+                let aadharReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.AADHAR })
+                let playerContractReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
+                if (!aadharReqObj && !aadharDB) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_DOCUMENT_REQUIRED));
+                }
+                if (!reqObj.user_photo && !aadharDB) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PHOTO_REQUIRED));
+                }
+                let aadharObj = aadharReqObj || aadharDB
+                aadharObj.document_number = reqObj.aadhar_number;
+                aadharObj.media.user_photo = reqObj.user_photo || (aadharDB ? aadharDB.media.user_photo : "")
+                updatedDoc.push(aadharObj);
+                if (reqObj.player_type === PLAYER.PROFESSIONAL) {
+                    if (!playerContractReqObj && !playerContractDB) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMPLOYMENT_CONTRACT_REQUIRED));
+                    }
+                    let playerContractObj = playerContractReqObj || playerContractDB
+                    updatedDoc.push(playerContractObj)
+                }
+            }
+            if (member_type === MEMBER.CLUB) {
+                if (!reqObj.aiff_id) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AIFF_ID_REQUIRED));
+                }
+                let details = await this.clubAcademyUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+                let documents = details.documents || []
+                let aiffDB = _.find(documents, { type: DOCUMENT_TYPE.AIFF });
+                let aiffReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.AIFF })
+                if (!aiffDB && !aiffReqObj) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AIFF_REQUIRED));
+                }
+                let aiffObj = aiffReqObj || aiffDB
+                aiffObj.document_number = reqObj.aiff_id;
+                updatedDoc.push(aiffObj);
+            }
+            if (member_type === MEMBER.ACADEMY) {
+                if (reqObj.number) {
+                    let details = await this.clubAcademyUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
+                    let documents = details.documents || []
+                    let documentDB = _.find(documents, { type: reqObj.document_type });
+                    let documentReqObj = _.find(reqObj.documents, { type: reqObj.document_type })
+                    if (!documentDB && !documentReqObj && !reqObj.document_type) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_TYPE_REQUIRED));
+                    }
+                    if (!documentDB && !documentReqObj) {
+                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_REQUIRED));
+                    }
+                    let documentObj = documentReqObj || documentDB
+                    documentObj.document_number = reqObj.number
+                    updatedDoc.push(documentObj);
+                }
+                if (!reqObj.number && reqObj.documents) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOCUMENT_NUMBER_REQUIRED));
+                }
+            }
+            reqObj.documents = updatedDoc;
+            await this.validateDocNumber(reqObj, member_type, user_id);
+            return Promise.resolve(reqObj)
+        } catch (e) {
+            console.log("Error in manageDocuments of UserProfileService", e)
+            return Promise.reject(e)
+        }
     }
 
     async prepareProfileData(member_type, data) {
@@ -202,23 +329,6 @@ class UserProfileService {
 
             if (!_.isEmpty(owner))
                 data.owner = owner;
-
-            if (data.documents) {
-                if (member_type === MEMBER.ACADEMY && data.document_type && data.number) {
-                    let documentReqObj = _.find(data.documents, { type: data.document_type })
-                    if (documentReqObj) {
-                        documentReqObj.document_number = data.number
-                        data.documents = [documentReqObj]
-                    }
-                }
-                if (member_type === MEMBER.CLUB && data.reg_number) {
-                    let documentReqObj = _.find(data.documents, { type: "aiff" })
-                    if (documentReqObj) {
-                        documentReqObj.document_number = data.reg_number
-                        data.documents = [documentReqObj]
-                    }
-                }
-            }
         }
         return Promise.resolve(data)
     }
@@ -262,7 +372,7 @@ class UserProfileService {
     }
 
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies, documents } = data
+        const { founded_in, trophies } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -301,54 +411,109 @@ class UserProfileService {
                 return Promise.reject(new errors.ValidationFailed(msg));
             }
         }
-        if (documents && member_type) {
-            if (member_type === MEMBER.ACADEMY && !data.number) {
-                return Promise.reject(new errors.ValidationFailed("PAN/ COI/ Tin Number is required"));
+
+        if (data.profileStatus && member_type === MEMBER.PLAYER) {
+            if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
             }
-            if (member_type === MEMBER.CLUB && !data.reg_number) {
-                return Promise.reject(new errors.ValidationFailed("AIFF Registration Number is required"));
-            }
-            if (member_type !== MEMBER.PLAYER && (data.number || data.reg_number)) {
-                let documentNum = data.number ? data.number : data.reg_number
-                const details = await this.clubAcademyUtilityInst.findOne(
-                    {
-                        member_type: member_type, documents: {
-                            $elemMatch: {
-                                document_number: documentNum
-                            }
-                        }
-                    }, { documents: 1, user_id: 1 });
-                if (!_.isEmpty(details)) {
-                    if (details.user_id !== user_id)
-                        return Promise.reject(new errors.Conflict("document number already in use"));
-                }
+            if (data.profileStatus != PROFILE_STATUS.VERIFIED && !data.dob) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_REQUIRED));
             }
         }
         return Promise.resolve()
     }
 
-    async uploadProfileDocuments(reqObj = {}, files = null) {
+    getAttachmentType(fileName) {
+        let attachment_type = DOCUMENT_MEDIA_TYPE.PDF;
+        if (fileName) {
+            let file_extension = fileName.split('.')[1] || null;
+            if (file_extension && file_extension != DOCUMENT_MEDIA_TYPE.PDF) {
+                attachment_type = DOCUMENT_MEDIA_TYPE.IMAGE;
+            }
+        }
+        return attachment_type;
+    }
+
+    async uploadProfileDocuments(reqObj = {}, user_id, files = null) {
         try {
-            if (files) {
+            let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id }, { profile_status: 1 });
+            reqObj.profileStatus = loginDetails.profile_status.status;
+            if (files && reqObj.profileStatus !== PROFILE_STATUS.VERIFIED) {
                 reqObj.documents = [];
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
-                if (files.aadhar) {
-                    let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: 'aadhar' });
+                if (files.player_photo) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
+                    let uploadResponse = await storageProviderInst.uploadDocument(files.player_photo, options);
+                    reqObj.user_photo = uploadResponse.url
+                }
+                if (!reqObj.aadhar_media_type && (files.aadhar || files.aadhar_front || files.aadhar_back)) {
+                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_MEDIA_TYPE_REQUIRED));
+                }
+                if (reqObj.aadhar_media_type) {
+                    if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.PDF) {
+                        if (!files.aadhar) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_DOCUMENT_REQUIRED));
+                        }
+                        if (files.aadhar) {
+                            options.allowed_extensions = AADHAR_MEDIA_TYPE.PDF_EXTENSION;
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar, options);
+                            reqObj.documents.push({
+                                type: DOCUMENT_TYPE.AADHAR,
+                                added_on: Date.now(), media: { attachment_type: AADHAR_MEDIA_TYPE.PDF, document: uploadResponse.url }
+                            });
+                        }
+                    }
+                    if (reqObj.aadhar_media_type === AADHAR_MEDIA_TYPE.IMAGE) {
+                        options.allowed_extensions = AADHAR_MEDIA_TYPE.ALLOWED_IMAGE_EXTENSIONS;
+                        let doc_front = "", doc_back = "";
+                        if (!files.aadhar_front) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_FRONT_REQUIRED));
+                        }
+                        if (!files.aadhar_back) {
+                            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_BACK_REQUIRED));
+                        }
+                        if (files.aadhar_front) {
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_front, options);
+                            doc_front = uploadResponse.url;
+                        }
+                        if (files.aadhar_back) {
+                            let uploadResponse = await storageProviderInst.uploadDocument(files.aadhar_back, options);
+                            doc_back = uploadResponse.url;
+                        }
+                        reqObj.documents.push({
+                            type: DOCUMENT_TYPE.AADHAR,
+                            added_on: Date.now(), media: { attachment_type: AADHAR_MEDIA_TYPE.IMAGE, doc_front: doc_front, doc_back: doc_back }
+                        });
+                    }
                 }
                 if (files.aiff) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.aiff, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: 'aiff' });
+                    let attachment_type = this.getAttachmentType(files.aiff.name);
+                    reqObj.documents.push({
+                        type: DOCUMENT_TYPE.AIFF,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
+                    });
                 }
                 if (files.employment_contract) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: 'employment_contract' });
+                    let attachment_type = this.getAttachmentType(files.employment_contract.name);
+                    reqObj.documents.push({
+                        type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
+                    });
                 }
                 if (reqObj.document_type && files.document) {
+                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
                     let uploadResponse = await storageProviderInst.uploadDocument(files.document, options);
-                    reqObj.documents.push({ link: uploadResponse.url, type: reqObj.document_type });
+                    let attachment_type = this.getAttachmentType(files.document.name);
+                    reqObj.documents.push({
+                        type: reqObj.document_type,
+                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
+                    });
                 }
             }
 
@@ -438,7 +603,7 @@ class UserProfileService {
         former_academy, specialization, player_type, email, name, avatar_url, state,
         country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
         contact_person, trophies, club_academy_details, top_signings, associated_players, registration_number,
-        member_type, social_profiles, type, league, league_other, association, association_other
+        member_type, social_profiles, type, league, league_other, association, association_other, profile_status
     }) {
         return {
             nationality, top_players, first_name, last_name, height, weight, dob,
@@ -446,7 +611,7 @@ class UserProfileService {
             former_academy, specialization, player_type, email, name, avatar_url, state,
             country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
             contact_person, trophies, club_academy_details, top_signings, associated_players, registration_number,
-            member_type, social_profiles, type, league, league_other, association, association_other
+            member_type, social_profiles, type, league, league_other, association, association_other, profile_status
         };
     }
 }
