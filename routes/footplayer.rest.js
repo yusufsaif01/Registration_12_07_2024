@@ -307,4 +307,52 @@ module.exports = (router) => {
         let serviceInst = new FootPlayerService();
         responseHandler(req, res, serviceInst.sendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body }));
     });
+    
+    /**
+     * @api {post} /footplayer/resend-invite resend footplayer invite
+     * @apiName resend footplayer invite
+     * @apiGroup Footplayer
+     *   
+     * @apiParam (body) {String} [phone] phone number 
+     * @apiParam (body) {String} email email
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }   
+     * 
+     * @apiErrorExample {json} Unauthorized
+     *     HTTP/1.1 401 Unauthorized
+     *     {
+     *       "message": "Unauthorized",
+     *       "code": "UNAUTHORIZED",
+     *       "httpCode": 401
+     *     }
+     * 
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     * @apiErrorExample {json} NOT_FOUND
+     *     HTTP/1.1 404 Not found
+     *     {
+     *       "message": "Invite not found",
+     *       "code": "NOT_FOUND",
+     *       "httpCode": 404
+     *     }
+     * 
+     */
+    router.post('/footplayer/resend-invite', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), footplayerValidator.resendFootplayerInviteValidation, function (req, res) {
+        let serviceInst = new FootPlayerService();
+        responseHandler(req, res, serviceInst.resendFootplayerInvite({ sent_by: req.authUser.user_id, send_to: req.body }));
+    });
 };

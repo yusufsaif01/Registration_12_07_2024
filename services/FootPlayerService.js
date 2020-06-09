@@ -359,6 +359,49 @@ class FootPlayerService {
         }
         return Promise.resolve();
     }
+
+    /**
+     * resends footplayer invite 
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async resendFootplayerInvite(requestedData = {}) {
+        try {
+            await this.ValidateResendFootplayerInvite(requestedData);
+            let registration_link = config.app.baseURL + "register";
+            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
+            this.emailService.sendFootplayerInvite(requestedData.send_to.email, { member_type: sent_by_data.member_type, name: sent_by_data.name }, registration_link);
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in resendFootPlayerInvite() of FootPlayerService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates requestedData for resendFootplayerInvite
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof FootPlayerService
+     */
+    async ValidateResendFootplayerInvite(requestedData = {}) {
+        let sent_by_details = await this.loginUtilityInst.findOne({ user_id: requestedData.sent_by }, { profile_status: 1 });
+        if (sent_by_details.profile_status && sent_by_details.profile_status.status && sent_by_details.profile_status.status != PROFILE_STATUS.VERIFIED) {
+            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
+        }
+        let foundUser = await this.loginUtilityInst.findOne({ username: requestedData.send_to.email });
+        if (!_.isEmpty(foundUser)) {
+            return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED));
+        }
+        let footplayerInvite = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, status: FOOTPLAYER_STATUS.INVITED, "send_to.email": requestedData.send_to.email });
+        if (_.isEmpty(footplayerInvite)) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.INVITE_NOT_FOUND));
+        }
+        return Promise.resolve();
+    }
 }
 
 module.exports = FootPlayerService;
