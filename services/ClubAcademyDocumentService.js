@@ -121,7 +121,7 @@ class ClubAcademyDocumentService {
         {
           $set: {
             profile_status: {
-              status: ProfileStatus.DISAPPROVED,
+              status: ProfileStatus.NON_VERIFIED,
               remarks,
             },
           },
