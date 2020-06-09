@@ -389,6 +389,15 @@ class ResponseMessage {
     static get SENT_BY_USER_NOT_FOUND() {
         return "Sent by user not found"
     }
+    static get INVITE_BY_PHONE_UNAVAILABLE() {
+        return "Invite by phone number is not currently supported"
+    }
+    static get INVITE_ALREADY_SENT() {
+        return "Invite already sent"
+    }
+    static get USER_PROFILE_NOT_VERIFIED() {
+        return "Your profile is not verified"
+    }
 }
 
 module.exports = ResponseMessage

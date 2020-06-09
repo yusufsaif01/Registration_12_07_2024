@@ -22,8 +22,12 @@ class EmailService {
         await this.sendMail("changePassword", { email: email });
     }
 
-    async footplayerRequest(send_to_email,sent_by={}) {
-        await this.sendMail("footplayerRequest", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name:sent_by.name });
+    async footplayerRequest(send_to_email, sent_by = {}) {
+        await this.sendMail("footplayerRequest", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name: sent_by.name });
+    }
+
+    async sendFootplayerInvite(send_to_email, sent_by = {}, link) {
+        await this.sendMail("footplayerInvite", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name: sent_by.name, link: link });
     }
 
     async sendMail(mailTemplate, data) {
