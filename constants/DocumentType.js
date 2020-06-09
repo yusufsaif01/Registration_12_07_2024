@@ -17,15 +17,6 @@ class DocumentType {
   static get TIN() {
     return 'tin';
   }
-  static get PAN() {
-    return 'pan';
-  }
-  static get COI() {
-    return 'coi';
-  }
-  static get TIN() {
-    return 'tin';
-  }
 }
 
 module.exports = DocumentType
