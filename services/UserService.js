@@ -54,7 +54,7 @@ class UserService extends BaseService {
                 if (requestedData.filterConditions.email_verified)
                     _condition.is_email_verified = (String(requestedData.filterConditions.email_verified).toLowerCase() === EMAIL_VERIFIED.TRUE);
                 if (requestedData.filterConditions.profile_status)
-                    _condition.profile_status = requestedData.filterConditions.profile_status;
+                    _condition.profile_status = { status: requestedData.filterConditions.profile_status };
 
                 let users = await this.loginUtilityInst.find(_condition, { user_id: 1 });
                 users = _.map(users, "user_id");
