@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
 const config = require("../config");
+const modelAutoload = require("./model/autoload");
 
 class Connection {
 
@@ -41,6 +42,7 @@ class Connection {
 		let connection = mongoose.connection;
 		connection.on("connected", () => {
 			console.log("DB Connected");
+			modelAutoload();
 		});
 
 		connection.on("disconnected", (err) => {
