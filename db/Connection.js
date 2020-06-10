@@ -42,7 +42,7 @@ class Connection {
 		let connection = mongoose.connection;
 		connection.on("connected", () => {
 			console.log("DB Connected");
-			modelAutoload();
+			modelAutoload(true);
 		});
 
 		connection.on("disconnected", (err) => {
