@@ -26,7 +26,6 @@ module.exports = (autoloadAll = false) => {
   return loadModels(autoloadModels);
 };
 
-
 /**
  * Scans directory and autoload models
  */
@@ -38,7 +37,7 @@ function scanAndAutloadAll() {
 
   loadModels(
     schemas.map((schema) => {
-      return require(`../schemas/${schema}`);
+      return require(path.join(schemaDirectory, schema));
     })
   );
 }
