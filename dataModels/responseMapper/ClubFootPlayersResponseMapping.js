@@ -4,19 +4,14 @@ class ClubFootPlayersResponseMapping {
     if (requests.length) {
       requests.forEach((request) => {
 
-        let userObj = request.send_to_user ? request.send_to_user : {}; 
-        let name = [request.send_to.f_name, request.send_to.l_name].join(" ");
-
-        if (userObj.user_id) {
-          name = [userObj.first_name, userObj.last_name].join(" ")
-        }
+        let userObj = request.send_to_user ? request.send_to_user : {};
 
         let data = {
           id: request.id,
           user_id: request.send_to.user_id,
           avatar: userObj.avatar_url,
           category: userObj.player_type,
-          name: name,
+          name: request.send_to.name || "",
           email: request.send_to.email,
           position: '-',
           status: request.status,

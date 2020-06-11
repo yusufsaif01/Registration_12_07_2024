@@ -59,27 +59,29 @@ class PlayerDocumentsService {
     });
 
     if (res.nModified) {
+
+      // document approval
       this.emailService.documentApproval({
         email: user.email,
         documentType: type,
         name: [user.first_name, user.last_name].join(" "),
       });
-    }
 
-    // reload model
-    user = await this.getUser(user.user_id);
-
-    // complete approval
-    if (user.documents.every((doc) => doc.status == DocumentStatus.APPROVED)) {
-      await this.loginDetailsInst.updateOne({
-        user_id: user.user_id
-      }, {
-        $set: {
-          profile_status: {
-            status: ProfileStatus.VERIFIED,
-          },
+      // profile approval
+      await this.loginDetailsInst.updateOne(
+        {
+          user_id: user.user_id,
         },
-      });
+        {
+          $set: {
+            profile_status: {
+              status: ProfileStatus.VERIFIED,
+            },
+          },
+        }
+      );
+
+      // send profile approved notification
       await this.emailService.profileVerified(user.email);
     }
   }
