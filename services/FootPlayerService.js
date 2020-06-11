@@ -494,12 +494,8 @@ class FootPlayerService {
         },
         status: 1,
         send_to: {
-          full_name: {
-            $concat: ["$send_to.f_name", " ", "$send_to.l_name"],
-          },
           user_id: 1,
-          f_name: 1,
-          l_name: 1,
+          name: 1,
           email: 1,
           phone: 1,
         },
@@ -511,9 +507,7 @@ class FootPlayerService {
     let regexp = new RegExp(paramas.filters.search, "i");
     searchConditions["$or"] = [];
     searchConditions["$or"] = [
-      "send_to.f_name",
-      "send_to.l_name",
-      "send_to.full_name",
+      "send_to.name",
       "send_to_user.player_type",
     ].map((field) => {
       return {
