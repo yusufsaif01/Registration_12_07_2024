@@ -21,8 +21,8 @@ class UserListResponseMapper {
                     data.position = user.position[0].name;
                 }
 
-                if (user.login_details && user.login_details.profile_status) {
-                    data.status = user.login_details.profile_status;
+                if (user.login_details && user.login_details.profile_status && user.login_details.profile_status.status) {
+                    data.status = user.login_details.profile_status.status;
                 }
 
                 if (user.login_details && user.login_details.status) {
@@ -47,8 +47,8 @@ class UserListResponseMapper {
                     "user_id": user.user_id
                 };
 
-                if (user.login_details && user.login_details.profile_status) {
-                    data.status = user.login_details.profile_status;
+                if (user.login_details && user.login_details.profile_status && user.login_details.profile_status.status) {
+                    data.status = user.login_details.profile_status.status;
                 }
 
                 if (user.login_details && user.login_details.status) {

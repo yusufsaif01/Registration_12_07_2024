@@ -1,5 +1,8 @@
 const uuid = require('uuid/v4');
 const mongoose = require('mongoose');
+const DOCUMENT_STATUS = require('../../constants/DocumentStatus');
+const DOCUMENT_TYPE = require('../../constants/DocumentType');
+const AttachmentType = require('../../constants/AttachmentType');
 const Schema = mongoose.Schema;
 const MEMBER = require('../../constants/MemberType');
 const TYPE = require('../../constants/ClubAcademyType');
@@ -101,17 +104,40 @@ module.exports = {
             type: String
         },
         documents: [{
-            link: {
-                type: String
+            type: {
+                type: String,
+                enum: [DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.COI, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN]
+            },
+            added_on: {
+                type: Date
             },
             document_number: {
                 type: String
             },
-            is_verified: {
-                type: Boolean,
-                default: false
+            media: {
+                attachment_type: {
+                    type: String,
+                    enum: [AttachmentType.IMAGE, AttachmentType.PDF]
+                },
+                doc_front: {
+                    type: String
+                },
+                doc_back: {
+                    type: String
+                },
+                user_photo: {
+                    type: String
+                },
+                document: {
+                    type: String
+                }
             },
-            type: {
+            status: {
+                type: String,
+                enum: [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.DISAPPROVED],
+                default: DOCUMENT_STATUS.PENDING
+            },
+            remark: {
                 type: String
             }
         }],

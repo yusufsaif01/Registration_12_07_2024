@@ -54,7 +54,7 @@ class UserService extends BaseService {
                 if (requestedData.filterConditions.email_verified)
                     _condition.is_email_verified = (String(requestedData.filterConditions.email_verified).toLowerCase() === EMAIL_VERIFIED.TRUE);
                 if (requestedData.filterConditions.profile_status)
-                    _condition.profile_status = requestedData.filterConditions.profile_status;
+                    _condition.profile_status = { status: requestedData.filterConditions.profile_status };
 
                 let users = await this.loginUtilityInst.find(_condition, { user_id: 1 });
                 users = _.map(users, "user_id");
@@ -208,6 +208,7 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    data.profile_status = loginDetails.profile_status;
                     return data;
                 } else {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND));
@@ -235,6 +236,7 @@ class UserService extends BaseService {
                 }
                 if (!_.isEmpty(data)) {
                     data.member_type = loginDetails.member_type;
+                    data.profile_status = loginDetails.profile_status;
                     data.is_followed = await this.isFollowed({ sent_by: user.sent_by, send_to: user.user_id });
                     if (loginDetails.member_type === MEMBER.PLAYER)
                         data.footmate_status = await this.isFootMate({ sent_by: user.sent_by, send_to: user.user_id });

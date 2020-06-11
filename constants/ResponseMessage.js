@@ -305,6 +305,102 @@ class ResponseMessage {
     static get MAX_60_WORDS_FOR_COMMENT() {
         return "Text with maximum 60 words can be entered as a comment"
     }
+    static get AADHAR_NUMBER_INVALID() {
+        return "Aadhar number invalid"
+    }
+    static get AADHAR_DETAILS_EXISTS() {
+        return "Aadhaar details already exist"
+    }
+    static get ID_DETAILS_EXISTS() {
+        return "ID details already exist"
+    }
+    static get DOCUMENT_DETAILS_EXISTS() {
+        return "Document details already exist"
+    }
+    static get DOB_CANNOT_BE_EDITED() {
+        return "DOB cannot be edited"
+    }
+    static get DOB_REQUIRED() {
+        return "DOB required"
+    }
+    static get AADHAR_NUMBER_REQUIRED() {
+        return "Aadhar number is required"
+    }
+    static get DOCUMENT_NUMBER_REQUIRED() {
+        return "AIFF/ PAN/ COI/ Tin Number is required"
+    }
+    static get AIFF_ID_REQUIRED() {
+        return "AIFF Accreditation ID is required"
+    }
+    static get AADHAR_FRONT_REQUIRED() {
+        return "Aadhar front image required"
+    }
+    static get AADHAR_BACK_REQUIRED() {
+        return "Aadhar back image required"
+    }
+    static get AADHAR_DOCUMENT_REQUIRED() {
+        return "Aadhar document required"
+    }
+    static get PLAYER_PHOTO_REQUIRED() {
+        return "player photo required"
+    }
+    static get EMPLOYMENT_CONTRACT_REQUIRED() {
+        return "Employment contract required"
+    }
+    static get AIFF_REQUIRED() {
+        return "AIFF document is required"
+    }
+    static get DOCUMENT_REQUIRED() {
+        return "Document is required"
+    }
+    static get AADHAR_MEDIA_TYPE_REQUIRED() {
+        return "Aadhar media type required"
+    }
+    static get DOCUMENT_TYPE_REQUIRED() {
+        return "Document type is required"
+    }
+    static get EMAIL_OR_PHONE_REQUIRED() {
+        return "email or phone required"
+    }
+    static get CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF() {
+        return "Cannot send footplayer request to yourself"
+    }
+    static get MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND() {
+        return "Member to be footplayer not found"
+    }
+    static get ALREADY_FOOTPLAYER() {
+        return "Already footplayer"
+    }
+    static get FOOTPLAYER_REQUEST_ALREADY_SENT() {
+        return "Footplayer request already sent"
+    }
+    static get PLAYER_NOT_VERIFIED() {
+        return "Player is not verified"
+    }
+    static get PROFILE_NOT_VERIFIED() {
+        return "Verify your documents in order to Accept/ Reject the request"
+    }
+    static get ALREADY_FOOTPLAYER_OF_OTHER_CLUB() {
+        return "Already footplayer of other club"
+    }
+    static get FOOTPLAYER_REQUEST_NOT_FOUND() {
+        return "Footplayer request not found"
+    }
+    static get SENT_BY_USER_NOT_FOUND() {
+        return "Sent by user not found"
+    }
+    static get INVITE_BY_PHONE_UNAVAILABLE() {
+        return "Invite by phone number is not currently supported"
+    }
+    static get INVITE_ALREADY_SENT() {
+        return "Invite already sent"
+    }
+    static get USER_PROFILE_NOT_VERIFIED() {
+        return "Your profile is not verified"
+    }
+    static get INVITE_NOT_FOUND() {
+        return "Invite not found"
+    }
 }
 
 module.exports = ResponseMessage
