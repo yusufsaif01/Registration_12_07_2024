@@ -20,6 +20,7 @@ const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const PLAYER = require('../constants/PlayerType');
+const DOCUMENT_STATUS = require('../constants/DocumentStatus')
 
 /**
  *
@@ -149,12 +150,14 @@ class UserProfileService {
                 let aadharObj = aadharReqObj || aadharDB
                 aadharObj.document_number = reqObj.aadhar_number;
                 aadharObj.media.user_photo = reqObj.user_photo || (aadharDB ? aadharDB.media.user_photo : "")
+                aadharObj.status = DOCUMENT_STATUS.PENDING;
                 updatedDoc.push(aadharObj);
                 if (reqObj.player_type === PLAYER.PROFESSIONAL) {
                     if (!playerContractReqObj && !playerContractDB) {
                         return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMPLOYMENT_CONTRACT_REQUIRED));
                     }
                     let playerContractObj = playerContractReqObj || playerContractDB
+                    playerContractObj.status = DOCUMENT_STATUS.PENDING;
                     updatedDoc.push(playerContractObj)
                 }
             }
@@ -171,6 +174,7 @@ class UserProfileService {
                 }
                 let aiffObj = aiffReqObj || aiffDB
                 aiffObj.document_number = reqObj.aiff_id;
+                aiffObj.status = DOCUMENT_STATUS.PENDING;
                 updatedDoc.push(aiffObj);
             }
             if (member_type === MEMBER.ACADEMY) {
@@ -187,6 +191,7 @@ class UserProfileService {
                     }
                     let documentObj = documentReqObj || documentDB
                     documentObj.document_number = reqObj.number
+                    documentObj.status = DOCUMENT_STATUS.PENDING;
                     updatedDoc.push(documentObj);
                 }
                 if (!reqObj.number && reqObj.documents) {
