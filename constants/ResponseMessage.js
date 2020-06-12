@@ -401,6 +401,12 @@ class ResponseMessage {
     static get INVITE_NOT_FOUND() {
         return "Invite not found"
     }
+    static get MOBILE_NUMBER_INVALID() {
+        return "Mobile number is invalid"
+    }
+    static get MOBILE_NUMBER_REQUIRED() {
+        return "Mobile number is required"
+    }
 }
 
 module.exports = ResponseMessage
