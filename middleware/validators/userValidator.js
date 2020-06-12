@@ -93,11 +93,7 @@ class UserValidator {
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
-            "association_other": Joi.when("association", {
-                is: STATE_ASSOCIATIONS.OTHERS,
-                then: Joi.string().required().trim().min(1),
-                otherwise: Joi.string().allow("")
-            }),
+            "association_other": Joi.string().allow(""),
             "owner": Joi.string(),
             "manager": Joi.string(),
             "top_signings": Joi.string(),
@@ -188,11 +184,7 @@ class UserValidator {
                 };
             }),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
-            "association_other": Joi.when("association", {
-                is: STATE_ASSOCIATIONS.OTHERS,
-                then: Joi.string().required().trim().min(1),
-                otherwise: Joi.string().allow("")
-            }),
+            "association_other": Joi.string().allow(""),
             //need to remove
             "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
