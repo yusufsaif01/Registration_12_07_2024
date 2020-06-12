@@ -171,9 +171,6 @@ module.exports = {
         top_signings: [{
             name: { type: String }
         }],
-        associated_players: {
-            type: Number
-        },
         registration_number: {
             type: String
         },
