@@ -11,6 +11,7 @@ const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
+const STATE_ASSOCIATIONS = require('../../constants/StateAssociations');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -90,9 +91,8 @@ class UserValidator {
 
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
-            "association": Joi.string().trim().min(1),
-            "association_other": Joi.string().trim().min(1),
-
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow(""),
             "owner": Joi.string(),
             "manager": Joi.string(),
             "top_signings": Joi.string(),
@@ -182,6 +182,8 @@ class UserValidator {
                     message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
                 };
             }),
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow(""),
             //need to remove
             "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
@@ -197,6 +199,9 @@ class UserValidator {
 
         var schema = academySchema;
 
+        if (req.body.association && req.body.association !== STATE_ASSOCIATIONS.OTHERS) {
+            req.body.association_other = "";
+        }
         if (req.authUser.member_type == MEMBER.PLAYER) {
             schema = playerSchema;
         }
