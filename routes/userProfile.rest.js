@@ -52,7 +52,6 @@ module.exports = (router) => {
      *                 "contact_person": [],
      *                 "trophies": [],
      *                 "top_signings": [],
-     *                 "associated_players": 100,
      *                 "member_type": "club",
      *                 "profile_status": "verified"
      *                }
@@ -129,12 +128,11 @@ module.exports = (router) => {
      * @apiParam (body) {String} aiff_id club AIFF Accreditation ID
      * @apiParam (body) {String} stadium_name club/academy stadium name
      * @apiParam (body) {string} trophies club/academy trophies
-     * @apiParam (body) {string} associated_players club/academy associated_players 
      * @apiParam (body) {string} name club/academy name
      * @apiParam (body) {string} league club/academy league
      * @apiParam (body) {string} league_other club/academy other league
-     * @apiParam (body) {string} association club/academy State association affiliated under
-     * @apiParam (body) {string} association_other club/academy other association
+     * @apiParam (body) {string} association club/academy/player State association 
+     * @apiParam (body) {string} association_other club/academy/player other association
      * @apiParam (body) {string} short_name club/academy short name
      * @apiParam (body) {string} founded_in club/academy founded year
      * @apiParam (body) {string} owner club/academy owner

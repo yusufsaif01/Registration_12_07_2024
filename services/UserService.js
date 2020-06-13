@@ -135,7 +135,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { name: 1, associated_players: 1, email: 1, user_id: 1 }
+                projection: { name: 1, email: 1, user_id: 1 }
             };
 
             let toBePopulatedOptions = {
@@ -284,8 +284,8 @@ class UserService extends BaseService {
             institute: 1, about: 1, bio: 1, position: 1, strong_foot: 1, weak_foot: 1, former_club: 1, type: 1,
             former_academy: 1, player_type: 1, name: 1, avatar_url: 1, state: 1, league: 1, league_other: 1,
             country: 1, city: 1, founded_in: 1, address: 1, stadium_name: 1, owner: 1, manager: 1, short_name: 1,
-            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, associated_players: 1,
-            association: 1, association_other: 1, _id: 0
+            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, association: 1,
+            association_other: 1, _id: 0
         };
     }
 
@@ -567,12 +567,6 @@ class UserService extends BaseService {
             }
             else {
                 filterArr.push({ name: new RegExp(filters.search, 'i') })
-                let num = Number(filters.search)
-                if (!isNaN(num)) {
-                    if (num === 0)
-                        filterArr.push({ associated_players: null })
-                    filterArr.push({ associated_players: num })
-                }
             }
             filterArr.push({
                 email: new RegExp(filters.search, "i")

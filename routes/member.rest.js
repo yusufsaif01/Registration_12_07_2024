@@ -170,7 +170,7 @@ module.exports = (router) => {
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
      * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
-     * @apiParam (query) {String} search text search, this search will be done on name, no_of_players, email, status
+     * @apiParam (query) {String} search text search, this search will be done on name, email, status
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
      * @apiParam (query) {String} email email of the player
@@ -192,7 +192,6 @@ module.exports = (router) => {
      *         "records":[
      *           {
      *             "name": "name of the academy",
-     *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
      *             "status":"verified/unverified",
      *             "account_status":"active/inactive/blocked/pending",
@@ -253,7 +252,7 @@ module.exports = (router) => {
 	 * @apiParam (query) {String} page_size records per page
      * @apiParam (query) {String} sort_by sort by field name
      * @apiParam (query) {String} sort_order order to sort (-1 - Descending, 1 - Ascending)
-     * @apiParam (query) {String} search text search, this search will be done on name, no_of_players, email, status
+     * @apiParam (query) {String} search text search, this search will be done on name, email, status
      * @apiParam (query) {String} from from date of player register
      * @apiParam (query) {String} to to date of player register
      * @apiParam (query) {String} email email of the player
@@ -274,7 +273,6 @@ module.exports = (router) => {
      *         "records":[
      *           {
      *             "name": "name of the academy",
-     *             "no_of_players": "number of players associated",
      *             "email":"email of the academy",
      *             "status":"verified/unverified",
      *             "account_status":"active/inactive/blocked/pending",

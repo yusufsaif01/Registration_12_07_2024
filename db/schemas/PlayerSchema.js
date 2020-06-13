@@ -188,6 +188,12 @@ module.exports = {
         associated_club: {
             type: String
         },
+        association: {
+            type: String
+        },
+        association_other: {
+            type: String
+        },
         login_details: {
             type: Schema.Types.ObjectId, ref: 'login_details'
         }
