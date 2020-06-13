@@ -84,7 +84,6 @@ class UserValidator {
             "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "number": Joi.string().trim(),
             "aiff_id": Joi.string().trim(),
-            "associated_players": Joi.number().allow(""),
             "head_coach_name": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
