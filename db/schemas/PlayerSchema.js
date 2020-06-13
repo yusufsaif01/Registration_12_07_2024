@@ -72,6 +72,7 @@ module.exports = {
         email: {
             type: String
         },
+        // phone field is being used for mobile_number
         phone: {
             type: String
         },

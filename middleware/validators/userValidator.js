@@ -99,13 +99,21 @@ class UserValidator {
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
             "top_players": Joi.string(),
+            "mobile_number": Joi.string().required().regex(/^[0-9]{10}$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.MOBILE_NUMBER_INVALID
+                };
+            }),
 
             //need to remove
             "document": Joi.any(),
             "aiff": Joi.any()
         };
-        if (req.body.member_type) {
-            let member_type = req.body.member_type
+        if (req.authUser.member_type) {
+            let member_type = req.authUser.member_type
+            if ((member_type === MEMBER.CLUB || member_type === MEMBER.ACADEMY) && !req.body.mobile_number) {
+                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED)));
+            }
             if (member_type === MEMBER.CLUB)
                 academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
 

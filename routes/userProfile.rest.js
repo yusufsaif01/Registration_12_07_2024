@@ -112,6 +112,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} college player college
      * @apiParam (body) {String} university player university
      * @apiParam (body) {String} phone member phone number
+     * @apiParam (body) {String} mobile_number club/academy mobile number
      * @apiParam (body) {String} position player position (array of object with id and priority)
      * @apiParam (body) {String} strong_foot player strong foot
      * @apiParam (body) {String} weak_foot player weak foot

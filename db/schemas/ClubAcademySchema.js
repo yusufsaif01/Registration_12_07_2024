@@ -75,6 +75,9 @@ module.exports = {
         phone: {
             type: String
         },
+        mobile_number: {
+            type: String
+        },
         stadium_name: {
             type: String
         },
