@@ -607,7 +607,7 @@ class UserProfileService {
         institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
         former_academy, specialization, player_type, email, name, avatar_url, state,
         country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
-        contact_person, trophies, club_academy_details, top_signings, registration_number,
+        contact_person, trophies, club_academy_details, top_signings, registration_number, mobile_number,
         member_type, social_profiles, type, league, league_other, association, association_other, profile_status
     }) {
         return {
@@ -615,7 +615,7 @@ class UserProfileService {
             institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
             former_academy, specialization, player_type, email, name, avatar_url, state,
             country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
-            contact_person, trophies, club_academy_details, top_signings, registration_number,
+            contact_person, trophies, club_academy_details, top_signings, registration_number, mobile_number,
             member_type, social_profiles, type, league, league_other, association, association_other, profile_status
         };
     }
