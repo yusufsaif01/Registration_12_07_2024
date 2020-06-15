@@ -39,7 +39,6 @@ class UserListResponseMapper {
             users.forEach((user, index) => {
                 let data = {
                     "name": user.name || "-",
-                    "no_of_players": user.associated_players || 0,
                     "email": user.email || "-",
                     "status": "",
                     "account_status": "-",

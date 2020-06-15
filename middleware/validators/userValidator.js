@@ -11,6 +11,7 @@ const EMAIL_VERIFIED = require('../../constants/EmailVerified');
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
+const STATE_ASSOCIATIONS = require('../../constants/StateAssociations');
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
@@ -84,29 +85,35 @@ class UserValidator {
             "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "number": Joi.string().trim(),
             "aiff_id": Joi.string().trim(),
-            "associated_players": Joi.number().allow(""),
             "head_coach_name": Joi.string().trim().allow(""),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
             "head_coach_phone": Joi.string().trim().allow(""),
 
             "league": Joi.string().trim().min(1),
             "league_other": Joi.string().trim().min(1),
-            "association": Joi.string().trim().min(1),
-            "association_other": Joi.string().trim().min(1),
-
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow(""),
             "owner": Joi.string(),
             "manager": Joi.string(),
             "top_signings": Joi.string(),
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
             "top_players": Joi.string(),
+            "mobile_number": Joi.string().required().regex(/^[0-9]{10}$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.MOBILE_NUMBER_INVALID
+                };
+            }),
 
             //need to remove
             "document": Joi.any(),
             "aiff": Joi.any()
         };
-        if (req.body.member_type) {
-            let member_type = req.body.member_type
+        if (req.authUser.member_type) {
+            let member_type = req.authUser.member_type
+            if ((member_type === MEMBER.CLUB || member_type === MEMBER.ACADEMY) && !req.body.mobile_number) {
+                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED)));
+            }
             if (member_type === MEMBER.CLUB)
                 academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
 
@@ -183,6 +190,8 @@ class UserValidator {
                     message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
                 };
             }),
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow(""),
             //need to remove
             "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
@@ -198,6 +207,9 @@ class UserValidator {
 
         var schema = academySchema;
 
+        if (req.body.association && req.body.association !== STATE_ASSOCIATIONS.OTHERS) {
+            req.body.association_other = "";
+        }
         if (req.authUser.member_type == MEMBER.PLAYER) {
             schema = playerSchema;
         }

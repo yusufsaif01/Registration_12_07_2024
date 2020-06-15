@@ -42,6 +42,7 @@ class FootPlayerService {
             { $unwind: { path: "$filteredfootplayerDocument", preserveNullAndEmptyArrays: true } },
             { "$lookup": { "from": "club_academy_details", "localField": "filteredfootplayerDocument.sent_by", "foreignField": "user_id", "as": "SentBy" } },
             { $project: { player_detail: 1, club: { $filter: { input: "$SentBy", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
+            { $unwind: { path: "$club", preserveNullAndEmptyArrays: true } }, { "$group": { _id: "$player_detail.user_id", player_detail: { $first: "$player_detail" }, club: { $addToSet: "$club" } } },
             { $unwind: { path: "$club", preserveNullAndEmptyArrays: true } },
             { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, is_verified: 1, last_name: 1, position: 1, member_type: 1, player_type: 1, avatar_url: 1, phone: 1, club_name: "$club.name" } } },
             { $match: filterConditions }]);
@@ -247,7 +248,7 @@ class FootPlayerService {
             { $project: { _id: 0, club: { $filter: { input: "$club_academy_detail", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
             { $unwind: { path: "$club" } }, { $project: { sent_by: "$club.user_id" } }]);
             if (clubRequestsInPending && clubRequestsInPending.length) {
-                let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+                let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
                 await this.footPlayerUtilityInst.updateMany({ $or: clubRequestsInPending }, updatedDoc);
             }
             let serviceInst = new ConnectionService();
@@ -298,7 +299,7 @@ class FootPlayerService {
         try {
             await this.footplayerRequestValidator(requestedData);
             let updateOneCondition = { status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id };
-            let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+            let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
             await this.footPlayerUtilityInst.updateOne(updateOneCondition, updatedDoc);
             return Promise.resolve();
         }

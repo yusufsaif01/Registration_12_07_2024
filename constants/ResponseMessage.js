@@ -306,7 +306,7 @@ class ResponseMessage {
         return "Text with maximum 60 words can be entered as a comment"
     }
     static get AADHAR_NUMBER_INVALID() {
-        return "Aadhar number invalid"
+        return "Aadhaar number invalid"
     }
     static get AADHAR_DETAILS_EXISTS() {
         return "Aadhaar details already exist"
@@ -324,7 +324,7 @@ class ResponseMessage {
         return "DOB required"
     }
     static get AADHAR_NUMBER_REQUIRED() {
-        return "Aadhar number is required"
+        return "Aadhaar number is required"
     }
     static get DOCUMENT_NUMBER_REQUIRED() {
         return "AIFF/ PAN/ COI/ Tin Number is required"
@@ -333,13 +333,13 @@ class ResponseMessage {
         return "AIFF Accreditation ID is required"
     }
     static get AADHAR_FRONT_REQUIRED() {
-        return "Aadhar front image required"
+        return "Aadhaar front image required"
     }
     static get AADHAR_BACK_REQUIRED() {
-        return "Aadhar back image required"
+        return "Aadhaar back image required"
     }
     static get AADHAR_DOCUMENT_REQUIRED() {
-        return "Aadhar document required"
+        return "Aadhaar document required"
     }
     static get PLAYER_PHOTO_REQUIRED() {
         return "player photo required"
@@ -354,7 +354,7 @@ class ResponseMessage {
         return "Document is required"
     }
     static get AADHAR_MEDIA_TYPE_REQUIRED() {
-        return "Aadhar media type required"
+        return "Aadhaar media type required"
     }
     static get DOCUMENT_TYPE_REQUIRED() {
         return "Document type is required"
@@ -400,6 +400,15 @@ class ResponseMessage {
     }
     static get INVITE_NOT_FOUND() {
         return "Invite not found"
+    }
+    static get MOBILE_NUMBER_INVALID() {
+        return "Mobile number is invalid"
+    }
+    static get MOBILE_NUMBER_REQUIRED() {
+        return "Mobile number is required"
+    }
+    static get YEAR_LESS_THAN_DOB() {
+        return "Year should be greater than dob year"
     }
 }
 

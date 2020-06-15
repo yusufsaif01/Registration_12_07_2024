@@ -72,6 +72,7 @@ module.exports = {
         email: {
             type: String
         },
+        // phone field is being used for mobile_number
         phone: {
             type: String
         },
@@ -185,6 +186,12 @@ module.exports = {
             }
         },
         associated_club: {
+            type: String
+        },
+        association: {
+            type: String
+        },
+        association_other: {
             type: String
         },
         login_details: {
