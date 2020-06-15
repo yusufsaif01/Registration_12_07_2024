@@ -121,7 +121,7 @@ class AchievementService extends BaseService {
 			}
 			if (year && dob !== "") {
 				let dob_year = new Date(dob).getFullYear();
-				if (year < dob_year)
+				if (year <= dob_year)
 					msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_DOB
 			}
 			if (msg) {
