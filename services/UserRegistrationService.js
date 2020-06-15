@@ -135,7 +135,7 @@ class UserRegistrationService extends UserService {
             }
             let updatedDoc = {};
             if (requestedData.member_type != MEMBER.PLAYER) {
-                updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+                updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
             }
             else {
                 updatedDoc = {
