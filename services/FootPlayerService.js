@@ -247,7 +247,7 @@ class FootPlayerService {
             { $project: { _id: 0, club: { $filter: { input: "$club_academy_detail", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
             { $unwind: { path: "$club" } }, { $project: { sent_by: "$club.user_id" } }]);
             if (clubRequestsInPending && clubRequestsInPending.length) {
-                let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+                let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
                 await this.footPlayerUtilityInst.updateMany({ $or: clubRequestsInPending }, updatedDoc);
             }
             let serviceInst = new ConnectionService();
@@ -298,7 +298,7 @@ class FootPlayerService {
         try {
             await this.footplayerRequestValidator(requestedData);
             let updateOneCondition = { status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by, "send_to.user_id": requestedData.user_id };
-            let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED, is_deleted: true, deleted_at: Date.now() };
+            let updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
             await this.footPlayerUtilityInst.updateOne(updateOneCondition, updatedDoc);
             return Promise.resolve();
         }
