@@ -407,6 +407,9 @@ class ResponseMessage {
     static get MOBILE_NUMBER_REQUIRED() {
         return "Mobile number is required"
     }
+    static get YEAR_LESS_THAN_DOB() {
+        return "Year should be greater than dob year"
+    }
 }
 
 module.exports = ResponseMessage
