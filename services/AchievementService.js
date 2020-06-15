@@ -4,12 +4,14 @@ const AchievementUtility = require("../db/utilities/AchievementUtility");
 const AchievementListResponseMapper = require("../dataModels/responseMapper/AchievementListResponseMapper");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
+const PlayerUtility = require('../db/utilities/PlayerUtility')
 
 class AchievementService extends BaseService {
 
 	constructor() {
 		super();
 		this.achievementUtilityInst = new AchievementUtility();
+		this.playerUtilityInst = new PlayerUtility();
 	}
 
 	async stats(user_id) {
@@ -51,8 +53,10 @@ class AchievementService extends BaseService {
 		try {
 			let achievement = requestedData.reqObj;
 			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
-
-			await this._validateYear(achievement.year);
+			let dob = "", user = {};
+			user = await this.playerUtilityInst.findOne({ user_id: requestedData.user_id }, { dob: 1 });
+			dob = user ? (user.dob || "") : ""
+			await this._validateYear(achievement.year, dob);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.insert(achievement)
 			return Promise.resolve();
@@ -70,8 +74,10 @@ class AchievementService extends BaseService {
 			}
 			let achievement = requestedData.reqObj;
 			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
-
-			await this._validateYear(achievement.year);
+			let dob = "", user = {};
+			user = await this.playerUtilityInst.findOne({ user_id: requestedData.user_id }, { dob: 1 });
+			dob = user ? (user.dob || "") : ""
+			await this._validateYear(achievement.year, dob);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
 			return Promise.resolve();
@@ -95,7 +101,7 @@ class AchievementService extends BaseService {
 		}
 	}
 
-	async _validateYear(year) {
+	async _validateYear(year, dob) {
 		if (year) {
 			let msg = null;
 			let d = new Date();
@@ -112,6 +118,11 @@ class AchievementService extends BaseService {
 			}
 			if (year == 0) {
 				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_ZERO;
+			}
+			if (year && dob !== "") {
+				let dob_year = new Date(dob).getFullYear();
+				if (year < dob_year)
+					msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_DOB
 			}
 			if (msg) {
 				return Promise.reject(new errors.ValidationFailed(msg));
