@@ -3,11 +3,9 @@ const responseHandler = require('../ResponseHandler');
 const { checkAuthToken, checkRole } = require('../middleware/auth');
 const footplayerValidator = require("../middleware/validators").footplayerValidator;
 const ROLE = require('../constants/Role');
-const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 const footPlayerInst = new FootPlayerService();
-const dataMapping = new ClubFootPlayersResponseMapping();
 
 
 module.exports = (router) => {
@@ -370,15 +368,15 @@ module.exports = (router) => {
     * @apiParam (query) {String} search Search query.
     * @apiParam (query) {String} page_no page number.
     * @apiParam (query) {String} page_size page size.
-    * @apiParam (query) {String} position comma separated position name
-    * @apiParam (query) {String} footplayer_category comma separated footplayer_category
-    * @apiParam (query) {String} age comma separated age range
+    * @apiParam (query) {String} position comma seperated position name
+    * @apiParam (query) {String} footplayer_category comma seperated footplayer_category
+    * @apiParam (query) {String} age comma seperated age range
     * @apiParam (query) {String} country country name
     * @apiParam (query) {String} state state name
     * @apiParam (query) {String} city city name
-    * @apiParam (query) {String} strong_foot comma separated strong_foot
-    * @apiParam (query) {String} status comma separated status
-    * @apiParam (query) {String} ability comma separated ability name
+    * @apiParam (query) {String} strong_foot comma seperated strong_foot
+    * @apiParam (query) {String} status comma seperated status
+    * @apiParam (query) {String} ability comma seperated ability name
     * 
     * @apiSuccess {String} status success
     * @apiSuccess {String} message Successfully done
@@ -441,16 +439,10 @@ module.exports = (router) => {
         criteria,
       };
 
-      let records = await footPlayerInst.listAll(params);
-      let totalCount = await footPlayerInst.countDocs(params);
-
       responseHandler(
         req,
         res,
-        Promise.resolve({
-          total: totalCount,
-          records: dataMapping.map(records),
-        })
+        Promise.resolve(footPlayerInst.listAll(params))
       );
     } catch (error) {
       console.log(error);

@@ -14,6 +14,7 @@ const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const ConnectionService = require('./ConnectionService');
 const config = require("../config");
 const moment = require('moment');
+const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 
 class FootPlayerService {
 
@@ -441,8 +442,16 @@ class FootPlayerService {
         searchConditions,
         projection
       );
-
-      return this.footPlayerUtilityInst.aggregate(aggPipes);
+      let data = await this.footPlayerUtilityInst.aggregate(aggPipes);
+      let responseData = [], totalRecords = 0;
+      if (data && data.length && data[0] && data[0].data) {
+          responseData = new ClubFootPlayersResponseMapping().map(data[0].data);
+          if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+              totalRecords = data[0].total_data[0].count;
+          }
+      }
+      let response = { total: totalRecords, records: responseData }
+      return Promise.resolve(response);
     } catch (error) {
       console.log(error);
       return Promise.reject(error);
@@ -460,12 +469,6 @@ class FootPlayerService {
     return [
       {
         $match: matchCriteria,
-      },
-      {
-        $skip: parseInt(skipCount),
-      },
-      {
-        $limit: parseInt(paramas.filters.page_size),
       },
       {
         $lookup: {
@@ -494,6 +497,7 @@ class FootPlayerService {
         $match: searchConditions,
       },
       projection,
+      { $facet: { data: [{ $skip: parseInt(skipCount) }, { $limit: parseInt(paramas.filters.page_size) },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
     ];
   }
 
