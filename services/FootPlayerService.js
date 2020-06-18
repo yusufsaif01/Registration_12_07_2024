@@ -13,6 +13,7 @@ const EmailService = require('./EmailService');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const ConnectionService = require('./ConnectionService');
 const config = require("../config");
+const moment = require('moment');
 
 class FootPlayerService {
 
@@ -420,6 +421,7 @@ class FootPlayerService {
   async listAll(paramas = {}) {
     try {
       const matchCriteria = this.getMatchCriteria(paramas);
+      const filterConditions = this._prepareFootplayerFilterCondition(paramas.filters);
 
       let searchConditions = {};
 
@@ -435,6 +437,7 @@ class FootPlayerService {
         matchCriteria,
         skipCount,
         paramas,
+        filterConditions,
         searchConditions,
         projection
       );
@@ -450,6 +453,7 @@ class FootPlayerService {
     matchCriteria,
     skipCount,
     paramas,
+    filterConditions,
     searchConditions,
     projection
   ) {
@@ -476,6 +480,15 @@ class FootPlayerService {
           path: "$send_to_user",
           preserveNullAndEmptyArrays: true,
         },
+      },
+      {
+        $lookup: { from: "positions", localField: "send_to_user.position.id", foreignField: "id", as: "Position" }
+      },
+      {
+        $lookup: { from: "abilities", localField: "Position.abilities", foreignField: "id", as: "abilities" }
+      },
+      {
+        $match: filterConditions,
       },
       {
         $match: searchConditions,
@@ -556,6 +569,102 @@ class FootPlayerService {
       console.log(error);
       return Promise.reject(error);
     }
+  }
+  _prepareFootplayerFilterCondition(filterConditions = {}) {
+    let condition = {};
+    let filterArr = []
+    if (filterConditions) {
+      if (filterConditions.age && filterConditions.age.length) {
+        let age = [];
+        let date = new Date();
+        let current_year = date.getFullYear()
+        let current_month = date.getMonth()
+        let current_day = date.getDate()
+
+        filterConditions.age.forEach(val => {
+          let [lowerEndAge, higherEndAge] = val.split("-")
+          let gteYear = Number(current_year) - Number(higherEndAge);
+          let lteYear = Number(current_year) - Number(lowerEndAge)
+          let gteDate = new Date(gteYear, current_month, current_day);
+          let lteDate = new Date(lteYear, current_month, current_day);
+          let momentGteDate = moment(gteDate).format("YYYY-MM-DD");
+          let momentLteDate = moment(lteDate).format("YYYY-MM-DD");
+          age.push({
+            "send_to_user.dob": {
+              $gte: momentGteDate,
+              $lte: momentLteDate
+            }
+          });
+        });
+        filterArr.push({ $or: age })
+      }
+      if (filterConditions.country) {
+        filterArr.push({
+          "send_to_user.country.name": new RegExp(filterConditions.country, 'i')
+        });
+      }
+      if (filterConditions.state) {
+        filterArr.push({
+          "send_to_user.state.name": new RegExp(filterConditions.state, 'i')
+        });
+      }
+      if (filterConditions.city) {
+        filterArr.push({
+          "send_to_user.city.name": new RegExp(filterConditions.city, 'i')
+        });
+      }
+      if (filterConditions.strong_foot && filterConditions.strong_foot.length) {
+        let strong_foot = [];
+        filterConditions.strong_foot.forEach(val => {
+          strong_foot.push({ "send_to_user.strong_foot": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: strong_foot })
+      }
+      if (filterConditions.position && filterConditions.position.length) {
+        let position = [];
+        filterConditions.position.forEach(val => {
+          position.push({
+            "send_to_user.position": {
+              $elemMatch: {
+                name: new RegExp(val, 'i'),
+              }
+            }
+          })
+        });
+        filterArr.push({ $or: position })
+      }
+      if (filterConditions.footplayer_category && filterConditions.footplayer_category.length) {
+        let footplayer_category = [];
+        filterConditions.footplayer_category.forEach(val => {
+          footplayer_category.push({ "send_to_user.player_type": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: footplayer_category })
+      }
+      if (filterConditions.status && filterConditions.status.length) {
+        let status = [];
+        filterConditions.status.forEach(val => {
+          status.push({ "status": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: status })
+      }
+      if (filterConditions.ability && filterConditions.ability.length) {
+        let ability = [];
+        filterConditions.ability.forEach(val => {
+          ability.push({
+            "abilities": {
+              $elemMatch: {
+                name: new RegExp(val, 'i'),
+              }
+            }
+          })
+        });
+        filterArr.push({ $or: ability })
+      }
+      condition = {
+        $and: filterArr
+      }
+    }
+    return filterArr.length ? condition : {}
   }
 
 }

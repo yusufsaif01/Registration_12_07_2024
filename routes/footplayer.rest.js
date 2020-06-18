@@ -370,6 +370,15 @@ module.exports = (router) => {
     * @apiParam (query) {String} search Search query.
     * @apiParam (query) {String} page_no page number.
     * @apiParam (query) {String} page_size page size.
+    * @apiParam (query) {String} position comma separated position name
+    * @apiParam (query) {String} footplayer_category comma separated footplayer_category
+    * @apiParam (query) {String} age comma separated age range
+    * @apiParam (query) {String} country country name
+    * @apiParam (query) {String} state state name
+    * @apiParam (query) {String} city city name
+    * @apiParam (query) {String} strong_foot comma separated strong_foot
+    * @apiParam (query) {String} status comma separated status
+    * @apiParam (query) {String} ability comma separated ability name
     * 
     * @apiSuccess {String} status success
     * @apiSuccess {String} message Successfully done
@@ -412,6 +421,15 @@ module.exports = (router) => {
         search: req.query.search,
         page_no: Number(req.query.page_no) || 1,
         page_size: Number(req.query.page_size) || 10,
+        position: (req.query && req.query.position) ? req.query.position.split(",") : null,
+        footplayer_category: (req.query && req.query.footplayer_category) ? req.query.footplayer_category.split(",") : null,
+        age: (req.query && req.query.age) ? req.query.age.split(",") : null,
+        country: (req.query && req.query.country) ? req.query.country : null,
+        state: (req.query && req.query.state) ? req.query.state : null,
+        city: (req.query && req.query.city) ? req.query.city : null,
+        strong_foot: (req.query && req.query.strong_foot) ? req.query.strong_foot.split(",") : null,
+        ability: (req.query && req.query.ability) ? req.query.ability.split(",") : null,
+        status: (req.query && req.query.status) ? req.query.status.split(",") : null,
       };
 
       let criteria = {
