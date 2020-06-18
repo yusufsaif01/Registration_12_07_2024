@@ -365,6 +365,7 @@ module.exports = (router) => {
     * @apiName Club/Academy footplayers list
     * @apiGroup Club/Academy FootPlayers
     * 
+    * @apiParam (query) {String} footplayers (1 for usage in club/academy footplayers module else 0 set by default)
     * @apiParam (query) {String} search Search query.
     * @apiParam (query) {String} page_no page number.
     * @apiParam (query) {String} page_size page size.
@@ -390,13 +391,34 @@ module.exports = (router) => {
     *              "total": 3,
     *              "records": [
     *                  {
-    *                      "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
     *                      "user_id": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
     *                      "avatar": "/uploads/avatar/user-avatar.png",
     *                      "category": "grassroot",
     *                      "name": "Rajesh Kumar",
     *                      "position": "Centre Attacking Midfielder",
+    *                      "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
+    *                      "email": "test@test.com",
     *                      "status": "pending"
+    *                  },
+    *              ]
+    *          }
+    *      }
+    * 
+    * @apiSuccessExample {json} Success-Response:
+    *     HTTP/1.1 200 OK
+    *     {
+    *          "status": "success",
+    *          "message": "Successfully done",
+    *          "data": {
+    *              "footplayers": 10,
+    *              "total": 1,
+    *              "records": [
+    *                  {
+    *                      "user_id": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
+    *                      "avatar": "/uploads/avatar/user-avatar.png",
+    *                      "category": "grassroot",
+    *                      "name": "Rajesh Kumar",
+    *                      "position": "Centre Attacking Midfielder"
     *                  },
     *              ]
     *          }
@@ -416,6 +438,7 @@ module.exports = (router) => {
     
     try {
       let filters = {
+        footplayers: Number(req.query.footplayers) || 0,
         search: req.query.search,
         page_no: Number(req.query.page_no) || 1,
         page_size: Number(req.query.page_size) || 10,

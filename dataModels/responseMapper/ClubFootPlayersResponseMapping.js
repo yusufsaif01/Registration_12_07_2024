@@ -1,5 +1,5 @@
 class ClubFootPlayersResponseMapping {
-  map(requests) {
+  map(requests, footplayers) {
     let response = [];
     if (requests.length) {
       requests.forEach((request) => {
@@ -7,15 +7,18 @@ class ClubFootPlayersResponseMapping {
         let userObj = request.send_to_user ? request.send_to_user : {};
 
         let data = {
-          id: request.id,
           user_id: request.send_to.user_id,
           avatar: userObj.avatar_url,
           category: userObj.player_type,
           name: request.send_to.name || "",
-          email: request.send_to.email,
           position: '-',
-          status: request.status,
         };
+
+        if (footplayers === 0) {
+          data.id = request.id;
+          data.email = request.send_to.email;
+          data.status = request.status;
+        }
 
         if (
           userObj.position &&

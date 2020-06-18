@@ -421,7 +421,7 @@ class FootPlayerService {
 
   async listAll(paramas = {}) {
     try {
-      const matchCriteria = this.getMatchCriteria(paramas);
+      let matchCriteria = this.getMatchCriteria(paramas);
       const filterConditions = this._prepareFootplayerFilterCondition(paramas.filters);
 
       let searchConditions = {};
@@ -445,12 +445,18 @@ class FootPlayerService {
       let data = await this.footPlayerUtilityInst.aggregate(aggPipes);
       let responseData = [], totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-          responseData = new ClubFootPlayersResponseMapping().map(data[0].data);
-          if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
-              totalRecords = data[0].total_data[0].count;
-          }
+        responseData = new ClubFootPlayersResponseMapping().map(data[0].data, paramas.filters.footplayers);
+        if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+          totalRecords = data[0].total_data[0].count;
+        }
       }
-      let response = { total: totalRecords, records: responseData }
+      let response = {};
+      if (paramas.filters.footplayers === 1) {
+        matchCriteria.status = FOOTPLAYER_STATUS.ADDED;
+        response.footplayers = await this.footPlayerUtilityInst.countList(matchCriteria)
+      }
+      response.total = totalRecords;
+      response.records = responseData;
       return Promise.resolve(response);
     } catch (error) {
       console.log(error);
@@ -523,23 +529,36 @@ class FootPlayerService {
 
   prepateSearchFilters(paramas, searchConditions) {
     let regexp = new RegExp(paramas.filters.search, "i");
+
     searchConditions["$or"] = [];
-    searchConditions["$or"] = [
-      "send_to.name",
-      "send_to_user.player_type",
-    ].map((field) => {
-      return {
-        [field]: regexp,
-      };
-    });
-    searchConditions["$or"].push({
-      "send_to_user.position": {
-        $elemMatch: {
-          name: regexp,
-          priority: "1",
+    if (paramas.filters.footplayers === 0) {
+      searchConditions["$or"] = [
+        "send_to.name",
+        "send_to_user.player_type",
+      ].map((field) => {
+        return {
+          [field]: regexp,
+        };
+      });
+      searchConditions["$or"].push({
+        "send_to_user.position": {
+          $elemMatch: {
+            name: regexp,
+            priority: "1",
+          },
         },
-      },
-    });
+      });
+    }
+    else if (paramas.filters.footplayers === 1) {
+      searchConditions["$or"] = [
+        "send_to.email",
+        "send_to.name",
+      ].map((field) => {
+        return {
+          [field]: regexp,
+        };
+      });
+    }
   }
 
   getMatchCriteria(paramas) {
@@ -574,10 +593,14 @@ class FootPlayerService {
       return Promise.reject(error);
     }
   }
+
   _prepareFootplayerFilterCondition(filterConditions = {}) {
     let condition = {};
     let filterArr = []
     if (filterConditions) {
+      if (filterConditions.footplayers === 1) {
+        filterConditions.status = [FOOTPLAYER_STATUS.ADDED];
+      }
       if (filterConditions.age && filterConditions.age.length) {
         let age = [];
         let date = new Date();
