@@ -6,7 +6,7 @@ class ContractStatus {
     return "pending";
   }
   static get YET_TO_START() {
-    return "yet to start";
+    return "yet_to_start";
   }
   static get COMPLETED() {
     return "completed";

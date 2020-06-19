@@ -9,7 +9,7 @@ const errors = require("../errors");
 const EmailService = require("./EmailService");
 const config = require("../config");
 
-class FootPlayerService {
+class EmploymentContractService {
   constructor() {
     this.loginUtilityInst = new LoginUtility();
     this.playerUtilityInst = new PlayerUtility();
@@ -18,4 +18,4 @@ class FootPlayerService {
   }
 }
 
-module.exports = FootPlayerService;
+module.exports = EmploymentContractService;
