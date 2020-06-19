@@ -53,6 +53,7 @@ module.exports = (router) => {
         )
       );
     } catch (error) {
+      console.log(error);      
       responseHandler(req,res, Promise.reject(error));
     }
   });

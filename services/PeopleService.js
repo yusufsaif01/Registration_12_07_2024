@@ -23,7 +23,9 @@ class PeopleService {
       let records = await loginInst.aggregate(aggregatePipes);
 
       return Promise.resolve(records);
-    } catch (error) {}
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   addMatchPipeline(params) {
