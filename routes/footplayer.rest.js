@@ -434,7 +434,7 @@ module.exports = (router) => {
     *     }
     * 
     */
-  router.get("/footplayers", checkAuthToken, async (req, res, next) => {
+  router.get("/footplayers", checkAuthToken, footplayerValidator.footplayersListValidation, async (req, res, next) => {
     
     try {
       let filters = {
