@@ -2,7 +2,10 @@ const Role = require("../../constants/Role");
 
 module.exports = {
   fields: {
-    user_id: {
+    send_to: {
+      type: String,
+    },
+    sent_by: {
       type: String,
     },
     playerName: String,
