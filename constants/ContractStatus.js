@@ -14,6 +14,12 @@ class ContractStatus {
   static get DISAPPROVED() {
     return "disapproved";
   }
+  static get APPROVED() {
+    return "approved";
+  }
+  static get REJECTED() {
+    return "rejected";
+  }
 }
 
 module.exports = ContractStatus;

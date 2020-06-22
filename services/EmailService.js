@@ -56,7 +56,13 @@ class EmailService {
         await this.sendMail("documentDisapproval", data);
     }
 
-
+    async employmentContractApproval (data) {
+        await this.sendMail("employmentContractApproval", data)
+    }
+        
+    async employmentContractDisapproval (data) {
+        await this.sendMail("employmentContractDisapproval", data)
+    }
 }
 
 module.exports = EmailService;
