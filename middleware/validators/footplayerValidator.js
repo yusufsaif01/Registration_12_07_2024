@@ -101,6 +101,31 @@ class FootPlayerValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async footplayersListValidation(req, res, next) {
+        const query = Joi.object().keys({
+            "page_size": Joi.number(),
+            "page_no": Joi.number(),
+            "footplayers": Joi.number().valid([1, 0]),
+            "search": Joi.string(),
+            "position": Joi.string(),
+            "footplayer_category": Joi.string(),
+            "age": Joi.string(),
+            "country": Joi.string(),
+            "state": Joi.string(),
+            "city": Joi.string(),
+            "strong_foot": Joi.string(),
+            "ability": Joi.string(),
+            "status": Joi.string(),
+        });
+        try {
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new FootPlayerValidator();
