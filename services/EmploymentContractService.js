@@ -24,6 +24,28 @@ class EmploymentContractService {
 
   async createContract(body, authUser) {
     let resp = {};
+
+    this.preHandlingCheck(body);
+
+    if (authUser.role == "player") {
+      resp = await this.playerCreatingContract(body, authUser);
+    }
+
+    return Promise.resolve(resp);
+  }
+  async updateContract(contractId, body, authUser) {
+    let resp = {};
+
+    this.preHandlingCheck(body);
+
+    if (authUser.role == "player") {
+      resp = await this.playerUpdatingContract(contractId, body, authUser);
+    }
+
+    return Promise.resolve(resp);
+  }
+
+  preHandlingCheck(body) {
     body.status = ContractStatus.PENDING;
 
     this.checkExpiryDate(body);
@@ -33,12 +55,6 @@ class EmploymentContractService {
       body.otherEmail = "";
       body.otherPhoneNumber = "";
     }
-
-    if (authUser.role == "player") {
-      resp = await this.playerCreatingContract(body, authUser);
-    }
-
-    return Promise.resolve(resp);
   }
 
   async playerCreatingContract(body, authUser) {
@@ -54,6 +70,30 @@ class EmploymentContractService {
     body.playerEmail = authUser.email;
 
     await this.contractInst.insert(body);
+
+    return Promise.resolve();
+  }
+
+  async playerUpdatingContract(contractId, body, authUser) {
+    await this.userCanUpdateContract(authUser.user_id, contractId);
+
+    body.sent_by = authUser.user_id;
+    let clubOrAcademy = await this.findClubAcademyByEmail(
+      body.clubAcademyEmail,
+      body.category
+    );
+    body.send_to = clubOrAcademy.user_id;
+    body.playerEmail = authUser.email;
+
+    await this.contractInst.updateOne(
+      {
+        id: contractId,
+        sent_by: authUser.user_id,
+        is_deleted: false,
+        status: { $in: [ContractStatus.PENDING, ContractStatus.DISAPPROVED] },
+      },
+      body
+    );
 
     return Promise.resolve();
   }
@@ -120,6 +160,26 @@ class EmploymentContractService {
       throw new errors.ValidationFailed(
         "The expiry date cannot exceed 5 years of effective date"
       );
+    }
+  }
+
+  async userCanUpdateContract(userId, contractId) {
+    let contract = await this.contractInst.findOne({
+      sent_by: userId, // who creates contract can update the contract
+      id: contractId,
+      is_deleted: false,
+    });
+
+    if (!contract) {
+      throw new errors.NotFound();
+    }
+
+    if (
+      [ContractStatus.PENDING, ContractStatus.DISAPPROVED].indexOf(
+        contract.status
+      ) == -1
+    ) {
+      throw new errors.Unauthorized("Cannot update already approved contract.");
     }
   }
 }
