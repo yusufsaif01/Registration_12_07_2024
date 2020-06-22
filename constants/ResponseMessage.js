@@ -413,6 +413,12 @@ class ResponseMessage {
     static get PHONE_REQUIRED() {
         return "Phone is required"
     }
+    static get EMPLOYMENT_CONTRACT_NOT_FOUND() {
+        return "Employment contract not found"
+    }
+    static get EMPLOYMENT_CONTRACT_ACCESS_DENIED() {
+        return "Not allowed to view employment contract"
+    }
 }
 
 module.exports = ResponseMessage
