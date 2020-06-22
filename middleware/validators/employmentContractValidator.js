@@ -18,17 +18,17 @@ class EmploymentContractValidator {
       effectiveDate: Joi.date().required().min(Joi.ref("signingDate")),
       expiryDate: Joi.date().required().min(Joi.ref("effectiveDate")),
 
-      placeOfSignature: Joi.string().required(),
-      clubAcademyRepresentativeName: Joi.string().required(),
-      clubAcademyAddress: Joi.string().required(),
+      placeOfSignature: Joi.string().optional(),
+      clubAcademyRepresentativeName: Joi.string().optional(),
+      clubAcademyAddress: Joi.string().optional(),
       clubAcademyPhoneNumber: Joi.string().required(),
       clubAcademyEmail: Joi.string().email().required(),
-      aiffNumber: Joi.string().required(),
+      aiffNumber: Joi.string().optional(),
       crsUserName: Joi.string().required(),
 
       legalGuardianName: Joi.string().required(),
       playerAddress: Joi.string().required(),
-      playerMobileNumber: Joi.string().required(),
+      playerMobileNumber: Joi.string().optional(),
       playerEmail: Joi.string().email().required(),
 
       clubAcademyUsesAgentServices: Joi.boolean().required(),
