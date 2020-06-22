@@ -182,6 +182,27 @@ class EmploymentContractService {
       throw new errors.Unauthorized("Cannot update already approved contract.");
     }
   }
+
+  async deleteContract(contractId, authUser) {
+    let res = await this.contractInst.updateOne(
+      {
+        sent_by: authUser.user_id, // contract created by the user can only delete the contract.
+        id: contractId,
+        is_deleted: false,
+        status: { $in: [ContractStatus.PENDING, ContractStatus.DISAPPROVED] }, // delete only pending or disapproved
+      },
+      {
+        is_deleted: true,
+        deleted_at: new Date(),
+      }
+    );
+
+    if (res.nModified) {
+      return Promise.resolve();
+    }
+
+    throw new errors.NotFound();
+  }
 }
 
 module.exports = EmploymentContractService;

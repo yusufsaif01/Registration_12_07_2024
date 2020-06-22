@@ -82,7 +82,7 @@ module.exports = (router) => {
    *    "status": "success",
    *    "message": "Successfully done"
    * }
-   * 
+   *
    * @apiErrorExample {json} Already active Contract
    * HTTP/1.1 400 Bad Request
    * {
@@ -114,9 +114,8 @@ module.exports = (router) => {
     }
   );
 
-
   /**
-   * @api {PUT} /employment-contract Update Employment Contract
+   * @api {PUT} /employment-contract/:id Update Employment Contract
    * @apiName Update Employment Contract
    * @apiGroup Employment Contract
    *
@@ -185,15 +184,15 @@ module.exports = (router) => {
    *    "status": "success",
    *    "message": "Successfully done"
    * }
-   * 
+   *
    * @apiErrorExample {json} Not Found:
    * HTTP/1.1 404 Not Found
    * {
    *      "message": "Not Found",
    *      "code": "NOT_FOUND",
    *      "httpCode": 404
-   * } 
-   * 
+   * }
+   *
    * @apiErrorExample {json} Contract Already Approved:
    * HTTP/1.1 401 Unauthorized
    * {
@@ -201,8 +200,8 @@ module.exports = (router) => {
    *      "code": "UNAUTHORIZED",
    *      "httpCode": 401
    * }
-   * 
-   * 
+   *
+   *
    *
    */
   router.put(
@@ -219,6 +218,38 @@ module.exports = (router) => {
       );
     }
   );
-  router.delete("/employment-contract/:id", (req, res, next) => {});
+
+  /**
+   * @api {DELETE} /employment-contract/:id Delete Employment Contract
+   * @apiName Delete Employment Contract
+   * @apiGroup Employment Contract
+   *
+   * @apiSuccessExample {json} Success Response:
+   * {
+   *    "status": "success",
+   *    "message": "Successfully done"
+   * }
+   *
+   * @apiErrorExample {json} Not Found:
+   * HTTP/1.1 404 Not Found
+   * {
+   *      "message": "Not Found",
+   *      "code": "NOT_FOUND",
+   *      "httpCode": 404
+   * }
+   *
+   */
+
+  router.delete(
+    "/employment-contract/:id",
+    checkAuthToken,
+    (req, res, next) => {
+      return responseHandler(
+        req,
+        res,
+        contractService.deleteContract(req.params.id, req.authUser)
+      );
+    }
+  );
   router.put("/employment-contract/:id/status", (req, res, next) => {});
 };
