@@ -13,6 +13,8 @@ const EmailService = require('./EmailService');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
 const ConnectionService = require('./ConnectionService');
 const config = require("../config");
+const moment = require('moment');
+const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 
 class FootPlayerService {
 
@@ -419,7 +421,8 @@ class FootPlayerService {
 
   async listAll(paramas = {}) {
     try {
-      const matchCriteria = this.getMatchCriteria(paramas);
+      let matchCriteria = this.getMatchCriteria(paramas);
+      const filterConditions = this._prepareFootplayerFilterCondition(paramas.filters);
 
       let searchConditions = {};
 
@@ -435,11 +438,26 @@ class FootPlayerService {
         matchCriteria,
         skipCount,
         paramas,
+        filterConditions,
         searchConditions,
         projection
       );
-
-      return this.footPlayerUtilityInst.aggregate(aggPipes);
+      let data = await this.footPlayerUtilityInst.aggregate(aggPipes);
+      let responseData = [], totalRecords = 0;
+      if (data && data.length && data[0] && data[0].data) {
+        responseData = new ClubFootPlayersResponseMapping().map(data[0].data, paramas.filters.footplayers);
+        if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+          totalRecords = data[0].total_data[0].count;
+        }
+      }
+      let response = {};
+      if (paramas.filters.footplayers === 1) {
+        matchCriteria.status = FOOTPLAYER_STATUS.ADDED;
+        response.footplayers = await this.footPlayerUtilityInst.countList(matchCriteria)
+      }
+      response.total = totalRecords;
+      response.records = responseData;
+      return Promise.resolve(response);
     } catch (error) {
       console.log(error);
       return Promise.reject(error);
@@ -450,18 +468,13 @@ class FootPlayerService {
     matchCriteria,
     skipCount,
     paramas,
+    filterConditions,
     searchConditions,
     projection
   ) {
     return [
       {
         $match: matchCriteria,
-      },
-      {
-        $skip: parseInt(skipCount),
-      },
-      {
-        $limit: parseInt(paramas.filters.page_size),
       },
       {
         $lookup: {
@@ -478,9 +491,19 @@ class FootPlayerService {
         },
       },
       {
+        $lookup: { from: "positions", localField: "send_to_user.position.id", foreignField: "id", as: "Position" }
+      },
+      {
+        $lookup: { from: "abilities", localField: "Position.abilities", foreignField: "id", as: "abilities" }
+      },
+      {
+        $match: filterConditions,
+      },
+      {
         $match: searchConditions,
       },
       projection,
+      { $facet: { data: [{ $skip: parseInt(skipCount) }, { $limit: parseInt(paramas.filters.page_size) },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
     ];
   }
 
@@ -506,23 +529,36 @@ class FootPlayerService {
 
   prepateSearchFilters(paramas, searchConditions) {
     let regexp = new RegExp(paramas.filters.search, "i");
+
     searchConditions["$or"] = [];
-    searchConditions["$or"] = [
-      "send_to.name",
-      "send_to_user.player_type",
-    ].map((field) => {
-      return {
-        [field]: regexp,
-      };
-    });
-    searchConditions["$or"].push({
-      "send_to_user.position": {
-        $elemMatch: {
-          name: regexp,
-          priority: "1",
+    if (paramas.filters.footplayers === 0) {
+      searchConditions["$or"] = [
+        "send_to.name",
+        "send_to_user.player_type",
+      ].map((field) => {
+        return {
+          [field]: regexp,
+        };
+      });
+      searchConditions["$or"].push({
+        "send_to_user.position": {
+          $elemMatch: {
+            name: regexp,
+            priority: "1",
+          },
         },
-      },
-    });
+      });
+    }
+    else if (paramas.filters.footplayers === 1) {
+      searchConditions["$or"] = [
+        "send_to.email",
+        "send_to.name",
+      ].map((field) => {
+        return {
+          [field]: regexp,
+        };
+      });
+    }
   }
 
   getMatchCriteria(paramas) {
@@ -556,6 +592,106 @@ class FootPlayerService {
       console.log(error);
       return Promise.reject(error);
     }
+  }
+
+  _prepareFootplayerFilterCondition(filterConditions = {}) {
+    let condition = {};
+    let filterArr = []
+    if (filterConditions) {
+      if (filterConditions.footplayers === 1) {
+        filterConditions.status = [FOOTPLAYER_STATUS.ADDED];
+      }
+      if (filterConditions.age && filterConditions.age.length) {
+        let age = [];
+        let date = new Date();
+        let current_year = date.getFullYear()
+        let current_month = date.getMonth()
+        let current_day = date.getDate()
+
+        filterConditions.age.forEach(val => {
+          let [lowerEndAge, higherEndAge] = val.split("-")
+          let gteYear = Number(current_year) - Number(higherEndAge);
+          let lteYear = Number(current_year) - Number(lowerEndAge)
+          let gteDate = new Date(gteYear, current_month, current_day);
+          let lteDate = new Date(lteYear, current_month, current_day);
+          let momentGteDate = moment(gteDate).format("YYYY-MM-DD");
+          let momentLteDate = moment(lteDate).format("YYYY-MM-DD");
+          age.push({
+            "send_to_user.dob": {
+              $gte: momentGteDate,
+              $lte: momentLteDate
+            }
+          });
+        });
+        filterArr.push({ $or: age })
+      }
+      if (filterConditions.country) {
+        filterArr.push({
+          "send_to_user.country.name": new RegExp(filterConditions.country, 'i')
+        });
+      }
+      if (filterConditions.state) {
+        filterArr.push({
+          "send_to_user.state.name": new RegExp(filterConditions.state, 'i')
+        });
+      }
+      if (filterConditions.city) {
+        filterArr.push({
+          "send_to_user.city.name": new RegExp(filterConditions.city, 'i')
+        });
+      }
+      if (filterConditions.strong_foot && filterConditions.strong_foot.length) {
+        let strong_foot = [];
+        filterConditions.strong_foot.forEach(val => {
+          strong_foot.push({ "send_to_user.strong_foot": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: strong_foot })
+      }
+      if (filterConditions.position && filterConditions.position.length) {
+        let position = [];
+        filterConditions.position.forEach(val => {
+          position.push({
+            "send_to_user.position": {
+              $elemMatch: {
+                name: new RegExp(val, 'i'),
+              }
+            }
+          })
+        });
+        filterArr.push({ $or: position })
+      }
+      if (filterConditions.footplayer_category && filterConditions.footplayer_category.length) {
+        let footplayer_category = [];
+        filterConditions.footplayer_category.forEach(val => {
+          footplayer_category.push({ "send_to_user.player_type": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: footplayer_category })
+      }
+      if (filterConditions.status && filterConditions.status.length) {
+        let status = [];
+        filterConditions.status.forEach(val => {
+          status.push({ "status": new RegExp(val, 'i') })
+        });
+        filterArr.push({ $or: status })
+      }
+      if (filterConditions.ability && filterConditions.ability.length) {
+        let ability = [];
+        filterConditions.ability.forEach(val => {
+          ability.push({
+            "abilities": {
+              $elemMatch: {
+                name: new RegExp(val, 'i'),
+              }
+            }
+          })
+        });
+        filterArr.push({ $or: ability })
+      }
+      condition = {
+        $and: filterArr
+      }
+    }
+    return filterArr.length ? condition : {}
   }
 
 }

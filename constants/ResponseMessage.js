@@ -410,6 +410,12 @@ class ResponseMessage {
     static get YEAR_LESS_THAN_DOB() {
         return "Year should be greater than dob year"
     }
+    static get EMPLOYMENT_CONTRACT_NOT_FOUND() {
+        return "Employment contract not found"
+    }
+    static get EMPLOYMENT_CONTRACT_ACCESS_DENIED() {
+        return "Not allowed to view employment contract"
+    }
 }
 
 module.exports = ResponseMessage
