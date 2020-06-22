@@ -27,8 +27,12 @@ class EmploymentContractService {
 
     this.preHandlingCheck(body);
 
-    if (authUser.role == "player") {
+    if (authUser.role == Role.PLAYER) {
       resp = await this.playerCreatingContract(body, authUser);
+    }
+
+    if ([Role.CLUB, Role.ACADEMY].indexOf(authUser.role) != -1) {
+      resp = await this.clubAcademyCreatingContract(body, authUser);
     }
 
     return Promise.resolve(resp);
@@ -68,6 +72,21 @@ class EmploymentContractService {
     );
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
+
+    await this.contractInst.insert(body);
+
+    return Promise.resolve();
+  }
+
+  async clubAcademyCreatingContract(body, authUser) {
+    body.sent_by = authUser.user_id;
+    let player = await this.findPlayerByEmail(body.playerEmail);
+
+    await this.checkPlayerCanAcceptContract(player.username);
+    await this.checkDuplicateContract(player.username, authUser.email);
+
+    body.send_to = player.user_id;
+    body.playerEmail = player.username;
 
     await this.contractInst.insert(body);
 
@@ -128,6 +147,10 @@ class EmploymentContractService {
   }
 
   async findClubAcademyByEmail(email, category) {
+    return await this.findLoginByUser(email, category);
+  }
+
+  async findLoginByUser(email, category) {
     const $where = {
       username: email,
       role: category,
@@ -137,22 +160,14 @@ class EmploymentContractService {
     let user = await this.loginUtilityInst.findOne($where);
 
     if (!user) {
-      throw new errors.BadRequest("Club or Academy does not exists");
+      throw new errors.BadRequest(`${category} does not exists`);
     }
 
     return user;
   }
 
   async findPlayerByEmail(email) {
-    let user = await this.loginUtilityInst.findOne({
-      username: email,
-      role: { $in: [Role.PLAYER] },
-      is_deleted: false,
-    });
-
-    if (!user) {
-      throw new Error("User does not exists");
-    }
+    return await this.findLoginByUser(email, Role.PLAYER);
   }
 
   checkExpiryDate(body) {
