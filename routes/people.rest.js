@@ -12,7 +12,7 @@ module.exports = (router) => {
    * @apiName People Lists
    * @apiGroup People
    * 
-   * @apiParam (query) {String} status Status to filter records [club, academy] 
+   * @apiParam (query) {String} role Role to filter records [club, academy] 
    *
    * @apiSuccess {String} status success
    * @apiSuccess {String} message Successfully done
