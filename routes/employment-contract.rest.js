@@ -19,8 +19,6 @@ module.exports = (router) => {
     (req, res, next) => {
       let body = req.body;
 
-      // return res.send(req.authUser);
-
       return responseHandler(
         req,
         res,

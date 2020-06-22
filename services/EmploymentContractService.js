@@ -1,3 +1,4 @@
+const moment = require("moment");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const MEMBER = require("../constants/MemberType");
 const PROFILE_STATUS = require("../constants/ProfileStatus");
@@ -25,8 +26,12 @@ class EmploymentContractService {
     let resp = {};
     body.status = ContractStatus.PENDING;
 
-    if (body.clubAcademyName == "others") {
-      // remove keys that are not required.
+    this.checkExpiryDate(body);
+
+    if (body.clubAcademyName != "others") {
+      body.otherName = "";
+      body.otherEmail = "";
+      body.otherPhoneNumber = "";
     }
 
     if (authUser.role == "player") {
@@ -37,6 +42,9 @@ class EmploymentContractService {
   }
 
   async playerCreatingContract(body, authUser) {
+    await this.checkPlayerCanAcceptContract(authUser.email);
+    await this.checkDuplicateContract(authUser.email, body.clubAcademyEmail);
+
     body.sent_by = authUser.user_id;
     let clubOrAcademy = await this.findClubAcademyByEmail(
       body.clubAcademyEmail,
@@ -50,6 +58,35 @@ class EmploymentContractService {
     return Promise.resolve();
   }
 
+  /**
+   * Accept contract only if there is no active contract
+   * @param {string} playerEmail
+   */
+  async checkPlayerCanAcceptContract(playerEmail) {
+    let exists = await this.contractInst.findOne({
+      playerEmail: playerEmail,
+      status: ContractStatus.ACTIVE,
+      is_deleted: false,
+    });
+
+    if (exists) {
+      throw new errors.BadRequest("Player already have an active contract");
+    }
+  }
+
+  async checkDuplicateContract(playerEmail, clubAcademyEmail) {
+    let exists = await this.contractInst.findOne({
+      playerEmail: playerEmail,
+      clubAcademyEmail: clubAcademyEmail,
+      status: ContractStatus.PENDING,
+      is_deleted: false,
+    });
+
+    if (exists) {
+      throw new errors.BadRequest("Contract already exists");
+    }
+  }
+
   async findClubAcademyByEmail(email, category) {
     const $where = {
       username: email,
@@ -60,7 +97,7 @@ class EmploymentContractService {
     let user = await this.loginUtilityInst.findOne($where);
 
     if (!user) {
-      throw new Error("Club or Academy does not exists");
+      throw new errors.BadRequest("Club or Academy does not exists");
     }
 
     return user;
@@ -75,6 +112,14 @@ class EmploymentContractService {
 
     if (!user) {
       throw new Error("User does not exists");
+    }
+  }
+
+  checkExpiryDate(body) {
+    if (moment(body.expiryDate).diff(body.effectiveDate, "years") > 5) {
+      throw new errors.ValidationFailed(
+        "The expiry date cannot exceed 5 years of effective date"
+      );
     }
   }
 }

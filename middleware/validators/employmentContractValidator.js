@@ -1,8 +1,7 @@
 const Joi = require("@hapi/joi");
+const moment = require("moment");
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
-const RESPONSE_MESSAGE = require("../../constants/ResponseMessage");
-const MEMBER = require("../../constants/MemberType");
 const Role = require("../../constants/Role");
 
 class EmploymentContractValidator {
@@ -13,7 +12,9 @@ class EmploymentContractValidator {
 
       clubAcademyName: Joi.string().required(),
 
-      signingDate: Joi.date().required().max("now"),
+      signingDate: Joi.date()
+        .required()
+        .max(moment().subtract(1, "d").format("YYYY-MM-DD")),
       effectiveDate: Joi.date().required().min(Joi.ref("signingDate")),
       expiryDate: Joi.date().required().min(Joi.ref("effectiveDate")),
 
@@ -21,32 +22,26 @@ class EmploymentContractValidator {
       clubAcademyRepresentativeName: Joi.string().required(),
       clubAcademyAddress: Joi.string().required(),
       clubAcademyPhoneNumber: Joi.string().required(),
-      clubAcademyEmail: Joi.string().required(),
+      clubAcademyEmail: Joi.string().email().required(),
       aiffNumber: Joi.string().required(),
       crsUserName: Joi.string().required(),
 
       legalGuardianName: Joi.string().required(),
       playerAddress: Joi.string().required(),
       playerMobileNumber: Joi.string().required(),
-      playerEmail: Joi.string().required(),
+      playerEmail: Joi.string().email().required(),
 
       clubAcademyUsesAgentServices: Joi.boolean().required(),
-      clubAcademyIntermediaryName: Joi.when(
-        Joi.ref("clubAcademyUsesAgentServices"),
-        {
-          is: true,
-          then: Joi.string().required(),
-          otherwise: Joi.string(),
-        }
-      ),
-      clubAcademyTransferFee: Joi.string().when(
-        Joi.ref("clubAcademyUsesAgentServices"),
-        {
-          is: true,
-          then: Joi.string().required(),
-          otherwise: Joi.string(),
-        }
-      ),
+      clubAcademyIntermediaryName: Joi.when("clubAcademyUsesAgentServices", {
+        is: true,
+        then: Joi.string().required(),
+        otherwise: Joi.string(),
+      }),
+      clubAcademyTransferFee: Joi.when("clubAcademyUsesAgentServices", {
+        is: true,
+        then: Joi.string().required(),
+        otherwise: Joi.string(),
+      }),
 
       playerUsesAgentServices: Joi.boolean().required(),
       playerIntermediaryName: Joi.when("playerUsesAgentServices", {
@@ -67,7 +62,7 @@ class EmploymentContractValidator {
       }),
       otherEmail: Joi.when("clubAcademyName", {
         is: "others",
-        then: Joi.string().required(),
+        then: Joi.string().email().required(),
         otherwise: Joi.string(),
       }),
       otherPhoneNumber: Joi.when("clubAcademyName", {
