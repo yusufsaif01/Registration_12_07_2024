@@ -12,6 +12,7 @@ const config = require("../config");
 const Role = require("../constants/Role");
 const ContractStatus = require("../constants/ContractStatus");
 const ProfileStatus = require("../constants/ProfileStatus");
+const AccountStatus = require("../constants/AccountStatus");
 
 class EmploymentContractService {
   constructor() {
@@ -154,6 +155,7 @@ class EmploymentContractService {
       username: email,
       role: category,
       is_deleted: false,
+      status:AccountStatus.ACTIVE,
       "profile_status.status": ProfileStatus.VERIFIED,
     };
     let user = await this.loginUtilityInst.findOne($where);
