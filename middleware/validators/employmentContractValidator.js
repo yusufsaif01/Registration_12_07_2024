@@ -24,11 +24,11 @@ class EmploymentContractValidator {
       clubAcademyPhoneNumber: Joi.string().required(),
       clubAcademyEmail: Joi.string().email().required(),
       aiffNumber: Joi.string().optional(),
-      crsUserName: Joi.string().required(),
+      crsUserName: Joi.string().optional(),
 
-      legalGuardianName: Joi.string().required(),
-      playerAddress: Joi.string().required(),
-      playerMobileNumber: Joi.string().optional(),
+      legalGuardianName: Joi.string().optional(),
+      playerAddress: Joi.string().optional(),
+      playerMobileNumber: Joi.string().required(),
       playerEmail: Joi.string().email().required(),
 
       clubAcademyUsesAgentServices: Joi.boolean().required(),
