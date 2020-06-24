@@ -46,6 +46,10 @@ class EmploymentContractService {
       resp = await this.playerUpdatingContract(contractId, body, authUser);
     }
 
+    if ([Role.CLUB, Role.ACADEMY].includes(authUser.role)) {
+      resp = await this.clubAcademyUpdatingContract(contractId, body, authUser);
+    }
+
     return Promise.resolve(resp);
   }
 
@@ -117,6 +121,28 @@ class EmploymentContractService {
     return Promise.resolve();
   }
 
+  async clubAcademyUpdatingContract(contractId, body, authUser) {
+    await this.userCanUpdateContract(authUser.user_id, contractId);
+
+    body.sent_by = authUser.user_id;
+
+    let player = await this.findPlayerByEmail(body.playerEmail);
+    body.send_to = player.user_id;
+    body.playerEmail = player.username;
+
+    await this.contractInst.updateOne(
+      {
+        id: contractId,
+        sent_by: authUser.user_id,
+        is_deleted: false,
+        status: { $in: [ContractStatus.PENDING, ContractStatus.DISAPPROVED] },
+      },
+      body
+    );
+
+    return Promise.resolve();
+  }
+
   /**
    * Accept contract only if there is no active contract
    * @param {string} playerEmail
@@ -124,7 +150,7 @@ class EmploymentContractService {
   async checkPlayerCanAcceptContract(playerEmail) {
     let exists = await this.contractInst.findOne({
       playerEmail: playerEmail,
-      status: ContractStatus.ACTIVE,
+      status: { $in: [ContractStatus.ACTIVE, ContractStatus.YET_TO_START] },
       is_deleted: false,
     });
 
@@ -155,7 +181,7 @@ class EmploymentContractService {
       username: email,
       role: category,
       is_deleted: false,
-      status:AccountStatus.ACTIVE,
+      status: AccountStatus.ACTIVE,
       "profile_status.status": ProfileStatus.VERIFIED,
     };
     let user = await this.loginUtilityInst.findOne($where);
