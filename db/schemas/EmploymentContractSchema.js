@@ -19,6 +19,7 @@ module.exports = {
         contractStatus.PENDING,
         contractStatus.YET_TO_START,
         contractStatus.DISAPPROVED,
+        contractStatus.REJECTED
       ],
     },
     send_to: {
@@ -61,6 +62,14 @@ module.exports = {
     otherName: String,
     otherEmail: String,
     otherPhoneNumber: String,
+
+    is_deleted: {
+      type: Boolean,
+      default: false
+    },
+    deleted_at: {
+      type: Date
+    }
   },
   schemaName: "EmploymentContract",
   options: {

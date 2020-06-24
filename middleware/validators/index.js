@@ -5,6 +5,7 @@ const playerSpecializationValidator = require("./playerSpecializationValidator")
 const connectionValidator = require("./connectionValidator");
 const postValidator = require("./postValidator");
 const footplayerValidator = require("./footplayerValidator");
+const employmentContractValidator = require("./employmentContractValidator")
 
 module.exports = {
     userValidator,
@@ -13,5 +14,6 @@ module.exports = {
     playerSpecializationValidator,
     connectionValidator,
     postValidator,
-    footplayerValidator
+    footplayerValidator,
+    employmentContractValidator
 };

@@ -4,6 +4,7 @@ const ROLE = require("../constants/Role");
 const errors = require("../errors");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 const EmploymentContractService = require("../services/EmploymentContractService");
+const employmentContractValidator = require("../middleware/validators").employmentContractValidator;
 
 module.exports = (router) => {
   router.get("/employment-contract/list", (req, res, next) => { });
@@ -84,5 +85,35 @@ module.exports = (router) => {
   });
   router.post("/employment-contract", (req, res, next) => { });
   router.delete("/employment-contract/:id", (req, res, next) => { });
-  router.put("/employment-contract/:id/status", (req, res, next) => { });
+  /**
+   * @api {put} /employment-contract/:id/status Update Employment Contract Status
+   * @apiName Update Employment Contract Status
+   * @apiGroup Employment Contract
+   * 
+   * @apiParam (body) {string} status Status enum : approved, disapproved
+   * @apiParam (body) {string} [remarks] Status remarks (required if status = disapproved)
+   * 
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *          "status": "success",
+   *          "message": "Successfully done"
+   *      }
+   *     
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }   
+   *  
+   */
+  router.put("/employment-contract/:id/status", checkAuthToken, employmentContractValidator.UpdateStatusValidator, (req, res, next) => {
+    let serviceInst = new EmploymentContractService();
+    responseHandler(req, res, serviceInst.updateEmploymentContractStatus({ id: req.params.id, user: req.authUser, reqObj: req.body }));
+  });
 };
