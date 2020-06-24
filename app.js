@@ -11,17 +11,12 @@ const cors = require('cors')
 const responseHandler = require("./ResponseHandler");
 const errors = require("./errors");
 const StorageProvider = require('storage-provider');
-var schedule = require('node-schedule');
-const updateContractStatus = require('./seeders/EmploymentContractStatus');
+const contractStatusUpdateScheduler = require('./scheduler');
  
 global.__basedir = path.resolve(__dirname);
 
 /*Db Connection*/
 db.connectDB();
-
-schedule.scheduleJob('1 0 * * *', function(){
-  updateContractStatus()
-});
 
 app.use(logger('dev'));
 

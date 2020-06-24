@@ -9,6 +9,7 @@ const helper = require("./configs/helper");
 const jwt = require("./configs/jwt");
 const redis = require("./configs/redis")
 const storage = require("./configs/storage");
+const scheduler = require("./configs/scheduler.json");
 
 // Define a schema
 var config = convict({
@@ -20,7 +21,8 @@ var config = convict({
 	helper,
 	jwt,
 	redis,
-	storage
+	storage,
+	scheduler
 });
 
 // Perform validation
