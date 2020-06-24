@@ -21,14 +21,20 @@ class EmploymentContractValidator {
       placeOfSignature: Joi.string().optional(),
       clubAcademyRepresentativeName: Joi.string().optional(),
       clubAcademyAddress: Joi.string().optional(),
-      clubAcademyPhoneNumber: Joi.string().required(),
+      clubAcademyPhoneNumber: Joi.string()
+        .length(10)
+        .regex(/^[0-9]+$/)
+        .required(),
       clubAcademyEmail: Joi.string().email().required(),
       aiffNumber: Joi.string().optional(),
       crsUserName: Joi.string().optional(),
 
       legalGuardianName: Joi.string().optional(),
       playerAddress: Joi.string().optional(),
-      playerMobileNumber: Joi.string().required(),
+      playerMobileNumber: Joi.string()
+        .length(10)
+        .regex(/^[0-9]+$/)
+        .required(),
       playerEmail: Joi.string().email().required(),
 
       clubAcademyUsesAgentServices: Joi.boolean().required(),
@@ -67,7 +73,10 @@ class EmploymentContractValidator {
       }),
       otherPhoneNumber: Joi.when("clubAcademyName", {
         is: "others",
-        then: Joi.string().required(),
+        then: Joi.string()
+          .length(10)
+          .regex(/^[0-9]+$/)
+          .required(),
         otherwise: Joi.string(),
       }),
     });
