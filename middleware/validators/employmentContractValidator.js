@@ -3,6 +3,7 @@ const moment = require("moment");
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const Role = require("../../constants/Role");
+const CONTRACT_STATUS = require("../../constants/ContractStatus");
 
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
@@ -83,6 +84,31 @@ class EmploymentContractValidator {
     try {
       let body = await Joi.validate(req.body, schema);
       req.body = body;
+      return next();
+    } catch (err) {
+      console.log(err.details);
+      return responseHandler(
+        req,
+        res,
+        Promise.reject(new errors.ValidationFailed(err.details[0].message))
+      );
+    }
+  }
+
+  async UpdateStatusValidator(req, res, next) {
+    const schema = Joi.object().keys({
+      status: Joi.required().valid([
+        CONTRACT_STATUS.APPROVED,
+        CONTRACT_STATUS.DISAPPROVED,
+      ]),
+      remarks: Joi.when("status", {
+        is: CONTRACT_STATUS.DISAPPROVED,
+        then: Joi.required(),
+        otherwise: Joi.string(),
+      }),
+    });
+    try {
+      await Joi.validate(req.body, schema);
       return next();
     } catch (err) {
       console.log(err.details);

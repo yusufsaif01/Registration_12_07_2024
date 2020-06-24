@@ -19,6 +19,7 @@ module.exports = {
         contractStatus.PENDING,
         contractStatus.YET_TO_START,
         contractStatus.DISAPPROVED,
+        contractStatus.REJECTED
       ],
     },
     send_to: {
