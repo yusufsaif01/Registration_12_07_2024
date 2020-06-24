@@ -70,7 +70,7 @@ module.exports = {
       type: Date,
     },
   },
-  schemaName: "EmploymentContract",
+  schemaName: "employment_contract",
   options: {
     timestamps: true,
   },
