@@ -1,7 +1,6 @@
 const moment = require("moment");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const MEMBER = require("../constants/MemberType");
-const PROFILE_STATUS = require("../constants/ProfileStatus");
 const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 const _ = require("lodash");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
@@ -13,7 +12,6 @@ const Role = require("../constants/Role");
 const ContractStatus = require("../constants/ContractStatus");
 const ProfileStatus = require("../constants/ProfileStatus");
 const AccountStatus = require("../constants/AccountStatus");
-const ROLE = require("../constants/Role");
 const PLAYER = require("../constants/PlayerType");
 const DOCUMENT_TYPE = require("../constants/DocumentType");
 const DOCUMENT_STATUS = require("../constants/DocumentStatus");
@@ -424,13 +422,13 @@ class EmploymentContractService {
         documents = player.documents;
       }
       let reqObj = requestedData.reqObj;
-      if (reqObj.status === CONTRACT_STATUS.APPROVED) {
+      if (reqObj.status === ContractStatus.APPROVED) {
         await this.checkForActiveContract({
           id: requestedData.id,
           playerUserId: playerUserId,
         });
         let status = this.getEmploymentContractStatus(data);
-        await this.employmentContractUtilityInst.updateOne(
+        await this.contractInst.updateOne(
           { id: requestedData.id },
           { status: status }
         );
@@ -452,10 +450,10 @@ class EmploymentContractService {
           name: playerName,
         });
       }
-      if (reqObj.status === CONTRACT_STATUS.DISAPPROVED) {
-        await this.employmentContractUtilityInst.updateOne(
+      if (reqObj.status === ContractStatus.DISAPPROVED) {
+        await this.contractInst.updateOne(
           { id: requestedData.id },
-          { status: CONTRACT_STATUS.DISAPPROVED }
+          { status: ContractStatus.DISAPPROVED }
         );
         await this.updateProfileStatus({
           playerUserId: playerUserId,
@@ -493,7 +491,7 @@ class EmploymentContractService {
       let foundUser = await this.loginUtilityInst.findOne({
         user_id: data.send_to,
       });
-      if (!foundUser && user.role !== ROLE.ADMIN) {
+      if (!foundUser && user.role !== Role.ADMIN) {
         return Promise.reject(
           new errors.ValidationFailed(
             RESPONSE_MESSAGE.CANNOT_UPDATE_CONTRACT_STATUS
@@ -513,7 +511,7 @@ class EmploymentContractService {
         }
       }
     }
-    if (!data.send_to && user.role !== ROLE.ADMIN) {
+    if (!data.send_to && user.role !== Role.ADMIN) {
       return Promise.reject(
         new errors.ValidationFailed(
           RESPONSE_MESSAGE.CANNOT_UPDATE_CONTRACT_STATUS
@@ -536,13 +534,13 @@ class EmploymentContractService {
     let effectiveDate = moment(data.effectiveDate).format("YYYY-MM-DD");
     let expiryDate = moment(data.expiryDate).format("YYYY-MM-DD");
     if (dateNow < effectiveDate) {
-      return CONTRACT_STATUS.YET_TO_START;
+      return ContractStatus.YET_TO_START;
     }
     if (expiryDate > dateNow) {
-      return CONTRACT_STATUS.ACTIVE;
+      return ContractStatus.ACTIVE;
     }
     if (expiryDate <= dateNow) {
-      return CONTRACT_STATUS.COMPLETED;
+      return ContractStatus.COMPLETED;
     }
   }
 
@@ -556,15 +554,15 @@ class EmploymentContractService {
   async rejectOtherContracts(requestedData = {}) {
     try {
       let condition = {
-        status: CONTRACT_STATUS.PENDING,
+        status: ContractStatus.PENDING,
         id: { $ne: requestedData.id },
         $or: [
           { sent_by: requestedData.playerUserId },
           { send_to: requestedData.playerUserId },
         ],
       };
-      await this.employmentContractUtilityInst.updateMany(condition, {
-        status: CONTRACT_STATUS.REJECTED,
+      await this.contractInst.updateMany(condition, {
+        status: ContractStatus.REJECTED,
       });
       return Promise.resolve();
     } catch (e) {
@@ -610,16 +608,16 @@ class EmploymentContractService {
    */
   async updateProfileStatus(requestedData = {}) {
     try {
-      let profileStatus = PROFILE_STATUS.NON_VERIFIED;
-      if (requestedData.status === CONTRACT_STATUS.DISAPPROVED) {
-        profileStatus = PROFILE_STATUS.NON_VERIFIED;
+      let profileStatus = ProfileStatus.NON_VERIFIED;
+      if (requestedData.status === ContractStatus.DISAPPROVED) {
+        profileStatus = ProfileStatus.NON_VERIFIED;
       }
-      if (requestedData.status === CONTRACT_STATUS.APPROVED) {
+      if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {
           type: DOCUMENT_TYPE.AADHAR,
         });
         if (aadhaar && aadhaar.status === DOCUMENT_STATUS.APPROVED)
-          profileStatus = PROFILE_STATUS.VERIFIED;
+          profileStatus = ProfileStatus.VERIFIED;
       }
       await this.loginUtilityInst.updateOne(
         { user_id: requestedData.playerUserId },
@@ -645,13 +643,13 @@ class EmploymentContractService {
   async checkForActiveContract(requestedData = {}) {
     try {
       let condition = {
-        status: CONTRACT_STATUS.ACTIVE,
+        status: ContractStatus.ACTIVE,
         $or: [
           { sent_by: requestedData.playerUserId },
           { send_to: requestedData.playerUserId },
         ],
       };
-      let foundContract = await this.employmentContractUtilityInst.findOne(
+      let foundContract = await this.contractInst.findOne(
         condition,
         { id: 1 }
       );
