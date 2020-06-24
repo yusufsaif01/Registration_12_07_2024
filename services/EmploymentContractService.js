@@ -37,7 +37,9 @@ class EmploymentContractService {
       resp = await this.clubAcademyCreatingContract(body, authUser);
     }
 
-    return Promise.resolve(resp);
+    return Promise.resolve({
+      id: resp.id
+    });
   }
   async updateContract(contractId, body, authUser) {
     let resp = {};
@@ -79,9 +81,9 @@ class EmploymentContractService {
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
-    await this.contractInst.insert(body);
+    let created = await this.contractInst.insert(body);
 
-    return Promise.resolve();
+    return Promise.resolve(created);
   }
 
   async clubAcademyCreatingContract(body, authUser) {
@@ -94,9 +96,9 @@ class EmploymentContractService {
     body.send_to = player.user_id;
     body.playerEmail = player.username;
 
-    await this.contractInst.insert(body);
+    let created = await this.contractInst.insert(body);
 
-    return Promise.resolve();
+    return Promise.resolve(created);
   }
 
   async playerUpdatingContract(contractId, body, authUser) {
