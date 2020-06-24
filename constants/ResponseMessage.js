@@ -410,6 +410,9 @@ class ResponseMessage {
     static get YEAR_LESS_THAN_DOB() {
         return "Year should be greater than dob year"
     }
+    static get PHONE_REQUIRED() {
+        return "Phone is required"
+    }
     static get EMPLOYMENT_CONTRACT_NOT_FOUND() {
         return "Employment contract not found"
     }
