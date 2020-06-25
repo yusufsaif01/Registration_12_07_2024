@@ -7,7 +7,7 @@ const CONTRACT_STATUS = require("../../constants/ContractStatus");
 
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
-    const schema = Joi.object().keys({
+    const validationSchema = {
       playerName: Joi.string()
         .required()
         .error(() => {
@@ -190,7 +190,18 @@ class EmploymentContractValidator {
             "Other phone number is required when Club/Academy name is 'others'.",
         };
       }),
-    });
+    };
+
+    /** Remove fields not required when club/academy is creating the contract. */
+    if ([Role.ACADEMY, Role.CLUB].includes(req.authUser.role)) {
+      delete validationSchema.category;
+      delete validationSchema.otherName;
+      delete validationSchema.otherEmail;
+      delete validationSchema.otherPhoneNumber;
+    }
+
+    const schema = Joi.object().keys(validationSchema);
+
     try {
       let body = await Joi.validate(req.body, schema);
       req.body = body;
