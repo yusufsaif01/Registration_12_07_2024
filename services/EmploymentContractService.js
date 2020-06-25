@@ -138,7 +138,11 @@ class EmploymentContractService {
     await this.userCanUpdateContract(authUser.user_id, contractId);
 
     await this.checkPlayerCanAcceptContract(authUser.email);
-    await this.checkDuplicateContract(authUser.email, body.clubAcademyEmail, contractId);
+    await this.checkDuplicateContract(
+      authUser.email,
+      body.clubAcademyEmail,
+      contractId
+    );
 
     body.sent_by = authUser.user_id;
     let clubOrAcademy = await this.findClubAcademyByEmail(
@@ -147,7 +151,7 @@ class EmploymentContractService {
     );
 
     await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
-    
+
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
@@ -172,7 +176,11 @@ class EmploymentContractService {
     let player = await this.findPlayerByEmail(body.playerEmail);
 
     await this.checkPlayerCanAcceptContract(player.username);
-    await this.checkDuplicateContract(player.username, authUser.email, contractId);
+    await this.checkDuplicateContract(
+      player.username,
+      authUser.email,
+      contractId
+    );
     await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
@@ -367,6 +375,13 @@ class EmploymentContractService {
     return Promise.resolve(data);
   }
 
+  /**
+   * get list of contracts related to logged in user
+   *
+   * @param {*} [requestedData={}]
+   * @returns
+   * @memberof EmploymentContractService
+   */
   async getEmploymentContractList(requestedData = {}) {
     try {
       let paginationOptions = requestedData.paginationOptions || {};
