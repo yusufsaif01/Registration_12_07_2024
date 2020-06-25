@@ -38,7 +38,7 @@ class EmploymentContractValidator {
         .required(),
       playerEmail: Joi.string().email().required(),
 
-      clubAcademyUsesAgentServices: Joi.boolean().required(),
+      clubAcademyUsesAgentServices: Joi.boolean().optional(),
       clubAcademyIntermediaryName: Joi.when("clubAcademyUsesAgentServices", {
         is: true,
         then: Joi.string().required(),
@@ -50,7 +50,7 @@ class EmploymentContractValidator {
         otherwise: Joi.string(),
       }),
 
-      playerUsesAgentServices: Joi.boolean().required(),
+      playerUsesAgentServices: Joi.boolean().optional(),
       playerIntermediaryName: Joi.when("playerUsesAgentServices", {
         is: true,
         then: Joi.string().required(),
