@@ -62,6 +62,45 @@ class EmploymentContractService {
   }
 
   /**
+   * get list of contracts related to logged in user
+   *
+   * @param {*} [requestedData={}]
+   * @returns
+   * @memberof EmploymentContractService
+   */
+  async getEmploymentContractList(requestedData = {}) {
+    try {
+      let paginationOptions = requestedData.paginationOptions || {};
+      let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+      let options = { limit: paginationOptions.limit, skip: skipCount };
+      let matchCondition = { is_deleted: false, $or: [{ sent_by: requestedData.user_id }, { send_to: requestedData.user_id }] };
+      if (requestedData.role === ROLE.PLAYER || requestedData.role === ROLE.ADMIN) {
+        matchCondition.status = { $ne: CONTRACT_STATUS.REJECTED }
+      }
+      let data = await this.employmentContractUtilityInst.aggregate([{ $match: matchCondition },
+      { "$lookup": { "from": "login_details", "localField": "sent_by", "foreignField": "user_id", "as": "login_detail" } },
+      { $unwind: { path: "$login_detail" } }, { "$lookup": { "from": "club_academy_details", "localField": "clubAcademyName", "foreignField": "name", "as": "clubAcademyDetail" } },
+      { $unwind: { path: "$clubAcademyDetail", preserveNullAndEmptyArrays: true } },
+      { $project: { _id: 0, id: 1, name: "$clubAcademyName", clubAcademyUserId: "$clubAcademyDetail.user_id", effectiveDate: 1, expiryDate: 1, status: 1, created_by: "$login_detail.member_type" } },
+      { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
+      ]);
+      let responseData = [], totalRecords = 0;
+      if (data && data.length && data[0] && data[0].data) {
+        responseData = data[0].data
+        if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+          totalRecords = data[0].total_data[0].count;
+        }
+      }
+      let response = { total: totalRecords, records: responseData };
+      return response;
+
+    } catch (e) {
+      console.log("Error in getEmploymentContractList() of EmploymentContractService", e);
+      return Promise.reject(e);
+    }
+  }
+
+  /**
    * updates employment contract status
    *
    * @param {*} [requestedData={}]

@@ -7,7 +7,55 @@ const EmploymentContractService = require("../services/EmploymentContractService
 const employmentContractValidator = require("../middleware/validators").employmentContractValidator;
 
 module.exports = (router) => {
-  router.get("/employment-contract/list", (req, res, next) => { });
+
+  /**
+   * @api {get} /employment-contract/list Get Employment Contract List
+   * @apiName Get Employment Contract List
+   * @apiGroup Employment Contract
+   * 
+   * @apiParam (query) {String} page_no page number
+   * @apiParam (query) {String} page_size records per page
+   * 
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *          "status": "success",
+   *          "message": "Successfully done",
+   *          "data": {
+   *                   "total": 1,
+   *                    "records": [{
+   *                         "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
+   *                         "effectiveDate": "2020-05-23T00:00:00.000Z",
+   *                         "expiryDate": "2021-06-12T00:00:00.000Z",
+   *                         "status": "active",
+   *                         "name": "newclub",
+   *                         "clubAcademyUserId": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+   *                         "created_by": "player"
+   *                                }]
+   *                  }
+   *      }
+   *     
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *  
+   */
+  router.get("/employment-contract/list", checkAuthToken, (req, res, next) => {
+    let paginationOptions = {
+      page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+      limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+    };
+    let user_id = req.authUser.user_id;
+    let serviceInst = new EmploymentContractService();
+    responseHandler(req, res, serviceInst.getEmploymentContractList({ user_id: user_id, role: req.authUser.role, paginationOptions }));
+  });
 
   /**
    * @api {get} /employment-contract/:id Get Employment Contract
