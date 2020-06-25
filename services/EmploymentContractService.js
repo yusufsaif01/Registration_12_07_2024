@@ -137,11 +137,17 @@ class EmploymentContractService {
   async playerUpdatingContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
 
+    await this.checkPlayerCanAcceptContract(authUser.email);
+    await this.checkDuplicateContract(authUser.email, body.clubAcademyEmail, contractId);
+
     body.sent_by = authUser.user_id;
     let clubOrAcademy = await this.findClubAcademyByEmail(
       body.clubAcademyEmail,
       body.category
     );
+
+    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
+    
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
@@ -164,6 +170,11 @@ class EmploymentContractService {
     body.sent_by = authUser.user_id;
 
     let player = await this.findPlayerByEmail(body.playerEmail);
+
+    await this.checkPlayerCanAcceptContract(player.username);
+    await this.checkDuplicateContract(player.username, authUser.email, contractId);
+    await this.checkConnectionExists(authUser.user_id, player.user_id);
+
     body.send_to = player.user_id;
     body.playerEmail = player.username;
 
@@ -196,13 +207,19 @@ class EmploymentContractService {
     }
   }
 
-  async checkDuplicateContract(playerEmail, clubAcademyEmail) {
-    let exists = await this.contractInst.findOne({
+  async checkDuplicateContract(playerEmail, clubAcademyEmail, ignore = false) {
+    const $where = {
       playerEmail: playerEmail,
       clubAcademyEmail: clubAcademyEmail,
       status: ContractStatus.PENDING,
       is_deleted: false,
-    });
+    };
+
+    if (ignore) {
+      $where["id"] = { $ne: ignore };
+    }
+
+    let exists = await this.contractInst.findOne($where);
 
     if (exists) {
       throw new errors.BadRequest("Contract already exists");
