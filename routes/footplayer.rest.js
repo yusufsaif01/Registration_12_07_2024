@@ -397,6 +397,7 @@ module.exports = (router) => {
     *                      "name": "Rajesh Kumar",
     *                      "position": "Centre Attacking Midfielder",
     *                      "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
+    *                      "canAddContract": true,
     *                      "email": "test@test.com",
     *                      "status": "pending"
     *                  },
