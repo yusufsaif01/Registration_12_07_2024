@@ -11,10 +11,12 @@ const config = require("../config");
 const Role = require("../constants/Role");
 const ContractStatus = require("../constants/ContractStatus");
 const ProfileStatus = require("../constants/ProfileStatus");
-const AccountStatus = require("../constants/AccountStatus");
+const ACCOUNT_STATUS = require("../constants/AccountStatus");
 const PLAYER = require("../constants/PlayerType");
 const DOCUMENT_TYPE = require("../constants/DocumentType");
 const DOCUMENT_STATUS = require("../constants/DocumentStatus");
+const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
+const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 
 class EmploymentContractService {
   constructor() {
@@ -22,6 +24,7 @@ class EmploymentContractService {
     this.playerUtilityInst = new PlayerUtility();
     this.emailService = new EmailService();
     this.contractInst = new EmploymentContractUtility();
+    this.footPlayerInst = new FootPlayerUtility();
   }
 
   async createContract(body, authUser) {
@@ -38,7 +41,7 @@ class EmploymentContractService {
     }
 
     return Promise.resolve({
-      id: resp.id
+      id: resp.id,
     });
   }
   async updateContract(contractId, body, authUser) {
@@ -78,6 +81,9 @@ class EmploymentContractService {
       body.clubAcademyEmail,
       body.category
     );
+
+    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
+
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
@@ -92,6 +98,7 @@ class EmploymentContractService {
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(player.username, authUser.email);
+    await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
     body.playerEmail = player.username;
@@ -99,6 +106,32 @@ class EmploymentContractService {
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
+  }
+
+  /**
+   * Checks whether connection exists or not
+   * @param {string} sentBy Club/Academy ID
+   * @param {string} sendTo Player ID
+   */
+  async checkConnectionExists(sentBy, sendTo) {
+    let connection = await this.footPlayerInst.findOne({
+      sent_by: sentBy,
+      "send_to.user_id": sendTo,
+      // status: FOOT_PLAYER_STATUS.ADDED,
+      is_deleted: false,
+    });
+
+    if (!connection) {
+      throw new errors.ValidationFailed(
+        "Profile is not in your foot player list."
+      );
+    }
+
+    if (connection.status != FOOT_PLAYER_STATUS.ADDED) {
+      throw new errors.ValidationFailed(
+        "Profile foot player request is not approved or added."
+      );
+    }
   }
 
   async playerUpdatingContract(contractId, body, authUser) {
@@ -185,13 +218,23 @@ class EmploymentContractService {
       username: email,
       role: category,
       is_deleted: false,
-      status: AccountStatus.ACTIVE,
-      "profile_status.status": ProfileStatus.VERIFIED,
     };
+
     let user = await this.loginUtilityInst.findOne($where);
 
     if (!user) {
-      throw new errors.BadRequest(`${category} does not exists`);
+      throw new errors.NotFound(`${category} does not exists`);
+    }
+
+    if (
+      category != Role.PLAYER &&
+      user.profile_status.status != ProfileStatus.VERIFIED
+    ) {
+      throw new errors.ValidationFailed(`${category} profile is not verified.`);
+    }
+
+    if (user.status != ACCOUNT_STATUS.ACTIVE) {
+      throw new errors.ValidationFailed(`${category} profile is suspended.`);
     }
 
     return user;
@@ -651,10 +694,7 @@ class EmploymentContractService {
           { send_to: requestedData.playerUserId },
         ],
       };
-      let foundContract = await this.contractInst.findOne(
-        condition,
-        { id: 1 }
-      );
+      let foundContract = await this.contractInst.findOne(condition, { id: 1 });
       if (foundContract && requestedData.id !== foundContract.id) {
         return Promise.reject(
           new errors.Conflict(RESPONSE_MESSAGE.ANOTHER_ACTIVE_CONTRACT_EXIST)
