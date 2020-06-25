@@ -87,68 +87,81 @@ class FootPlayerService {
         return filterArr.length ? condition : {}
     }
 
-    /**
-     * send footplayer request
-     *
-     * @param {*} [requestedData={}]
-     * @returns
-     * @memberof FootPlayerService
-     */
-    async sendFootplayerRequest(requestedData = {}) {
-        try {
-            await this.sendFootplayerRequestValidator(requestedData);
-            let send_to_data = await this.playerUtilityInst.findOne({ user_id: requestedData.send_to }, { first_name: 1, last_name: 1, phone: 1, email: 1, _id: 0 });
-            await this.footPlayerUtilityInst.insert({
-                sent_by: requestedData.sent_by,
-                send_to: { user_id: requestedData.send_to, name: `${send_to_data.first_name} ${send_to_data.last_name}`, email: send_to_data.email, phone: send_to_data.phone }
-            });
-            let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
-            this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
-            return Promise.resolve();
-        } catch (e) {
-            console.log("Error in sendFootplayerRequest() of FootPlayerService", e);
-            return Promise.reject(e);
-        }
+  /**
+   * send footplayer request
+   *
+   * @param {*} [requestedData={}]
+   * @returns
+   * @memberof FootPlayerService
+   */
+  async sendFootplayerRequest(requestedData = {}) {
+    try {
+      let previousRequest = await this.sendFootplayerRequestValidator(requestedData);
+      let send_to_data = await this.playerUtilityInst.findOne({ user_id: requestedData.send_to }, { first_name: 1, last_name: 1, phone: 1, email: 1, _id: 0 });
+      if (!previousRequest.isRejected) {
+        await this.footPlayerUtilityInst.insert({
+          sent_by: requestedData.sent_by,
+          send_to: { user_id: requestedData.send_to, name: `${send_to_data.first_name} ${send_to_data.last_name}`, email: send_to_data.email, phone: send_to_data.phone }
+        });
+      }
+      if (previousRequest.isRejected) {
+        await this.footPlayerUtilityInst.updateOne({ id: previousRequest.data.id }, {
+          status: FOOTPLAYER_STATUS.PENDING, sent_by: requestedData.sent_by,
+          send_to: { user_id: requestedData.send_to, name: `${send_to_data.first_name} ${send_to_data.last_name}`, email: send_to_data.email, phone: send_to_data.phone }
+        })
+      }
+      let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
+      this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
+      return Promise.resolve();
+    } catch (e) {
+      console.log("Error in sendFootplayerRequest() of FootPlayerService", e);
+      return Promise.reject(e);
     }
+  }
 
-    /**
-     * validates requestedData for sendFootplayerRequest
-     *
-     * @param {*} [requestedData={}]
-     * @returns
-     * @memberof FootPlayerService
-     */
-    async sendFootplayerRequestValidator(requestedData = {}) {
-        let sent_by_details = await this.loginUtilityInst.findOne({ user_id: requestedData.sent_by }, { profile_status: 1 });
-        if (sent_by_details.profile_status && sent_by_details.profile_status.status && sent_by_details.profile_status.status != PROFILE_STATUS.VERIFIED) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
-        }
-        if (requestedData.send_to === requestedData.sent_by) {
-            return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF));
-        }
-        if (requestedData.send_to) {
-            let to_be_footplayer = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to, member_type: MEMBER.PLAYER }, { profile_status: 1 });
-            if (_.isEmpty(to_be_footplayer)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
-            }
-            if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status.status && to_be_footplayer.profile_status.status != PROFILE_STATUS.VERIFIED) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_VERIFIED));
-            }
-        }
-        let footplayerRequest = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, "send_to.user_id": requestedData.send_to }, { status: 1, _id: 1 });
-        if (!_.isEmpty(footplayerRequest)) {
-            if (footplayerRequest.status === FOOTPLAYER_STATUS.PENDING) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_ALREADY_SENT));
-            }
-            if (footplayerRequest.status === FOOTPLAYER_STATUS.ADDED) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
-            }
-        }
-        if (requestedData.member_type === MEMBER.CLUB) {
-            await this.isFootplayerOfOtherClub(requestedData.send_to)
-        }
-        return Promise.resolve();
+  /**
+   * validates requestedData for sendFootplayerRequest
+   *
+   * @param {*} [requestedData={}]
+   * @returns
+   * @memberof FootPlayerService
+   */
+  async sendFootplayerRequestValidator(requestedData = {}) {
+    let sent_by_details = await this.loginUtilityInst.findOne({ user_id: requestedData.sent_by }, { profile_status: 1 });
+    if (sent_by_details.profile_status && sent_by_details.profile_status.status && sent_by_details.profile_status.status != PROFILE_STATUS.VERIFIED) {
+      return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
     }
+    if (requestedData.send_to === requestedData.sent_by) {
+      return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.CANNOT_SEND_FOOTPLAYER_REQUEST_TO_YOURSELF));
+    }
+    if (requestedData.send_to) {
+      let to_be_footplayer = await this.loginUtilityInst.findOne({ user_id: requestedData.send_to, member_type: MEMBER.PLAYER }, { profile_status: 1 });
+      if (_.isEmpty(to_be_footplayer)) {
+        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MEMBER_TO_BE_FOOTPLAYER_NOT_FOUND));
+      }
+      if (to_be_footplayer && to_be_footplayer.profile_status && to_be_footplayer.profile_status.status && to_be_footplayer.profile_status.status != PROFILE_STATUS.VERIFIED) {
+        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_VERIFIED));
+      }
+    }
+    let footplayerRequest = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.sent_by, "send_to.user_id": requestedData.send_to }, { id: 1, status: 1, _id: 1 });
+    let isRejected = false;
+    if (!_.isEmpty(footplayerRequest)) {
+      if (footplayerRequest.status === FOOTPLAYER_STATUS.PENDING) {
+        return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.FOOTPLAYER_REQUEST_ALREADY_SENT));
+      }
+      if (footplayerRequest.status === FOOTPLAYER_STATUS.ADDED) {
+        return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ALREADY_FOOTPLAYER));
+      }
+      if (footplayerRequest.status === FOOTPLAYER_STATUS.REJECTED) {
+        isRejected = true;
+      }
+    }
+    if (requestedData.member_type === MEMBER.CLUB) {
+      await this.isFootplayerOfOtherClub(requestedData.send_to)
+    }
+    let previousRequest = { isRejected: isRejected, data: footplayerRequest };
+    return Promise.resolve(previousRequest);
+  }
 
     /**
      * checks if user is a footplayer of other club
