@@ -92,8 +92,6 @@ class EmploymentContractService {
       body.category
     );
 
-    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
-
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
@@ -195,8 +193,6 @@ class EmploymentContractService {
       body.clubAcademyEmail,
       body.category
     );
-
-    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
 
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
