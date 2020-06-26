@@ -21,6 +21,8 @@ const CityUtility = require('../db/utilities/CityUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const PLAYER = require('../constants/PlayerType');
 const DOCUMENT_STATUS = require('../constants/DocumentStatus')
+const CONTRACT_STATUS = require("../constants/ContractStatus");
+const EmploymentContractUtility = require("../db/utilities/EmploymentContractUtility");
 
 /**
  *
@@ -42,6 +44,7 @@ class UserProfileService {
         this.stateUtilityInst = new StateUtility();
         this.cityUtilityInst = new CityUtility();
         this.loginUtilityInst = new LoginUtility();
+        this.employmentContractUtilityInst = new EmploymentContractUtility();
     }
 
     /**
@@ -138,9 +141,7 @@ class UserProfileService {
                 let details = await this.playerUtilityInst.findOne({ user_id: user_id }, { documents: 1 });
                 let documents = details.documents || []
                 let aadharDB = _.find(documents, { type: DOCUMENT_TYPE.AADHAR });
-                let playerContractDB = _.find(documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT });
                 let aadharReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.AADHAR })
-                let playerContractReqObj = _.find(reqObj.documents, { type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT })
                 if (!aadharReqObj && !aadharDB) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.AADHAR_DOCUMENT_REQUIRED));
                 }
@@ -153,12 +154,11 @@ class UserProfileService {
                 aadharObj.status = DOCUMENT_STATUS.PENDING;
                 updatedDoc.push(aadharObj);
                 if (reqObj.player_type === PLAYER.PROFESSIONAL) {
-                    if (!playerContractReqObj && !playerContractDB) {
+                    let condition = { status: { $ne: CONTRACT_STATUS.REJECTED }, is_deleted: false, $or: [{ sent_by: user_id }, { send_to: user_id }] };
+                    let playerContract = await this.employmentContractUtilityInst.findOne(condition);
+                    if (!playerContract) {
                         return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMPLOYMENT_CONTRACT_REQUIRED));
                     }
-                    let playerContractObj = playerContractReqObj || playerContractDB
-                    playerContractObj.status = DOCUMENT_STATUS.PENDING;
-                    updatedDoc.push(playerContractObj)
                 }
             }
             if (member_type === MEMBER.CLUB) {
@@ -499,15 +499,6 @@ class UserProfileService {
                     let attachment_type = this.getAttachmentType(files.aiff.name);
                     reqObj.documents.push({
                         type: DOCUMENT_TYPE.AIFF,
-                        added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
-                    });
-                }
-                if (files.employment_contract) {
-                    options.allowed_extensions = DOCUMENT_MEDIA_TYPE.ALLOWED_MEDIA_EXTENSIONS;
-                    let uploadResponse = await storageProviderInst.uploadDocument(files.employment_contract, options);
-                    let attachment_type = this.getAttachmentType(files.employment_contract.name);
-                    reqObj.documents.push({
-                        type: DOCUMENT_TYPE.EMPLOYMENT_CONTRACT,
                         added_on: Date.now(), media: { attachment_type: attachment_type, document: uploadResponse.url }
                     });
                 }
