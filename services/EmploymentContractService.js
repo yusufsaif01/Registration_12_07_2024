@@ -451,6 +451,7 @@ class EmploymentContractService {
             expiryDate: 1,
             status: 1,
             created_by: "$login_detail.member_type",
+            canUpdateStatus: { $cond: { if: { $eq: [requestedData.user_id, "$send_to"] }, then: true, else: false } }
           },
         },
         {

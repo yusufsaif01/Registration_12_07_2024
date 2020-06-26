@@ -12,7 +12,8 @@ class EmploymentContractListResponseMapper {
                     name: contract.name,
                     clubAcademyUserId: contract.clubAcademyUserId || "",
                     avatar: contract.avatar || "",
-                    created_by: contract.created_by
+                    created_by: contract.created_by,
+                    canUpdateStatus: contract.canUpdateStatus
                 };
                 response.push(data);
             });
