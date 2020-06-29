@@ -169,7 +169,7 @@ class EmploymentContractValidator {
         otherwise: Joi.string(),
       }).error(() => {
         return {
-          message: "Other name is required when Club/Academy name is 'Other'.",
+          message: "Other name is required when Club/Academy name is 'Others'.",
         };
       }),
       otherEmail: Joi.when("clubAcademyName", {
@@ -179,7 +179,7 @@ class EmploymentContractValidator {
       }).error(() => {
         return {
           message:
-            "Other email is required when Club/Academy name is 'Other'.",
+            "Other email is required when Club/Academy name is 'Others'.",
         };
       }),
       otherPhoneNumber: Joi.when("clubAcademyName", {
@@ -191,7 +191,7 @@ class EmploymentContractValidator {
       }).error(() => {
         return {
           message:
-            "Other phone number is required when Club/Academy name is 'Other'.",
+            "Other phone number is required when Club/Academy name is 'Others'.",
         };
       }),
     };
