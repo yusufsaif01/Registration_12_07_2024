@@ -19,6 +19,7 @@ module.exports = {
         contractStatus.PENDING,
         contractStatus.YET_TO_START,
         contractStatus.DISAPPROVED,
+        contractStatus.REJECTED,
       ],
     },
     send_to: {
@@ -50,19 +51,33 @@ module.exports = {
     playerMobileNumber: String,
     playerEmail: String,
 
-    clubAcademyUsesAgentServices: Boolean,
+    clubAcademyUsesAgentServices: {
+      type: Boolean,
+      default: false,
+    },
     clubAcademyIntermediaryName: String,
     clubAcademyTransferFee: String,
 
-    playerUsesAgentServices: Boolean,
+    playerUsesAgentServices: {
+      type: Boolean,
+      default: false,
+    },
     playerIntermediaryName: String,
     playerTransferFee: String,
 
     otherName: String,
     otherEmail: String,
     otherPhoneNumber: String,
+
+    is_deleted: {
+      type: Boolean,
+      default: false,
+    },
+    deleted_at: {
+      type: Date,
+    },
   },
-  schemaName: "EmploymentContract",
+  schemaName: "employment_contract",
   options: {
     timestamps: true,
   },

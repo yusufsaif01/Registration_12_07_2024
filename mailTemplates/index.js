@@ -8,6 +8,8 @@ const documentApproval = require("./documentApprovalTemplate");
 const documentDisapproval = require("./documentDisApprovalTemplate");
 const footplayerRequest = require("./footplayerRequestMailTemplate");
 const footplayerInvite = require("./footplayerInviteMailTemplate");
+const employmentContractApproval = require("./EmploymentContractApprovalTemplate");
+const employmentContractDisapproval = require("./EmploymentContractDisapprovalTemplate");
 
 module.exports = {
   forgotPassword,
@@ -19,5 +21,7 @@ module.exports = {
   documentApproval,
   documentDisapproval,
   footplayerRequest,
-  footplayerInvite
+  footplayerInvite,
+  employmentContractApproval,
+  employmentContractDisapproval
 };

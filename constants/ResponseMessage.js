@@ -410,11 +410,20 @@ class ResponseMessage {
     static get YEAR_LESS_THAN_DOB() {
         return "Year should be greater than dob year"
     }
+    static get PHONE_REQUIRED() {
+        return "Phone is required"
+    }
     static get EMPLOYMENT_CONTRACT_NOT_FOUND() {
         return "Employment contract not found"
     }
     static get EMPLOYMENT_CONTRACT_ACCESS_DENIED() {
-        return "Not allowed to view employment contract"
+        return "Not allowed to access employment contract"
+    }
+    static get CANNOT_UPDATE_CONTRACT_STATUS() {
+        return "Not allowed to update employment contract status"
+    }
+    static get ANOTHER_ACTIVE_CONTRACT_EXIST() {
+        return "Player has another active contract"
     }
 }
 

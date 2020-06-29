@@ -111,6 +111,11 @@ class UserValidator {
         };
         if (req.authUser.member_type) {
             let member_type = req.authUser.member_type
+            if (member_type === MEMBER.PLAYER) {
+                if (!req.body.phone) {
+                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PHONE_REQUIRED)));
+                }
+            }
             if ((member_type === MEMBER.CLUB || member_type === MEMBER.ACADEMY) && !req.body.mobile_number) {
                 return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED)));
             }
@@ -192,8 +197,6 @@ class UserValidator {
             }),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
             "association_other": Joi.string().allow(""),
-            //need to remove
-            "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
         };
 

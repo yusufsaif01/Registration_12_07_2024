@@ -1,0 +1,9 @@
+{
+    "contract_status_update_schedule": {
+        "doc": "contract status update schedule",
+        "format": "String",
+        "default": "1 0 * * *",
+        "env": "CONTRACT_STATUS_UPDATE_SCHEDULE",
+        "arg": "contract_status_update_schedule"
+    }
+}
