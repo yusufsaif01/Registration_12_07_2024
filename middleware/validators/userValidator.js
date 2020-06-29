@@ -197,8 +197,6 @@ class UserValidator {
             }),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
             "association_other": Joi.string().allow(""),
-            //need to remove
-            "player_employment_contract": Joi.any(),
             "associated_club": Joi.string()
         };
 
