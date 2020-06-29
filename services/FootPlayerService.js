@@ -520,29 +520,43 @@ class FootPlayerService {
         $lookup:
         {
           from: "employment_contracts",
-          let: { sendTo: "$send_to.user_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                      $and: [
-                        {
-                          $or: [{ $eq: ["$send_to", "$$sendTo"] },
-                          { $eq: ["$sent_by", "$$sendTo"] }]
-                        },
-                        {
-                          $or: [{ $eq: ["$status", CONTRACT_STATUS.ACTIVE] },
-                          { $eq: ["$status", CONTRACT_STATUS.YET_TO_START] }]
-                        },
-                        { $eq: ["$is_deleted", false] }
-                      ]
-                }
-              }
-            },
-            { $project: { id: 1, _id: 0 } }
-          ],
+          localField: "is_deleted",
+          foreignField: "is_deleted",
           as: "employmentContract"
         }
+      },
+      {
+        $project: {
+          id: 1,
+          send_to_user: {
+            position: 1,
+            avatar_url: 1,
+            player_type: 1,
+          },
+          employmentContract: {
+            $filter: {
+              input: "$employmentContract", as: "element", cond: {
+                $and: [
+                  {
+                    $or: [{ $eq: ["$$element.send_to", "$send_to.user_id"] },
+                    { $eq: ["$$element.sent_by", "$send_to.user_id"] }]
+                  },
+                  {
+                    $or: [{ $eq: ["$$element.status", CONTRACT_STATUS.ACTIVE] },
+                    { $eq: ["$$element.status", CONTRACT_STATUS.YET_TO_START] }]
+                  }
+                ]
+              }
+            }
+          },
+          status: 1,
+          send_to: {
+            user_id: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
       },
       projection,
       { $facet: { data: [{ $skip: parseInt(skipCount) }, { $limit: parseInt(paramas.filters.page_size) },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
