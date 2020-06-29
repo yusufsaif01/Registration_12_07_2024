@@ -62,7 +62,7 @@ class EmploymentContractValidator {
       clubAcademyRepresentativeName: Joi.string().optional(),
       clubAcademyAddress: Joi.string().optional(),
       clubAcademyPhoneNumber: Joi.when("clubAcademyName", {
-        is: "Other",
+        is: "Others",
         then: Joi.string(),
         otherwise: Joi.string()
           .length(10)
@@ -74,7 +74,7 @@ class EmploymentContractValidator {
         };
       }),
       clubAcademyEmail: Joi.when("clubAcademyName", {
-        is: "Other",
+        is: "Others",
         then: Joi.string(),
         otherwise: Joi.string().email().required()
       }).error(() => {
@@ -164,7 +164,7 @@ class EmploymentContractValidator {
       }),
 
       otherName: Joi.when("clubAcademyName", {
-        is: "Other",
+        is: "Others",
         then: Joi.string().required(),
         otherwise: Joi.string(),
       }).error(() => {
@@ -173,7 +173,7 @@ class EmploymentContractValidator {
         };
       }),
       otherEmail: Joi.when("clubAcademyName", {
-        is: "Other",
+        is: "Others",
         then: Joi.string().email().required(),
         otherwise: Joi.string(),
       }).error(() => {
@@ -183,7 +183,7 @@ class EmploymentContractValidator {
         };
       }),
       otherPhoneNumber: Joi.when("clubAcademyName", {
-        is: "Other",
+        is: "Others",
         then: Joi.string()
           .length(10)
           .regex(/^[0-9]+$/),
