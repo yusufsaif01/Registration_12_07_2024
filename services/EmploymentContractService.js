@@ -34,6 +34,12 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == Role.PLAYER) {
+      if (body.clubAcademyName == "others") {
+        resp = await this.createOtherContract(body, authUser);
+        return Promise.resolve({
+          id: resp.id,
+        });
+      }
       resp = await this.playerCreatingContract(body, authUser);
     }
 
@@ -51,6 +57,10 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == "player") {
+      if (body.clubAcademyName == "others") {
+        resp = await this.updateOtherContract(contractId, body, authUser);
+        return Promise.resolve(resp);
+      }
       resp = await this.playerUpdatingContract(contractId, body, authUser);
     }
 
@@ -83,14 +93,48 @@ class EmploymentContractService {
       body.category
     );
 
-    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
-
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
 
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
+  }
+
+  async createOtherContract(body, authUser) {
+    await this.checkPlayerCanAcceptContract(authUser.email);
+    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail);
+
+    body.sent_by = authUser.user_id;
+    body.send_to = null;
+    body.playerEmail = authUser.email;
+    body.clubAcademyName = body.otherName;
+
+    let created = await this.contractInst.insert(body);
+
+    return Promise.resolve(created);
+  }
+  async updateOtherContract(contractId, body, authUser) {
+    await this.userCanUpdateContract(authUser.user_id, contractId);
+    await this.checkPlayerCanAcceptContract(authUser.email);
+    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail);
+
+    body.sent_by = authUser.user_id;
+    body.send_to = null;
+    body.playerEmail = authUser.email;
+    body.clubAcademyName = body.otherName;
+
+    await this.contractInst.updateOne(
+      {
+        id: contractId,
+        sent_by: authUser.user_id,
+        is_deleted: false,
+        status: { $in: [ContractStatus.PENDING, ContractStatus.DISAPPROVED] },
+      },
+      body
+    );
+
+    return Promise.resolve();
   }
 
   async clubAcademyCreatingContract(body, authUser) {
@@ -150,8 +194,6 @@ class EmploymentContractService {
       body.clubAcademyEmail,
       body.category
     );
-
-    await this.checkConnectionExists(clubOrAcademy.user_id, authUser.user_id);
 
     body.send_to = clubOrAcademy.user_id;
     body.playerEmail = authUser.email;
@@ -228,6 +270,24 @@ class EmploymentContractService {
       $where["id"] = { $ne: ignore };
     }
 
+    await this.findOrFail($where);
+  }
+  async checkOtherDuplicateContract(playerEmail, otherEmail, ignore = false) {
+    const $where = {
+      playerEmail: playerEmail,
+      otherEmail: otherEmail,
+      status: ContractStatus.PENDING,
+      is_deleted: false,
+    };
+
+    if (ignore) {
+      $where["id"] = { $ne: ignore };
+    }
+
+    await this.findOrFail($where);
+  }
+
+  async findOrFail($where) {
     let exists = await this.contractInst.findOne($where);
 
     if (exists) {
