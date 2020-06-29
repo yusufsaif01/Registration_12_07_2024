@@ -15,6 +15,7 @@ const ConnectionService = require('./ConnectionService');
 const config = require("../config");
 const moment = require('moment');
 const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
+const CONTRACT_STATUS = require("../constants/ContractStatus");
 
 class FootPlayerService {
 
@@ -515,6 +516,34 @@ class FootPlayerService {
       {
         $match: searchConditions,
       },
+      {
+        $lookup:
+        {
+          from: "employment_contracts",
+          let: { sendTo: "$send_to.user_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                      $and: [
+                        {
+                          $or: [{ $eq: ["$send_to", "$$sendTo"] },
+                          { $eq: ["$sent_by", "$$sendTo"] }]
+                        },
+                        {
+                          $or: [{ $eq: ["$status", CONTRACT_STATUS.ACTIVE] },
+                          { $eq: ["$status", CONTRACT_STATUS.YET_TO_START] }]
+                        },
+                        { $eq: ["$is_deleted", false] }
+                      ]
+                }
+              }
+            },
+            { $project: { id: 1, _id: 0 } }
+          ],
+          as: "employmentContract"
+        }
+      },
       projection,
       { $facet: { data: [{ $skip: parseInt(skipCount) }, { $limit: parseInt(paramas.filters.page_size) },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
     ];
@@ -529,6 +558,7 @@ class FootPlayerService {
           avatar_url: 1,
           player_type: 1,
         },
+        canAddContract: { $cond: { if: { $eq: ["$employmentContract", []] }, then: true, else: false } },
         status: 1,
         send_to: {
           user_id: 1,
