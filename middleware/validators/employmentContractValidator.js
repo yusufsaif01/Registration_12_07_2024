@@ -61,23 +61,28 @@ class EmploymentContractValidator {
       placeOfSignature: Joi.string().optional(),
       clubAcademyRepresentativeName: Joi.string().optional(),
       clubAcademyAddress: Joi.string().optional(),
-      clubAcademyPhoneNumber: Joi.string()
-        .length(10)
-        .regex(/^[0-9]+$/)
-        .required()
-        .error(() => {
-          return {
-            message: "Club Academy Number should be a valid number.",
-          };
-        }),
-      clubAcademyEmail: Joi.string()
-        .email()
-        .required()
-        .error(() => {
-          return {
-            message: "Club Academy email should be a valid email.",
-          };
-        }),
+      clubAcademyPhoneNumber: Joi.when("clubAcademyName", {
+        is: "Other",
+        then: Joi.string(),
+        otherwise: Joi.string()
+          .length(10)
+          .regex(/^[0-9]+$/)
+      }).error(() => {
+        return {
+          message:
+            "Club Academy Phone Number is invalid number.",
+        };
+      }),
+      clubAcademyEmail: Joi.when("clubAcademyName", {
+        is: "Other",
+        then: Joi.string(),
+        otherwise: Joi.string().email().required()
+      }).error(() => {
+        return {
+          message:
+            "Club Academy email should be a valid email.",
+        };
+      }),
       aiffNumber: Joi.string().optional(),
       crsUserName: Joi.string().optional(),
 
@@ -159,26 +164,26 @@ class EmploymentContractValidator {
       }),
 
       otherName: Joi.when("clubAcademyName", {
-        is: "others",
+        is: "Other",
         then: Joi.string().required(),
         otherwise: Joi.string(),
       }).error(() => {
         return {
-          message: "Other name is required when Club/Academy name is 'others'.",
+          message: "Other name is required when Club/Academy name is 'Other'.",
         };
       }),
       otherEmail: Joi.when("clubAcademyName", {
-        is: "others",
+        is: "Other",
         then: Joi.string().email().required(),
         otherwise: Joi.string(),
       }).error(() => {
         return {
           message:
-            "Other email is required when Club/Academy name is 'others'.",
+            "Other email is required when Club/Academy name is 'Other'.",
         };
       }),
       otherPhoneNumber: Joi.when("clubAcademyName", {
-        is: "others",
+        is: "Other",
         then: Joi.string()
           .length(10)
           .regex(/^[0-9]+$/),
@@ -186,7 +191,7 @@ class EmploymentContractValidator {
       }).error(() => {
         return {
           message:
-            "Other phone number is required when Club/Academy name is 'others'.",
+            "Other phone number is required when Club/Academy name is 'Other'.",
         };
       }),
     };

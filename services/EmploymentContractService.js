@@ -34,7 +34,7 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == Role.PLAYER) {
-      if (body.clubAcademyName == "others") {
+      if (body.clubAcademyName == "Other") {
         resp = await this.createOtherContract(body, authUser);
         return Promise.resolve({
           id: resp.id,
@@ -57,7 +57,7 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == "player") {
-      if (body.clubAcademyName == "others") {
+      if (body.clubAcademyName == "Other") {
         resp = await this.updateOtherContract(contractId, body, authUser);
         return Promise.resolve(resp);
       }
@@ -76,7 +76,7 @@ class EmploymentContractService {
 
     this.checkExpiryDate(body);
 
-    if (body.clubAcademyName != "others") {
+    if (body.clubAcademyName != "Other") {
       body.otherName = "";
       body.otherEmail = "";
       body.otherPhoneNumber = "";
