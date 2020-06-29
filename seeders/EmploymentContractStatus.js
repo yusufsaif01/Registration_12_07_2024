@@ -6,10 +6,10 @@ var updateContractStatus = () => {
         try {
             const serviceInst = new EmploymentContractService();
             let condition = { $or: [{ status: CONTRACT_STATUS.ACTIVE }, { status: CONTRACT_STATUS.YET_TO_START }], is_deleted: false };
-            let contracts = await serviceInst.employmentContractUtilityInst.find(condition, { effectiveDate: 1, expiryDate: 1, id: 1, _id: 0 });
+            let contracts = await serviceInst.contractInst.find(condition, { effectiveDate: 1, expiryDate: 1, id: 1, _id: 0 });
             for (const contract of contracts) {
                 let status = serviceInst.getEmploymentContractStatus(contract);
-                await serviceInst.employmentContractUtilityInst.updateOne({ id: contract.id }, { status: status });
+                await serviceInst.contractInst.updateOne({ id: contract.id }, { status: status });
             }
             console.log("*****contract-status-updated*****");
         } catch (err) {
