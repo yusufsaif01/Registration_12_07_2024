@@ -33,8 +33,10 @@ module.exports = (router) => {
    *                         "expiryDate": "2021-06-12T00:00:00.000Z",
    *                         "status": "active",
    *                         "name": "newclub",
+   *                         "avatar": "\\uploads\\documents\\sampleHouse1590487315578.png",
    *                         "clubAcademyUserId": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-   *                         "created_by": "player"
+   *                         "created_by": "player",
+   *                         "canUpdateStatus": true
    *                                }]
    *                  }
    *      }

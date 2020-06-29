@@ -17,6 +17,7 @@ const DOCUMENT_TYPE = require("../constants/DocumentType");
 const DOCUMENT_STATUS = require("../constants/DocumentStatus");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
+const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
 
 class EmploymentContractService {
   constructor() {
@@ -414,8 +415,8 @@ class EmploymentContractService {
         {
           $lookup: {
             from: "club_academy_details",
-            localField: "clubAcademyName",
-            foreignField: "name",
+            localField: "clubAcademyEmail",
+            foreignField: "email",
             as: "clubAcademyDetail",
           },
         },
@@ -426,15 +427,31 @@ class EmploymentContractService {
           },
         },
         {
+          $lookup: {
+            from: "player_details",
+            localField: "playerEmail",
+            foreignField: "email",
+            as: "playerDetail",
+          },
+        },
+        {
+          $unwind: {
+            path: "$playerDetail",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: 0,
             id: 1,
-            name: "$clubAcademyName",
+            name: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyName", else: "$playerName" } },
             clubAcademyUserId: "$clubAcademyDetail.user_id",
+            avatar: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyDetail.avatar_url", else: "$playerDetail.avatar_url" } },
             effectiveDate: 1,
             expiryDate: 1,
             status: 1,
             created_by: "$login_detail.member_type",
+            canUpdateStatus: { $cond: { if: { $eq: [requestedData.user_id, "$send_to"] }, then: true, else: false } }
           },
         },
         {
@@ -447,7 +464,7 @@ class EmploymentContractService {
       let responseData = [],
         totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-        responseData = data[0].data;
+        responseData = new EmploymentContractListResponseMapper().map(data[0].data);
         if (
           data[0].data.length &&
           data[0].total_data &&
