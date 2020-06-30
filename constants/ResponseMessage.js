@@ -408,7 +408,7 @@ class ResponseMessage {
         return "Mobile number is required"
     }
     static get YEAR_LESS_THAN_DOB() {
-        return "Year should be greater than dob year"
+        return "Year should be greater than DOB year"
     }
     static get PHONE_REQUIRED() {
         return "Phone is required"
