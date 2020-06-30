@@ -764,12 +764,7 @@ class EmploymentContractService {
           $or: [{ sent_by: requestedData.playerUserId }, { send_to: requestedData.playerUserId }]
         };
         let playerContract = await this.contractInst.findOne(condition);
-        if (playerContract) {
-          profileStatus = ProfileStatus.VERIFIED;
-        }
-        else {
-          profileStatus = ProfileStatus.NON_VERIFIED;
-        }
+        profileStatus = playerContract ? ProfileStatus.VERIFIED : ProfileStatus.NON_VERIFIED;
       }
       if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {
