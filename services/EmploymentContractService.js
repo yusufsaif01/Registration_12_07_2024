@@ -347,7 +347,7 @@ class EmploymentContractService {
         contract.status
       ) == -1
     ) {
-      throw new errors.Unauthorized("Cannot update already approved contract.");
+      throw new errors.ValidationFailed("Cannot update already approved contract.");
     }
   }
 
