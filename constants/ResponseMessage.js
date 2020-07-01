@@ -408,7 +408,7 @@ class ResponseMessage {
         return "Mobile number is required"
     }
     static get YEAR_LESS_THAN_DOB() {
-        return "Year should be greater than dob year"
+        return "Year should be greater than DOB year"
     }
     static get PHONE_REQUIRED() {
         return "Phone is required"
@@ -424,6 +424,63 @@ class ResponseMessage {
     }
     static get ANOTHER_ACTIVE_CONTRACT_EXIST() {
         return "Player has another active contract"
+    }
+    static get PLAYER_NAME_REQUIRED() {
+        return "Player name is required"
+    }
+    static get CATEGORY_INVALID() {
+        return "Category is invalid"
+    }
+    static get CLUB_ACADEMY_NAME_REQUIRED() {
+        return "Club/Academy name is required"
+    }
+    static get SIGNING_DATE_INVALID() {
+        return "Signing Date should be a valid date and before today"
+    }
+    static get EFFECTIVE_DATE_INVALID() {
+        return "Effective date should be a valid date and greater than signing Date"
+    }
+    static get EXPIRY_DATE_INVALID() {
+        return "Expiry Date should be a valid date"
+    }
+    static get CLUB_ACADEMY_PHONE_INVALID() {
+        return "Club/Academy phone number is invalid"
+    }
+    static get CLUB_ACADEMY_EMAIL_INVALID() {
+        return "Club/Academy email is invalid"
+    }
+    static get PLAYER_MOBILE_NUMBER_INVALID() {
+        return "Player mobile number is invalid"
+    }
+    static get PLAYER_EMAIL_INVALID() {
+        return "Player email is invalid"
+    }
+    static get CLUB_ACADEMY_USES_AGENT_SERVICES() {
+        return "Club/Academy uses agent services should be 'yes' or 'no'"
+    }
+    static get CLUB_ACADEMY_INTERMEDIARY_REQUIRED() {
+        return "Club/Academy Intermediary name is required when 'Club/Academy requires Agent services' is 'yes'"
+    }
+    static get CLUB_ACADEMY_TRANSFER_FEE_REQUIRED() {
+        return "Club/Academy Transfer fees is required when 'Club/Academy requires Agent services' is 'yes'"
+    }
+    static get PLAYER_USES_AGENT_SERVICES() {
+        return "Player uses agent services should be 'yes' or 'no'"
+    }
+    static get PLAYER_INTERMEDIARY_REQUIRED() {
+        return "Player intermediary name is required when 'Player requires Agent services' is 'yes'"
+    }
+    static get PLAYER_TRANSFER_FEE_REQUIRED() {
+        return "Player Transfer fees is required when 'Player requires Agent services' is 'yes'"
+    }
+    static get OTHER_NAME_REQUIRED() {
+        return "Other name is required when Club/Academy name is 'Others'."
+    }
+    static get OTHER_EMAIL_REQUIRED() {
+        return "Other email is required when Club/Academy name is 'Others'."
+    }
+    static get OTHER_PHONE_REQUIRED() {
+        return "Other phone number is required when Club/Academy name is 'Others'."
     }
 }
 

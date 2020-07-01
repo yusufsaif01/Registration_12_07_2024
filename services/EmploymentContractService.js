@@ -34,7 +34,7 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == Role.PLAYER) {
-      if (body.clubAcademyName == "others") {
+      if (body.clubAcademyName == "Others") {
         resp = await this.createOtherContract(body, authUser);
         return Promise.resolve({
           id: resp.id,
@@ -57,7 +57,7 @@ class EmploymentContractService {
     this.preHandlingCheck(body);
 
     if (authUser.role == "player") {
-      if (body.clubAcademyName == "others") {
+      if (body.clubAcademyName == "Others") {
         resp = await this.updateOtherContract(contractId, body, authUser);
         return Promise.resolve(resp);
       }
@@ -76,7 +76,7 @@ class EmploymentContractService {
 
     this.checkExpiryDate(body);
 
-    if (body.clubAcademyName != "others") {
+    if (body.clubAcademyName != "Others") {
       body.otherName = "";
       body.otherEmail = "";
       body.otherPhoneNumber = "";
@@ -108,8 +108,6 @@ class EmploymentContractService {
     body.sent_by = authUser.user_id;
     body.send_to = null;
     body.playerEmail = authUser.email;
-    body.clubAcademyName = body.otherName;
-
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
@@ -117,12 +115,11 @@ class EmploymentContractService {
   async updateOtherContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
     await this.checkPlayerCanAcceptContract(authUser.email);
-    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail);
+    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail, contractId);
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
     body.playerEmail = authUser.email;
-    body.clubAcademyName = body.otherName;
 
     await this.contractInst.updateOne(
       {
@@ -181,7 +178,6 @@ class EmploymentContractService {
 
   async playerUpdatingContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
-
     await this.checkPlayerCanAcceptContract(authUser.email);
     await this.checkDuplicateContract(
       authUser.email,
@@ -269,7 +265,6 @@ class EmploymentContractService {
     if (ignore) {
       $where["id"] = { $ne: ignore };
     }
-
     await this.findOrFail($where);
   }
   async checkOtherDuplicateContract(playerEmail, otherEmail, ignore = false) {
@@ -283,13 +278,11 @@ class EmploymentContractService {
     if (ignore) {
       $where["id"] = { $ne: ignore };
     }
-
     await this.findOrFail($where);
   }
 
   async findOrFail($where) {
     let exists = await this.contractInst.findOne($where);
-
     if (exists) {
       throw new errors.BadRequest("Contract already exists");
     }
@@ -595,6 +588,7 @@ class EmploymentContractService {
           playerType: playerType,
         });
         await this.updateProfileStatus({
+          id: requestedData.id,
           playerUserId: playerUserId,
           documents: documents,
           status: reqObj.status,
@@ -610,6 +604,7 @@ class EmploymentContractService {
           { status: ContractStatus.DISAPPROVED }
         );
         await this.updateProfileStatus({
+          id: requestedData.id,
           playerUserId: playerUserId,
           documents: documents,
           status: reqObj.status,
@@ -764,7 +759,12 @@ class EmploymentContractService {
     try {
       let profileStatus = ProfileStatus.NON_VERIFIED;
       if (requestedData.status === ContractStatus.DISAPPROVED) {
-        profileStatus = ProfileStatus.NON_VERIFIED;
+        let condition = {
+          id: { $ne: requestedData.id }, is_deleted: false, status: { $in: [ContractStatus.ACTIVE, ContractStatus.COMPLETED, ContractStatus.YET_TO_START] },
+          $or: [{ sent_by: requestedData.playerUserId }, { send_to: requestedData.playerUserId }]
+        };
+        let playerContract = await this.contractInst.findOne(condition);
+        profileStatus = playerContract ? ProfileStatus.VERIFIED : ProfileStatus.NON_VERIFIED;
       }
       if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {
