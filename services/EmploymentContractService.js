@@ -417,8 +417,8 @@ class EmploymentContractService {
     let user = requestedData.user;
     if (
       user.role !== Role.ADMIN &&
-      user.email !== data.playerEmail &&
-      user.email !== data.clubAcademyEmail
+      user.user_id !== data.sent_by &&
+      user.user_id !== data.send_to
     ) {
       return Promise.reject(
         new errors.ValidationFailed(
