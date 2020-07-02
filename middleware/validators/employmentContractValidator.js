@@ -26,14 +26,38 @@ class EmploymentContractValidator {
           };
         }),
 
-      clubAcademyUsesAgentServices: Joi.boolean().optional(),
-      clubAcademyIntermediaryName: Joi.string().optional(),
-      clubAcademyTransferFee: Joi.string().optional(),
+      clubAcademyName: Joi.string()
+        .required()
+        .error(() => {
+          return {
+            message: RESPONSE_MESSAGE.CLUB_ACADEMY_NAME_REQUIRED,
+          };
+        }),
 
-      playerUsesAgentServices: Joi.boolean().optional(),
-      playerIntermediaryName: Joi.string().optional(),
-      playerTransferFee: Joi.string().optional(),
-
+      signingDate: Joi.date()
+        .required()
+        .max(moment().subtract(1, "d").format("YYYY-MM-DD"))
+        .error(() => {
+          return {
+            message: RESPONSE_MESSAGE.SIGNING_DATE_INVALID,
+          };
+        }),
+      effectiveDate: Joi.date()
+        .required()
+        .min(Joi.ref("signingDate"))
+        .error(() => {
+          return {
+            message: RESPONSE_MESSAGE.EFFECTIVE_DATE_INVALID,
+          };
+        }),
+      expiryDate: Joi.date()
+        .required()
+        .min(Joi.ref("effectiveDate"))
+        .error(() => {
+          return {
+            message: RESPONSE_MESSAGE.EXPIRY_DATE_INVALID,
+          };
+        }),
       placeOfSignature: Joi.string().optional(),
       clubAcademyRepresentativeName: Joi.string().optional(),
       clubAcademyAddress: Joi.string().optional(),
@@ -79,6 +103,14 @@ class EmploymentContractValidator {
             message: RESPONSE_MESSAGE.PLAYER_EMAIL_INVALID,
           };
         }),
+
+      clubAcademyUsesAgentServices: Joi.boolean().optional(),
+      clubAcademyIntermediaryName: Joi.string().optional(),
+      clubAcademyTransferFee: Joi.string().optional(),
+
+      playerUsesAgentServices: Joi.boolean().optional(),
+      playerIntermediaryName: Joi.string().optional(),
+      playerTransferFee: Joi.string().optional(),
 
       otherName: Joi.when("clubAcademyName", {
         is: "Others",
