@@ -1,9 +1,16 @@
+const moment = require("moment");
+
 function getAiffNumber(record) {
   if (record.documentsRequired && record.documentsRequired.length) {
     return record.documentsRequired[0].document_number;
   }
 
   return "";
+}
+
+function calculateAge(record) {
+  let dob = record.userDetail.dob || "1970-01-01";
+  return moment().diff(dob, "years");
 }
 
 class PeopleListResponseMapper {
@@ -22,6 +29,17 @@ class PeopleListResponseMapper {
         response.push(data);
       });
     }
+    return response;
+  }
+  mapOne(request) {
+    let response = {
+      user_id: request.user_id,
+      name: request.userDetail.name,
+      email: request.userDetail.email,
+      address: request.userDetail.address?.full_address || "",
+      mobile: request.userDetail.mobile_number || "",
+      age: calculateAge(request),
+    };
     return response;
   }
 }
