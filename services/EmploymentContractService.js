@@ -139,16 +139,11 @@ class EmploymentContractService {
   }
   async updateOtherContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
-    await this.checkPlayerCanAcceptContract(authUser.email);
     await this.checkOtherDuplicateContract(
       authUser.email,
       body.otherEmail,
       contractId
     );
-
-    body.sent_by = authUser.user_id;
-    body.send_to = null;
-
     await this.contractInst.updateOne(
       {
         id: contractId,
@@ -209,20 +204,12 @@ class EmploymentContractService {
 
   async playerUpdatingContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
-    await this.checkPlayerCanAcceptContract(authUser.email);
+
     await this.checkDuplicateContract(
       authUser.email,
       body.clubAcademyEmail,
       contractId
     );
-
-    body.sent_by = authUser.user_id;
-    let clubOrAcademy = await this.findClubAcademyLogin(
-      body.user_id,
-      body.category
-    );
-
-    body.send_to = clubOrAcademy.user_id;
 
     await this.contractInst.updateOne(
       {
@@ -242,17 +229,11 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
 
-    let player = await this.findPlayerLogin(body.user_id);
-
-    await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
-      player.username,
+      body.playerEmail,
       authUser.email,
       contractId
     );
-    await this.checkConnectionExists(authUser.user_id, player.user_id);
-
-    body.send_to = player.user_id;
 
     await this.contractInst.updateOne(
       {
@@ -327,9 +308,6 @@ class EmploymentContractService {
       role: category,
       is_deleted: false,
     };
-
-    console.log($where);
-    
 
     let user = await this.loginUtilityInst.findOne($where);
 

@@ -223,7 +223,7 @@ module.exports = (router) => {
   router.post(
     "/employment-contract",
     checkAuthToken,
-    employmentContractValidator.createValidator,
+    employmentContractValidator.createValidator('create'),
     (req, res, next) => {
       let body = req.body;
 
@@ -328,7 +328,7 @@ module.exports = (router) => {
   router.put(
     "/employment-contract/:id",
     checkAuthToken,
-    employmentContractValidator.createValidator,
+    employmentContractValidator.createValidator('update'),
     (req, res, next) => {
       let body = req.body;
 
