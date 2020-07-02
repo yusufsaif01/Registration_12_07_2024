@@ -40,7 +40,7 @@ class StateAssociations {
 
             "Karnataka State Football Association",
 
-            "Kerala Football Associationz",
+            "Kerala Football Association",
 
             "Lakshadweep Football Association",
 
