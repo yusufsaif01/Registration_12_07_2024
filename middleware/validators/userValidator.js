@@ -44,9 +44,12 @@ class UserValidator {
         if (req.body.type && req.body.member_type) {
             if (req.body.member_type === MEMBER.PLAYER) {
                 registerRule.type = Joi.string().valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required()
+                req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
+                req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
             }
             else {
                 registerRule.type = Joi.string().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required()
+                req.body.name = req.body.name ? req.body.name.trim() : req.body.name
             }
         }
         const schema = Joi.object().keys(registerRule);
@@ -115,15 +118,20 @@ class UserValidator {
                 if (!req.body.phone) {
                     return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PHONE_REQUIRED)));
                 }
+                req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
+                req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
             }
             if ((member_type === MEMBER.CLUB || member_type === MEMBER.ACADEMY) && !req.body.mobile_number) {
                 return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED)));
             }
-            if (member_type === MEMBER.CLUB)
+            if (member_type === MEMBER.CLUB) {
                 academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
-
-            if (member_type === MEMBER.ACADEMY)
+                req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+            }
+            if (member_type === MEMBER.ACADEMY) {
                 academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+                req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+            }
         }
         if (req.body.document_type) {
             let document_type = req.body.document_type;
