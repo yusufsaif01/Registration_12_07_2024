@@ -459,7 +459,7 @@ class FootPlayerService {
       let data = await this.footPlayerUtilityInst.aggregate(aggPipes);
       let responseData = [], totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-        let sortedData = await this.SortByPositionPriority(data[0].data, paramas.filters.position);
+        let sortedData = await this.sortByPositionPriority(data[0].data, paramas.filters.position);
         responseData = new ClubFootPlayersResponseMapping().map(sortedData, paramas.filters.footplayers);
         if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
           totalRecords = data[0].total_data[0].count;
@@ -752,7 +752,7 @@ class FootPlayerService {
     return filterArr.length ? condition : {}
   }
 
-  async SortByPositionPriority(data = [], positions) {
+  async sortByPositionPriority(data = [], positions) {
     let sortedData = data;
     if (positions && positions.length) {
       sortedData = [];
