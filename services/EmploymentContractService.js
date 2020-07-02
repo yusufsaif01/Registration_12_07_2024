@@ -18,6 +18,7 @@ const DOCUMENT_STATUS = require("../constants/DocumentStatus");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
+const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 
 class EmploymentContractService {
   constructor() {
@@ -26,6 +27,7 @@ class EmploymentContractService {
     this.emailService = new EmailService();
     this.contractInst = new EmploymentContractUtility();
     this.footPlayerInst = new FootPlayerUtility();
+    this.clubAcademyInst = new ClubAcademyUtility();
   }
 
   async createContract(body, authUser) {
@@ -98,7 +100,32 @@ class EmploymentContractService {
 
     let created = await this.contractInst.insert(body);
 
+    let playerDetails = await this.getPlayerDetails(authUser.user_id);
+
+    this.sendCreatedNotification(
+      clubOrAcademy.username,
+      [playerDetails.first_name, playerDetails.last_name].join(" ")
+    );
+
     return Promise.resolve(created);
+  }
+
+  async sendCreatedNotification(email, name) {
+    await this.emailService.sendMail("employmentContractCreated", {
+      email: email,
+      name: name,
+    });
+  }
+
+  async getClubDetails(userID) {
+    return await this.clubAcademyInst.findOne({
+      user_id: userID,
+    });
+  }
+  async getPlayerDetails(userID) {
+    return await this.playerUtilityInst.findOne({
+      user_id: userID,
+    });
   }
 
   async createOtherContract(body, authUser) {
@@ -115,7 +142,11 @@ class EmploymentContractService {
   async updateOtherContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
     await this.checkPlayerCanAcceptContract(authUser.email);
-    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail, contractId);
+    await this.checkOtherDuplicateContract(
+      authUser.email,
+      body.otherEmail,
+      contractId
+    );
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
@@ -146,6 +177,10 @@ class EmploymentContractService {
     body.playerEmail = player.username;
 
     let created = await this.contractInst.insert(body);
+
+    const clubAcademyDetails = await this.getClubDetails(authUser.user_id);
+
+    this.sendCreatedNotification(player.username, clubAcademyDetails.name);
 
     return Promise.resolve(created);
   }
@@ -347,7 +382,9 @@ class EmploymentContractService {
         contract.status
       ) == -1
     ) {
-      throw new errors.ValidationFailed("Cannot update already approved contract.");
+      throw new errors.ValidationFailed(
+        "Cannot update already approved contract."
+      );
     }
   }
 
@@ -497,14 +534,32 @@ class EmploymentContractService {
           $project: {
             _id: 0,
             id: 1,
-            name: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyName", else: "$playerName" } },
+            name: {
+              $cond: {
+                if: { $eq: [requestedData.role, Role.PLAYER] },
+                then: "$clubAcademyName",
+                else: "$playerName",
+              },
+            },
             clubAcademyUserId: "$clubAcademyDetail.user_id",
-            avatar: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyDetail.avatar_url", else: "$playerDetail.avatar_url" } },
+            avatar: {
+              $cond: {
+                if: { $eq: [requestedData.role, Role.PLAYER] },
+                then: "$clubAcademyDetail.avatar_url",
+                else: "$playerDetail.avatar_url",
+              },
+            },
             effectiveDate: 1,
             expiryDate: 1,
             status: 1,
             created_by: "$login_detail.member_type",
-            canUpdateStatus: { $cond: { if: { $eq: [requestedData.user_id, "$send_to"] }, then: true, else: false } }
+            canUpdateStatus: {
+              $cond: {
+                if: { $eq: [requestedData.user_id, "$send_to"] },
+                then: true,
+                else: false,
+              },
+            },
           },
         },
         {
@@ -517,7 +572,9 @@ class EmploymentContractService {
       let responseData = [],
         totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-        responseData = new EmploymentContractListResponseMapper().map(data[0].data);
+        responseData = new EmploymentContractListResponseMapper().map(
+          data[0].data
+        );
         if (
           data[0].data.length &&
           data[0].total_data &&
