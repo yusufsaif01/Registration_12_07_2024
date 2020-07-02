@@ -454,8 +454,8 @@ class EmploymentContractService {
     let user = requestedData.user;
     if (
       user.role !== Role.ADMIN &&
-      user.email !== data.playerEmail &&
-      user.email !== data.clubAcademyEmail
+      user.user_id !== data.sent_by &&
+      user.user_id !== data.send_to
     ) {
       return Promise.reject(
         new errors.ValidationFailed(
@@ -645,6 +645,7 @@ class EmploymentContractService {
           playerType: playerType,
         });
         await this.updateProfileStatus({
+          id: requestedData.id,
           playerUserId: playerUserId,
           documents: documents,
           status: reqObj.status,
@@ -660,6 +661,7 @@ class EmploymentContractService {
           { status: ContractStatus.DISAPPROVED }
         );
         await this.updateProfileStatus({
+          id: requestedData.id,
           playerUserId: playerUserId,
           documents: documents,
           status: reqObj.status,
@@ -814,7 +816,12 @@ class EmploymentContractService {
     try {
       let profileStatus = ProfileStatus.NON_VERIFIED;
       if (requestedData.status === ContractStatus.DISAPPROVED) {
-        profileStatus = ProfileStatus.NON_VERIFIED;
+        let condition = {
+          id: { $ne: requestedData.id }, is_deleted: false, status: { $in: [ContractStatus.ACTIVE, ContractStatus.COMPLETED, ContractStatus.YET_TO_START] },
+          $or: [{ sent_by: requestedData.playerUserId }, { send_to: requestedData.playerUserId }]
+        };
+        let playerContract = await this.contractInst.findOne(condition);
+        profileStatus = playerContract ? ProfileStatus.VERIFIED : ProfileStatus.NON_VERIFIED;
       }
       if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {
