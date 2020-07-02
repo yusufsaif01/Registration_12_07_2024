@@ -80,6 +80,7 @@ class PeopleService {
   addProjectionPipeline() {
     return {
       $project: {
+        user_id: 1,
         userDetail: { $arrayElemAt: ["$userDetail", 0] },
       },
     };
