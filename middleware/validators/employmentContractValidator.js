@@ -9,6 +9,7 @@ const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
     const validationSchema = {
+      user_id: Joi.string().required(),
       playerName: Joi.string()
         .required()
         .error(() => {
