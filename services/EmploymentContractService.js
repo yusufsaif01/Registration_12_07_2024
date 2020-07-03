@@ -90,13 +90,12 @@ class EmploymentContractService {
     await this.checkDuplicateContract(authUser.email, body.clubAcademyEmail);
 
     body.sent_by = authUser.user_id;
-    let clubOrAcademy = await this.findClubAcademyByEmail(
-      body.clubAcademyEmail,
+    let clubOrAcademy = await this.findClubAcademyLogin(
+      body.user_id,
       body.category
     );
 
     body.send_to = clubOrAcademy.user_id;
-    body.playerEmail = authUser.email;
 
     let created = await this.contractInst.insert(body);
 
@@ -134,7 +133,6 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
-    body.playerEmail = authUser.email;
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
@@ -150,7 +148,6 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
-    body.playerEmail = authUser.email;
 
     await this.contractInst.updateOne(
       {
@@ -167,14 +164,13 @@ class EmploymentContractService {
 
   async clubAcademyCreatingContract(body, authUser) {
     body.sent_by = authUser.user_id;
-    let player = await this.findPlayerByEmail(body.playerEmail);
+    let player = await this.findPlayerLogin(body.user_id);
 
     await this.checkPlayerCanAcceptContract(player.username);
-    await this.checkDuplicateContract(player.username, authUser.email);
+    await this.checkDuplicateContract(body.playerEmail, authUser.email);
     await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
-    body.playerEmail = player.username;
 
     let created = await this.contractInst.insert(body);
 
@@ -221,13 +217,12 @@ class EmploymentContractService {
     );
 
     body.sent_by = authUser.user_id;
-    let clubOrAcademy = await this.findClubAcademyByEmail(
-      body.clubAcademyEmail,
+    let clubOrAcademy = await this.findClubAcademyLogin(
+      body.user_id,
       body.category
     );
 
     body.send_to = clubOrAcademy.user_id;
-    body.playerEmail = authUser.email;
 
     await this.contractInst.updateOne(
       {
@@ -247,18 +242,17 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
 
-    let player = await this.findPlayerByEmail(body.playerEmail);
+    let player = await this.findPlayerLogin(body.user_id);
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
-      player.username,
+      body.playerEmail,
       authUser.email,
       contractId
     );
     await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
-    body.playerEmail = player.username;
 
     await this.contractInst.updateOne(
       {
@@ -323,17 +317,16 @@ class EmploymentContractService {
     }
   }
 
-  async findClubAcademyByEmail(email, category) {
-    return await this.findLoginByUser(email, category);
+  async findClubAcademyLogin(userId, category) {
+    return await this.findLoginByUser(userId, category);
   }
 
-  async findLoginByUser(email, category) {
+  async findLoginByUser(userId, category) {
     const $where = {
-      username: email,
+      user_id: userId,
       role: category,
       is_deleted: false,
     };
-
     let user = await this.loginUtilityInst.findOne($where);
 
     if (!user) {
@@ -354,8 +347,8 @@ class EmploymentContractService {
     return user;
   }
 
-  async findPlayerByEmail(email) {
-    return await this.findLoginByUser(email, Role.PLAYER);
+  async findPlayerLogin(userId) {
+    return await this.findLoginByUser(userId, Role.PLAYER);
   }
 
   checkExpiryDate(body) {
@@ -817,11 +810,24 @@ class EmploymentContractService {
       let profileStatus = ProfileStatus.NON_VERIFIED;
       if (requestedData.status === ContractStatus.DISAPPROVED) {
         let condition = {
-          id: { $ne: requestedData.id }, is_deleted: false, status: { $in: [ContractStatus.ACTIVE, ContractStatus.COMPLETED, ContractStatus.YET_TO_START] },
-          $or: [{ sent_by: requestedData.playerUserId }, { send_to: requestedData.playerUserId }]
+          id: { $ne: requestedData.id },
+          is_deleted: false,
+          status: {
+            $in: [
+              ContractStatus.ACTIVE,
+              ContractStatus.COMPLETED,
+              ContractStatus.YET_TO_START,
+            ],
+          },
+          $or: [
+            { sent_by: requestedData.playerUserId },
+            { send_to: requestedData.playerUserId },
+          ],
         };
         let playerContract = await this.contractInst.findOne(condition);
-        profileStatus = playerContract ? ProfileStatus.VERIFIED : ProfileStatus.NON_VERIFIED;
+        profileStatus = playerContract
+          ? ProfileStatus.VERIFIED
+          : ProfileStatus.NON_VERIFIED;
       }
       if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {

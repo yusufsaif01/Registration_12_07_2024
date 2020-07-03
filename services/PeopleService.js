@@ -8,10 +8,11 @@ const ProfileStatus = require("../constants/ProfileStatus");
 const AccountStatus = require("../constants/AccountStatus");
 const DocumentType = require("../constants/DocumentType");
 
-const loginInst = new LoginUtility();
-
 class PeopleService {
-  constructor() {}
+  constructor() {
+    this.playerInst = new PlayerUtility();
+    this.loginInst = new LoginUtility();
+  }
 
   async listAll(params) {
     try {
@@ -24,12 +25,46 @@ class PeopleService {
       aggregatePipes.push(this.addProjectionPipeline());
       aggregatePipes.push(this.addProjectionPipeline2());
 
-      let records = await loginInst.aggregate(aggregatePipes);
+      let records = await this.loginInst.aggregate(aggregatePipes);
 
       return Promise.resolve(records);
     } catch (error) {
       return Promise.reject(error);
     }
+  }
+
+  async getOne(userId) {
+    let loginUser = await this.loginInst.findOne(
+      {
+        user_id: userId,
+        is_deleted: false,
+        // status: AccountStatus.ACTIVE,
+        // "profile_status.status": ProfileStatus.VERIFIED,
+        role: Role.PLAYER,
+      },
+      { username: 1, user_id: 1, role: 1, status: 1, profile_status: 1 }
+    );
+
+    if (!loginUser) {
+      throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
+    }
+
+    if (loginUser.status != AccountStatus.ACTIVE) {
+      throw new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED);
+    }
+    if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
+      throw new errors.ValidationFailed(
+        RESPONSE_MESSAGE.OTHER_PROFILE_NOT_VERIFIED
+      );
+    }
+
+    const where = {
+      user_id: userId,
+    };
+
+    loginUser.userDetail = await this.playerInst.findOne(where);
+
+    return Promise.resolve(loginUser);
   }
 
   addMatchPipeline(params) {
@@ -57,6 +92,7 @@ class PeopleService {
   addProjectionPipeline() {
     return {
       $project: {
+        user_id: 1,
         userDetail: { $arrayElemAt: ["$userDetail", 0] },
       },
     };
@@ -70,7 +106,7 @@ class PeopleService {
           name: 1,
           email: 1,
           address: "$userDetail.address.full_address",
-          mobile_number:1,
+          mobile_number: 1,
           documentsRequired: {
             $filter: {
               input: "$userDetail.documents",

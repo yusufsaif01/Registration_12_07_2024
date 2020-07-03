@@ -53,8 +53,66 @@ module.exports = (router) => {
         )
       );
     } catch (error) {
-      console.log(error);      
-      responseHandler(req,res, Promise.reject(error));
+      console.log(error);
+      responseHandler(req, res, Promise.reject(error));
+    }
+  });
+
+  /**
+   * @api {get} /people/:id Player Details
+   * @apiName Player Details
+   * @apiGroup People
+   * 
+   * 
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   * @apiSuccess {Object} Player record
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": "success",
+   *       "message": "Successfully done",
+   *       "data": [
+   *          {
+   *           "user_id": "704132f1-ddfc-4e82-95d0-d5fb3851fa41",
+   *           "email": "play31@gmail.com",
+   *           "address": "",
+   *           "mobile": "",
+   *           "age": 21
+   *         }
+   *      ]
+   *     }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   * @apiErrorExample {json} NOT_FOUND:
+   * HTTP/1.1 404 Not Found
+   *     {
+   *       "message": "User not found",
+   *       "code": "NOT_FOUND",
+   *       "httpCode": 404
+   *   }
+   */
+  router.get("/people/:id", checkAuthToken, async function (req, res) {
+    let { id } = req.params;
+
+    try {
+      return responseHandler(
+        req,
+        res,
+        Promise.resolve(
+          new PeopleListResponseMapper().mapOne(await peopleInst.getOne(id))
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      responseHandler(req, res, Promise.reject(error));
     }
   });
 };
