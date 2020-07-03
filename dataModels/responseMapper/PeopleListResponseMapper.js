@@ -38,7 +38,7 @@ class PeopleListResponseMapper {
       name: [request.userDetail.first_name, request.userDetail.last_name].join(" "),
       email: request.userDetail.email,
       address: _.get(request, "userDetail.address.full_address", ''),
-      mobile: request.userDetail.mobile_number || "",
+      mobile: request.userDetail.phone || "",
       age: calculateAge(request),
     };
     return response;
