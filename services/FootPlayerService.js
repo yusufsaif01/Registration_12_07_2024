@@ -459,7 +459,8 @@ class FootPlayerService {
       let data = await this.footPlayerUtilityInst.aggregate(aggPipes);
       let responseData = [], totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-        responseData = new ClubFootPlayersResponseMapping().map(data[0].data, paramas.filters.footplayers);
+        let sortedData = await this.sortByPositionPriority(data[0].data, paramas.filters.position);
+        responseData = new ClubFootPlayersResponseMapping().map(sortedData, paramas.filters.footplayers);
         if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
           totalRecords = data[0].total_data[0].count;
         }
@@ -751,6 +752,38 @@ class FootPlayerService {
     return filterArr.length ? condition : {}
   }
 
+  async sortByPositionPriority(data = [], positions) {
+    let sortedData = data;
+    if (positions && positions.length) {
+      sortedData = [];
+      for (const position of positions) {
+        let arr = [];
+        let firstPriority = _.filter(data, function (o) {
+          if (o.send_to_user.position && o.send_to_user.position.length && o.send_to_user.position[0] && o.send_to_user.position[0].name === position) {
+            return true
+          }
+          return false
+        });
+        let secondPriority = _.filter(data, function (o) {
+          if (o.send_to_user.position && o.send_to_user.position.length && o.send_to_user.position[1] && o.send_to_user.position[1].name === position) {
+            return true
+          }
+          return false
+        });
+        let thirdPriority = _.filter(data, function (o) {
+          if (o.send_to_user.position && o.send_to_user.position.length && o.send_to_user.position[2] && o.send_to_user.position[2].name === position) {
+            return true
+          }
+          return false
+        });
+        arr = firstPriority.concat(secondPriority)
+        arr = arr.concat(thirdPriority)
+        sortedData = sortedData.concat(arr);
+      }
+      sortedData = _.uniqBy(sortedData, "id")
+    }
+    return sortedData;
+  }
 }
 
 module.exports = FootPlayerService;

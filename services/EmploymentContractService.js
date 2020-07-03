@@ -18,6 +18,7 @@ const DOCUMENT_STATUS = require("../constants/DocumentStatus");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
+const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 
 class EmploymentContractService {
   constructor() {
@@ -26,6 +27,7 @@ class EmploymentContractService {
     this.emailService = new EmailService();
     this.contractInst = new EmploymentContractUtility();
     this.footPlayerInst = new FootPlayerUtility();
+    this.clubAcademyInst = new ClubAcademyUtility();
   }
 
   async createContract(body, authUser) {
@@ -88,17 +90,41 @@ class EmploymentContractService {
     await this.checkDuplicateContract(authUser.email, body.clubAcademyEmail);
 
     body.sent_by = authUser.user_id;
-    let clubOrAcademy = await this.findClubAcademyByEmail(
-      body.clubAcademyEmail,
+    let clubOrAcademy = await this.findClubAcademyLogin(
+      body.user_id,
       body.category
     );
 
     body.send_to = clubOrAcademy.user_id;
-    body.playerEmail = authUser.email;
 
     let created = await this.contractInst.insert(body);
 
+    let playerDetails = await this.getPlayerDetails(authUser.user_id);
+
+    this.sendCreatedNotification(
+      clubOrAcademy.username,
+      [playerDetails.first_name, playerDetails.last_name].join(" ")
+    );
+
     return Promise.resolve(created);
+  }
+
+  async sendCreatedNotification(email, name) {
+    await this.emailService.sendMail("employmentContractCreated", {
+      email: email,
+      name: name,
+    });
+  }
+
+  async getClubDetails(userID) {
+    return await this.clubAcademyInst.findOne({
+      user_id: userID,
+    });
+  }
+  async getPlayerDetails(userID) {
+    return await this.playerUtilityInst.findOne({
+      user_id: userID,
+    });
   }
 
   async createOtherContract(body, authUser) {
@@ -107,7 +133,6 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
-    body.playerEmail = authUser.email;
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
@@ -115,11 +140,14 @@ class EmploymentContractService {
   async updateOtherContract(contractId, body, authUser) {
     await this.userCanUpdateContract(authUser.user_id, contractId);
     await this.checkPlayerCanAcceptContract(authUser.email);
-    await this.checkOtherDuplicateContract(authUser.email, body.otherEmail, contractId);
+    await this.checkOtherDuplicateContract(
+      authUser.email,
+      body.otherEmail,
+      contractId
+    );
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
-    body.playerEmail = authUser.email;
 
     await this.contractInst.updateOne(
       {
@@ -136,16 +164,19 @@ class EmploymentContractService {
 
   async clubAcademyCreatingContract(body, authUser) {
     body.sent_by = authUser.user_id;
-    let player = await this.findPlayerByEmail(body.playerEmail);
+    let player = await this.findPlayerLogin(body.user_id);
 
     await this.checkPlayerCanAcceptContract(player.username);
-    await this.checkDuplicateContract(player.username, authUser.email);
+    await this.checkDuplicateContract(body.playerEmail, authUser.email);
     await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
-    body.playerEmail = player.username;
 
     let created = await this.contractInst.insert(body);
+
+    const clubAcademyDetails = await this.getClubDetails(authUser.user_id);
+
+    this.sendCreatedNotification(player.username, clubAcademyDetails.name);
 
     return Promise.resolve(created);
   }
@@ -186,13 +217,12 @@ class EmploymentContractService {
     );
 
     body.sent_by = authUser.user_id;
-    let clubOrAcademy = await this.findClubAcademyByEmail(
-      body.clubAcademyEmail,
+    let clubOrAcademy = await this.findClubAcademyLogin(
+      body.user_id,
       body.category
     );
 
     body.send_to = clubOrAcademy.user_id;
-    body.playerEmail = authUser.email;
 
     await this.contractInst.updateOne(
       {
@@ -212,18 +242,17 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
 
-    let player = await this.findPlayerByEmail(body.playerEmail);
+    let player = await this.findPlayerLogin(body.user_id);
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
-      player.username,
+      body.playerEmail,
       authUser.email,
       contractId
     );
     await this.checkConnectionExists(authUser.user_id, player.user_id);
 
     body.send_to = player.user_id;
-    body.playerEmail = player.username;
 
     await this.contractInst.updateOne(
       {
@@ -288,17 +317,16 @@ class EmploymentContractService {
     }
   }
 
-  async findClubAcademyByEmail(email, category) {
-    return await this.findLoginByUser(email, category);
+  async findClubAcademyLogin(userId, category) {
+    return await this.findLoginByUser(userId, category);
   }
 
-  async findLoginByUser(email, category) {
+  async findLoginByUser(userId, category) {
     const $where = {
-      username: email,
+      user_id: userId,
       role: category,
       is_deleted: false,
     };
-
     let user = await this.loginUtilityInst.findOne($where);
 
     if (!user) {
@@ -319,8 +347,8 @@ class EmploymentContractService {
     return user;
   }
 
-  async findPlayerByEmail(email) {
-    return await this.findLoginByUser(email, Role.PLAYER);
+  async findPlayerLogin(userId) {
+    return await this.findLoginByUser(userId, Role.PLAYER);
   }
 
   checkExpiryDate(body) {
@@ -347,7 +375,9 @@ class EmploymentContractService {
         contract.status
       ) == -1
     ) {
-      throw new errors.Unauthorized("Cannot update already approved contract.");
+      throw new errors.ValidationFailed(
+        "Cannot update already approved contract."
+      );
     }
   }
 
@@ -417,8 +447,8 @@ class EmploymentContractService {
     let user = requestedData.user;
     if (
       user.role !== Role.ADMIN &&
-      user.email !== data.playerEmail &&
-      user.email !== data.clubAcademyEmail
+      user.user_id !== data.sent_by &&
+      user.user_id !== data.send_to
     ) {
       return Promise.reject(
         new errors.ValidationFailed(
@@ -497,14 +527,32 @@ class EmploymentContractService {
           $project: {
             _id: 0,
             id: 1,
-            name: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyName", else: "$playerName" } },
+            name: {
+              $cond: {
+                if: { $eq: [requestedData.role, Role.PLAYER] },
+                then: "$clubAcademyName",
+                else: "$playerName",
+              },
+            },
             clubAcademyUserId: "$clubAcademyDetail.user_id",
-            avatar: { $cond: { if: { $eq: [requestedData.role, Role.PLAYER] }, then: "$clubAcademyDetail.avatar_url", else: "$playerDetail.avatar_url" } },
+            avatar: {
+              $cond: {
+                if: { $eq: [requestedData.role, Role.PLAYER] },
+                then: "$clubAcademyDetail.avatar_url",
+                else: "$playerDetail.avatar_url",
+              },
+            },
             effectiveDate: 1,
             expiryDate: 1,
             status: 1,
             created_by: "$login_detail.member_type",
-            canUpdateStatus: { $cond: { if: { $eq: [requestedData.user_id, "$send_to"] }, then: true, else: false } }
+            canUpdateStatus: {
+              $cond: {
+                if: { $eq: [requestedData.user_id, "$send_to"] },
+                then: true,
+                else: false,
+              },
+            },
           },
         },
         {
@@ -517,7 +565,9 @@ class EmploymentContractService {
       let responseData = [],
         totalRecords = 0;
       if (data && data.length && data[0] && data[0].data) {
-        responseData = new EmploymentContractListResponseMapper().map(data[0].data);
+        responseData = new EmploymentContractListResponseMapper().map(
+          data[0].data
+        );
         if (
           data[0].data.length &&
           data[0].total_data &&
@@ -760,11 +810,24 @@ class EmploymentContractService {
       let profileStatus = ProfileStatus.NON_VERIFIED;
       if (requestedData.status === ContractStatus.DISAPPROVED) {
         let condition = {
-          id: { $ne: requestedData.id }, is_deleted: false, status: { $in: [ContractStatus.ACTIVE, ContractStatus.COMPLETED, ContractStatus.YET_TO_START] },
-          $or: [{ sent_by: requestedData.playerUserId }, { send_to: requestedData.playerUserId }]
+          id: { $ne: requestedData.id },
+          is_deleted: false,
+          status: {
+            $in: [
+              ContractStatus.ACTIVE,
+              ContractStatus.COMPLETED,
+              ContractStatus.YET_TO_START,
+            ],
+          },
+          $or: [
+            { sent_by: requestedData.playerUserId },
+            { send_to: requestedData.playerUserId },
+          ],
         };
         let playerContract = await this.contractInst.findOne(condition);
-        profileStatus = playerContract ? ProfileStatus.VERIFIED : ProfileStatus.NON_VERIFIED;
+        profileStatus = playerContract
+          ? ProfileStatus.VERIFIED
+          : ProfileStatus.NON_VERIFIED;
       }
       if (requestedData.status === ContractStatus.APPROVED) {
         let aadhaar = _.find(requestedData.documents, {

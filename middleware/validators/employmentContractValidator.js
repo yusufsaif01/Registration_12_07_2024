@@ -4,11 +4,20 @@ const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const Role = require("../../constants/Role");
 const CONTRACT_STATUS = require("../../constants/ContractStatus");
-const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
+const RESPONSE_MESSAGE = require("../../constants/ResponseMessage");
 
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
     const validationSchema = {
+      user_id: Joi.when("clubAcademyName", {
+        is: "Others",
+        then: Joi.string(),
+        otherwise: Joi.string().required(),
+      }).error(() => {
+        return {
+          message: RESPONSE_MESSAGE.USER_ID_REQUIRED,
+        };
+      }),
       playerName: Joi.string()
         .required()
         .error(() => {
@@ -57,7 +66,6 @@ class EmploymentContractValidator {
             message: RESPONSE_MESSAGE.EXPIRY_DATE_INVALID,
           };
         }),
-
       placeOfSignature: Joi.string().optional(),
       clubAcademyRepresentativeName: Joi.string().optional(),
       clubAcademyAddress: Joi.string().optional(),
@@ -66,7 +74,7 @@ class EmploymentContractValidator {
         then: Joi.string(),
         otherwise: Joi.string()
           .length(10)
-          .regex(/^[0-9]+$/)
+          .regex(/^[0-9]+$/),
       }).error(() => {
         return {
           message: RESPONSE_MESSAGE.CLUB_ACADEMY_PHONE_INVALID,
@@ -75,7 +83,7 @@ class EmploymentContractValidator {
       clubAcademyEmail: Joi.when("clubAcademyName", {
         is: "Others",
         then: Joi.string(),
-        otherwise: Joi.string().email().required()
+        otherwise: Joi.string().email().required(),
       }).error(() => {
         return {
           message: RESPONSE_MESSAGE.CLUB_ACADEMY_EMAIL_INVALID,
@@ -104,57 +112,13 @@ class EmploymentContractValidator {
           };
         }),
 
-      clubAcademyUsesAgentServices: Joi.boolean()
-        .optional()
-        .error(() => {
-          return {
-            message: RESPONSE_MESSAGE.CLUB_ACADEMY_USES_AGENT_SERVICES,
-          };
-        }),
-      clubAcademyIntermediaryName: Joi.when("clubAcademyUsesAgentServices", {
-        is: true,
-        then: Joi.string().required(),
-        otherwise: Joi.string(),
-      }).error(() => {
-        return {
-          message: RESPONSE_MESSAGE.CLUB_ACADEMY_INTERMEDIARY_REQUIRED,
-        };
-      }),
-      clubAcademyTransferFee: Joi.when("clubAcademyUsesAgentServices", {
-        is: true,
-        then: Joi.string().required(),
-        otherwise: Joi.string(),
-      }).error(() => {
-        return {
-          message: RESPONSE_MESSAGE.CLUB_ACADEMY_TRANSFER_FEE_REQUIRED,
-        };
-      }),
+      clubAcademyUsesAgentServices: Joi.boolean().optional(),
+      clubAcademyIntermediaryName: Joi.string().optional(),
+      clubAcademyTransferFee: Joi.string().optional(),
 
-      playerUsesAgentServices: Joi.boolean()
-        .optional()
-        .error(() => {
-          return {
-            message: RESPONSE_MESSAGE.PLAYER_USES_AGENT_SERVICES,
-          };
-        }),
-      playerIntermediaryName: Joi.when("playerUsesAgentServices", {
-        is: true,
-        then: Joi.string().required(),
-        otherwise: Joi.string().optional(),
-      }).error(() => {
-        return {
-          message: RESPONSE_MESSAGE.PLAYER_INTERMEDIARY_REQUIRED,
-        };
-      }),
-      playerTransferFee: Joi.when("playerUsesAgentServices", {
-        is: true,
-        then: Joi.string().required(),
-        otherwise: Joi.string().optional(),
-      }).error(() => {
-        return {
-          message: RESPONSE_MESSAGE.PLAYER_TRANSFER_FEE_REQUIRED,
-        };
-      }),
+      playerUsesAgentServices: Joi.boolean().optional(),
+      playerIntermediaryName: Joi.string().optional(),
+      playerTransferFee: Joi.string().optional(),
 
       otherName: Joi.when("clubAcademyName", {
         is: "Others",
