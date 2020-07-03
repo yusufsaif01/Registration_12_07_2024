@@ -1,5 +1,5 @@
 const moment = require("moment");
-const _ = require('lodash')
+// const _ = require('lodash')
 
 function getAiffNumber(record) {
   if (record.documentsRequired && record.documentsRequired.length) {
@@ -37,7 +37,7 @@ class PeopleListResponseMapper {
       user_id: request.user_id,
       name: [request.userDetail.first_name, request.userDetail.last_name].join(" "),
       email: request.userDetail.email,
-      address: _.get(request, "userDetail.address.full_address", ''),
+      // address: _.get(request, "userDetail.address.full_address", ''),
       mobile: request.userDetail.phone || "",
       age: calculateAge(request),
     };
