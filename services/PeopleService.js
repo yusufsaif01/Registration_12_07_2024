@@ -34,22 +34,34 @@ class PeopleService {
   }
 
   async getOne(userId) {
-    let loginUser = await this.loginInst.findOne({
-      user_id: userId,
-      is_deleted: false,
-      status: AccountStatus.ACTIVE,
-      "profile_status.status": ProfileStatus.VERIFIED,
-      role: Role.PLAYER
-    }, {username:1,user_id:1, role:1});
+    let loginUser = await this.loginInst.findOne(
+      {
+        user_id: userId,
+        is_deleted: false,
+        // status: AccountStatus.ACTIVE,
+        // "profile_status.status": ProfileStatus.VERIFIED,
+        role: Role.PLAYER,
+      },
+      { username: 1, user_id: 1, role: 1, status: 1, profile_status: 1 }
+    );
 
     if (!loginUser) {
       throw new errors.NotFound(RESPONSE_MESSAGE.USER_NOT_FOUND);
     }
 
+    if (loginUser.status != AccountStatus.ACTIVE) {
+      throw new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED);
+    }
+    if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
+      throw new errors.ValidationFailed(
+        RESPONSE_MESSAGE.OTHER_PROFILE_NOT_VERIFIED
+      );
+    }
+
     const where = {
       user_id: userId,
     };
-    
+
     loginUser.userDetail = await this.playerInst.findOne(where);
 
     return Promise.resolve(loginUser);

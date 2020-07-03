@@ -9,7 +9,15 @@ const RESPONSE_MESSAGE = require("../../constants/ResponseMessage");
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
     const validationSchema = {
-      user_id: Joi.string().required(),
+      user_id: Joi.when("clubAcademyName", {
+        is: "Others",
+        then: Joi.string(),
+        otherwise: Joi.string().required(),
+      }).error(() => {
+        return {
+          message: RESPONSE_MESSAGE.USER_ID_REQUIRED,
+        };
+      }),
       playerName: Joi.string()
         .required()
         .error(() => {
