@@ -780,9 +780,7 @@ class FootPlayerService {
         arr = arr.concat(thirdPriority)
         sortedData = sortedData.concat(arr);
       }
-      sortedData = _.uniqBy(sortedData, function (o) {
-        return o.id
-      })
+      sortedData = _.uniqBy(sortedData, "id")
     }
     return sortedData;
   }
