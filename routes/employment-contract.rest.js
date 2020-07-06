@@ -100,7 +100,8 @@ module.exports = (router) => {
    *                   "playerUsesAgentServices": true,
    *                   "playerIntermediaryName": "xyz",
    *                   "playerTransferFee": "8970",
-   *                   "created_by": "player"
+   *                   "created_by": "player",
+   *                   "send_to_category": "club"
    *                  }
    *      }
    *     
