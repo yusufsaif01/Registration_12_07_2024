@@ -452,6 +452,9 @@ class ResponseMessage {
     static get PLAYER_MOBILE_NUMBER_INVALID() {
         return "Player mobile number is invalid"
     }
+    static get PLAYER_MOBILE_NUMBER_REQUIRED() {
+        return "Player mobile number is required"
+    }
     static get PLAYER_EMAIL_INVALID() {
         return "Player email is invalid"
     }
