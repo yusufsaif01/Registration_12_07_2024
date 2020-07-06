@@ -142,11 +142,17 @@ class EmploymentContractValidator {
         is: "Others",
         then: Joi.string()
           .length(10)
+          .required()
           .regex(/^[0-9]+$/),
         otherwise: Joi.string(),
-      }).error(() => {
+      }).error((d) => {
+        if (d.length && d[0].type == "any.required") {
+          return {
+            message: RESPONSE_MESSAGE.OTHER_PHONE_REQUIRED,
+          };
+        }
         return {
-          message: RESPONSE_MESSAGE.OTHER_PHONE_REQUIRED,
+          message: RESPONSE_MESSAGE.OTHER_PHONE_INVALID,
         };
       }),
     };
