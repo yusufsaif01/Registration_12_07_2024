@@ -452,6 +452,9 @@ class ResponseMessage {
     static get PLAYER_MOBILE_NUMBER_INVALID() {
         return "Player mobile number is invalid"
     }
+    static get PLAYER_MOBILE_NUMBER_REQUIRED() {
+        return "Player mobile number is required"
+    }
     static get PLAYER_EMAIL_INVALID() {
         return "Player email is invalid"
     }
@@ -481,6 +484,9 @@ class ResponseMessage {
     }
     static get OTHER_PHONE_REQUIRED() {
         return "Other phone number is required when Club/Academy name is 'Others'."
+    }
+    static get OTHER_PHONE_INVALID() {
+        return "Other phone number is invalid."
     }
     static get OTHER_PROFILE_NOT_VERIFIED () {
         return "Profile is not verified.";
