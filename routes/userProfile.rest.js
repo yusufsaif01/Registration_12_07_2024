@@ -89,7 +89,7 @@ module.exports = (router) => {
 
     });
     /**
-     * @api {put} /update-details update profile details
+     * @api {put} /update-details/:_category update profile details
      * @apiName Update profile details
      * @apiGroup Profile
      *
@@ -135,8 +135,6 @@ module.exports = (router) => {
      * @apiParam (body) {string} association_other club/academy/player other association
      * @apiParam (body) {string} short_name club/academy short name
      * @apiParam (body) {string} founded_in club/academy founded year
-     * @apiParam (body) {string} owner club/academy owner
-     * @apiParam (body) {string} manager club/academy manager
      * @apiParam (body) {string} top_signings club/academy top_signings
      * @apiParam (body) {string} top_players club/academy top_players
      * @apiParam (body) {string} contact_person club/academy contact person
@@ -172,7 +170,7 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.put('/update-details', checkAuthToken, userValidator.updateDetailsAPIValidation, async function (req, res) {
+    router.put('/update-details/:_category', checkAuthToken, userValidator.updateDetailsParamsValidation, userValidator.updateDetailsAPIValidation, async function (req, res) {
         try {
             let serviceInst = new UserProfileService();
             let reqObj = await serviceInst.uploadProfileDocuments(req.body,req.authUser.user_id, req.files);

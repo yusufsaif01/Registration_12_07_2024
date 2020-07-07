@@ -5,6 +5,7 @@ const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const Schema = mongoose.Schema;
 const PLAYER = require('../../constants/PlayerType')
 const DOCUMENT_STATUS = require('../../constants/DocumentStatus')
+const GENDER = require('../../constants/gender')
 
 module.exports = {
     fields: {
@@ -44,6 +45,10 @@ module.exports = {
         },
         dob: {
             type: String
+        },
+        gender: {
+            type: String,
+            enum: [GENDER.MALE, GENDER.FEMALE]
         },
         country: {
             id: {
@@ -182,6 +187,9 @@ module.exports = {
                 type: String
             },
             instagram: {
+                type: String
+            },
+            linked_in: {
                 type: String
             }
         },
