@@ -147,7 +147,6 @@ class EmploymentContractValidator {
         is: "Others",
         then: Joi.string()
           .length(10)
-          .required()
           .regex(/^[0-9]+$/),
         otherwise: Joi.string(),
       }).error((d) => {
