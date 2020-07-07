@@ -6,14 +6,14 @@ class EmploymentContractListResponseMapper {
             contracts.forEach((contract) => {
                 let data = {
                     id: contract.id,
-                    effectiveDate: contract.effectiveDate,
-                    expiryDate: contract.expiryDate,
+                    effective_date: contract.effectiveDate,
+                    expiry_date: contract.expiryDate,
                     status: contract.status,
                     name: contract.name,
-                    clubAcademyUserId: contract.clubAcademyUserId || "",
+                    club_academy_user_id: contract.clubAcademyUserId || "",
                     avatar: contract.avatar || "",
                     created_by: contract.created_by,
-                    canUpdateStatus: contract.canUpdateStatus
+                    can_update_status: contract.canUpdateStatus
                 };
                 response.push(data);
             });
