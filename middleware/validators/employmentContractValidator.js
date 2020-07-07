@@ -29,11 +29,14 @@ class EmploymentContractValidator {
       category: Joi.string()
         .required()
         .valid([Role.CLUB, Role.ACADEMY])
-        .error(() => {
-          return {
-            message: RESPONSE_MESSAGE.CATEGORY_INVALID,
-          };
-        }),
+        .error(
+          customMessage(
+            {
+              "any.required": RESPONSE_MESSAGE.CATEGORY_REQUIRED,
+            },
+            RESPONSE_MESSAGE.CATEGORY_INVALID
+          )
+        ),
 
       clubAcademyName: Joi.string()
         .required()

@@ -431,6 +431,9 @@ class ResponseMessage {
     static get CATEGORY_INVALID() {
         return "Category is invalid"
     }
+    static get CATEGORY_REQUIRED() {
+        return "Category is required"
+    }
     static get CLUB_ACADEMY_NAME_REQUIRED() {
         return "Club/Academy name is required"
     }
