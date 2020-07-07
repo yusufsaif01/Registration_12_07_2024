@@ -11,6 +11,7 @@ const footplayerInvite = require("./footplayerInviteMailTemplate");
 const employmentContractApproval = require("./EmploymentContractApprovalTemplate");
 const employmentContractDisapproval = require("./EmploymentContractDisapprovalTemplate");
 const employmentContractCreated = require("./EmploymentContractCreated");
+const SampleHtmlTemplate = require("./SampleHtmlTemplate");
 
 module.exports = {
   forgotPassword,
@@ -26,4 +27,5 @@ module.exports = {
   employmentContractApproval,
   employmentContractDisapproval,
   employmentContractCreated,
+  SampleHtmlTemplate,
 };
