@@ -19,6 +19,7 @@ const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
+const EmploymentContractViewResponseMapper = require("../dataModels/responseMapper/EmploymentContractViewResponseMapper");
 
 class EmploymentContractService {
   constructor() {
@@ -422,7 +423,7 @@ class EmploymentContractService {
       );
       data.created_by = sentByUser ? sentByUser.member_type : "";
       data.send_to_category = sendToUser ? sendToUser.member_type : "";
-      return data;
+      return new EmploymentContractViewResponseMapper().map(data);
     } catch (e) {
       console.log(
         "Error in getEmploymentContractDetails() of EmploymentContractService",

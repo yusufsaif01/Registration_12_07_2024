@@ -29,15 +29,15 @@ module.exports = (router) => {
    *                   "total": 1,
    *                    "records": [{
    *                         "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
-   *                         "effectiveDate": "2020-05-23T00:00:00.000Z",
-   *                         "expiryDate": "2021-06-12T00:00:00.000Z",
+   *                         "effective_date": "2020-05-23T00:00:00.000Z",
+   *                         "expiry_date": "2021-06-12T00:00:00.000Z",
    *                         "status": "active",
    *                         "name": "newclub",
    *                         "avatar": "\\uploads\\documents\\sampleHouse1590487315578.png",
-   *                         "clubAcademyUserId": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+   *                         "club_academy_user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
    *                         "created_by": "player",
-   *                         "canUpdateStatus": true
-   *                                }]
+   *                         "can_update_status": true
+   *                       }]
    *                  }
    *      }
    *     
@@ -73,35 +73,33 @@ module.exports = (router) => {
    *          "status": "success",
    *          "message": "Successfully done",
    *          "data": {
-   *                   "sent_by": "f5967a91-f632-406c-8b5f-0f387453e74d",
-   *                   "send_to": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-   *                   "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
-   *                   "signingDate": "2020-05-12T00:00:00.000Z",
-   *                   "effectiveDate": "2020-05-12T00:00:00.000Z",
-   *                   "expiryDate": "2021-05-12T00:00:00.000Z",
+   *                   "club_academy_uses_agent_services": true,
+   *                   "player_uses_agent_services": false,
+   *                   "is_deleted": false,
+   *                   "player_name": "Someone",
+   *                   "club_academy_name": "Others",
+   *                   "signing_date": "2020-06-15T00:00:00.000Z",
+   *                   "effective_date": "2020-06-20T00:00:00.000Z",
+   *                   "expiry_date": "2023-06-20T00:00:00.000Z",
+   *                   "place_of_signature": "General Office",
+   *                   "player_mobile_number": "7989875642",
+   *                   "club_academy_representative_name": "Gopal",
+   *                   "club_academy_address": "Near that road",
+   *                   "club_academy_phone_number": "9898955662",
+   *                   "club_academy_email": "userlessssclub@gmail.com",
+   *                   "aiff_number": "asdas21312",
+   *                   "crs_user_name": "CSRF_NAME",
+   *                   "legal_guardian_name": "Gopal's Father",
+   *                   "player_address": "near other road",
+   *                   "player_email": "play@gmail.com",
+   *                   "club_academy_intermediary_name": "something",
+   *                   "club_academy_transfer_fee": "3423",
    *                   "status": "pending",
-   *                   "playerName": "xyz",
-   *                   "category": "club",
-   *                   "clubAcademyName": "xyz",
-   *                   "placeOfSignature": "xyz",
-   *                   "clubAcademyRepresentativeName": "xyz",
-   *                   "clubAcademyAddress": "xyz",
-   *                   "clubAcademyPhoneNumber": "0987654321",
-   *                   "clubAcademyEmail": "newclub@newclub.com",
-   *                   "aiffNumber": "1234567890",
-   *                   "crsUserName": "xyz",
-   *                   "legalGuardianName": "xyz",
-   *                   "playerAddress": "xyz",
-   *                   "playerMobileNumber": "0987654321",
-   *                   "playerEmail": "player38@player.com",
-   *                   "clubAcademyUsesAgentServices": true,
-   *                   "clubAcademyIntermediaryName": "xyz",
-   *                   "clubAcademyTransferFee": "8970",
-   *                   "playerUsesAgentServices": true,
-   *                   "playerIntermediaryName": "xyz",
-   *                   "playerTransferFee": "8970",
-   *                   "created_by": "player",
-   *                   "send_to_category": "club"
+   *                   "sent_by": "f4ce1958-d318-4f92-9c72-b17bcaa93bcf",
+   *                   "send_to": "704132f1-ddfc-4e82-95d0-d5fb3851fa41",
+   *                   "id": "c0fdb242-c067-4369-afe4-67e7be5ce0ef",
+   *                   "created_by": "club",
+   *                   "send_to_category": "player"
    *                  }
    *      }
    *     
