@@ -52,11 +52,11 @@ class PeopleService {
     if (loginUser.status != AccountStatus.ACTIVE) {
       throw new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED);
     }
-    if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
-      throw new errors.ValidationFailed(
-        RESPONSE_MESSAGE.OTHER_PROFILE_NOT_VERIFIED
-      );
-    }
+    // if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
+    //   throw new errors.ValidationFailed(
+    //     RESPONSE_MESSAGE.OTHER_PROFILE_NOT_VERIFIED
+    //   );
+    // }
 
     const where = {
       user_id: userId,
