@@ -412,11 +412,16 @@ class EmploymentContractService {
   async getEmploymentContractDetails(requestedData = {}) {
     try {
       let data = await this.checkEmploymentContractAccess(requestedData);
-      let foundUser = await this.loginUtilityInst.findOne(
+      let sentByUser = await this.loginUtilityInst.findOne(
         { user_id: data.sent_by },
         { member_type: 1 }
       );
-      data.created_by = foundUser ? foundUser.member_type : "";
+      let sendToUser = await this.loginUtilityInst.findOne(
+        { user_id: data.send_to },
+        { member_type: 1 }
+      );
+      data.created_by = sentByUser ? sentByUser.member_type : "";
+      data.send_to_category = sendToUser ? sendToUser.member_type : "";
       return data;
     } catch (e) {
       console.log(
