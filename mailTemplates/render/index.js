@@ -8,16 +8,19 @@ const globalData = {
 };
 
 module.exports = (html, data = {}) => {
-  data = Object.assign(globalData, data);
-  let renderedHtml = header(data);
+  const payload = {};
+  Object.assign(payload, globalData);
+  Object.assign(payload, data);
+
+  let renderedHtml = header(payload);
 
   if (typeof html == "function") {
-    renderedHtml += html.call(this, data);
+    renderedHtml += html.call(this, payload);
   } else {
     renderedHtml += html;
   }
 
-  renderedHtml += footer(data);
+  renderedHtml += footer(payload);
 
   return renderedHtml;
 };
