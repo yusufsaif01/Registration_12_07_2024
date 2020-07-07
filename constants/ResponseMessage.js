@@ -431,26 +431,44 @@ class ResponseMessage {
     static get CATEGORY_INVALID() {
         return "Category is invalid"
     }
+    static get CATEGORY_REQUIRED() {
+        return "Category is required"
+    }
     static get CLUB_ACADEMY_NAME_REQUIRED() {
         return "Club/Academy name is required"
     }
     static get SIGNING_DATE_INVALID() {
         return "Signing Date should be a valid date and before today"
     }
+    static get SIGNING_DATE_REQUIRED() {
+        return "Signing Date is required"
+    }
     static get EFFECTIVE_DATE_INVALID() {
         return "Effective date should be a valid date and greater than signing Date"
+    }
+    static get EFFECTIVE_DATE_REQUIRED() {
+        return "Effective date is required"
     }
     static get EXPIRY_DATE_INVALID() {
         return "Expiry Date should be a valid date"
     }
+    static get EXPIRY_DATE_REQUIRED() {
+        return "Expiry Date is required."
+    }
     static get CLUB_ACADEMY_PHONE_INVALID() {
         return "Club/Academy phone number is invalid"
+    }
+    static get CLUB_ACADEMY_PHONE_REQUIRED() {
+        return "Club/Academy phone number is required"
     }
     static get CLUB_ACADEMY_EMAIL_INVALID() {
         return "Club/Academy email is invalid"
     }
     static get PLAYER_MOBILE_NUMBER_INVALID() {
         return "Player mobile number is invalid"
+    }
+    static get PLAYER_MOBILE_NUMBER_REQUIRED() {
+        return "Player mobile number is required"
     }
     static get PLAYER_EMAIL_INVALID() {
         return "Player email is invalid"
@@ -481,6 +499,9 @@ class ResponseMessage {
     }
     static get OTHER_PHONE_REQUIRED() {
         return "Other phone number is required when Club/Academy name is 'Others'."
+    }
+    static get OTHER_PHONE_INVALID() {
+        return "Other phone number is invalid."
     }
     static get OTHER_PROFILE_NOT_VERIFIED () {
         return "Profile is not verified.";
