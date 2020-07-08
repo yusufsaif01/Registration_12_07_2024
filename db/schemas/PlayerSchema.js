@@ -161,10 +161,7 @@ module.exports = {
                 type: String
             }
         },
-        former_club: {
-            type: String
-        },
-        former_academy: {
+        former_club_academy: {
             type: String
         },
         player_type: {
@@ -193,7 +190,7 @@ module.exports = {
                 type: String
             }
         },
-        associated_club: {
+        associated_club_academy: {
             type: String
         },
         association: {

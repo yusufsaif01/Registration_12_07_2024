@@ -14,7 +14,8 @@ const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
 const STATE_ASSOCIATIONS = require('../../constants/StateAssociations');
 const PROFILE_DETAIL = require('../../constants/ProfileDetailType');
 const GENDER = require('../../constants/gender');
-const ASSOCIATED_CLUB = require('../../constants/AssociatedClub');
+const ASSOCIATED_CLUB_ACADEMY = require('../../constants/AssociatedClubAcademy');
+const LEAGUE = require('../../constants/League');
 const customMessage = require("./CustomMessages");
 
 class UserValidator {
@@ -94,7 +95,7 @@ class UserValidator {
         }
     }
 
-    async updateDetailsParamsValidation(req, res, next) {
+    async profileAPIParamsValidation(req, res, next) {
         const params = Joi.object().keys({
             "_category": Joi.string().required().valid([PROFILE_DETAIL.PERSONAL, PROFILE_DETAIL.PROFESSIONAL, PROFILE_DETAIL.DOCUMENT]),
         });
@@ -126,7 +127,7 @@ class UserValidator {
                     RESPONSE_MESSAGE.LAST_NAME_INVALID
                 )
             ),
-            "bio": Joi.string().allow(""),
+            "bio": Joi.string().max(350).allow(""),
             "weight": Joi.string().trim().allow(""),
             "height_feet": Joi.string().trim().required(),
             'height_inches': Joi.string().trim().required(),
@@ -156,18 +157,18 @@ class UserValidator {
             "position": Joi.string().required(),
             "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
             "weak_foot": Joi.number().min(1).max(5),
-            "former_club": Joi.string().trim().allow(""),
+            "former_club_academy": Joi.string().trim().allow(""),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
             "association_other": Joi.string().allow(""),
-            "associated_club": Joi.string().valid([ASSOCIATED_CLUB.YES, ASSOCIATED_CLUB.NO]),
-            "head_coach_name": Joi.when("associated_club", {
-                is: ASSOCIATED_CLUB.YES,
-                then: Joi.string().trim().required(),
+            "associated_club_academy": Joi.string().valid([ASSOCIATED_CLUB_ACADEMY.YES, ASSOCIATED_CLUB_ACADEMY.NO]).required(),
+            "head_coach_name": Joi.when("associated_club_academy", {
+                is: ASSOCIATED_CLUB_ACADEMY.YES,
+                then: Joi.string().trim().min(1).required(),
                 otherwise: Joi.string().allow(""),
             }),
             "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
-            "head_coach_phone": Joi.when("associated_club", {
-                is: ASSOCIATED_CLUB.YES,
+            "head_coach_phone": Joi.when("associated_club_academy", {
+                is: ASSOCIATED_CLUB_ACADEMY.YES,
                 then: Joi.string().required().regex(/^[0-9]{10}$/).error(
                     customMessage(
                         {
@@ -217,12 +218,18 @@ class UserValidator {
                     RESPONSE_MESSAGE.MOBILE_NUMBER_INVALID
                 )
             ),
-            "stadium_name": Joi.string().trim().allow("")
+            "stadium_name": Joi.string().trim().allow(""),
+            "bio": Joi.string().max(350).allow(""),
+            "facebook": Joi.string().allow(""),
+            "youtube": Joi.string().allow(""),
+            "twitter": Joi.string().allow(""),
+            "instagram": Joi.string().allow(""),
+            "linked_in": Joi.string().allow(""),
         }
         let clubAcademyProfessionalDetail = {
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
-            "league": Joi.string().trim().min(1).required(),
+            "league": Joi.string().required().valid(LEAGUE.ALLOWED_VALUES),
             "league_other": Joi.string().allow(""),
             "top_signings": Joi.string(),
             "top_players": Joi.string(),
@@ -235,21 +242,27 @@ class UserValidator {
             "aiff_id": Joi.string().trim(),
             "number": Joi.string().trim(),
         };
-
         let member_type = req.authUser.member_type || "";
         if (member_type === MEMBER.PLAYER) {
-            req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
-            req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
+            if (req.params._category === PROFILE_DETAIL.PERSONAL) {
+                req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
+                req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
+            }
         }
         if (member_type === MEMBER.CLUB) {
-            clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
-            req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+            if (req.params._category === PROFILE_DETAIL.DOCUMENT)
+                clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
+            if (req.params._category === PROFILE_DETAIL.PERSONAL)
+                req.body.name = req.body.name ? req.body.name.trim() : req.body.name
         }
         if (member_type === MEMBER.ACADEMY) {
-            clubAcademyPersonalDetail.address = Joi.string().trim().required();
-            clubAcademyPersonalDetail.pincode = Joi.string().trim().required();
-            clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
-            req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+            if (req.params._category === PROFILE_DETAIL.DOCUMENT)
+                clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+            if (req.params._category === PROFILE_DETAIL.PERSONAL) {
+                req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+                clubAcademyPersonalDetail.address = Joi.string().trim().required();
+                clubAcademyPersonalDetail.pincode = Joi.string().trim().required();
+            }
         }
         if (req.body.document_type) {
             let document_type = req.body.document_type;
@@ -278,13 +291,16 @@ class UserValidator {
         if (req.body.association && req.body.association !== STATE_ASSOCIATIONS.OTHERS) {
             req.body.association_other = "";
         }
+        if (req.body.league && req.body.legue !== LEAGUE.OTHER) {
+            req.body.league_other = "";
+        }
         var schema = {};
         if (req.params._category === PROFILE_DETAIL.PERSONAL)
-            schema = member_type === MEMBER.PLAYER ? memberJoi.object().keys(playerPersonalDetail) : Joi.object().keys(clubAcademyPersonalDetail)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerPersonalDetail) : Joi.object().keys(clubAcademyPersonalDetail)
         if (req.params._category === PROFILE_DETAIL.PROFESSIONAL)
-            schema = member_type === MEMBER.PLAYER ? memberJoi.object().keys(playerProfessionalDetail) : Joi.object().keys(clubAcademyProfessionalDetail)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerProfessionalDetail) : Joi.object().keys(clubAcademyProfessionalDetail)
         if (req.params._category === PROFILE_DETAIL.DOCUMENT)
-            schema = member_type === MEMBER.PLAYER ? memberJoi.object().keys(playerDocumentDetail) : Joi.object().keys(clubAcademyDocumentDetail)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerDocumentDetail) : Joi.object().keys(clubAcademyDocumentDetail)
 
         try {
             await Joi.validate(req.body, schema);
@@ -300,23 +316,7 @@ class UserValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async updateBioAPIValidation(req, res, next) {
-        const schema = Joi.object().keys({
-            "bio": Joi.string().allow(""),
-            "facebook": Joi.string().allow(""),
-            "youtube": Joi.string().allow(""),
-            "twitter": Joi.string().allow(""),
-            "instagram": Joi.string().allow("")
-        });
 
-        try {
-            await Joi.validate(req.body, schema);
-            return next();
-        } catch (err) {
-            console.log(err.details);
-            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
-        }
-    }
     async playerListQueryValidation(req, res, next) {
 
         const query = Joi.object().keys({

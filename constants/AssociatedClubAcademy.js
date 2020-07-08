@@ -1,4 +1,4 @@
-class AssociatedClub {
+class AssociatedClubAcademy {
     static get YES() {
         return "yes";
     }
@@ -7,4 +7,4 @@ class AssociatedClub {
     }
 }
 
-module.exports = AssociatedClub
+module.exports = AssociatedClubAcademy

@@ -1,9 +1,9 @@
 class gender {
     static get MALE() {
-        return "male";
+        return "Male";
     }
     static get FEMALE() {
-        return "female";
+        return "Female";
     }
 }
 
