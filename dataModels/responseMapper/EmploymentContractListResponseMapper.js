@@ -6,8 +6,8 @@ class EmploymentContractListResponseMapper {
             contracts.forEach((contract) => {
                 let data = {
                     id: contract.id,
-                    effective_date: contract.effectiveDate,
-                    expiry_date: contract.expiryDate,
+                    effective_date: contract.effective_date,
+                    expiry_date: contract.expiry_date,
                     status: contract.status,
                     name: contract.name,
                     club_academy_user_id: contract.clubAcademyUserId || "",
