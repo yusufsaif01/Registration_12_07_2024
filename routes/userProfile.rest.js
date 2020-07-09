@@ -10,29 +10,96 @@ const AVATAR = require('../constants/avatar')
 
 module.exports = (router) => {
     /**
-     * @api {get} /profile member profile
+     * @api {get} /profile/:_category member profile
      * @apiName Profile
      * @apiGroup Profile
      *
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
      *
+     * @apiParam (param) {String} _category  valid values (personal_details, professional_details, document_details)
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done",
+     *       "data": {
+     *                   "first_name": "denis",
+     *                   "last_name": "menace",
+     *                   "email": "denismenace@email.com",
+     *                   "phone": "0987654321",
+     *                   "avatar_url": "/uploads/avatar/user-avatar.png",
+     *                   "player_type": "grassroot",
+     *                   "city": {
+     *                   "id": "354ab9a6-a617-428e-ad09-2d71464cc98b",
+     *                   "name": "New delhi" },
+     *                   "country": {
+     *                   "id": "3bcda0b2-2bc6-4c0c-bc42-82c4aa42ec39",
+     *                   "name": "India" },
+     *                   "dob": "1997-09-06",
+     *                   "gender": "Male",
+     *                   "height": {
+     *                   "feet": "6",
+     *                   "inches": "1"   },
+     *                   "institute": {
+     *                   "school": "gfs",
+     *                   "college": null,
+     *                   "university": null },
+     *                   "state": {
+     *                   "id": "81d403b9-5d91-4078-86f8-db4c1d8bc831",
+     *                   "name": "Delhi" },
+     *                   "bio": "hi there",
+     *                   "social_profiles": {
+     *                   "facebook": "facebook.com",
+     *                   "youtube": "youtube.com",
+     *                   "twitter": "twitter.com",
+     *                   "instagram": "instagram.com",
+     *                   "linked_in": "linked_in.com" },
+     *                   "weight": "60",
+     *                   "member_type": "player",
+     *                   "profile_status": {
+     *                   "status": "non-verified"    }
+     *                }
+     *     }
+     * 
      * @apiSuccessExample {json} Success-Response:
      *     HTTP/1.1 200 OK
      *     {
      *       "status": "success",
      *       "message": "Successfully done",
      *       "data": { 
-     *                  "first_name": "name",
-     *                  "last_name": "last name",
-     *                  "documents": [],
-     *                  "position": [],
-     *                  "email": "newp@newp.com",
-     *                  "avatar_url": "/uploads/avatar/user-avatar.png",
-     *                  "state": "mumbai",
-     *                  "country": "india",
-     *                  "phone": "1111111111",
-     *                  "member_type": "player"
+     *                   "position": [
+     *                       {
+     *                   "_id": "5f05d6a21a4dba1d2068e288",
+     *                   "name": "Ultimate Position",
+     *                   "id": "6660b5b8-c7c3-4549-ac3c-49b7dfc54f3a",
+     *                   "priority": "1" },
+     *                       {
+     *                   "_id": "5f05d6a21a4dba1d2068e289",
+     *                   "name": "Right Wing",
+     *                   "id": "1575cdee-b016-4081-9d9e-bf2446ba5206",
+     *                   "priority": "2"
+     *                                   },
+     *                       {
+     *                   "_id": "5f05d6a21a4dba1d2068e28a",
+     *                   "name": "Goalkeeper",
+     *                   "id": "fdc450e1-7495-4ddf-8f8c-0f3282acea2b",
+     *                   "priority": "3"
+     *                                   }],
+     *                   "association": "All Manipur Football Association",
+     *                   "association_other": "",
+     *                   "strong_foot": "left",
+     *                   "associated_club_academy": "yes",
+     *                   "club_academy_details": {
+     *                   "head_coach_name": "akshay",
+     *                   "head_coach_phone": "0987654321",
+     *                   "head_coach_email": "ak@ak.com" },
+     *                   "former_club_academy": "former club",
+     *                   "weak_foot": "3",
+     *                   "member_type": "player",
+     *                   "profile_status": {
+     *                   "status": "non-verified"    }
      *               }  
      *     }
      * 
@@ -42,20 +109,21 @@ module.exports = (router) => {
      *       "status": "success",
      *       "message": "Successfully done",
      *       "data": {
-     *                 "top_players": [],
-     *                 "documents": [],
-     *                 "email": "newclub@newclub.com",
-     *                 "name": "breakers",
-     *                 "avatar_url": "/uploads/avatar/user-avatar.png",
-     *                 "state": "delhi",
-     *                 "country": "india",
-     *                 "phone": "222222222222",
-     *                 "contact_person": [],
-     *                 "trophies": [],
-     *                 "top_signings": [],
-     *                 "member_type": "club",
-     *                 "profile_status": "verified"
-     *                }
+     *                  "documents": [{
+     *                   "status": "pending",
+     *                   "_id": "5f057d58d6795d2fe8e78ee0",
+     *                   "type": "aadhar",
+     *                   "added_on": "2020-07-08T08:01:28.611Z",
+     *                   "media": {
+     *                   "attachment_type": "image",
+     *                   "doc_front": "\\uploads\\documents\\sampleHouse1594195288607.png",
+     *                   "doc_back": "\\uploads\\documents\\sampleHouse1594195288609.png",
+     *                   "user_photo": "\\uploads\\documents\\sampleHouse1594195288604.png" },
+     *                   "document_number": "123456789012" }],
+     *                   "member_type": "player",
+     *                   "profile_status": {
+     *                   "status": "non-verified"   } 
+     *               }
      *     }
      * 
      * @apiErrorExample {json} UNAUTHORIZED
@@ -75,14 +143,10 @@ module.exports = (router) => {
      *     }
      *
      */
-    router.get('/profile', checkAuthToken, async function (req, res) {
+    router.get('/profile/:_category', checkAuthToken, userValidator.profileAPIParamsValidation, async function (req, res) {
         try {
             let serviceInst = new UserService();
-            let userServiceInst = new UserProfileService();
-
-            responseHandler(req, res, serviceInst.getDetails(req.authUser).then((user) => {
-                return userServiceInst.toAPIResponse(user);
-            }));
+            responseHandler(req, res, serviceInst.getDetails({ user: req.authUser, _category: req.params._category }));
         } catch (e) {
             console.log(e);
             responseHandler(req, res, Promise.reject(e));
@@ -185,7 +249,7 @@ module.exports = (router) => {
         try {
             let serviceInst = new UserProfileService();
             req.body._category = req.params._category
-            let reqObj = await serviceInst.uploadProfileDocuments(req.body,req.authUser.user_id, req.files);
+            let reqObj = await serviceInst.uploadProfileDocuments(req.body, req.authUser.user_id, req.files);
 
             responseHandler(req, res, serviceInst.updateProfileDetails({
                 member_type: req.authUser.member_type,
