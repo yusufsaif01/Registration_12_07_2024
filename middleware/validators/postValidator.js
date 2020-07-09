@@ -6,7 +6,7 @@ const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 class PostValidator {
     async addPostAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
-            "text": Joi.string().trim().min(1).max(60),
+            "text": Joi.string().trim().min(1).max(350),
             "media": Joi.any()
         });
         try {
