@@ -429,7 +429,8 @@ class EmploymentContractService {
       );
       data.created_by = sentByUser ? sentByUser.member_type : "";
       data.send_to_category = sendToUser ? sendToUser.member_type : "";
-      return new EmploymentContractViewResponseMapper().map(data);
+      return data;
+      // return new EmploymentContractViewResponseMapper().map(data);
     } catch (e) {
       console.log(
         "Error in getEmploymentContractDetails() of EmploymentContractService",
