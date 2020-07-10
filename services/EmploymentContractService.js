@@ -100,19 +100,35 @@ class EmploymentContractService {
     let created = await this.contractInst.insert(body);
 
     let playerDetails = await this.getPlayerDetails(authUser.user_id);
+    let clubAcademyDetails = await this.getClubDetails(clubOrAcademy.user_id);
 
     this.sendCreatedNotification(
       clubOrAcademy.username,
-      [playerDetails.first_name, playerDetails.last_name].join(" ")
+      clubAcademyDetails.name,
+      playerDetails.first_name,
+      "player_to_club_acad",
+      body.category
     );
 
     return Promise.resolve(created);
   }
 
-  async sendCreatedNotification(email, name) {
-    await this.emailService.sendMail("employmentContractCreated", {
+  async sendCreatedNotification(email, name, from, type, category = '') {
+
+    let mappings = {
+      club_acad_to_user: "employmentContractCreatedClubAcademy",
+      player_to_club_acad: "employmentContractCreatedPlayer",
+    };
+
+    if (!mappings[type]) {
+      throw new errors.Internal('Specified email does not exists.');
+    }
+    
+    await this.emailService.sendMail(mappings[type], {
       email: email,
       name: name,
+      from: from,
+      category,
     });
   }
 
@@ -175,8 +191,15 @@ class EmploymentContractService {
     let created = await this.contractInst.insert(body);
 
     const clubAcademyDetails = await this.getClubDetails(authUser.user_id);
+    const playerDetails = await this.getPlayerDetails(player.user_id);
 
-    this.sendCreatedNotification(player.username, clubAcademyDetails.name);
+    this.sendCreatedNotification(
+      player.username,
+      playerDetails.first_name,
+      clubAcademyDetails.name,
+      "club_acad_to_user",
+      authUser.role
+    );
 
     return Promise.resolve(created);
   }

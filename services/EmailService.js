@@ -66,8 +66,11 @@ class EmailService {
         await this.sendMail("employmentContractDisapproval", data)
     }
 
-    async employmentContractCreated(data) {
-        await this.sendMail("employmentContractCreated", data);
+    async employmentContractCreatedClubAcademy(data) {
+        await this.sendMail("employmentContractCreatedClubAcademy", data);
+    }
+    async employmentContractCreatedPlayer(data) {
+        await this.sendMail("employmentContractCreatedPlayer", data);
     }
 
     async sampleHtmlEmail (data) {
