@@ -68,6 +68,12 @@ class EmailService {
     async employmentContractDisapprovalByClubAcademy (data) {
         await this.sendMail("employmentContractDisapprovalByClubAcademy", data);
     }
+    async employmentContractApprovalByClubAcademy (data) {
+        await this.sendMail("employmentContractApprovalByClubAcademy", data);
+    }
+    async employmentContractApprovalByPlayer (data) {
+        await this.sendMail("employmentContractApprovalByPlayer", data);
+    }
 
     async employmentContractCreatedClubAcademy(data) {
         await this.sendMail("employmentContractCreatedClubAcademy", data);

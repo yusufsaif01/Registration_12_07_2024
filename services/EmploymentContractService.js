@@ -630,7 +630,7 @@ class EmploymentContractService {
       );
       let sentByUser = await this.loginUtilityInst.findOne(
         { user_id: data.sent_by },
-        { username: 1, member_type: 1 }
+        { username: 1, member_type: 1, role:1 }
       );
       let playerName = "",
         playerUserId = "",
@@ -677,10 +677,22 @@ class EmploymentContractService {
           documents: documents,
           status: reqObj.status,
         });
-        await this.emailService.employmentContractApproval({
-          email: sentByUser.username,
-          name: playerName,
-        });
+
+        if (requestedData.user.role == 'player') {
+          await this.emailService.employmentContractApprovalByPlayer({
+            email: sentByUser.username,
+            name: clubAcademyName,
+            from: playerName,
+            category: sentByUser.role,
+          });
+        } else {
+          await this.emailService.employmentContractApprovalByClubAcademy({
+            email: sentByUser.username,
+            name: playerName,
+            from: clubAcademyName,
+            category: data.category,
+          });
+        }
       }
       if (reqObj.status === ContractStatus.DISAPPROVED) {
         await this.contractInst.updateOne(
