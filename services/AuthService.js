@@ -166,7 +166,35 @@ class AuthService {
                 });
                 loginDetails.forgot_password_token = tokenForForgetPassword;
                 await redisServiceInst.setCacheForForgotPassword(loginDetails.user_id, tokenForForgetPassword, { ...loginDetails });
-                await this.emailService.forgotPassword(email, resetPasswordURL);
+
+                let user_name = '';
+
+                if (loginDetails.role == ROLE.PLAYER) {
+                    let profileDetails = await this.playerUtilityInst.findOne({
+                      user_id: loginDetails.user_id,
+                    }, {first_name:1});
+                    user_name = profileDetails.first_name;
+                }
+                if ([ROLE.CLUB, ROLE.ACADEMY].includes(loginDetails.role)) {
+                    let profileDetails = await this.clubAcademyUtilityInst.findOne(
+                      {
+                        user_id: loginDetails.user_id,
+                      },
+                      { name:1 }
+                    );
+                    user_name = profileDetails.name;
+                }
+                if (loginDetails.role == ROLE.ADMIN) {
+                    let profileDetails = await this.adminUtilityInst.findOne(
+                      {
+                        user_id: loginDetails.user_id,
+                      },
+                      { name:1 }
+                    );
+                    user_name = profileDetails.name;
+                }
+
+                await this.emailService.forgotPassword(email, resetPasswordURL, user_name);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

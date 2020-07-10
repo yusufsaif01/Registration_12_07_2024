@@ -5,9 +5,8 @@ const render = require("../mailTemplates/render");
 
 class EmailService {
 
-    async forgotPassword(email, password_reset_link) {
-        console.log('password reset link', password_reset_link)
-        await this.sendMail("forgotPassword", { email: email, password_reset_link: password_reset_link });
+    async forgotPassword(email, password_reset_link, name) {
+        await this.sendMail("forgotPassword", { email: email, password_reset_link: password_reset_link, name });
     }
 
     async emailVerification(email, activation_link, name) {
