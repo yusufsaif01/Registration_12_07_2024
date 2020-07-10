@@ -16,6 +16,7 @@ const globalData = {
     termsConditions: config.app.terms_and_conditions_url,
     contactUs: config.app.contact_us_url,
   },
+  contactUsEmail:'admin@yftchain.dev'
 };
 
 module.exports = (html, data = {}) => {

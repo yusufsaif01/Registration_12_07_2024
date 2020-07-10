@@ -112,7 +112,11 @@ class UserRegistrationService extends UserService {
             await redisServiceInst.setKeyValuePair(`keyForForgotPassword${tokenForAccountActivation}`, userData.user_id)
             await redisServiceInst.setKeyValuePair(userData.user_id, JSON.stringify({ ...userData, forgot_password_token: tokenForAccountActivation }));
             let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
-            this.emailService.emailVerification(userData.email, accountActivationURL);
+            this.emailService.emailVerification(
+              userData.email,
+              accountActivationURL,
+              userData.first_name
+            );
             return Promise.resolve();
         } catch (e) {
             console.log(e);

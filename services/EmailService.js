@@ -10,9 +10,8 @@ class EmailService {
         await this.sendMail("forgotPassword", { email: email, password_reset_link: password_reset_link });
     }
 
-    async emailVerification(email, activation_link) {
-        console.log('activation-link', activation_link, 'email', email)
-        await this.sendMail("emailVerification", { email: email, activation_link: activation_link });
+    async emailVerification(email, activation_link, name) {
+        await this.sendMail("emailVerification", { email: email, activation_link: activation_link, name:name});
     }
 
     async welcome(email) {
