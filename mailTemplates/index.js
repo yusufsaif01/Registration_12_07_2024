@@ -9,7 +9,8 @@ const documentDisapproval = require("./documentDisApprovalTemplate");
 const footplayerRequest = require("./footplayerRequestMailTemplate");
 const footplayerInvite = require("./footplayerInviteMailTemplate");
 const employmentContractApproval = require("./EmploymentContractApprovalTemplate");
-const employmentContractDisapproval = require("./EmploymentContractDisapprovalTemplate");
+const employmentContractDisapprovalByPlayer = require("./employmentContractDisapprovalByPlayer");
+const employmentContractDisapprovalByClubAcademy = require("./employmentContractDisapprovalByClubAcademy");
 const employmentContractCreatedClubAcademy = require("./employmentContractCreatedClubAcademy");
 const employmentContractCreatedPlayer = require("./employmentContractCreatedPlayer");
 const SampleHtmlTemplate = require("./SampleHtmlTemplate");
@@ -26,7 +27,8 @@ module.exports = {
   footplayerRequest,
   footplayerInvite,
   employmentContractApproval,
-  employmentContractDisapproval,
+  employmentContractDisapprovalByPlayer,
+  employmentContractDisapprovalByClubAcademy,
   employmentContractCreatedClubAcademy,
   employmentContractCreatedPlayer,
   SampleHtmlTemplate,

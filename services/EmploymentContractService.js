@@ -635,7 +635,8 @@ class EmploymentContractService {
       let playerName = "",
         playerUserId = "",
         playerType = "",
-        documents = [];
+        documents = [],
+        clubAcademyName= '';
       if (isSendToPlayer || sentByUser.member_type === MEMBER.PLAYER) {
         playerUserId = isSendToPlayer ? data.send_to : data.sent_by;
         let player = await this.playerUtilityInst.findOne(
@@ -646,6 +647,11 @@ class EmploymentContractService {
         playerType = player.player_type;
         documents = player.documents;
       }
+
+      const clubAcademyId = isSendToPlayer ? data.sent_by : data.send_to;
+      const clubAcadDetails = await this.getClubDetails(clubAcademyId);
+      clubAcademyName = clubAcadDetails.name;
+
       let reqObj = requestedData.reqObj;
       if (reqObj.status === ContractStatus.APPROVED) {
         await this.checkForActiveContract({
@@ -687,11 +693,24 @@ class EmploymentContractService {
           documents: documents,
           status: reqObj.status,
         });
-        await this.emailService.employmentContractDisapproval({
-          email: sentByUser.username,
-          name: playerName,
-          reason: reqObj.remarks,
-        });
+
+        if (requestedData.user.role == 'player') {
+          await this.emailService.employmentContractDisapprovalByPlayer({
+            email: sentByUser.username,
+            name: clubAcademyName,
+            reason: reqObj.remarks,
+            from: playerName,
+            category: sentByUser.role,
+          });
+        } else {
+          await this.emailService.employmentContractDisapprovalByClubAcademy({
+            email: sentByUser.username,
+            name: playerName,
+            reason: reqObj.remarks,
+            from: clubAcademyName,
+            category: data.category,
+          });
+        }       
       }
       return Promise.resolve();
     } catch (e) {
