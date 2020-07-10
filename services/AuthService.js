@@ -169,30 +169,7 @@ class AuthService {
 
                 let user_name = '';
 
-                if (loginDetails.role == ROLE.PLAYER) {
-                    let profileDetails = await this.playerUtilityInst.findOne({
-                      user_id: loginDetails.user_id,
-                    }, {first_name:1});
-                    user_name = profileDetails.first_name;
-                }
-                if ([ROLE.CLUB, ROLE.ACADEMY].includes(loginDetails.role)) {
-                    let profileDetails = await this.clubAcademyUtilityInst.findOne(
-                      {
-                        user_id: loginDetails.user_id,
-                      },
-                      { name:1 }
-                    );
-                    user_name = profileDetails.name;
-                }
-                if (loginDetails.role == ROLE.ADMIN) {
-                    let profileDetails = await this.adminUtilityInst.findOne(
-                      {
-                        user_id: loginDetails.user_id,
-                      },
-                      { name:1 }
-                    );
-                    user_name = profileDetails.name;
-                }
+                user_name = await this.getProfileName(loginDetails, user_name);
 
                 await this.emailService.forgotPassword(email, resetPasswordURL, user_name);
                 return Promise.resolve();
@@ -202,6 +179,34 @@ class AuthService {
             console.log(err);
             return Promise.reject(err);
         }
+    }
+
+    async getProfileName(loginDetails, user_name) {
+        if (loginDetails.role == ROLE.PLAYER) {
+            let profileDetails = await this.playerUtilityInst.findOne({
+                user_id: loginDetails.user_id,
+            }, { first_name: 1 });
+            user_name = profileDetails.first_name;
+        }
+        if ([ROLE.CLUB, ROLE.ACADEMY].includes(loginDetails.role)) {
+            let profileDetails = await this.clubAcademyUtilityInst.findOne(
+                {
+                    user_id: loginDetails.user_id,
+                },
+                { name: 1 }
+            );
+            user_name = profileDetails.name;
+        }
+        if (loginDetails.role == ROLE.ADMIN) {
+            let profileDetails = await this.adminUtilityInst.findOne(
+                {
+                    user_id: loginDetails.user_id,
+                },
+                { name: 1 }
+            );
+            user_name = profileDetails.name;
+        }
+        return user_name;
     }
 
     async changePassword(tokenData, old_password, new_password, confirm_password) {
@@ -226,7 +231,10 @@ class AuthService {
                 }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
                 await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
-                await this.emailService.changePassword(loginDetails.username);
+                let profileName = "";
+
+                profileName = await this.getProfileName(loginDetails, profileName);
+                await this.emailService.changePassword(loginDetails.username, profileName);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

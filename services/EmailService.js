@@ -17,8 +17,8 @@ class EmailService {
         await this.sendMail("welcome", { email: email });
     }
 
-    async changePassword(email) {
-        await this.sendMail("changePassword", { email: email });
+    async changePassword(email, name) {
+        await this.sendMail("changePassword", { email: email, name });
     }
 
     async footplayerRequest(send_to_email, sent_by = {}) {
