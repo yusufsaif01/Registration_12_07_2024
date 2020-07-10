@@ -39,6 +39,55 @@
         "default": "/uploads/avatar/user-avatar.png",
         "env": "DEFAULT_AVATAR_URL",
         "arg": "DEFAULT_AVATAR_URL"
+	},
+	"facebook_url": {
+        "doc": "provide default facebook url",
+        "format": "String",
+        "default": "https://www.facebook.com",
+        "env": "FACEBOOK_URL",
+        "arg": "facebook_url"
+    },
+	"instagram_url": {
+        "doc": "provide default instagram url",
+        "format": "String",
+        "default": "#",
+        "env": "INSTAGRAM_URL",
+        "arg": "instagram_url"
+    },
+	"linkedin_url": {
+        "doc": "provide default linkedin url",
+        "format": "String",
+        "default": "#",
+        "env": "LINKEDIN_URL",
+        "arg": "linkedin_url"
+    },
+	"twitter_url": {
+        "doc": "provide default twitter url",
+        "format": "String",
+        "default": "#",
+        "env": "TWITTER_URL",
+        "arg": "twitter_url"
+    },
+	"privacy_policy_url": {
+        "doc": "provide default twitter url",
+        "format": "String",
+        "default": "#",
+        "env": "PRIVACY_POLICY_URL",
+        "arg": "privacy_policy_url"
+    },
+	"terms_and_conditions_url": {
+        "doc": "provide default twitter url",
+        "format": "String",
+        "default": "#",
+        "env": "TERMS_AND_CONDITIONS_URL",
+        "arg": "terms_and_conditions_url"
+    },
+	"contact_us_url": {
+        "doc": "provide default twitter url",
+        "format": "String",
+        "default": "#",
+        "env": "CONTACT_US_URL",
+        "arg": "contact_us_url"
     }
 
 }
