@@ -22,7 +22,12 @@ class EmailService {
     }
 
     async footplayerRequest(send_to_email, sent_by = {}) {
-        await this.sendMail("footplayerRequest", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name: sent_by.name });
+        await this.sendMail("footplayerRequest", {
+          send_to_email: send_to_email,
+          sent_by_member_type: sent_by.member_type,
+          sent_by_name: sent_by.name,
+          player_name: sent_by.player_name,
+        });
     }
 
     async sendFootplayerInvite(send_to_email, sent_by = {}, link) {

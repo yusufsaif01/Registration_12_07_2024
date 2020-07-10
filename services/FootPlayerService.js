@@ -112,7 +112,7 @@ class FootPlayerService {
         })
       }
       let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
-      this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
+      this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name, player_name: send_to_data.first_name  });
       return Promise.resolve();
     } catch (e) {
       console.log("Error in sendFootplayerRequest() of FootPlayerService", e);
