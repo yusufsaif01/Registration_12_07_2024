@@ -90,6 +90,9 @@ class EmailService {
     async footPlayerInviteAccepted (data) {
         await this.sendMail("footPlayerInviteAccepted", data);
     }
+    async postEmailConfirmation (data) {
+        await this.sendMail("postEmailConfirmation", data);
+    }
 }
 
 module.exports = EmailService;

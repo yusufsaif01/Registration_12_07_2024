@@ -115,7 +115,7 @@ class UserRegistrationService extends UserService {
             this.emailService.emailVerification(
               userData.email,
               accountActivationURL,
-              userData.first_name
+              userData.first_name || userData.name
             );
             return Promise.resolve();
         } catch (e) {

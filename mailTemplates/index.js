@@ -15,11 +15,13 @@ const employmentContractApprovalByPlayer = require("./employmentContractApproval
 const employmentContractCreatedClubAcademy = require("./employmentContractCreatedClubAcademy");
 const employmentContractCreatedPlayer = require("./employmentContractCreatedPlayer");
 const footPlayerInviteAccepted = require("./footPlayerInviteAccepted");
+const postEmailConfirmation = require("./postEmailConfirmation");
 
 module.exports = {
   forgotPassword,
   emailVerification,
   welcome,
+  postEmailConfirmation,
   changePassword,
   profileVerified,
   profileDisapproved,

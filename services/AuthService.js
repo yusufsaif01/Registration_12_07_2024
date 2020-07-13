@@ -15,6 +15,7 @@ const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
 const redisServiceInst = require('../redis/RedisService');
+const UtilityService = require("./UtilityService");
 
 class AuthService {
 
@@ -26,6 +27,7 @@ class AuthService {
         this.activityUtilityInst = new ActivityUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.emailService = new EmailService();
+        this.utilityService = new UtilityService();
     }
     async emailVerification(data) {
         try {
@@ -294,7 +296,28 @@ class AuthService {
                     forgot_password_token: ""
                 });
                 await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
+                let playerName = '';
+                if (loginDetails.role == ROLE.PLAYER) {
+                    let userDetails = await this.utilityService.getPlayerDetails(
+                      loginDetails.user_id
+                    );
+                    if (userDetails) {
+                        playerName = userDetails.first_name;
+                    }
+                } else {
+                    let clubAcademyDetails = await this.utilityService.getClubDetails(
+                      loginDetails.user_id
+                    );
+                    if (clubAcademyDetails) {
+                      playerName = clubAcademyDetails.name;
+                    }
+                }
+
                 await this.emailService.welcome(loginDetails.username);
+                await this.emailService.postEmailConfirmation({
+                    email : loginDetails.username,
+                    name: playerName,
+                });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
