@@ -87,10 +87,6 @@ class EmailService {
         await this.sendMail("employmentContractCreatedPlayer", data);
     }
 
-    async sampleHtmlEmail (data) {
-        await this.sendMail("SampleHtmlTemplate", data);
-    }
-
     async footPlayerInviteAccepted (data) {
         await this.sendMail("footPlayerInviteAccepted", data);
     }

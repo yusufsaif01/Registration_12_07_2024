@@ -14,7 +14,6 @@ const employmentContractApprovalByClubAcademy = require("./employmentContractApp
 const employmentContractApprovalByPlayer = require("./employmentContractApprovalByPlayer");
 const employmentContractCreatedClubAcademy = require("./employmentContractCreatedClubAcademy");
 const employmentContractCreatedPlayer = require("./employmentContractCreatedPlayer");
-const SampleHtmlTemplate = require("./SampleHtmlTemplate");
 const footPlayerInviteAccepted = require("./footPlayerInviteAccepted");
 
 module.exports = {
@@ -34,6 +33,5 @@ module.exports = {
   employmentContractApprovalByPlayer,
   employmentContractCreatedClubAcademy,
   employmentContractCreatedPlayer,
-  SampleHtmlTemplate,
   footPlayerInviteAccepted,
 };
