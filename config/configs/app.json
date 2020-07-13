@@ -88,6 +88,13 @@
         "default": "#",
         "env": "CONTACT_US_URL",
         "arg": "contact_us_url"
+    },
+	"contact_us_email": {
+        "doc": "provide default twitter email",
+        "format": "String",
+        "default": "admin@yftchain.com",
+        "env": "CONTACT_US_EMAIL",
+        "arg": "contact_us_email"
     }
 
 }
