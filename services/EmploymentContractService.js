@@ -690,13 +690,13 @@ class EmploymentContractService {
           await this.emailService.employmentContractApprovalByPlayer({
             email: sentByUser.username,
             name: clubAcademyName,
-            from: playerName,
+            from: player_name,
             category: sentByUser.role,
           });
         } else {
           await this.emailService.employmentContractApprovalByClubAcademy({
             email: sentByUser.username,
-            name: playerName,
+            name: player_name,
             from: clubAcademyName,
             category: data.category,
           });
@@ -719,13 +719,13 @@ class EmploymentContractService {
             email: sentByUser.username,
             name: clubAcademyName,
             reason: reqObj.remarks,
-            from: playerName,
+            from: player_name,
             category: sentByUser.role,
           });
         } else {
           await this.emailService.employmentContractDisapprovalByClubAcademy({
             email: sentByUser.username,
-            name: playerName,
+            name: player_name,
             reason: reqObj.remarks,
             from: clubAcademyName,
             category: data.category,
