@@ -10,4 +10,4 @@ const contractStatusUpdateScheduler = schedule.scheduleJob(contractRule, functio
 const playerTypeUpdateScheduler = schedule.scheduleJob(playerRule, function () {
     updatePlayerType();
 });
-module.exports = contractStatusUpdateScheduler , playerTypeUpdateScheduler;
+module.exports = { contractStatusUpdateScheduler, playerTypeUpdateScheduler };

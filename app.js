@@ -11,8 +11,7 @@ const cors = require('cors')
 const responseHandler = require("./ResponseHandler");
 const errors = require("./errors");
 const StorageProvider = require('storage-provider');
-const contractStatusUpdateScheduler = require('./scheduler');
-const playerTypeUpdateScheduler = require('./scheduler');
+const { contractStatusUpdateScheduler, playerTypeUpdateScheduler} = require('./scheduler');
  
 global.__basedir = path.resolve(__dirname);
 
