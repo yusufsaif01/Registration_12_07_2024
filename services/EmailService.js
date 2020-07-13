@@ -90,6 +90,10 @@ class EmailService {
     async sampleHtmlEmail (data) {
         await this.sendMail("SampleHtmlTemplate", data);
     }
+
+    async footPlayerInviteAccepted (data) {
+        await this.sendMail("footPlayerInviteAccepted", data);
+    }
 }
 
 module.exports = EmailService;
