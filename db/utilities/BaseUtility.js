@@ -164,6 +164,25 @@ class BaseUtility {
 			throw e;
 		}
 	}
+
+	async cursor (conditions = {}, projection = {}, options = {}) {
+		try {
+			if (_.isEmpty(this.model)) {
+				await this.getModel();
+			}
+			conditions.deleted_at = { $exists: false };
+
+			if (options && (!options.sort || !Object.keys(options.sort).length)) {
+				options.sort = { createdAt: -1 };
+			}
+
+			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
+			return this.model.find(conditions, projection, options).cursor();
+		} catch (e) {
+			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
+			throw e;
+		}
+	}
 }
 
 module.exports = BaseUtility;
