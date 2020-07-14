@@ -37,21 +37,14 @@ module.exports = ({ email, name, from }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to inform you that ${from}, has confirmed your as a FooTPlayer associated with their organisation.</p>
+						You are now a footplayer associated with ${from}
+						<br>Please click below to go to YFTChain portal and witness your new status with unlocked features.
+						</p>
 				</td>
 			</tr>
 
 			<tr style="height: 20px;">
 				<td></td>
-			</tr>
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style="display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 16px;font-weight: 300;color:#626262;
-					">
-						Please click below to go to YFTChain portal and witness your new status.</p>
-				</td>
 			</tr>
 
 			<tr style="height: 40px;">
