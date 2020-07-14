@@ -44,7 +44,7 @@ module.exports = ({ email }) => {
                 color: #626262;
 				margin-top: 10px;
               ">
-              A big thank you, from all of ua at the YFTChain's team in India and Ireland!
+              A big thank you, from all of us at the YFTChain's team in India and Ireland!
             </p>
           </td>
         </tr>
