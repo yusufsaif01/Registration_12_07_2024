@@ -42,7 +42,7 @@ module.exports = ({ email, name }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						It takes a couple of pictures of your Adhaar Card or ID and yourself.</p>
+						It takes a couple of pictures of your Aadhaar Card or ID and yourself.</p>
 				</td>
 			</tr>
 			<!-- button -->
