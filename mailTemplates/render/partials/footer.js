@@ -23,7 +23,7 @@ module.exports = (footer) => {
                     href="${footer.socialLinks.instagram}"
                     style="display: inline-block; text-decoration: none;"
                   >
-                    <img src="${footer.appUrl}assets/images/instagram.png" alt="instagram" />
+                    <img src="${footer.appUrl}assets/images/website/social/instagram.png" alt="instagram" />
                   </a>
                 </li>
                 <li style="display: inline-block; width: 50px;">
@@ -31,7 +31,7 @@ module.exports = (footer) => {
                     href="${footer.socialLinks.facebook}"
                     style="display: inline-block; text-decoration: none;"
                   >
-                    <img src="${footer.appUrl}assets/images/facebook.png" alt="facebook" />
+                    <img src="${footer.appUrl}assets/images/website/social/facebook.png" alt="facebook" />
                   </a>
                 </li>
                 <li style="display: inline-block; width: 50px;">
@@ -39,7 +39,7 @@ module.exports = (footer) => {
                     href="${footer.socialLinks.linkedin}"
                     style="display: inline-block; text-decoration: none;"
                   >
-                    <img src="${footer.appUrl}assets/images/linkedin.png" alt="Linkedin" />
+                    <img src="${footer.appUrl}assets/images/website/social/linkedin.png" alt="Linkedin" />
                   </a>
                 </li>
                 <li style="display: inline-block; width: 50px;">
@@ -47,7 +47,7 @@ module.exports = (footer) => {
                     href="${footer.socialLinks.twitter}"
                     style="display: inline-block; text-decoration: none;"
                   >
-                    <img src="${footer.appUrl}assets/images/twitter.png" alt="twitter" />
+                    <img src="${footer.appUrl}assets/images/website/social/twitter.png" alt="twitter" />
                   </a>
                 </li>
               </ul>
