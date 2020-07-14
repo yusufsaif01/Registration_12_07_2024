@@ -75,7 +75,7 @@ module.exports = ({ email, from, name, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Once you have approved the contract, you will be treated as a professional player on the YFTChain portal and your professional status will be associated with ${category}.</p>
+						Once you have approved the contract, you will be treated as a professional player on the YFTChain portal and your professional status will be associated with ${from}.</p>
 				</td>
 			</tr>
 			<tr style="height: 20px;">
