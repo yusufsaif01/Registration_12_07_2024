@@ -25,7 +25,7 @@ class PeopleListResponseMapper {
           email: request.userDetail.email,
           address: request.userDetail.address || "",
           mobile: request.userDetail.mobile_number || "",
-          aiffNumber: getAiffNumber(request.userDetail),
+          aiff_number: getAiffNumber(request.userDetail),
         };
         response.push(data);
       });

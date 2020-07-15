@@ -10,7 +10,7 @@ const customMessage = require("./CustomMessages");
 class EmploymentContractValidator {
   async createValidator(req, res, next) {
     const validationSchema = {
-      user_id: Joi.when("clubAcademyName", {
+      user_id: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string(),
         otherwise: Joi.string().required(),
@@ -19,7 +19,7 @@ class EmploymentContractValidator {
           message: RESPONSE_MESSAGE.USER_ID_REQUIRED,
         };
       }),
-      playerName: Joi.string()
+      player_name: Joi.string()
         .required()
         .error(() => {
           return {
@@ -38,7 +38,7 @@ class EmploymentContractValidator {
           )
         ),
 
-      clubAcademyName: Joi.string()
+      club_academy_name: Joi.string()
         .required()
         .error(() => {
           return {
@@ -46,7 +46,7 @@ class EmploymentContractValidator {
           };
         }),
 
-      signingDate: Joi.date()
+      signing_date: Joi.date()
         .required()
         .max(moment().subtract(1, "d").format("YYYY-MM-DD"))
         .error(
@@ -57,9 +57,9 @@ class EmploymentContractValidator {
             RESPONSE_MESSAGE.SIGNING_DATE_INVALID
           )
         ),
-      effectiveDate: Joi.date()
+      effective_date: Joi.date()
         .required()
-        .min(Joi.ref("signingDate"))
+        .min(Joi.ref("signing_date"))
         .error(
           customMessage(
             {
@@ -68,9 +68,9 @@ class EmploymentContractValidator {
             RESPONSE_MESSAGE.EFFECTIVE_DATE_INVALID
           )
         ),
-      expiryDate: Joi.date()
+      expiry_date: Joi.date()
         .required()
-        .min(Joi.ref("effectiveDate"))
+        .min(Joi.ref("effective_date"))
         .error(
           customMessage(
             {
@@ -79,10 +79,10 @@ class EmploymentContractValidator {
             RESPONSE_MESSAGE.EXPIRY_DATE_INVALID
           )
         ),
-      placeOfSignature: Joi.string().optional(),
-      clubAcademyRepresentativeName: Joi.string().optional(),
-      clubAcademyAddress: Joi.string().optional(),
-      clubAcademyPhoneNumber: Joi.when("clubAcademyName", {
+      place_of_signature: Joi.string().optional(),
+      club_academy_representative_name: Joi.string().optional(),
+      club_academy_address: Joi.string().optional(),
+      club_academy_phone_number: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string(),
         otherwise: Joi.string()
@@ -96,7 +96,7 @@ class EmploymentContractValidator {
           RESPONSE_MESSAGE.CLUB_ACADEMY_PHONE_INVALID
         )
       ),
-      clubAcademyEmail: Joi.when("clubAcademyName", {
+      club_academy_email: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string(),
         otherwise: Joi.string().email().required(),
@@ -105,12 +105,12 @@ class EmploymentContractValidator {
           message: RESPONSE_MESSAGE.CLUB_ACADEMY_EMAIL_INVALID,
         };
       }),
-      aiffNumber: Joi.string().optional(),
-      crsUserName: Joi.string().optional(),
+      aiff_number: Joi.string().optional(),
+      crs_user_name: Joi.string().optional(),
 
-      legalGuardianName: Joi.string().optional(),
-      playerAddress: Joi.string().optional(),
-      playerMobileNumber: Joi.string()
+      legal_guardian_name: Joi.string().optional(),
+      player_address: Joi.string().optional(),
+      player_mobile_number: Joi.string()
         .length(10)
         .regex(/^[0-9]+$/)
         .required()
@@ -122,7 +122,7 @@ class EmploymentContractValidator {
             RESPONSE_MESSAGE.PLAYER_MOBILE_NUMBER_INVALID
           )
         ),
-      playerEmail: Joi.string()
+      player_email: Joi.string()
         .email()
         .required()
         .error(() => {
@@ -131,15 +131,15 @@ class EmploymentContractValidator {
           };
         }),
 
-      clubAcademyUsesAgentServices: Joi.boolean().optional(),
-      clubAcademyIntermediaryName: Joi.string().optional(),
-      clubAcademyTransferFee: Joi.string().optional(),
+      club_academy_uses_agent_services: Joi.boolean().optional(),
+      club_academy_intermediary_name: Joi.string().optional(),
+      club_academy_transfer_fee: Joi.string().optional(),
 
-      playerUsesAgentServices: Joi.boolean().optional(),
-      playerIntermediaryName: Joi.string().optional(),
-      playerTransferFee: Joi.string().optional(),
+      player_uses_agent_services: Joi.boolean().optional(),
+      player_intermediary_name: Joi.string().optional(),
+      player_transfer_fee: Joi.string().optional(),
 
-      otherName: Joi.when("clubAcademyName", {
+      other_name: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string().required(),
         otherwise: Joi.string(),
@@ -148,7 +148,7 @@ class EmploymentContractValidator {
           message: RESPONSE_MESSAGE.OTHER_NAME_REQUIRED,
         };
       }),
-      otherEmail: Joi.when("clubAcademyName", {
+      other_email: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string().email().required(),
         otherwise: Joi.string(),
@@ -157,7 +157,7 @@ class EmploymentContractValidator {
           message: RESPONSE_MESSAGE.OTHER_EMAIL_REQUIRED,
         };
       }),
-      otherPhoneNumber: Joi.when("clubAcademyName", {
+      other_phone_number: Joi.when("club_academy_name", {
         is: "Others",
         then: Joi.string()
           .length(10)
@@ -176,9 +176,9 @@ class EmploymentContractValidator {
     /** Remove fields not required when club/academy is creating the contract. */
     if ([Role.ACADEMY, Role.CLUB].includes(req.authUser.role)) {
       delete validationSchema.category;
-      delete validationSchema.otherName;
-      delete validationSchema.otherEmail;
-      delete validationSchema.otherPhoneNumber;
+      delete validationSchema.other_name;
+      delete validationSchema.other_email;
+      delete validationSchema.other_phone_number;
     }
 
     const schema = Joi.object().keys(validationSchema);

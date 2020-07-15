@@ -29,15 +29,15 @@ module.exports = (router) => {
    *                   "total": 1,
    *                    "records": [{
    *                         "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
-   *                         "effectiveDate": "2020-05-23T00:00:00.000Z",
-   *                         "expiryDate": "2021-06-12T00:00:00.000Z",
+   *                         "effective_date": "2020-05-23T00:00:00.000Z",
+   *                         "expiry_date": "2021-06-12T00:00:00.000Z",
    *                         "status": "active",
    *                         "name": "newclub",
    *                         "avatar": "\\uploads\\documents\\sampleHouse1590487315578.png",
-   *                         "clubAcademyUserId": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+   *                         "club_academy_user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
    *                         "created_by": "player",
-   *                         "canUpdateStatus": true
-   *                                }]
+   *                         "can_update_status": true
+   *                       }]
    *                  }
    *      }
    *     
@@ -73,35 +73,33 @@ module.exports = (router) => {
    *          "status": "success",
    *          "message": "Successfully done",
    *          "data": {
-   *                   "sent_by": "f5967a91-f632-406c-8b5f-0f387453e74d",
-   *                   "send_to": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-   *                   "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
-   *                   "signingDate": "2020-05-12T00:00:00.000Z",
-   *                   "effectiveDate": "2020-05-12T00:00:00.000Z",
-   *                   "expiryDate": "2021-05-12T00:00:00.000Z",
+   *                   "club_academy_uses_agent_services": true,
+   *                   "player_uses_agent_services": false,
+   *                   "is_deleted": false,
+   *                   "player_name": "Someone",
+   *                   "club_academy_name": "Others",
+   *                   "signing_date": "2020-06-15T00:00:00.000Z",
+   *                   "effective_date": "2020-06-20T00:00:00.000Z",
+   *                   "expiry_date": "2023-06-20T00:00:00.000Z",
+   *                   "place_of_signature": "General Office",
+   *                   "player_mobile_number": "7989875642",
+   *                   "club_academy_representative_name": "Gopal",
+   *                   "club_academy_address": "Near that road",
+   *                   "club_academy_phone_number": "9898955662",
+   *                   "club_academy_email": "userlessssclub@gmail.com",
+   *                   "aiff_number": "asdas21312",
+   *                   "crs_user_name": "CSRF_NAME",
+   *                   "legal_guardian_name": "Gopal's Father",
+   *                   "player_address": "near other road",
+   *                   "player_email": "play@gmail.com",
+   *                   "club_academy_intermediary_name": "something",
+   *                   "club_academy_transfer_fee": "3423",
    *                   "status": "pending",
-   *                   "playerName": "xyz",
-   *                   "category": "club",
-   *                   "clubAcademyName": "xyz",
-   *                   "placeOfSignature": "xyz",
-   *                   "clubAcademyRepresentativeName": "xyz",
-   *                   "clubAcademyAddress": "xyz",
-   *                   "clubAcademyPhoneNumber": "0987654321",
-   *                   "clubAcademyEmail": "newclub@newclub.com",
-   *                   "aiffNumber": "1234567890",
-   *                   "crsUserName": "xyz",
-   *                   "legalGuardianName": "xyz",
-   *                   "playerAddress": "xyz",
-   *                   "playerMobileNumber": "0987654321",
-   *                   "playerEmail": "player38@player.com",
-   *                   "clubAcademyUsesAgentServices": true,
-   *                   "clubAcademyIntermediaryName": "xyz",
-   *                   "clubAcademyTransferFee": "8970",
-   *                   "playerUsesAgentServices": true,
-   *                   "playerIntermediaryName": "xyz",
-   *                   "playerTransferFee": "8970",
-   *                   "created_by": "player",
-   *                   "send_to_category": "club"
+   *                   "sent_by": "f4ce1958-d318-4f92-9c72-b17bcaa93bcf",
+   *                   "send_to": "704132f1-ddfc-4e82-95d0-d5fb3851fa41",
+   *                   "id": "c0fdb242-c067-4369-afe4-67e7be5ce0ef",
+   *                   "created_by": "club",
+   *                   "send_to_category": "player"
    *                  }
    *      }
    *     
@@ -139,61 +137,61 @@ module.exports = (router) => {
    * @apiName Add Employment Contract
    * @apiGroup Employment Contract
    *
-   * @apiParam (body) {String} playerName Player Name
+   * @apiParam (body) {String} player_name Player Name
    * @apiParam (body) {String} category Category/role of player
-   * @apiParam (body) {String} clubAcademyName Club academy Name
-   * @apiParam (body) {Date} signingDate Signing Date, any past date
-   * @apiParam (body) {Date} effectiveDate Past of future day but should be grater than signingDate
-   * @apiParam (body) {Date} expiryDate Expiry Date, max date is effectiveDate + 5yrs
-   * @apiParam (body) {String} placeOfSignature Place of signature
-   * @apiParam (body) {String} clubAcademyRepresentativeName Club academy representative name.
-   * @apiParam (body) {String} clubAcademyAddress Club academy address
-   * @apiParam (body) {String} clubAcademyPhoneNumber club academy phone number
-   * @apiParam (body) {String} clubAcademyEmail club academy email
-   * @apiParam (body) {String} aiffNumber AIFF number
-   * @apiParam (body) {String} crsUserName CRS user name
-   * @apiParam (body) {String} legalGuardianName Legal guardian name
-   * @apiParam (body) {String} playerAddress Player address
-   * @apiParam (body) {String} playerMobileNumber Player mobile number
-   * @apiParam (body) {Email} playerEmail Player email
-   * @apiParam (body) {Boolean} clubAcademyUsesAgentServices Club uses academy services
-   * @apiParam (body) {String} clubAcademyIntermediaryName Club academy intermediary name
-   * @apiParam (body) {String} clubAcademyTransferFee Club transfer fees
-   * @apiParam (body) {Boolean} playerUsesAgentServices Player uses agent service
-   * @apiParam (body) {String} playerIntermediaryName Player intermediary name
-   * @apiParam (body) {String} playerTransferFee Player transfer fees
-   * @apiParam (body) {String} [otherName]  Other name, required when clubAcademyName is 'others'
-   * @apiParam (body) {String} [otherEmail] Other Email required when clubAcademyName is 'others'
-   * @apiParam (body) {String} [otherPhoneNumber] Other phone required when clubAcademyName is 'others'
+   * @apiParam (body) {String} club_academy_name Club academy Name
+   * @apiParam (body) {Date} signing_date Signing Date, any past date
+   * @apiParam (body) {Date} effective_date Past of future day but should be grater than signing_date
+   * @apiParam (body) {Date} expiry_date Expiry Date, max date is effective_date + 5yrs
+   * @apiParam (body) {String} place_of_signature Place of signature
+   * @apiParam (body) {String} club_academy_representative_name Club academy representative name.
+   * @apiParam (body) {String} club_academy_address Club academy address
+   * @apiParam (body) {String} club_academy_phone_number club academy phone number
+   * @apiParam (body) {String} club_academy_email club academy email
+   * @apiParam (body) {String} aiff_number AIFF number
+   * @apiParam (body) {String} crs_user_name CRS user name
+   * @apiParam (body) {String} legal_guardian_name Legal guardian name
+   * @apiParam (body) {String} player_address Player address
+   * @apiParam (body) {String} player_mobile_number Player mobile number
+   * @apiParam (body) {Email} player_email Player email
+   * @apiParam (body) {Boolean} club_academy_uses_agent_services Club uses academy services
+   * @apiParam (body) {String} club_academy_intermediary_name Club academy intermediary name
+   * @apiParam (body) {String} club_academy_transfer_fee Club transfer fees
+   * @apiParam (body) {Boolean} player_uses_agent_services Player uses agent service
+   * @apiParam (body) {String} player_intermediary_name Player intermediary name
+   * @apiParam (body) {String} player_transfer_fee Player transfer fees
+   * @apiParam (body) {String} [other_name]  Other name, required when club_academy_name is 'others'
+   * @apiParam (body) {String} [other_email] Other Email required when club_academy_name is 'others'
+   * @apiParam (body) {String} [other_phone_number] Other phone required when club_academy_name is 'others'
    *
    * @apiParamExample {json} Request-Example:
    * {
-   *   "playerName": "Someone",
+   *   "player_name": "Someone",
    *   "category": "club",
-   *   "clubAcademyName": "SomeClub",
-   *   "signingDate": "2020-06-15",
-   *   "effectiveDate": "2020-06-20",
-   *   "expiryDate": "2023-06-20",
-   *   "placeOfSignature": "General Office",
-   *   "clubAcademyRepresentativeName": "Gopal",
-   *   "clubAcademyAddress": "Near that road",
-   *   "clubAcademyPhoneNumber": "9898955662",
-   *   "clubAcademyEmail": "useless@club.com",
-   *   "aiffNumber": "asdas21312",
-   *   "crsUserName": "CSRF_NAME",
-   *   "legalGuardianName": "Gopal's Father",
-   *   "playerAddress": "near other road",
-   *   "playerMobileNumber": "123132155464",
-   *   "playerEmail": "player@localhost.com",
-   *   "clubAcademyUsesAgentServices": true,
-   *   "clubAcademyIntermediaryName": "sdas",
-   *   "clubAcademyTransferFee": "asdahy",
-   *   "playerUsesAgentServices": true,
-   *   "playerIntermediaryName": "some check",
-   *   "playerTransferFee": "transfer fee",
-   *   "otherName": "Some other club",
-   *   "otherEmail": "someotheremail@localhost.com",
-   *   "otherPhoneNumber": "2342883888"
+   *   "club_academy_name": "SomeClub",
+   *   "signing_date": "2020-06-15",
+   *   "effective_date": "2020-06-20",
+   *   "expiry_date": "2023-06-20",
+   *   "place_of_signature": "General Office",
+   *   "club_academy_representative_name": "Gopal",
+   *   "club_academy_address": "Near that road",
+   *   "club_academy_phone_number": "9898955662",
+   *   "club_academy_email": "useless@club.com",
+   *   "aiff_number": "asdas21312",
+   *   "crs_user_name": "CSRF_NAME",
+   *   "legal_guardian_name": "Gopal's Father",
+   *   "player_address": "near other road",
+   *   "player_mobile_number": "123132155464",
+   *   "player_email": "player@localhost.com",
+   *   "club_academy_uses_agent_services": true,
+   *   "club_academy_intermediary_name": "sdas",
+   *   "club_academy_transfer_fee": "asdahy",
+   *   "player_uses_agent_services": true,
+   *   "player_intermediary_name": "some check",
+   *   "player_transfer_fee": "transfer fee",
+   *   "other_name": "Some other club",
+   *   "other_email": "someotheremail@localhost.com",
+   *   "other_phone_number": "2342883888"
    * }
    *
    * @apiSuccess {String} status success
@@ -241,61 +239,61 @@ module.exports = (router) => {
    * @apiName Update Employment Contract
    * @apiGroup Employment Contract
    *
-   * @apiParam (body) {String} playerName Player Name
+   * @apiParam (body) {String} player_name Player Name
    * @apiParam (body) {String} category Category/role of player
-   * @apiParam (body) {String} clubAcademyName Club academy Name
-   * @apiParam (body) {Date} signingDate Signing Date, any past date
-   * @apiParam (body) {Date} effectiveDate Past of future day but should be grater than signingDate
-   * @apiParam (body) {Date} expiryDate Expiry Date, max date is effectiveDate + 5yrs
-   * @apiParam (body) {String} placeOfSignature Place of signature
-   * @apiParam (body) {String} clubAcademyRepresentativeName Club academy representative name.
-   * @apiParam (body) {String} clubAcademyAddress Club academy address
-   * @apiParam (body) {String} clubAcademyPhoneNumber club academy phone number
-   * @apiParam (body) {String} clubAcademyEmail club academy email
-   * @apiParam (body) {String} aiffNumber AIFF number
-   * @apiParam (body) {String} crsUserName CRS user name
-   * @apiParam (body) {String} legalGuardianName Legal guardian name
-   * @apiParam (body) {String} playerAddress Player address
-   * @apiParam (body) {String} playerMobileNumber Player mobile number
-   * @apiParam (body) {Email} playerEmail Player email
-   * @apiParam (body) {Boolean} clubAcademyUsesAgentServices Club uses academy services
-   * @apiParam (body) {String} clubAcademyIntermediaryName Club academy intermediary name
-   * @apiParam (body) {String} clubAcademyTransferFee Club transfer fees
-   * @apiParam (body) {Boolean} playerUsesAgentServices Player uses agent service
-   * @apiParam (body) {String} playerIntermediaryName Player intermediary name
-   * @apiParam (body) {String} playerTransferFee Player transfer fees
-   * @apiParam (body) {String} [otherName]  Other name, required when clubAcademyName is 'others'
-   * @apiParam (body) {String} [otherEmail] Other Email required when clubAcademyName is 'others'
-   * @apiParam (body) {String} [otherPhoneNumber] Other phone required when clubAcademyName is 'others'
+   * @apiParam (body) {String} club_academy_name Club academy Name
+   * @apiParam (body) {Date} signing_date Signing Date, any past date
+   * @apiParam (body) {Date} effective_date Past of future day but should be grater than signing_date
+   * @apiParam (body) {Date} expiry_date Expiry Date, max date is effective_date + 5yrs
+   * @apiParam (body) {String} place_of_signature Place of signature
+   * @apiParam (body) {String} club_academy_representative_name Club academy representative name.
+   * @apiParam (body) {String} club_academy_address Club academy address
+   * @apiParam (body) {String} club_academy_phone_number club academy phone number
+   * @apiParam (body) {String} club_academy_email club academy email
+   * @apiParam (body) {String} aiff_number AIFF number
+   * @apiParam (body) {String} crs_user_name CRS user name
+   * @apiParam (body) {String} legal_guardian_name Legal guardian name
+   * @apiParam (body) {String} player_address Player address
+   * @apiParam (body) {String} player_mobile_number Player mobile number
+   * @apiParam (body) {Email} player_email Player email
+   * @apiParam (body) {Boolean} club_academy_uses_agent_services Club uses academy services
+   * @apiParam (body) {String} club_academy_intermediary_name Club academy intermediary name
+   * @apiParam (body) {String} club_academy_transfer_fee Club transfer fees
+   * @apiParam (body) {Boolean} player_uses_agent_services Player uses agent service
+   * @apiParam (body) {String} player_intermediary_name Player intermediary name
+   * @apiParam (body) {String} player_transfer_fee Player transfer fees
+   * @apiParam (body) {String} [other_name]  Other name, required when club_academy_name is 'others'
+   * @apiParam (body) {String} [other_email] Other Email required when club_academy_name is 'others'
+   * @apiParam (body) {String} [other_phone_number] Other phone required when club_academy_name is 'others'
    *
    * @apiParamExample {json} Request-Example:
    * {
-   *   "playerName": "Someone",
+   *   "player_name": "Someone",
    *   "category": "club",
-   *   "clubAcademyName": "SomeClub",
-   *   "signingDate": "2020-06-15",
-   *   "effectiveDate": "2020-06-20",
-   *   "expiryDate": "2023-06-20",
-   *   "placeOfSignature": "General Office",
-   *   "clubAcademyRepresentativeName": "Gopal",
-   *   "clubAcademyAddress": "Near that road",
-   *   "clubAcademyPhoneNumber": "9898955662",
-   *   "clubAcademyEmail": "useless@club.com",
-   *   "aiffNumber": "asdas21312",
-   *   "crsUserName": "CSRF_NAME",
-   *   "legalGuardianName": "Gopal's Father",
-   *   "playerAddress": "near other road",
-   *   "playerMobileNumber": "123132155464",
-   *   "playerEmail": "player@localhost.com",
-   *   "clubAcademyUsesAgentServices": true,
-   *   "clubAcademyIntermediaryName": "sdas",
-   *   "clubAcademyTransferFee": "asdahy",
-   *   "playerUsesAgentServices": true,
-   *   "playerIntermediaryName": "some check",
-   *   "playerTransferFee": "transfer fee",
-   *   "otherName": "Some other club",
-   *   "otherEmail": "someotheremail@localhost.com",
-   *   "otherPhoneNumber": "2342883888"
+   *   "club_academy_name": "SomeClub",
+   *   "signing_date": "2020-06-15",
+   *   "effective_date": "2020-06-20",
+   *   "expiry_date": "2023-06-20",
+   *   "place_of_signature": "General Office",
+   *   "club_academy_representative_name": "Gopal",
+   *   "club_academy_address": "Near that road",
+   *   "club_academy_phone_number": "9898955662",
+   *   "club_academy_email": "useless@club.com",
+   *   "aiff_number": "asdas21312",
+   *   "crs_user_name": "CSRF_NAME",
+   *   "legal_guardian_name": "Gopal's Father",
+   *   "player_address": "near other road",
+   *   "player_mobile_number": "123132155464",
+   *   "player_email": "player@localhost.com",
+   *   "club_academy_uses_agent_services": true,
+   *   "club_academy_intermediary_name": "sdas",
+   *   "club_academy_transfer_fee": "asdahy",
+   *   "player_uses_agent_services": true,
+   *   "player_intermediary_name": "some check",
+   *   "player_transfer_fee": "transfer fee",
+   *   "other_name": "Some other club",
+   *   "other_email": "someotheremail@localhost.com",
+   *   "other_phone_number": "2342883888"
    * }
    *
    * @apiSuccess {String} status success

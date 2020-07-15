@@ -1,13 +1,13 @@
-module.exports = ({ email, documentType, name, memberType }) => {
+module.exports = ({ email, from, name, category }) => {
   return {
     to: email,
-    subject: "Your document details is verified",
+    subject: "Employment Contract Created",
     // html: "",
-    text: `${documentType} document details for ${name} has been approved successfully by YFTChain.`,
+    text: `A Contract has been added for you by ${name}.`,
 
-    html(data) {
+    html (data) {
       return `
-      <tbody style="display: block;width: 80%; margin:auto;">
+        <tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
 				<td></td>
 			</tr>
@@ -21,12 +21,12 @@ module.exports = ({ email, documentType, name, memberType }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Congratulations, you have</h1>
+						Congratulations, a new contract</h1>
 				</td>
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						full access now !</h1>
+						has been uploaded</h1>
 				</td>
 			</tr>
 			<!--  -->
@@ -40,7 +40,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Thank you for uploading your documents on the YFTChain platform.</p>
+						We are pleased to inform you that ${from}, has uploaded your contract information and is requesting that you as a player verify that you are holding a valid contract with this organisation.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
@@ -51,7 +51,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to confirm that the verification process for your YFTChain account has been completed according to the data your provided us with !</p>
+						Please click below to review and approve/disapprove the contract information uploaded.</p>
 				</td>
 			</tr>
 			<tr style="height: 40px;">
@@ -61,7 +61,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
 					<a href="${data.appUrl}member/profile/view" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
-						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to my profile
+						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to manage contracts
 					</a>
 				</td>
 			</tr>
@@ -75,7 +75,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						You have successfully unlocked a new world of YFTChain's features. Thank you.</p>
+						Once you have approved the contract, you will be treated as a professional player on the YFTChain portal and your professional status will be associated with ${from}.</p>
 				</td>
 			</tr>
 			<tr style="height: 20px;">
