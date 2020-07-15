@@ -15,37 +15,30 @@ const utilityInst = new UtilityService();
 const emailService = new EmailService();
 
 module.exports = async () => {
-  loginInst
-    .cursor(
-      {
-        status: ACCOUNT_STATUS.ACTIVE,
-        "profile_status.status": PROFILE_STATUS.NON_VERIFIED,
-        is_deleted: false,
-      },
-      {
-        username: 1,
-        user_id: 1,
-        role: 1,
-      }
-    )
-    .then((resolved) => {
-      const batchSize = config.scheduler.document_reminder_batch_size;
-      const timeOut = config.scheduler.document_reminder_timeout;
-      console.log(
-        `Batch Size : ${batchSize} records, with timeout of ${timeOut} ms.`
-      );
-      (async function iterateRecords() {
-        for (let i = 0; i < batchSize; i++) {
-          let doc = await resolved.next();
-          if (!doc) {
-            return;
-          }
-          await handleRecord(doc);
-        }
-        setTimeout(iterateRecords, timeOut);
-      })();
+  try {
+    let recordsCursor = await getBatch();
+    recordsCursor.eachAsync(async (doc) => {
+      await handleRecord(doc);
     });
+  } catch (error) {
+    console.log(error);
+  }
 };
+
+async function getBatch() {
+  const $where = {
+    status: ACCOUNT_STATUS.ACTIVE,
+    "profile_status.status": PROFILE_STATUS.NON_VERIFIED,
+    is_deleted: false,
+  };
+  let records = await loginInst.cursor($where, {
+    username: 1,
+    user_id: 1,
+    role: 1,
+  });
+
+  return records;
+}
 
 async function handleRecord(doc) {
   let playerName = "";
