@@ -19,7 +19,6 @@ const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
-const EmploymentContractViewResponseMapper = require("../dataModels/responseMapper/EmploymentContractViewResponseMapper");
 
 class EmploymentContractService {
   constructor() {
@@ -153,6 +152,7 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
+    body.club_academy_email = null;
     let created = await this.contractInst.insert(body);
 
     return Promise.resolve(created);
@@ -168,6 +168,7 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
     body.send_to = null;
+    body.club_academy_email = null;
 
     await this.contractInst.updateOne(
       {
@@ -453,7 +454,6 @@ class EmploymentContractService {
       data.created_by = sentByUser ? sentByUser.member_type : "";
       data.send_to_category = sendToUser ? sendToUser.member_type : "";
       return data;
-      // return new EmploymentContractViewResponseMapper().map(data);
     } catch (e) {
       console.log(
         "Error in getEmploymentContractDetails() of EmploymentContractService",
