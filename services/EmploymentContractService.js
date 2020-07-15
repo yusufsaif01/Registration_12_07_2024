@@ -103,19 +103,35 @@ class EmploymentContractService {
     let created = await this.contractInst.insert(body);
 
     let playerDetails = await this.getPlayerDetails(authUser.user_id);
+    let clubAcademyDetails = await this.getClubDetails(clubOrAcademy.user_id);
 
     this.sendCreatedNotification(
       clubOrAcademy.username,
-      [playerDetails.first_name, playerDetails.last_name].join(" ")
+      clubAcademyDetails.name,
+      playerDetails.first_name,
+      "player_to_club_acad",
+      body.category
     );
 
     return Promise.resolve(created);
   }
 
-  async sendCreatedNotification(email, name) {
-    await this.emailService.sendMail("employmentContractCreated", {
+  async sendCreatedNotification(email, name, from, type, category = '') {
+
+    let mappings = {
+      club_acad_to_user: "employmentContractCreatedClubAcademy",
+      player_to_club_acad: "employmentContractCreatedPlayer",
+    };
+
+    if (!mappings[type]) {
+      throw new errors.Internal('Specified email does not exists.');
+    }
+    
+    await this.emailService.sendMail(mappings[type], {
       email: email,
       name: name,
+      from: from,
+      category,
     });
   }
 
@@ -183,8 +199,15 @@ class EmploymentContractService {
     let created = await this.contractInst.insert(body);
 
     const clubAcademyDetails = await this.getClubDetails(authUser.user_id);
+    const playerDetails = await this.getPlayerDetails(player.user_id);
 
-    this.sendCreatedNotification(player.username, clubAcademyDetails.name);
+    this.sendCreatedNotification(
+      player.username,
+      playerDetails.first_name,
+      clubAcademyDetails.name,
+      "club_acad_to_user",
+      authUser.role
+    );
 
     return Promise.resolve(created);
   }
@@ -615,12 +638,13 @@ class EmploymentContractService {
       );
       let sentByUser = await this.loginUtilityInst.findOne(
         { user_id: data.sent_by },
-        { username: 1, member_type: 1 }
+        { username: 1, member_type: 1, role:1 }
       );
       let player_name = "",
         playerUserId = "",
         playerType = "",
-        documents = [];
+        documents = [],
+        clubAcademyName= '';
       if (isSendToPlayer || sentByUser.member_type === MEMBER.PLAYER) {
         playerUserId = isSendToPlayer ? data.send_to : data.sent_by;
         let player = await this.playerUtilityInst.findOne(
@@ -631,6 +655,11 @@ class EmploymentContractService {
         playerType = player.player_type;
         documents = player.documents;
       }
+
+      const clubAcademyId = isSendToPlayer ? data.sent_by : data.send_to;
+      const clubAcadDetails = await this.getClubDetails(clubAcademyId);
+      clubAcademyName = clubAcadDetails.name;
+
       let reqObj = requestedData.reqObj;
       if (reqObj.status === ContractStatus.APPROVED) {
         await this.checkForActiveContract({
@@ -656,10 +685,22 @@ class EmploymentContractService {
           documents: documents,
           status: reqObj.status,
         });
-        await this.emailService.employmentContractApproval({
-          email: sentByUser.username,
-          name: player_name,
-        });
+
+        if (requestedData.user.role == 'player') {
+          await this.emailService.employmentContractApprovalByPlayer({
+            email: sentByUser.username,
+            name: clubAcademyName,
+            from: player_name,
+            category: sentByUser.role,
+          });
+        } else {
+          await this.emailService.employmentContractApprovalByClubAcademy({
+            email: sentByUser.username,
+            name: player_name,
+            from: clubAcademyName,
+            category: data.category,
+          });
+        }
       }
       if (reqObj.status === ContractStatus.DISAPPROVED) {
         await this.contractInst.updateOne(
@@ -672,11 +713,24 @@ class EmploymentContractService {
           documents: documents,
           status: reqObj.status,
         });
-        await this.emailService.employmentContractDisapproval({
-          email: sentByUser.username,
-          name: player_name,
-          reason: reqObj.remarks,
-        });
+
+        if (requestedData.user.role == 'player') {
+          await this.emailService.employmentContractDisapprovalByPlayer({
+            email: sentByUser.username,
+            name: clubAcademyName,
+            reason: reqObj.remarks,
+            from: player_name,
+            category: sentByUser.role,
+          });
+        } else {
+          await this.emailService.employmentContractDisapprovalByClubAcademy({
+            email: sentByUser.username,
+            name: player_name,
+            reason: reqObj.remarks,
+            from: clubAcademyName,
+            category: data.category,
+          });
+        }       
       }
       return Promise.resolve();
     } catch (e) {
