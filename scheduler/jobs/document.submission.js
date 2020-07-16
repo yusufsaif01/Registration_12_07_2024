@@ -9,36 +9,73 @@ const ROLE = require("../../constants/Role");
 const UtilityService = require("../../services/UtilityService");
 const EmailService = require("../../services/EmailService");
 const config = require("../../config");
+const PlayerUtility = require("../../db/utilities/PlayerUtility");
+const ClubAcademyUtility = require("../../db/utilities/ClubAcademyUtility");
 
-const loginInst = new LoginUtility();
+const playerInst = new PlayerUtility();
+const clubAcademyInst = new ClubAcademyUtility();
 const utilityInst = new UtilityService();
 const emailService = new EmailService();
 
 module.exports = async () => {
-  try {
-    let recordsCursor = await getBatch();
-    recordsCursor.eachAsync(async (doc) => {
-      await handleRecord(doc);
-    });
-  } catch (error) {
-    console.log(error);
-  }
 };
 
-async function getBatch() {
-  const $where = {
-    status: ACCOUNT_STATUS.ACTIVE,
-    "profile_status.status": PROFILE_STATUS.NON_VERIFIED,
-    is_deleted: false,
-  };
-  let records = await loginInst.cursor($where, {
-    username: 1,
-    user_id: 1,
-    role: 1,
-  });
+const pipeLines = () => {
+  return [
+    {
+      $match: { documents: { $size: 0 } },
+    },
+    {
+      $lookup: {
+        from: "login_details",
+        localField: "user_id",
+        foreignField: "user_id",
+        as: "login_details",
+      },
+    },
+    {
+      $match:{
+        login_details:{
+          $elemMatch : {
+            status: ACCOUNT_STATUS.ACTIVE,
+            'profile_status.status': PROFILE_STATUS.NON_VERIFIED
+          }
+        }
+      }
+    }
+  ];
+};
 
-  return records;
+const loginDetailsProjection = {
+  username: 1,
+  role: 1,
+  status: 1,
+  profile_status: 1,
+};
+
+async function getPlayers() {
+  let pipelines = pipeLines();
+  pipelines.push({
+    $project: {
+      first_name: 1,
+      last_name: 1,
+      login_details: loginDetailsProjection,
+    },
+  });
+  return await playerInst.aggregate(pipelines);
 }
+async function getClubAcademy() {
+  let pipelines = pipeLines();
+  pipelines.push({
+    $project: {
+      name: 1,
+      login_details: loginDetailsProjection,
+    },
+  });
+  return await clubAcademyInst.aggregate(pipelines);
+}
+
+function processBatch(documents) {}
 
 async function handleRecord(doc) {
   let playerName = "";
