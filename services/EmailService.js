@@ -30,8 +30,8 @@ class EmailService {
         });
     }
 
-    async sendFootplayerInvite(send_to_email, sent_by = {}, link) {
-        await this.sendMail("footplayerInvite", { send_to_email: send_to_email, sent_by_member_type: sent_by.member_type, sent_by_name: sent_by.name, link: link });
+    async sendFootplayerInvite(send_to_email, send_to_name, sent_by = {}, link) {
+        await this.sendMail("footplayerInvite", { send_to_email: send_to_email, send_to_name, sent_by_member_type: sent_by.member_type, sent_by_name: sent_by.name, link: link });
     }
 
     async sendMail(mailTemplate, data) {
