@@ -11,6 +11,7 @@ const EmailService = require("../../services/EmailService");
 const config = require("../../config");
 const PlayerUtility = require("../../db/utilities/PlayerUtility");
 const ClubAcademyUtility = require("../../db/utilities/ClubAcademyUtility");
+const {map} = require('bluebird')
 
 const playerInst = new PlayerUtility();
 const clubAcademyInst = new ClubAcademyUtility();
@@ -18,12 +19,8 @@ const utilityInst = new UtilityService();
 const emailService = new EmailService();
 
 module.exports = async () => {
-  (await getPlayers()).map(async (doc) => {
-    await handleRecord(doc);
-  });
-  (await getClubAcademy()).map(async (doc) => {
-    await handleRecord(doc);
-  });
+  await map(await getPlayers(), (player) => handleRecord(player));
+  await map(await getClubAcademy(), (player) => handleRecord(player));
 };
 
 const pipeLines = () => {
