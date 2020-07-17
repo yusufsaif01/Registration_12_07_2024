@@ -1,5 +1,8 @@
 const db = require('../db');
 const MemberTypeService = require('../services/MemberTypeService');
+const path = require('path');
+let baseDir = path.resolve(__dirname);
+global.__basedir = baseDir.split('\seeders')[0];
 
 var memberTypeSeeder = () => {
     const memberTypes = [
