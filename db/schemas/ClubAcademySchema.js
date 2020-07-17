@@ -195,6 +195,9 @@ module.exports = {
             },
             instagram: {
                 type: String
+            },
+            linked_in: {
+                type: String
             }
         },
         contact_person: [{

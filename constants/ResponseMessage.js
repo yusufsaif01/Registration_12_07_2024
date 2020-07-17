@@ -503,8 +503,14 @@ class ResponseMessage {
     static get OTHER_PHONE_INVALID() {
         return "Other phone number is invalid."
     }
-    static get OTHER_PROFILE_NOT_VERIFIED () {
+    static get OTHER_PROFILE_NOT_VERIFIED() {
         return "Profile is not verified.";
+    }
+    static get HEAD_COACH_PHONE_REQUIRED() {
+        return "Head coach phone number required"
+    }
+    static get HEAD_COACH_PHONE_INVALID() {
+        return "Head coach phone number invalid"
     }
 }
 
