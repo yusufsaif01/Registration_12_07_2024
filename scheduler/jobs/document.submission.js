@@ -18,9 +18,17 @@ const clubAcademyInst = new ClubAcademyUtility();
 const utilityInst = new UtilityService();
 const emailService = new EmailService();
 
+const mapOptions = {
+  concurrency: config.scheduler.document_reminder_batch_size,
+};
+
 module.exports = async () => {
-  await map(await getPlayers(), (player) => handleRecord(player));
-  await map(await getClubAcademy(), (clubAcademy) => handleRecord(clubAcademy));
+  await map(await getPlayers(), (player) => handleRecord(player), mapOptions);
+  await map(
+    await getClubAcademy(),
+    (clubAcademy) => handleRecord(clubAcademy),
+    mapOptions
+  );
 };
 
 const pipeLines = () => {
