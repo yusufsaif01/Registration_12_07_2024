@@ -16,6 +16,7 @@ const config = require("../config");
 const moment = require('moment');
 const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 const CONTRACT_STATUS = require("../constants/ContractStatus");
+const UtilityService = require('./UtilityService');
 
 class FootPlayerService {
 
@@ -25,6 +26,7 @@ class FootPlayerService {
         this.playerUtilityInst = new PlayerUtility();
         this.emailService = new EmailService();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
+        this.utilityService = new UtilityService();
     }
 
     /**
@@ -112,7 +114,7 @@ class FootPlayerService {
         })
       }
       let sent_by_data = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.sent_by }, { name: 1, member_type: 1, _id: 0 });
-      this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name });
+      this.emailService.footplayerRequest(send_to_data.email, { member_type: sent_by_data.member_type, name: sent_by_data.name, player_name: send_to_data.first_name  });
       return Promise.resolve();
     } catch (e) {
       console.log("Error in sendFootplayerRequest() of FootPlayerService", e);
@@ -270,6 +272,19 @@ class FootPlayerService {
             let serviceInst = new ConnectionService();
             await serviceInst.followMember({ sent_by: requestedData.sent_by, send_to: requestedData.user_id }, true);
             await serviceInst.followMember({ sent_by: requestedData.user_id, send_to: requestedData.sent_by }, true);
+
+            let player = await this.utilityService.getPlayerDetails(
+              requestedData.user_id,
+              { email: 1, first_name:1 }
+            );
+            let clubAcademy = await this.utilityService.getClubDetails(requestedData.sent_by, {email:1, name:1});
+
+            this.emailService.footPlayerInviteAccepted({
+              email: player.email,
+              name:player.first_name,
+              from:clubAcademy.name,
+            });
+
             return Promise.resolve();
         }
         catch (e) {
