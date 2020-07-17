@@ -23,12 +23,16 @@ const mapOptions = {
 };
 
 module.exports = async () => {
-  await map(await getPlayers(), (player) => handleRecord(player), mapOptions);
-  await map(
-    await getClubAcademy(),
-    (clubAcademy) => handleRecord(clubAcademy),
-    mapOptions
-  );
+  try {
+    await map(await getPlayers(), (player) => handleRecord(player), mapOptions);
+    await map(
+      await getClubAcademy(),
+      (clubAcademy) => handleRecord(clubAcademy),
+      mapOptions
+    );
+  } catch (error) {
+    console.log('Error in executing cron : document reminder', error);
+  }
 };
 
 const pipeLines = () => {
@@ -87,18 +91,23 @@ async function getClubAcademy() {
 }
 
 async function handleRecord(doc) {
-  let playerName = "";
-  if (doc.login_details[0].role == ROLE.PLAYER) {
-    playerName = doc.first_name;
-  }
-  if ([ROLE.CLUB, ROLE.ACADEMY].includes(doc.login_details[0].role)) {
-    playerName = doc.name;
-  }
+  try {
+    let playerName = "";
+    if (doc.login_details[0].role == ROLE.PLAYER) {
+      playerName = doc.first_name;
+    }
 
-  const payload = {
-    email: doc.login_details[0].username,
-    name: playerName,
-  };
+    if ([ROLE.CLUB, ROLE.ACADEMY].includes(doc.login_details[0].role)) {
+      playerName = doc.name;
+    }
 
-  await emailService.postEmailConfirmation(payload);
+    const payload = {
+      email: doc.login_details[0].username,
+      name: playerName,
+    };
+
+    await emailService.postEmailConfirmation(payload);
+  } catch (error) {
+    console.log('Error in handling record ', error);
+  }
 }
