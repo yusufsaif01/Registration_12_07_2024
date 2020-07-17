@@ -4,6 +4,9 @@ const StateUtility = require('../db/utilities/StateUtility');
 const CityUtility = require('../db/utilities/CityUtility');
 const masterData = require('../master-data');
 const uuidv4 = require("uuid/v4");
+const path = require('path');
+let baseDir = path.resolve(__dirname);
+global.__basedir = baseDir.split('\seeders')[0];
 
 var stateCitySeeder = () => {
     (async () => {
