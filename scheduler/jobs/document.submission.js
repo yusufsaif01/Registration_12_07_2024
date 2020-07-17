@@ -18,6 +18,12 @@ const utilityInst = new UtilityService();
 const emailService = new EmailService();
 
 module.exports = async () => {
+  (await getPlayers()).map(async (doc) => {
+    await handleRecord(doc);
+  });
+  (await getClubAcademy()).map(async (doc) => {
+    await handleRecord(doc);
+  });
 };
 
 const pipeLines = () => {
@@ -34,15 +40,15 @@ const pipeLines = () => {
       },
     },
     {
-      $match:{
-        login_details:{
-          $elemMatch : {
+      $match: {
+        login_details: {
+          $elemMatch: {
             status: ACCOUNT_STATUS.ACTIVE,
-            'profile_status.status': PROFILE_STATUS.NON_VERIFIED
-          }
-        }
-      }
-    }
+            "profile_status.status": PROFILE_STATUS.NON_VERIFIED,
+          },
+        },
+      },
+    },
   ];
 };
 
@@ -75,31 +81,17 @@ async function getClubAcademy() {
   return await clubAcademyInst.aggregate(pipelines);
 }
 
-function processBatch(documents) {}
-
 async function handleRecord(doc) {
   let playerName = "";
-  if (doc.role == ROLE.PLAYER) {
-    let playerDetails = await utilityInst.getPlayerDetails(doc.user_id, {
-      first_name: 1,
-    });
-    if (!playerDetails) {
-      return;
-    }
-    playerName = playerDetails.first_name;
+  if (doc.login_details[0].role == ROLE.PLAYER) {
+    playerName = doc.first_name;
   }
-  if ([ROLE.CLUB, ROLE.ACADEMY].includes(doc.role)) {
-    let clubAcademyDetails = await utilityInst.getClubDetails(doc.user_id, {
-      name: 1,
-    });
-    if (!clubAcademyDetails) {
-      return;
-    }
-    playerName = clubAcademyDetails.name;
+  if ([ROLE.CLUB, ROLE.ACADEMY].includes(doc.login_details[0].role)) {
+    playerName = doc.name;
   }
 
   const payload = {
-    email: doc.username,
+    email: doc.login_details[0].username,
     name: playerName,
   };
 

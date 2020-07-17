@@ -9,7 +9,7 @@
     "document_reminder_schedule": {
         "doc": "document reminder update schedule",
         "format": "String",
-        "default": "0 0 * * 0",
+        "default": "0 0 * * 3",
         "env": "DOCUMENT_REMINDER_SCHEDULE",
         "arg": "document_reminder_schedule"
     },
