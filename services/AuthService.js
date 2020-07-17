@@ -15,6 +15,7 @@ const MEMBER = require('../constants/MemberType');
 const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
 const redisServiceInst = require('../redis/RedisService');
+const UtilityService = require("./UtilityService");
 
 class AuthService {
 
@@ -26,6 +27,7 @@ class AuthService {
         this.activityUtilityInst = new ActivityUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.emailService = new EmailService();
+        this.utilityService = new UtilityService();
     }
     async emailVerification(data) {
         try {
@@ -166,7 +168,12 @@ class AuthService {
                 });
                 loginDetails.forgot_password_token = tokenForForgetPassword;
                 await redisServiceInst.setCacheForForgotPassword(loginDetails.user_id, tokenForForgetPassword, { ...loginDetails });
-                await this.emailService.forgotPassword(email, resetPasswordURL);
+
+                let user_name = '';
+
+                user_name = await this.getProfileName(loginDetails, user_name);
+
+                await this.emailService.forgotPassword(email, resetPasswordURL, user_name);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
@@ -174,6 +181,34 @@ class AuthService {
             console.log(err);
             return Promise.reject(err);
         }
+    }
+
+    async getProfileName(loginDetails, user_name) {
+        if (loginDetails.role == ROLE.PLAYER) {
+            let profileDetails = await this.playerUtilityInst.findOne({
+                user_id: loginDetails.user_id,
+            }, { first_name: 1 });
+            user_name = profileDetails.first_name;
+        }
+        if ([ROLE.CLUB, ROLE.ACADEMY].includes(loginDetails.role)) {
+            let profileDetails = await this.clubAcademyUtilityInst.findOne(
+                {
+                    user_id: loginDetails.user_id,
+                },
+                { name: 1 }
+            );
+            user_name = profileDetails.name;
+        }
+        if (loginDetails.role == ROLE.ADMIN) {
+            let profileDetails = await this.adminUtilityInst.findOne(
+                {
+                    user_id: loginDetails.user_id,
+                },
+                { name: 1 }
+            );
+            user_name = profileDetails.name;
+        }
+        return user_name;
     }
 
     async changePassword(tokenData, old_password, new_password, confirm_password) {
@@ -198,7 +233,10 @@ class AuthService {
                 }
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password });
                 await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
-                await this.emailService.changePassword(loginDetails.username);
+                let profileName = "";
+
+                profileName = await this.getProfileName(loginDetails, profileName);
+                await this.emailService.changePassword(loginDetails.username, profileName);
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);
@@ -258,7 +296,28 @@ class AuthService {
                     forgot_password_token: ""
                 });
                 await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
+                let playerName = '';
+                if (loginDetails.role == ROLE.PLAYER) {
+                    let userDetails = await this.utilityService.getPlayerDetails(
+                      loginDetails.user_id
+                    );
+                    if (userDetails) {
+                        playerName = userDetails.first_name;
+                    }
+                } else {
+                    let clubAcademyDetails = await this.utilityService.getClubDetails(
+                      loginDetails.user_id
+                    );
+                    if (clubAcademyDetails) {
+                      playerName = clubAcademyDetails.name;
+                    }
+                }
+
                 await this.emailService.welcome(loginDetails.username);
+                await this.emailService.postEmailConfirmation({
+                    email : loginDetails.username,
+                    name: playerName,
+                });
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

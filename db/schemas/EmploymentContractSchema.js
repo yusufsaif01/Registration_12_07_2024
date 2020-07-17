@@ -28,46 +28,46 @@ module.exports = {
     sent_by: {
       type: String,
     },
-    playerName: String,
+    player_name: String,
     category: {
       type: String,
       enum: [Role.CLUB, Role.ACADEMY],
     },
 
-    clubAcademyName: String,
-    signingDate: Date,
-    effectiveDate: Date,
-    expiryDate: Date,
-    placeOfSignature: String,
-    clubAcademyRepresentativeName: String,
-    clubAcademyAddress: String,
-    clubAcademyPhoneNumber: String,
-    clubAcademyEmail: String,
-    aiffNumber: String,
-    crsUserName: String,
+    club_academy_name: String,
+    signing_date: Date,
+    effective_date: Date,
+    expiry_date: Date,
+    place_of_signature: String,
+    club_academy_representative_name: String,
+    club_academy_address: String,
+    club_academy_phone_number: String,
+    club_academy_email: String,
+    aiff_number: String,
+    crs_user_name: String,
 
-    legalGuardianName: String,
-    playerAddress: String,
-    playerMobileNumber: String,
-    playerEmail: String,
+    legal_guardian_name: String,
+    player_address: String,
+    player_mobile_number: String,
+    player_email: String,
 
-    clubAcademyUsesAgentServices: {
+    club_academy_uses_agent_services: {
       type: Boolean,
       default: false,
     },
-    clubAcademyIntermediaryName: String,
-    clubAcademyTransferFee: String,
+    club_academy_intermediary_name: String,
+    club_academy_transfer_fee: String,
 
-    playerUsesAgentServices: {
+    player_uses_agent_services: {
       type: Boolean,
       default: false,
     },
-    playerIntermediaryName: String,
-    playerTransferFee: String,
+    player_intermediary_name: String,
+    player_transfer_fee: String,
 
-    otherName: String,
-    otherEmail: String,
-    otherPhoneNumber: String,
+    other_name: String,
+    other_email: String,
+    other_phone_number: String,
 
     is_deleted: {
       type: Boolean,
