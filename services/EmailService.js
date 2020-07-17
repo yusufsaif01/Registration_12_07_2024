@@ -87,6 +87,13 @@ class EmailService {
         await this.sendMail("employmentContractCreatedPlayer", data);
     }
 
+    async employmentContractApprovalAdmin(data) {
+        await this.sendMail("employmentContractApprovalAdmin", data);
+    }
+    async employmentContractDisapprovalAdmin(data) {
+        await this.sendMail("employmentContractDisapprovalAdmin", data);
+    }
+
     async footPlayerInviteAccepted (data) {
         await this.sendMail("footPlayerInviteAccepted", data);
     }
