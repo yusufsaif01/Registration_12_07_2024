@@ -1,5 +1,5 @@
 const config = require("../config");
-const S3 = require('../storage-provider/providers/S3');
+const StorageProvider = require('../storage-provider');
 let countryList = [];
 let stateList = [];
 let cityList = [];
@@ -8,12 +8,12 @@ module.exports = {
 
     getDataFromS3: async function () {
         try {
-            const S3Inst = new S3(config.storage)
-            let countryData = await S3Inst.getDocument('country.json')
+            const storageProviderInst = new StorageProvider(config.storage)
+            let countryData = await storageProviderInst.getDocument('country.json')
             countryList = JSON.parse(countryData.Body.toString());
-            let stateData = await S3Inst.getDocument('state.json')
+            let stateData = await storageProviderInst.getDocument('state.json')
             stateList = JSON.parse(stateData.Body.toString());
-            let cityData = await S3Inst.getDocument('city.json')
+            let cityData = await storageProviderInst.getDocument('city.json')
             cityList = JSON.parse(cityData.Body.toString());
             return Promise.resolve();
         }
