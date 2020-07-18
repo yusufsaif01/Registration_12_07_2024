@@ -24,17 +24,6 @@ class StorageProvider {
         return response;
     }
 
-    /**
-     * file_name : string,
-     * bucket_name: string
-     * 
-     * 
-     */
-    async getDocument(file_name = "", bucket_name = null) {
-        let response = await this.getInstance().getDocument(file_name, bucket_name);
-        return response;
-    }
-
     static addUploadMiddleware(options) {
         return (req, res, next) => {
             return expressFileUpload(options)(req, res, next);
