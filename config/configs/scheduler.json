@@ -33,5 +33,12 @@
         "default": false,
         "env": "DOCUMENT_REMINDER_SCHEDULE_ENABLED",
         "arg": "document_reminder_schedule_enabled"
+    },
+    "player_type_update_schedule": {
+        "doc": "player type update schedule",
+        "format": "String",
+        "default": "1 0 * * *",
+        "env": "PLAYER_TYPE_UPDATE_SCHEDULE",
+        "arg": "player_type_update_schedule"
     }
 }

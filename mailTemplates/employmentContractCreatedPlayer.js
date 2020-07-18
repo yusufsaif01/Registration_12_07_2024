@@ -40,7 +40,7 @@ module.exports = ({ email, from, name, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to inform that ${from}, has uploaded their contract information and requesting that ${category} verify that this player is holding a valid contract with your organisation.</p>
+						We are pleased to inform that ${from}, has uploaded their contract information and is requesting that ${category} verify that this player is holding a valid contract with your organisation.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
@@ -75,27 +75,13 @@ module.exports = ({ email, from, name, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Once you have approved the contract, the player would be treated as a professional player on the YFTChain portal and his professional status will be associated with your club/academy.</p>
+						Once you have approved the contract, the player will be treated as a professional player on the YFTChain portal and his professional status will be associated with your ${category}.</p>
 				</td>
 			</tr>
 			<tr style="height: 20px;">
 				<td></td>
 			</tr>
 
-			<!-- See you online -->
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>

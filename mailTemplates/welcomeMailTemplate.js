@@ -44,7 +44,7 @@ module.exports = ({ email }) => {
                 color: #626262;
 				margin-top: 10px;
               ">
-              A big thank you, from all of ua at the YFTChain's team in India and Ireland!
+              A big thank you, from all of us at the YFTChain's team in India and Ireland!
             </p>
           </td>
         </tr>
@@ -67,29 +67,6 @@ module.exports = ({ email }) => {
           <td></td>
         </tr>
 
-        <!-- See you online -->
-
-        <tr style="display: block; width: 100%; text-align: center;">
-          <td style="display: block; width: 100%; text-align: center;">
-            <p style="
-                font-family: 'Montserrat', sans-serif;
-                font-size: 18px;
-                font-weight: 300;
-                color: #626262;
-              ">
-              See you online!
-            </p>
-            <p style="
-                font-family: 'Montserrat', sans-serif;
-                font-size: 20px;
-                font-weight: 700;
-                display: block;
-                color: #626262;
-              ">
-              YFTChain Team
-            </p>
-          </td>
-        </tr>
         <tr style="height: 20px;">
           <td></td>
         </tr>

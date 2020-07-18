@@ -39,6 +39,13 @@ module.exports = ({ email, activation_link, name }) => {
 					">
 						We're very excited you're with us.
 						</p>
+				</td>
+			</tr>
+			<tr style="height: 10px;">
+				<td></td>
+			</tr>
+			<tr>
+				<td style="display:block; width: 100%; text-align: center;">
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
@@ -70,8 +77,15 @@ module.exports = ({ email, activation_link, name }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-					Just so you know, we've attached some legal documents regarding your account. By clicking the above you confirm the receipt of these documents.
+					Just so you know, we've attached some legal documents regarding your account. By clicking above you confirm the receipt of these documents.
 					</p>
+				</td>
+			<tr>
+			<tr style="height: 10px;">
+				<td></td>
+			</tr>
+			<tr>
+				<td>
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
@@ -82,21 +96,6 @@ module.exports = ({ email, activation_link, name }) => {
 			<!-- Handy points -->
 			<tr style="height: 10px;">
 				<td></td>
-			</tr>
-					
-			<!-- See you online -->
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
 			</tr>
 			<tr style=" height: 20px;">
 				<td></td>

@@ -2,7 +2,9 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const prompts = require('prompts');
 const config = require('../config').helper;
-
+const path = require('path');
+let baseDir = path.resolve(__dirname);
+global.__basedir = baseDir.split('\seeders')[0];
 const UserRegistrationService = require('../services/UserRegistrationService');
 
 const onCancel = prompt => {

@@ -42,7 +42,7 @@ module.exports = ({ email, name }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						It takes a couple of pictures of your Adhaar Card or ID and yourself.</p>
+						It takes a couple of pictures of your Aadhaar Card or ID and yourself.</p>
 				</td>
 			</tr>
 			<!-- button -->
@@ -176,20 +176,6 @@ module.exports = ({ email, name }) => {
 				<td></td>
 			</tr>
 			<!-- end -->
-			<!-- See you online -->
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>

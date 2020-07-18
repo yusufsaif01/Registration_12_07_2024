@@ -23,6 +23,7 @@ const PLAYER = require('../constants/PlayerType');
 const DOCUMENT_STATUS = require('../constants/DocumentStatus')
 const CONTRACT_STATUS = require("../constants/ContractStatus");
 const EmploymentContractUtility = require("../db/utilities/EmploymentContractUtility");
+const PROFILE_DETAIL = require('../constants/ProfileDetailType');
 
 /**
  *
@@ -59,7 +60,9 @@ class UserProfileService {
     async updateProfileDetails(requestedData = {}) {
         await this.updateProfileDetailsValidation(requestedData.updateValues, requestedData.member_type, requestedData.id);
         let profileData = await this.prepareProfileData(requestedData.member_type, requestedData.updateValues);
-        profileData = await this.manageDocuments(profileData, requestedData.member_type, requestedData.id);
+        if (requestedData.updateValues._category === PROFILE_DETAIL.DOCUMENT) {
+            profileData = await this.manageDocuments(profileData, requestedData.member_type, requestedData.id);
+        }
         if (requestedData.member_type == MEMBER.PLAYER) {
             await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, profileData);
         } else {
@@ -153,13 +156,6 @@ class UserProfileService {
                 aadharObj.media.user_photo = reqObj.user_photo || (aadharDB ? aadharDB.media.user_photo : "")
                 aadharObj.status = DOCUMENT_STATUS.PENDING;
                 updatedDoc.push(aadharObj);
-                if (reqObj.player_type === PLAYER.PROFESSIONAL) {
-                    let condition = { status: { $ne: CONTRACT_STATUS.REJECTED }, is_deleted: false, $or: [{ sent_by: user_id }, { send_to: user_id }] };
-                    let playerContract = await this.employmentContractUtilityInst.findOne(condition);
-                    if (!playerContract) {
-                        return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMPLOYMENT_CONTRACT_REQUIRED));
-                    }
-                }
             }
             if (member_type === MEMBER.CLUB) {
                 if (!reqObj.aiff_id) {
@@ -208,176 +204,152 @@ class UserProfileService {
     }
 
     async prepareProfileData(member_type, data) {
-        if (data.dob) {
-            data.dob = moment(data.dob).format("YYYY-MM-DD");
-        }
-        if (data.country && data.state && data.city) {
-            let { country, state, city } = data;
-            let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
-            if (_.isEmpty(foundCountry)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            let foundState = await this.stateUtilityInst.findOne({
-                id: state,
-                country_id: country,
-            }, { name: 1 })
-            if (_.isEmpty(foundState)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
-            }
-            let foundCity = await this.cityUtilityInst.findOne({
-                id: city,
-                state_id: state,
-            }, { name: 1 })
-            if (_.isEmpty(foundCity)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
-            }
-            let countryObj = {
-                id: country,
-                name: foundCountry.name
-            };
-            let stateObj = {
-                id: state,
-                name: foundState.name
-            };
-            let cityObj = {
-                id: city,
-                name: foundCity.name
-            };
-            data.country = countryObj;
-            data.state = stateObj;
-            data.city = cityObj;
-        }
-        if (data.position) {
-            let { position } = data;
-            let msg = null;
-            let positionArray = [];
-            for (const element of position) {
-                let positionObj = {};
-                if (!element.id) {
-                    msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
-                }
-                if (element.id) {
-                    let positionUtilityInst = new PositionUtility()
-                    const foundPosition = await positionUtilityInst.findOne({ id: element.id }, { name: 1 });
-                    if (_.isEmpty(foundPosition)) {
-                        msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+        if (data._category === PROFILE_DETAIL.PROFESSIONAL) {
+            if (member_type === MEMBER.PLAYER) {
+                let club_academy_details = {
+                    "head_coach_name": data.head_coach_name ? data.head_coach_name : "",
+                    "head_coach_phone": data.head_coach_phone ? data.head_coach_phone : "",
+                    "head_coach_email": data.head_coach_email ? data.head_coach_email : ""
+                };
+                if (!_.isEmpty(club_academy_details))
+                    data.club_academy_details = club_academy_details;
+                if (data.position) {
+                    let { position } = data;
+                    let msg = null;
+                    let positionArray = [];
+                    for (const element of position) {
+                        let positionObj = {};
+                        if (!element.id) {
+                            msg = RESPONSE_MESSAGE.POSITION_ID_REQUIRED
+                        }
+                        if (element.id) {
+                            let positionUtilityInst = new PositionUtility()
+                            const foundPosition = await positionUtilityInst.findOne({ id: element.id }, { name: 1 });
+                            if (_.isEmpty(foundPosition)) {
+                                msg = RESPONSE_MESSAGE.POSITION_NOT_FOUND
+                            }
+                            else {
+                                positionObj.name = foundPosition.name;
+                                positionObj.id = element.id;
+                            }
+                        }
+                        if (!element.priority) {
+                            msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
+                        }
+                        if (element.priority) {
+                            positionObj.priority = element.priority;
+                        }
+                        positionArray.push(positionObj)
+                    };
+                    if (msg) {
+                        return Promise.reject(new errors.ValidationFailed(msg));
                     }
-                    else {
-                        positionObj.name = foundPosition.name;
-                        positionObj.id = element.id;
-                    }
+                    data.position = positionArray;
                 }
-                if (!element.priority) {
-                    msg = RESPONSE_MESSAGE.POSITION_PRIORITY_REQUIRED
-                }
-                if (element.priority) {
-                    positionObj.priority = element.priority;
-                }
-                positionArray.push(positionObj)
-            };
-            if (msg) {
-                return Promise.reject(new errors.ValidationFailed(msg));
             }
-            data.position = positionArray;
+
         }
-        if (member_type == MEMBER.PLAYER) {
-            let institute = {
-                "school": data.school ? data.school : null,
-                "college": data.college ? data.college : null,
-                "university": data.university ? data.university : null
-            };
-            let height = {
-                "feet": data.height_feet ? data.height_feet : null,
-                "inches": data.height_inches ? data.height_inches : null
-            };
+        if (data._category === PROFILE_DETAIL.PERSONAL) {
+            let social_profiles = {};
 
-            let club_academy_details = {
-                "head_coach_name": data.head_coach_name ? data.head_coach_name : "",
-                "head_coach_phone": data.head_coach_phone ? data.head_coach_phone : "",
-                "head_coach_email": data.head_coach_email ? data.head_coach_email : ""
-            };
+            if (data.facebook)
+                social_profiles.facebook = data.facebook;
+            if (data.youtube)
+                social_profiles.youtube = data.youtube;
+            if (data.twitter)
+                social_profiles.twitter = data.twitter;
+            if (data.instagram)
+                social_profiles.instagram = data.instagram;
+            if (data.linked_in)
+                social_profiles.linked_in = data.linked_in;
 
-            if (!_.isEmpty(institute))
-                data.institute = institute;
-
-            if (!_.isEmpty(height))
-                data.height = height;
-            if (!_.isEmpty(club_academy_details))
-                data.club_academy_details = club_academy_details;
-
-        } else {
-            let manager = {};
-            let owner = {};
-            let address = {};
-
-            if (data.manager) {
-                manager.name = data.manager
+            if (!_.isEmpty(social_profiles))
+                data.social_profiles = social_profiles;
+            if (data.country && data.state && data.city) {
+                let { country, state, city } = data;
+                let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
+                if (_.isEmpty(foundCountry)) {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
+                }
+                let foundState = await this.stateUtilityInst.findOne({
+                    id: state,
+                    country_id: country,
+                }, { name: 1 })
+                if (_.isEmpty(foundState)) {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
+                }
+                let foundCity = await this.cityUtilityInst.findOne({
+                    id: city,
+                    state_id: state,
+                }, { name: 1 })
+                if (_.isEmpty(foundCity)) {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+                }
+                let countryObj = {
+                    id: country,
+                    name: foundCountry.name
+                };
+                let stateObj = {
+                    id: state,
+                    name: foundState.name
+                };
+                let cityObj = {
+                    id: city,
+                    name: foundCity.name
+                };
+                data.country = countryObj;
+                data.state = stateObj;
+                data.city = cityObj;
             }
-
-            if (data.owner) {
-                owner.name = data.owner
+            if (member_type === MEMBER.PLAYER) {
+                if (data.dob) {
+                    data.dob = moment(data.dob).format("YYYY-MM-DD");
+                }
+                let institute = {
+                    "school": data.school ? data.school : null,
+                    "college": data.college ? data.college : null,
+                    "university": data.university ? data.university : null
+                };
+                let height = {
+                    "feet": data.height_feet ? data.height_feet : null,
+                    "inches": data.height_inches ? data.height_inches : null
+                };
+                if (!_.isEmpty(institute))
+                    data.institute = institute;
+                if (!_.isEmpty(height))
+                    data.height = height;
+            } else {
+                let address = {};
+                if (data.address) {
+                    address.full_address = data.address
+                }
+                if (data.pincode) {
+                    address.pincode = data.pincode
+                }
+                if (!_.isEmpty(address))
+                    data.address = address;
             }
-
-            if (data.address) {
-                address.full_address = data.address
-            }
-
-            if (data.pincode) {
-                address.pincode = data.pincode
-            }
-
-            if (!_.isEmpty(address))
-                data.address = address;
-
-            if (!_.isEmpty(manager))
-                data.manager = manager;
-
-            if (!_.isEmpty(owner))
-                data.owner = owner;
         }
         return Promise.resolve(data)
     }
 
-    async updateProfileBio(requestedData = {}) {
-        let bioData = await this.prepareBioData(requestedData.updateValues);
+    async updateAvatar(requestedData = {}) {
         let res = {};
         if (requestedData.member_type == MEMBER.PLAYER) {
-            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
-            if (bioData.avatar_url) {
-                const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
-                res.avatar_url = avatar_url;
-            }
+            await this.playerUtilityInst.updateOne({ 'user_id': requestedData.id }, requestedData.updateValues);
+            const { avatar_url } = await this.playerUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
+            res.avatar_url = avatar_url;
         } else {
-            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, bioData);
-            if (bioData.avatar_url) {
-                const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
-                res.avatar_url = avatar_url;
-            }
+            await this.clubAcademyUtilityInst.updateOne({ 'user_id': requestedData.id }, requestedData.updateValues);
+            const { avatar_url } = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.id }, { avatar_url: 1 })
+            res.avatar_url = avatar_url;
         }
         return res;
 
     }
 
-    prepareBioData(data) {
-        let social_profiles = {};
-
-        if (data.facebook)
-            social_profiles.facebook = data.facebook;
-        if (data.youtube)
-            social_profiles.youtube = data.youtube;
-        if (data.twitter)
-            social_profiles.twitter = data.twitter;
-        if (data.instagram)
-            social_profiles.instagram = data.instagram;
-
-        if (!_.isEmpty(social_profiles))
-            data.social_profiles = social_profiles;
-
-        return Promise.resolve(data)
-    }
-
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies } = data
+        const { founded_in, trophies, _category } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -417,7 +389,7 @@ class UserProfileService {
             }
         }
 
-        if (data.profileStatus && member_type === MEMBER.PLAYER) {
+        if (data.profileStatus && member_type === MEMBER.PLAYER && _category === PROFILE_DETAIL.PERSONAL) {
             if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
             }
@@ -443,7 +415,7 @@ class UserProfileService {
         try {
             let loginDetails = await this.loginUtilityInst.findOne({ user_id: user_id }, { profile_status: 1 });
             reqObj.profileStatus = loginDetails.profile_status.status;
-            if (files && reqObj.profileStatus !== PROFILE_STATUS.VERIFIED) {
+            if (files && reqObj.profileStatus !== PROFILE_STATUS.VERIFIED && reqObj._category === PROFILE_DETAIL.DOCUMENT) {
                 reqObj.documents = [];
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
@@ -551,26 +523,6 @@ class UserProfileService {
                 }
             }
 
-            if (reqObj.owner) {
-                try {
-                    let owner = JSON.parse(reqObj.owner);
-                    reqObj.owner = owner;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_OWNER);
-                }
-            }
-
-            if (reqObj.manager) {
-                try {
-                    let manager = JSON.parse(reqObj.manager);
-                    reqObj.manager = manager;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_MANAGER);
-                }
-            }
-
             if (reqObj.top_signings) {
                 try {
                     let top_signings = JSON.parse(reqObj.top_signings);
@@ -584,31 +536,6 @@ class UserProfileService {
         } catch (e) {
             throw e;
         }
-    }
-
-    /**
-     *
-     *
-     * @param {*} 
-     * @returns
-     * @memberof UserRegistrationService
-     */
-    toAPIResponse({
-        nationality, top_players, first_name, last_name, height, weight, dob,
-        institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
-        former_academy, specialization, player_type, email, name, avatar_url, state,
-        country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
-        contact_person, trophies, club_academy_details, top_signings, registration_number, mobile_number,
-        member_type, social_profiles, type, league, league_other, association, association_other, profile_status
-    }) {
-        return {
-            nationality, top_players, first_name, last_name, height, weight, dob,
-            institute, documents, about, bio, position, strong_foot, weak_foot, former_club,
-            former_academy, specialization, player_type, email, name, avatar_url, state,
-            country, city, phone, founded_in, address, stadium_name, owner, manager, short_name,
-            contact_person, trophies, club_academy_details, top_signings, registration_number, mobile_number,
-            member_type, social_profiles, type, league, league_other, association, association_other, profile_status
-        };
     }
 }
 

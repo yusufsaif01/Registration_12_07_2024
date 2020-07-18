@@ -38,8 +38,19 @@ module.exports = ({ email, name, from }) => {
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
 						You are now a footplayer associated with ${from}
-						<br>Please click below to go to YFTChain portal and witness your new status with unlocked features.
-						</p>
+					</p>
+				</td>
+			</tr>
+			<tr style="height: 10px;">
+				<td></td>
+			</tr>
+			<tr>
+				<td style="display:block; width: 100%; text-align: center;">
+					<p style="font-family: 'Montserrat', sans-serif;
+					font-size: 16px;font-weight: 300;color:#626262;
+					">
+						Please click below to go to YFTChain portal and witness your new status with unlocked features.
+					</p>
 				</td>
 			</tr>
 
@@ -63,20 +74,6 @@ module.exports = ({ email, name, from }) => {
 				<td></td>
 			</tr>
 
-			<!-- See you online -->
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>

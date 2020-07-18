@@ -9,6 +9,18 @@ module.exports = (footer) => {
           border-bottom-right-radius: 10px;
         "
       >
+        <tr style="display:block;width: 100%;text-align: center;background: white;padding-bottom: 20px;">
+          <td style=" display:block; width: 100%; text-align: center;">
+            <p style="font-family: 'Montserrat', sans-serif;
+            font-size: 18px;font-weight: 300;color:#626262;
+            ">
+              See you online!
+            </p>
+            <p style="font-family: 'Montserrat', sans-serif;
+            font-size: 20px; font-weight: 700;display:block;color:#626262;
+            ">YFTChain Team</p>
+          </td>
+        </tr>
         <tr style="height: 20px;">
           <td></td>
         </tr>
