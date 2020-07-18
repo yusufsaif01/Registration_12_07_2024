@@ -40,7 +40,7 @@ module.exports = ({ email, name, reason, from, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We apologize to inform you that ${from} has not approved the contract information uploaded by your organisation due to ${reason}.</p>
+						We apologise to inform you that ${from} has not approved the contract information uploaded by your organisation due to ${reason}.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">

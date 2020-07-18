@@ -40,7 +40,7 @@ module.exports = ({ email, documentType, name, memberType, reason }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We apologies to inform you that YFTChain hs not approved your <br> document information due to ${reason} </p>
+						We apologise to inform you that YFTChain hs not approved your <br> document information due to ${reason} </p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
