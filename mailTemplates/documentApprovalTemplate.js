@@ -51,7 +51,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to confirm that the verification process for your YFTChain account has been completed according to the data your provided us with !</p>
+						We are pleased to confirm that the verification process for your YFTChain account has been completed according to the data you provided us with !</p>
 				</td>
 			</tr>
 			<tr style="height: 40px;">

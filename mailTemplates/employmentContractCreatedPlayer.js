@@ -40,7 +40,7 @@ module.exports = ({ email, from, name, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to inform that ${from}, has uploaded their contract information and requesting that ${category} verify that this player is holding a valid contract with your organisation.</p>
+						We are pleased to inform that ${from}, has uploaded their contract information and is requesting that ${category} verify that this player is holding a valid contract with your organisation.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
