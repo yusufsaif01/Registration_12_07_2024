@@ -81,28 +81,6 @@ module.exports = {
         stadium_name: {
             type: String
         },
-        owner: {
-            name: {
-                type: String
-            },
-            email: {
-                type: String
-            },
-            phone_number: {
-                type: String
-            }
-        },
-        manager: {
-            name: {
-                type: String
-            },
-            email: {
-                type: String
-            },
-            phone_number: {
-                type: String
-            }
-        },
         short_name: {
             type: String
         },
@@ -194,6 +172,9 @@ module.exports = {
                 type: String
             },
             instagram: {
+                type: String
+            },
+            linked_in: {
                 type: String
             }
         },
