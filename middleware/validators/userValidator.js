@@ -12,43 +12,75 @@ const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
 const DOCUMENT_TYPE = require('../../constants/DocumentType');
 const AADHAR_MEDIA_TYPE = require('../../constants/AadharMediaType');
 const STATE_ASSOCIATIONS = require('../../constants/StateAssociations');
+const PROFILE_DETAIL = require('../../constants/ProfileDetailType');
+const GENDER = require('../../constants/gender');
+const ASSOCIATED_CLUB_ACADEMY = require('../../constants/AssociatedClubAcademy');
+const LEAGUE = require('../../constants/League');
+const customMessage = require("./CustomMessages");
+
 class UserValidator {
 
     async createAPIValidation(req, res, next) {
         let registerRule = {
-            "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
-                };
-            }),
+            "phone": Joi.string().required().regex(/^[0-9]{10}$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.PHONE_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
+                )
+            ),
             "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
-            "type": Joi.string().allow(""),
-            "name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.NAME_INVALID,
-                };
+            "type": Joi.when("member_type", {
+                is: MEMBER.PLAYER,
+                then: Joi.string().valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
+                otherwise: Joi.string().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required()
             }),
-            "first_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.FIRST_NAME_INVALID,
-                };
+            "name": Joi.when("member_type", {
+                is: MEMBER.PLAYER,
+                then: Joi.string().allow(""),
+                otherwise: Joi.string().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                    customMessage(
+                        {
+                            "any.required": RESPONSE_MESSAGE.NAME_REQUIRED,
+                        },
+                        RESPONSE_MESSAGE.NAME_INVALID
+                    )
+                )
             }),
-            "last_name": Joi.string().min(1).regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.LAST_NAME_INVALID,
-                };
+            "first_name": Joi.when("member_type", {
+                is: MEMBER.PLAYER,
+                then: Joi.string().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                    customMessage(
+                        {
+                            "any.required": RESPONSE_MESSAGE.FIRST_NAME_REQUIRED,
+                        },
+                        RESPONSE_MESSAGE.FIRST_NAME_INVALID
+                    )
+                ),
+                otherwise: Joi.string().allow(""),
+            }),
+            "last_name": Joi.when("member_type", {
+                is: MEMBER.PLAYER,
+                then: Joi.string().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                    customMessage(
+                        {
+                            "any.required": RESPONSE_MESSAGE.LAST_NAME_REQUIRED,
+                        },
+                        RESPONSE_MESSAGE.LAST_NAME_INVALID
+                    )
+                ),
+                otherwise: Joi.string().allow(""),
             }),
             "email": Joi.string().email({ minDomainSegments: 2 }).required()
         };
 
         if (req.body.type && req.body.member_type) {
             if (req.body.member_type === MEMBER.PLAYER) {
-                registerRule.type = Joi.string().valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required()
                 req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
                 req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
             }
             else {
-                registerRule.type = Joi.string().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required()
                 req.body.name = req.body.name ? req.body.name.trim() : req.body.name
             }
         }
@@ -63,167 +95,212 @@ class UserValidator {
         }
     }
 
+    async profileAPIParamsValidation(req, res, next) {
+        const params = Joi.object().keys({
+            "_category": Joi.string().required().valid([PROFILE_DETAIL.PERSONAL, PROFILE_DETAIL.PROFESSIONAL, PROFILE_DETAIL.DOCUMENT]),
+        });
+        try {
+            await Joi.validate(req.params, params);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
+
     async updateDetailsAPIValidation(req, res, next) {
-        let academyRule = {
-            "name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.NAME_INVALID,
-                };
+        let playerPersonalDetail = {
+            "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
+            "first_name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.FIRST_NAME_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.FIRST_NAME_INVALID
+                )
+            ),
+            "last_name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.LAST_NAME_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.LAST_NAME_INVALID
+                )
+            ),
+            "bio": Joi.string().max(350).allow(""),
+            "weight": Joi.string().trim().allow(""),
+            "height_feet": Joi.string().trim().required(),
+            'height_inches': Joi.string().trim().required(),
+            "gender": Joi.string().trim().required().valid([GENDER.MALE, GENDER.FEMALE]),
+            "phone": Joi.string().required().regex(/^[0-9]{10}$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.PHONE_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
+                )
+            ),
+            "dob": Joi.string().trim(),
+            "country": Joi.string().required(),
+            "state": Joi.string().required(),
+            "city": Joi.string().required(),
+            "school": Joi.string().trim().allow(""),
+            "college": Joi.string().trim().allow(""),
+            "university": Joi.string().trim().allow(""),
+            "facebook": Joi.string().allow(""),
+            "youtube": Joi.string().allow(""),
+            "twitter": Joi.string().allow(""),
+            "instagram": Joi.string().allow(""),
+            "linked_in": Joi.string().allow(""),
+        };
+        let playerProfessionalDetail = {
+            "position": Joi.string().required(),
+            "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
+            "weak_foot": Joi.number().min(1).max(5),
+            "former_club_academy": Joi.string().trim().allow(""),
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow(""),
+            "associated_club_academy": Joi.string().valid([ASSOCIATED_CLUB_ACADEMY.YES, ASSOCIATED_CLUB_ACADEMY.NO]).required(),
+            "head_coach_name": Joi.when("associated_club_academy", {
+                is: ASSOCIATED_CLUB_ACADEMY.YES,
+                then: Joi.string().trim().min(1).required(),
+                otherwise: Joi.string().allow(""),
             }),
+            "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
+            "head_coach_phone": Joi.when("associated_club_academy", {
+                is: ASSOCIATED_CLUB_ACADEMY.YES,
+                then: Joi.string().required().regex(/^[0-9]{10}$/).error(
+                    customMessage(
+                        {
+                            "any.required": RESPONSE_MESSAGE.HEAD_COACH_PHONE_REQUIRED,
+                        },
+                        RESPONSE_MESSAGE.HEAD_COACH_PHONE_INVALID
+                    )
+                ),
+                otherwise: Joi.string().allow(""),
+            })
+        }
+        let playerDocumentDetail = {
+            "aadhar_media_type": Joi.string().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
+            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
+                return {
+                    message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
+                };
+            })
+        }
+        let clubAcademyPersonalDetail = {
+            "name": Joi.string().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.NAME_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.NAME_INVALID
+                )
+            ),
+            "short_name": Joi.string().trim().allow(""),
+
             "founded_in": Joi.number().min(1).required(),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
             "city": Joi.string().required(),
+            "address": Joi.string().trim().allow(""),
+            "pincode": Joi.string().trim().allow(""),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
                 return {
                     message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
                 };
             }),
-
-            "short_name": Joi.string().trim().allow(""),
-            "pincode": Joi.string().trim().allow(""),
-            "address": Joi.string().trim().allow(""),
+            "mobile_number": Joi.string().required().regex(/^[0-9]{10}$/).error(
+                customMessage(
+                    {
+                        "any.required": RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED,
+                    },
+                    RESPONSE_MESSAGE.MOBILE_NUMBER_INVALID
+                )
+            ),
             "stadium_name": Joi.string().trim().allow(""),
-            "document_type": Joi.string().trim().allow(""),
-            "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
-            "number": Joi.string().trim(),
-            "aiff_id": Joi.string().trim(),
-            "head_coach_name": Joi.string().trim().allow(""),
-            "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
-            "head_coach_phone": Joi.string().trim().allow(""),
-
-            "league": Joi.string().trim().min(1),
-            "league_other": Joi.string().trim().min(1),
-            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
-            "association_other": Joi.string().allow(""),
-            "owner": Joi.string(),
-            "manager": Joi.string(),
-            "top_signings": Joi.string(),
+            "bio": Joi.string().max(350).allow(""),
+            "facebook": Joi.string().allow(""),
+            "youtube": Joi.string().allow(""),
+            "twitter": Joi.string().allow(""),
+            "instagram": Joi.string().allow(""),
+            "linked_in": Joi.string().allow(""),
+        }
+        let clubAcademyProfessionalDetail = {
             "contact_person": Joi.string(),
             "trophies": Joi.string(),
+            "league": Joi.string().required().valid(LEAGUE.ALLOWED_VALUES),
+            "league_other": Joi.string().allow(""),
+            "top_signings": Joi.string(),
             "top_players": Joi.string(),
-            "mobile_number": Joi.string().required().regex(/^[0-9]{10}$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.MOBILE_NUMBER_INVALID
-                };
-            }),
-
-            //need to remove
-            "document": Joi.any(),
-            "aiff": Joi.any()
+            "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
+            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
+            "association_other": Joi.string().allow("")
         };
-        if (req.authUser.member_type) {
-            let member_type = req.authUser.member_type
-            if (member_type === MEMBER.PLAYER) {
-                if (!req.body.phone) {
-                    return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PHONE_REQUIRED)));
-                }
+        let clubAcademyDocumentDetail = {
+            "document_type": Joi.string().trim().allow(""),
+            "aiff_id": Joi.string().trim(),
+            "number": Joi.string().trim(),
+        };
+        let member_type = req.authUser.member_type || "";
+        if (member_type === MEMBER.PLAYER) {
+            if (req.params._category === PROFILE_DETAIL.PERSONAL) {
                 req.body.first_name = req.body.first_name ? req.body.first_name.trim() : req.body.first_name
                 req.body.last_name = req.body.last_name ? req.body.last_name.trim() : req.body.last_name
             }
-            if ((member_type === MEMBER.CLUB || member_type === MEMBER.ACADEMY) && !req.body.mobile_number) {
-                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.MOBILE_NUMBER_REQUIRED)));
-            }
-            if (member_type === MEMBER.CLUB) {
-                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
+        }
+        if (member_type === MEMBER.CLUB) {
+            if (req.params._category === PROFILE_DETAIL.DOCUMENT)
+                clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF);
+            if (req.params._category === PROFILE_DETAIL.PERSONAL)
                 req.body.name = req.body.name ? req.body.name.trim() : req.body.name
-            }
-            if (member_type === MEMBER.ACADEMY) {
-                academyRule.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+        }
+        if (member_type === MEMBER.ACADEMY) {
+            if (req.params._category === PROFILE_DETAIL.DOCUMENT)
+                clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
+            if (req.params._category === PROFILE_DETAIL.PERSONAL) {
                 req.body.name = req.body.name ? req.body.name.trim() : req.body.name
+                clubAcademyPersonalDetail.address = Joi.string().trim().required();
+                clubAcademyPersonalDetail.pincode = Joi.string().trim().required();
             }
         }
         if (req.body.document_type) {
             let document_type = req.body.document_type;
-            if (document_type === 'pan') {
-                academyRule.number = Joi.string().min(10).max(10).regex(/^[A-Z]{5}[0-9]{4}[A-Z]/).error(() => {
+            if (document_type === DOCUMENT_TYPE.PAN) {
+                clubAcademyDocumentDetail.number = Joi.string().min(10).max(10).regex(/^[A-Z]{5}[0-9]{4}[A-Z]/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.PAN_NUMBER_INVALID,
                     };
                 })
             }
-            if (document_type === 'coi') {
-                academyRule.number = Joi.string().regex(/^[a-z-A-Z0-9]+$/).error(() => {
+            if (document_type === DOCUMENT_TYPE.COI) {
+                clubAcademyDocumentDetail.number = Joi.string().regex(/^[a-z-A-Z0-9]+$/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.COI_NUMBER_INVALID,
                     };
                 })
             }
-            if (document_type === 'tin') {
-                academyRule.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
+            if (document_type === DOCUMENT_TYPE.COI) {
+                clubAcademyDocumentDetail.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.TIN_NUMBER_INVALID,
                     };
                 })
             }
         }
-
-        let playerRule = {
-            "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
-            "first_name": Joi.string().trim().min(1).max(500).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.FIRST_NAME_INVALID,
-                };
-            }),
-            "last_name": Joi.string().trim().min(1).max(500).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.LAST_NAME_INVALID,
-                };
-            }),
-            "dob": Joi.string().trim(),
-            "country": Joi.string().required(),
-            "state": Joi.string().required(),
-            "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.PHONE_NUMBER_INVALID,
-                };
-            }),
-
-            "position": Joi.string().required(),
-
-            "strong_foot": Joi.string().trim().min(1).valid(STRONG_FOOT.RIGHT, STRONG_FOOT.LEFT).required(),
-            "weak_foot": Joi.number().min(1).max(5),
-
-            "city": Joi.string().required(),
-            "height_feet": Joi.string().trim().allow(""),
-            'height_inches': Joi.string().trim().allow(""),
-            "weight": Joi.string().trim().allow(""),
-
-            "school": Joi.string().trim().allow(""),
-            "college": Joi.string().trim().allow(""),
-            "university": Joi.string().trim().allow(""),
-
-            "head_coach_name": Joi.string().trim().allow(""),
-            "head_coach_email": Joi.string().trim().email({ minDomainSegments: 2 }).allow(""),
-            "head_coach_phone": Joi.string().trim().allow(""),
-            "former_club": Joi.string().trim().allow(""),
-            "aadhar_media_type": Joi.string().valid(AADHAR_MEDIA_TYPE.IMAGE, AADHAR_MEDIA_TYPE.PDF),
-            "aadhar_number": Joi.string().regex(/^[0-9]{12}$/).error(() => {
-                return {
-                    message: RESPONSE_MESSAGE.AADHAR_NUMBER_INVALID,
-                };
-            }),
-            "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
-            "association_other": Joi.string().allow(""),
-            "associated_club": Joi.string()
-        };
-
-        if (req.body.player_type === PLAYER.AMATEUR || req.body.player_type === PLAYER.PROFESSIONAL) {
-            playerRule.height_feet = Joi.string().trim().required();
-            playerRule.height_inches = Joi.string().trim().required();
-        }
-
-        const playerSchema = Joi.object().keys(playerRule);
-        const academySchema = Joi.object().keys(academyRule);
-
-        var schema = academySchema;
-
         if (req.body.association && req.body.association !== STATE_ASSOCIATIONS.OTHERS) {
             req.body.association_other = "";
         }
-        if (req.authUser.member_type == MEMBER.PLAYER) {
-            schema = playerSchema;
+        if (req.body.league && req.body.legue !== LEAGUE.OTHER) {
+            req.body.league_other = "";
         }
+        var schema = {};
+        if (req.params._category === PROFILE_DETAIL.PERSONAL)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerPersonalDetail) : Joi.object().keys(clubAcademyPersonalDetail)
+        if (req.params._category === PROFILE_DETAIL.PROFESSIONAL)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerProfessionalDetail) : Joi.object().keys(clubAcademyProfessionalDetail)
+        if (req.params._category === PROFILE_DETAIL.DOCUMENT)
+            schema = member_type === MEMBER.PLAYER ? Joi.object().keys(playerDocumentDetail) : Joi.object().keys(clubAcademyDocumentDetail)
 
         try {
             await Joi.validate(req.body, schema);
@@ -239,23 +316,7 @@ class UserValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async updateBioAPIValidation(req, res, next) {
-        const schema = Joi.object().keys({
-            "bio": Joi.string().allow(""),
-            "facebook": Joi.string().allow(""),
-            "youtube": Joi.string().allow(""),
-            "twitter": Joi.string().allow(""),
-            "instagram": Joi.string().allow("")
-        });
 
-        try {
-            await Joi.validate(req.body, schema);
-            return next();
-        } catch (err) {
-            console.log(err.details);
-            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
-        }
-    }
     async playerListQueryValidation(req, res, next) {
 
         const query = Joi.object().keys({

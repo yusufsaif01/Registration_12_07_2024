@@ -51,7 +51,7 @@ module.exports = ({ email, documentType, name, memberType }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to confirm that the verification process for your YFTChain account has been completed according to the data your provided us with !</p>
+						We are pleased to confirm that the verification process for your YFTChain account has been completed according to the data you provided us with !</p>
 				</td>
 			</tr>
 			<tr style="height: 40px;">
@@ -82,20 +82,9 @@ module.exports = ({ email, documentType, name, memberType }) => {
 				<td></td>
 			</tr>
 
-			<!-- See you online -->
+			
 
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
+			
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>
