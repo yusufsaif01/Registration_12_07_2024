@@ -8,7 +8,7 @@ module.exports = {
 
     getDataFromS3: async function () {
         try {
-            const storageProviderInst = new StorageProvider(config.storage)
+            const storageProviderInst = new StorageProvider(config.storage).getInstance();
             let countryData = await storageProviderInst.getDocument('country.json')
             countryList = JSON.parse(countryData.Body.toString());
             let stateData = await storageProviderInst.getDocument('state.json')
