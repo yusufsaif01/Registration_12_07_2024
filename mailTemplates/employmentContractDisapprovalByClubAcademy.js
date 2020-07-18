@@ -40,7 +40,7 @@ module.exports = ({ email, name, reason, from, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We apologies to inform you that ${from} has not approved your contract information due to ${reason}.</p>
+						We apologise to inform you that ${from} has not approved your contract information due to ${reason}.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
@@ -68,7 +68,7 @@ module.exports = ({ email, name, reason, from, category }) => {
 
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
-					<a href="${data.appUrl}member/profile/view" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
+					<a href="${data.appUrl}member/profile" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
 						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to my profile
 					</a>
 				</td>
