@@ -61,7 +61,7 @@ module.exports = ({ email, from, name, category }) => {
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
 					<a href="${data.appUrl}member/profile/view" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
-						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to manage contracts
+						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to my profile
 					</a>
 				</td>
 			</tr>
