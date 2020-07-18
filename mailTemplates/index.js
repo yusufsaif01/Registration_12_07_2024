@@ -17,6 +17,10 @@ const employmentContractCreatedPlayer = require("./employmentContractCreatedPlay
 const footPlayerInviteAccepted = require("./footPlayerInviteAccepted");
 const postEmailConfirmation = require("./postEmailConfirmation");
 
+/** Admin */
+const employmentContractApprovalAdmin = require('./employmentContractApprovalTemplateAdmin');
+const employmentContractDisapprovalAdmin = require('./employmentContractDisapprovalTemplateAdmin');
+
 module.exports = {
   forgotPassword,
   emailVerification,
@@ -36,4 +40,8 @@ module.exports = {
   employmentContractCreatedClubAcademy,
   employmentContractCreatedPlayer,
   footPlayerInviteAccepted,
+
+  /** Admin */
+  employmentContractApprovalAdmin,
+  employmentContractDisapprovalAdmin,
 };

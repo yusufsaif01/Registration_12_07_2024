@@ -19,6 +19,8 @@ const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
+const AdminUtility = require("../db/utilities/AdminUtility");
+const {map} = require('bluebird');
 
 class EmploymentContractService {
   constructor() {
@@ -28,6 +30,7 @@ class EmploymentContractService {
     this.contractInst = new EmploymentContractUtility();
     this.footPlayerInst = new FootPlayerUtility();
     this.clubAcademyInst = new ClubAcademyUtility();
+    this.adminUtilityInst = new AdminUtility();
   }
 
   async createContract(body, authUser) {
@@ -644,7 +647,9 @@ class EmploymentContractService {
         playerUserId = "",
         playerType = "",
         documents = [],
-        clubAcademyName= '';
+        clubAcademyEmail = "",
+        clubAcademyType = "",
+        clubAcademyName = "";
       if (isSendToPlayer || sentByUser.member_type === MEMBER.PLAYER) {
         playerUserId = isSendToPlayer ? data.send_to : data.sent_by;
         let player = await this.playerUtilityInst.findOne(
@@ -659,6 +664,8 @@ class EmploymentContractService {
       const clubAcademyId = isSendToPlayer ? data.sent_by : data.send_to;
       const clubAcadDetails = await this.getClubDetails(clubAcademyId);
       clubAcademyName = clubAcadDetails.name;
+      clubAcademyEmail = clubAcadDetails.email;
+      clubAcademyType = clubAcadDetails.member_type;
 
       let reqObj = requestedData.reqObj;
       if (reqObj.status === ContractStatus.APPROVED) {
@@ -693,12 +700,36 @@ class EmploymentContractService {
             from: player_name,
             category: sentByUser.role,
           });
+          await this.sendAdminNotification("approved", {
+            approver: {
+              name: player_name,
+              email: sentByUser.username,
+              type:Role.PLAYER
+            },
+            approved: {
+              name: clubAcademyName,
+              email: clubAcademyEmail,
+              type: clubAcademyType,
+            },
+          });
         } else {
           await this.emailService.employmentContractApprovalByClubAcademy({
             email: sentByUser.username,
             name: player_name,
             from: clubAcademyName,
             category: data.category,
+          });
+          await this.sendAdminNotification("approved", {
+            approved: {
+              name: player_name,
+              email: sentByUser.username,
+              type: Role.PLAYER,
+            },
+            approver: {
+              name: clubAcademyName,
+              email: clubAcademyEmail,
+              type: clubAcademyType,
+            },
           });
         }
       }
@@ -722,6 +753,19 @@ class EmploymentContractService {
             from: player_name,
             category: sentByUser.role,
           });
+          await this.sendAdminNotification("disapproved", {
+            approver: {
+              name: player_name,
+              email: sentByUser.username,
+              type: Role.PLAYER,
+            },
+            approved: {
+              name: clubAcademyName,
+              email: clubAcademyEmail,
+              type: clubAcademyType,
+            },
+            reason: reqObj.remarks,
+          });
         } else {
           await this.emailService.employmentContractDisapprovalByClubAcademy({
             email: sentByUser.username,
@@ -730,7 +774,20 @@ class EmploymentContractService {
             from: clubAcademyName,
             category: data.category,
           });
-        }       
+          await this.sendAdminNotification("disapproved", {
+            approved: {
+              name: player_name,
+              email: sentByUser.username,
+              type: Role.PLAYER,
+            },
+            approver: {
+              name: clubAcademyName,
+              email: clubAcademyEmail,
+              type: clubAcademyType,
+            },
+            reason: reqObj.remarks,
+          });
+        }
       }
       return Promise.resolve();
     } catch (e) {
@@ -946,6 +1003,24 @@ class EmploymentContractService {
         e
       );
       return Promise.reject(e);
+    }
+  }
+
+  async sendAdminNotification (status, data) {
+    try {
+      const notificationTypes = {
+        approved: this.emailService.employmentContractApprovalAdmin,
+        disapproved: this.emailService.employmentContractDisapprovalAdmin,
+      };
+      if (notificationTypes[status]) {
+        let admins = await this.adminUtilityInst.find({}, {email:1});
+        await map(admins, (admin) => {
+          data.email = admin.email;
+          return notificationTypes[status].call(this.emailService, data);
+        });
+      }
+    } catch (error) {
+      console.log("Error in sending", status, "notification to admin", error);
     }
   }
 }
