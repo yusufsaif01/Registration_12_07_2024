@@ -49,7 +49,7 @@ module.exports = ({ email, name, from, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Your verified professional status will be showcased with a <span style="font-family: 'Montserrat', sans-serif;font-weight: 700;display:block;color:#626262">blue tick on the YFTChain portal.</span></p>
+						Your verified professional status will be showcased with a <span style="font-family: 'Montserrat', sans-serif;font-weight: 700;display:block;color:#626262">green tick on the YFTChain portal.</span></p>
 				</td>
 			</tr>
 
