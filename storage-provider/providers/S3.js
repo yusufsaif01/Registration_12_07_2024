@@ -121,7 +121,7 @@ class S3 {
                 Key: file_name
             };
 
-            let response = await this.s3.getObject(params);
+            let response = await this.s3.getObject(params).promise();
             return response;
         } catch (error) {
             console.log("Error", error);
