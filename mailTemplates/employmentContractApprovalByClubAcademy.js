@@ -49,7 +49,7 @@ module.exports = ({ email, name, from, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Your verified professional status will be showcased with a <span style="font-family: 'Montserrat', sans-serif;font-weight: 700;display:block;color:#626262">blue tick on the YFTChain portal.</span></p>
+						Your verified professional status will be showcased with a <span style="font-family: 'Montserrat', sans-serif;font-weight: 700;display:block;color:#626262">green tick on the YFTChain portal.</span></p>
 				</td>
 			</tr>
 
@@ -71,7 +71,7 @@ module.exports = ({ email, name, from, category }) => {
 
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
-					<a href="${data.appUrl}member/profile/view" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
+					<a href="${data.appUrl}member/profile" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
 						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to my profile
 					</a>
 				</td>
@@ -81,20 +81,9 @@ module.exports = ({ email, name, from, category }) => {
 				<td></td>
 			</tr>
 
-			<!-- See you online -->
+			
 
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
+			
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>

@@ -5,5 +5,40 @@
         "default": "1 0 * * *",
         "env": "CONTRACT_STATUS_UPDATE_SCHEDULE",
         "arg": "contract_status_update_schedule"
+    },
+    "document_reminder_schedule": {
+        "doc": "document reminder update schedule",
+        "format": "String",
+        "default": "0 0 * * 3",
+        "env": "DOCUMENT_REMINDER_SCHEDULE",
+        "arg": "document_reminder_schedule"
+    },
+    "document_reminder_timeout": {
+        "doc": "document reminder timeout (ms.) in which batch size will be executed",
+        "format": "Number",
+        "default": 2000,
+        "env": "DOCUMENT_REMINDER_TIMEOUT",
+        "arg": "document_reminder_timeout"
+    },
+    "document_reminder_batch_size": {
+        "doc": "document reminder batch size for sending emails",
+        "format": "Number",
+        "default": 2,
+        "env": "DOCUMENT_REMINDER_BATCH_SIZE",
+        "arg": "document_reminder_batch_size"
+    },
+    "document_reminder_schedule_enabled": {
+        "doc": "document reminder update schedule",
+        "format": "Boolean",
+        "default": false,
+        "env": "DOCUMENT_REMINDER_SCHEDULE_ENABLED",
+        "arg": "document_reminder_schedule_enabled"
+    },
+    "player_type_update_schedule": {
+        "doc": "player type update schedule",
+        "format": "String",
+        "default": "1 0 * * *",
+        "env": "PLAYER_TYPE_UPDATE_SCHEDULE",
+        "arg": "player_type_update_schedule"
     }
 }

@@ -62,7 +62,7 @@ module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_nam
 
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
-					<a href="${data.appUrl}member/profile/view" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
+					<a href="${data.appUrl}member/profile" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
 						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">Go to my profile
 					</a>
 				</td>
@@ -72,20 +72,6 @@ module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_nam
 				<td></td>
 			</tr>
 
-			<!-- See you online -->
-
-			<tr style="display:block; width: 100%;text-align: center;">
-				<td style=" display:block; width: 100%; text-align: center;">
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 18px;font-weight: 300;color:#626262;
-					">
-						See you online!
-					</p>
-					<p style="font-family: 'Montserrat', sans-serif;
-					font-size: 20px; font-weight: 700;display:block;color:#626262;
-					">YFTChain Team</p>
-				</td>
-			</tr>
 			<tr style=" height: 20px;">
 				<td></td>
 			</tr>
