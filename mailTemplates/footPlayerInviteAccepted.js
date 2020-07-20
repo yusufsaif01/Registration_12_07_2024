@@ -1,7 +1,7 @@
 module.exports = ({ email, name, from }) => {
   return {
     to: email,
-    subject: "Congratulations, You are now FootPlayer.",
+    subject: "Congratulations, You are now FootPlayer",
     html(data) {
       return `
         <tbody style="display: block;width: 80%; margin:auto;">
