@@ -37,7 +37,7 @@ module.exports = ({ email, name, from }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						You are now a footplayer associated with ${from}
+						You are now a FooTPlayer associated with ${from}
 					</p>
 				</td>
 			</tr>
@@ -81,6 +81,6 @@ module.exports = ({ email, name, from }) => {
 		</tbody>
       `;
     },
-    text: `Congratulations ${name}, You are now a FootPlayer.`,
+    text: `Congratulations ${name}, You are now a FooTPlayer.`,
   };
 };
