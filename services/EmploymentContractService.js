@@ -561,6 +561,7 @@ class EmploymentContractService {
             effective_date: 1,
             expiry_date: 1,
             status: 1,
+            send_to: 1
           },
         },
         {
