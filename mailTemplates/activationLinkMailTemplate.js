@@ -1,14 +1,14 @@
 module.exports = ({ email, activation_link, name }) => {
     return {
-        to: email,
-        subject: 'Email Verification',
-        // html: "",
-        text: `Welcome to YFTChain.
+      to: email,
+      subject: "Verify your email",
+      // html: "",
+      text: `Welcome to YFTChain.
           'Please follow the below url for verifying your email: 
           ${activation_link}
           'If you did not request this, please ignore this email.`,
-        html (data) {
-            return `
+      html(data) {
+        return `
                 <tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
 				<td></td>
@@ -103,6 +103,6 @@ module.exports = ({ email, activation_link, name }) => {
 			<!-- end  -->
 		</tbody>
             `;
-        }
+      },
     };
 };
