@@ -543,17 +543,30 @@ class EmploymentContractService {
           },
         },
         {
-          $unwind: {
-            path: "$clubAcademyDetail",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
           $lookup: {
             from: "player_details",
             localField: "player_email",
             foreignField: "email",
             as: "playerDetail",
+          },
+        },
+        {
+          $project: {
+            id: 1,
+            login_detail: 1,
+            clubAcademyDetail: { $filter: { input: "$clubAcademyDetail", as: "element", cond: { $eq: [{ $ifNull: ["$$element.deleted_at", null] }, null] } } },
+            playerDetail: { $filter: { input: "$playerDetail", as: "element", cond: { $eq: [{ $ifNull: ["$$element.deleted_at", null] }, null] } } },
+            club_academy_name: 1,
+            player_name: 1,
+            effective_date: 1,
+            expiry_date: 1,
+            status: 1,
+          },
+        },
+        {
+          $unwind: {
+            path: "$clubAcademyDetail",
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
