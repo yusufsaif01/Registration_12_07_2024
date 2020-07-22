@@ -8,7 +8,7 @@ module.exports = ({
   send_to_name = send_to_name || "User";
   return {
     to: send_to_email,
-    subject: "Footplayer Invitation",
+    subject: "FooTPlayer Invitation",
     // html: "",
     text: `${sent_by_name} ${sent_by_member_type} wants to add you on its network. Please register yourself on YFTChain using this link: ${link} to become a member of ${sent_by_name} ${sent_by_member_type}.`,
 
@@ -37,7 +37,7 @@ module.exports = ({
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-                        ${sent_by_name} wants to add you to their list of FootPlayers on the
+                        ${sent_by_name} wants to add you to their list of FooTPlayers on the
                         <br> YFTChain portal. We request you to kindly click on the link provided below in order to
                         <br> complete your registration process on the portal.
 					</p>
@@ -69,7 +69,7 @@ module.exports = ({
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
                         Once you have successfully completed the registration process and then verified your identity,
-                        <br> you will be added as a FootPlayer with ${sent_by_name} and will witness a whole set of features especially unlocked for you.
+                        <br> you will be added as a FooTPlayer with ${sent_by_name} and will witness a whole set of features especially unlocked for you.
                         We're very excited to see you become a part of the YFTChain community.
 					</p>
 				</td>

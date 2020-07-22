@@ -1,12 +1,12 @@
 module.exports = ({ email }) => {
     return {
-        to: email,
-        subject: 'Password Changed',
-        // html: "",
-        text: `Your password has been changed.`,
+      to: email,
+      subject: "Your password has been changed",
+      // html: "",
+      text: `Your password has been changed.`,
 
-        html(data) {
-            return `
+      html(data) {
+        return `
             <tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
 				<td></td>
@@ -61,6 +61,6 @@ module.exports = ({ email }) => {
 			<!-- end  -->
 		</tbody>
             `;
-        },
+      },
     };
 };

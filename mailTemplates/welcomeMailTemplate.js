@@ -1,9 +1,9 @@
 module.exports = ({ email }) => {
     return {
-        to: email,
-        subject: 'Welcome To YFTChain',
-        html () {
-            return `
+      to: email,
+      subject: "Welcome to YFTChain",
+      html() {
+        return `
             <tbody style="display: block; width: 80%; margin: auto;">
         <tr style="height: 20px;">
           <td></td>
@@ -73,7 +73,7 @@ module.exports = ({ email }) => {
         <!-- end  -->
       </tbody>
             `;
-        },
-        text: `Welcome to YFTChain.`
+      },
+      text: `Welcome to YFTChain.`,
     };
 };
