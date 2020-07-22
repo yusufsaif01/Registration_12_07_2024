@@ -1,0 +1,51 @@
+{
+    "provider": {
+        "doc": "state-city-storage-provider",
+        "format": "String",
+        "default": "S3",
+        "env": "STATE_CITY_STORAGE_PROVIDER",
+        "arg": "state_city_storage_provider"
+    },
+    "bucket_name": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_BUCKET_NAME",
+        "arg": "state_city_bucket_name"
+    },
+    "bucket_acl": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_BUCKET_ACL",
+        "arg": "state_city_bucket_acl"
+    },
+    "access_key_id": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_STORAGE_ACCESS_KEY_ID",
+        "arg": "state_city_storage_access_key_id"
+    },
+    "secret_access_key": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_STORAGE_SECRET_ACCESS_KEY",
+        "arg": "state_city_storage_secret_access_key"
+    },
+    "region": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_REGION",
+        "arg": "state_city_region"
+    },
+    "spaceEndpoint": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_CITY_SPACEENDPOINT",
+        "arg": "state_city_spaceEndpoint"
+    }
+}
