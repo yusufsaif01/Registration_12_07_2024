@@ -1,7 +1,7 @@
 module.exports = ({ email, name }) => {
   return {
     to: email,
-    subject: "We are making sure you're you",
+    subject: "Verify your identity",
     html(data) {
       return `
             <tbody style="display: block;width: 80%; margin:auto;">
