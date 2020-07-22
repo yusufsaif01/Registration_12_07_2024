@@ -1,7 +1,7 @@
 module.exports = ({ email, approved, approver, reason }) => {
   return {
     to: email,
-    subject: `${approved.name} Contract details disapproval`,
+    subject: `${approved.name} employment contract details not approved`,
     // html: "",
     text: `Employment Contract for ${approved.name} has been disapproved due to ${reason} reason, Please update again.`,
 

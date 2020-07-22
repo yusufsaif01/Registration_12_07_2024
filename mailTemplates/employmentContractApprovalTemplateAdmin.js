@@ -1,7 +1,7 @@
 module.exports = ({ email, approved, approver }) => {
   return {
     to: email,
-    subject: `${approved.name} Contract details approval confirmation`,
+    subject: `${approved.name} employment contract details approved`,
     // html: "",
     text: `Employment contract for ${approved.name} has been approved successfully.`,
 
