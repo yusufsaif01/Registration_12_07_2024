@@ -343,6 +343,15 @@ class AuthService {
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { password: password, forgot_password_token: "" });
                 await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 await redisServiceInst.clearAllTokensFromCache(tokenData.user_id);
+                let profileName = "";
+                profileName = await this.getProfileName(
+                  loginDetails,
+                  profileName
+                );
+                await this.emailService.changePassword(
+                  loginDetails.username,
+                  profileName
+                );
                 return Promise.resolve();
             }
             throw new errors.Unauthorized(RESPONSE_MESSAGE.USER_NOT_REGISTERED);

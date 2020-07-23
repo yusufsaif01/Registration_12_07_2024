@@ -1,12 +1,12 @@
 module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_name }) => {
     return {
-        to: send_to_email,
-        subject: 'Footplayer Request',
-        // html: "",
-        text: `${sent_by_name} ${sent_by_member_type} wants to add you on its network.`,
+      to: send_to_email,
+      subject: "FooTPlayer request",
+      // html: "",
+      text: `${sent_by_name} ${sent_by_member_type} wants to add you on its network.`,
 
-        html (data) {
-            return `<tbody style="display: block;width: 80%; margin:auto;">
+      html(data) {
+        return `<tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
 				<td></td>
 			</tr>
@@ -77,6 +77,6 @@ module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_nam
 			</tr>
 			<!-- end  -->
 		</tbody>`;
-        }
+      },
     };
 };

@@ -1,3 +1,5 @@
+const MEMBER = require('../../constants/MemberType')
+
 class CommentsListResponseMapper {
     map(comments) {
         let response = [];
@@ -14,6 +16,7 @@ class CommentsListResponseMapper {
                         "user_id": comment.player_detail.user_id,
                         "name": (comment.player_detail.first_name || "") + " " + (comment.player_detail.last_name || ""),
                         "type": comment.player_detail.player_type || "-",
+                        "member_type": MEMBER.PLAYER,
                         "position": "-",
                     };
                     commented_by.name = String(commented_by.name).trim().length > 0 ? String(commented_by.name).trim() : "-";
@@ -27,7 +30,8 @@ class CommentsListResponseMapper {
                         "avatar": comment.club_academy_detail.avatar_url || "-",
                         "user_id": comment.club_academy_detail.user_id,
                         "name": comment.club_academy_detail.name,
-                        "type": comment.club_academy_detail.member_type,
+                        "type": comment.club_academy_detail.type || '-',
+                        "member_type": comment.club_academy_detail.member_type,
                     };
                     data.commented_by = commented_by;
                 }

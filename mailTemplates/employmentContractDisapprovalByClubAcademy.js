@@ -1,11 +1,11 @@
 module.exports = ({ email, name, reason, from, category }) => {
   return {
     to: email,
-    subject: "Contract Disapproved",
+    subject: "Contract not approved",
     // html: "",
     text: `Employment Contract for ${name} has been disapproved due to ${reason} reason, Please update again.`,
 
-    html (data) {
+    html(data) {
       return `
 		<tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
@@ -96,6 +96,6 @@ module.exports = ({ email, name, reason, from, category }) => {
 			<!-- end  -->
 		</tbody>	
 	  `;
-    }
+    },
   };
 };

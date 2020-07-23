@@ -1,15 +1,15 @@
 module.exports = ({ email, password_reset_link, name }) => {
     return {
-        to: email,
-        subject: 'Password Reset',
-        // html: "",
-        text: `You are receiving this because you have requested the reset of the password for your account.
+      to: email,
+      subject: "Reset your password",
+      // html: "",
+      text: `You are receiving this because you have requested the reset of the password for your account.
           'Please follow the below url to complete the process: 
           ${password_reset_link}
           'If you did not request this, please ignore this email and your password will remain unchanged.`,
 
-        html(data) {
-            return `
+      html(data) {
+        return `
             <tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
 				<td></td>
@@ -112,7 +112,6 @@ module.exports = ({ email, password_reset_link, name }) => {
 			<!-- end  -->
 		</tbody>
             `;
-        }
-        
+      },
     };
 };

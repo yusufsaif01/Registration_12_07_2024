@@ -1,11 +1,11 @@
 module.exports = ({ email, from, name, category }) => {
   return {
     to: email,
-    subject: "Employment Contract Created",
+    subject: "Employment contract approval request",
     // html: "",
     text: `A Contract has been added for you by ${name}.`,
 
-    html (data) {
+    html(data) {
       return `
         <tbody style="display: block;width: 80%; margin:auto;">
 			<tr style="height: 20px;">
@@ -89,6 +89,6 @@ module.exports = ({ email, from, name, category }) => {
 			<!-- end  -->
 		</tbody>
       `;
-    }
+    },
   };
 };
