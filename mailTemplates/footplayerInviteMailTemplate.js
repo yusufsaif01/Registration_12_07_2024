@@ -8,7 +8,7 @@ module.exports = ({
   send_to_name = send_to_name || "User";
   return {
     to: send_to_email,
-    subject: "FooTPlayer Invitation",
+    subject: "Register on YFTChain",
     // html: "",
     text: `${sent_by_name} ${sent_by_member_type} wants to add you on its network. Please register yourself on YFTChain using this link: ${link} to become a member of ${sent_by_name} ${sent_by_member_type}.`,
 
