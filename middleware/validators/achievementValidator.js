@@ -26,6 +26,7 @@ class AchievementValidator {
                     customMessage(
                         {
                             "any.required": RESPONSE_MESSAGE.TO_REQUIRED,
+                            "date.min": RESPONSE_MESSAGE.FROM_GREATER_THAN_TO
                         },
                         RESPONSE_MESSAGE.TO_INVALID
                     )
