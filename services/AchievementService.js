@@ -33,8 +33,8 @@ class AchievementService extends BaseService {
 			let response = {}, totalRecords = 0;
 			let paginationOptions = requestedData.paginationOptions || {};
 			let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
-			let options = { limit: paginationOptions.limit, skip: skipCount, sort: { year: -1 } };
-			let projection = { type: 1, name: 1, year: 1, position: 1, media_url: 1, id: 1 }
+			let options = { limit: paginationOptions.limit, skip: skipCount, sort: { from: -1 } };
+			let projection = { type: 1, name: 1, from: 1, to: 1, position: 1, media_url: 1, id: 1 }
 			let data = await this.achievementUtilityInst.find({ user_id: requestedData.user_id }, projection, options);
 			totalRecords = await this.achievementUtilityInst.countList({ user_id: requestedData.user_id });
 			data = new AchievementListResponseMapper().map(data);
@@ -52,11 +52,12 @@ class AchievementService extends BaseService {
 	async add(requestedData = {}) {
 		try {
 			let achievement = requestedData.reqObj;
-			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
+			achievement.from = (achievement.from) ? new Date(achievement.from).getFullYear() : null;
+			achievement.to = (achievement.to) ? new Date(achievement.to).getFullYear() : null;
 			let dob = "", user = {};
 			user = await this.playerUtilityInst.findOne({ user_id: requestedData.user_id }, { dob: 1 });
 			dob = user ? (user.dob || "") : ""
-			await this._validateYear(achievement.year, dob);
+			await this._validateYear(achievement.from, achievement.to, dob);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.insert(achievement)
 			return Promise.resolve();
@@ -73,11 +74,11 @@ class AchievementService extends BaseService {
 				return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ACHIEVEMENT_NOT_FOUND));
 			}
 			let achievement = requestedData.reqObj;
-			achievement.year = (achievement.year) ? new Date(achievement.year).getFullYear() : null;
-			let dob = "", user = {};
+			achievement.from = (achievement.from) ? new Date(achievement.from).getFullYear() : null;
+			achievement.to = (achievement.to) ? new Date(achievement.to).getFullYear() : null; let dob = "", user = {};
 			user = await this.playerUtilityInst.findOne({ user_id: requestedData.user_id }, { dob: 1 });
 			dob = user ? (user.dob || "") : ""
-			await this._validateYear(achievement.year, dob);
+			await this._validateYear(achievement.from, achievement.to, dob);
 			achievement.user_id = requestedData.user_id;
 			await this.achievementUtilityInst.updateOne({ id: requestedData.id }, achievement)
 			return Promise.resolve();
@@ -101,28 +102,33 @@ class AchievementService extends BaseService {
 		}
 	}
 
-	async _validateYear(year, dob) {
-		if (year) {
+	async _validateYear(from, to, dob) {
+		if (from && to) {
 			let msg = null;
 			let d = new Date();
 			let currentYear = d.getFullYear();
-
-			if (year > currentYear) {
-				msg = RESPONSE_MESSAGE.YEAR_GREATER_THAN_CURRENT_YEAR;
+			if (from > currentYear) {
+				msg = RESPONSE_MESSAGE.FROM_GREATER_THAN_CURRENT_YEAR;
 			}
-			if (year < 1970) {
-				msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_1970;
+			if (to > currentYear) {
+				msg = RESPONSE_MESSAGE.TO_GREATER_THAN_CURRENT_YEAR;
 			}
-			if (year < 0) {
-				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_NEGATIVE;
+			if (from < 1970) {
+				msg = RESPONSE_MESSAGE.FROM_LESS_THAN_1970;
 			}
-			if (year == 0) {
-				msg = RESPONSE_MESSAGE.YEAR_CANNOT_BE_ZERO;
+			if (from < 0) {
+				msg = RESPONSE_MESSAGE.FROM_CANNOT_BE_NEGATIVE;
 			}
-			if (year && dob !== "") {
+			if (from == 0) {
+				msg = RESPONSE_MESSAGE.FROM_CANNOT_BE_ZERO;
+			}
+			if (from > to) {
+				msg = RESPONSE_MESSAGE.FROM_GREATER_THAN_TO;
+			}
+			if (from && dob !== "") {
 				let dob_year = new Date(dob).getFullYear();
-				if (year <= dob_year)
-					msg = RESPONSE_MESSAGE.YEAR_LESS_THAN_DOB
+				if (from <= dob_year)
+					msg = RESPONSE_MESSAGE.FROM_LESS_THAN_DOB
 			}
 			if (msg) {
 				return Promise.reject(new errors.ValidationFailed(msg));
@@ -130,8 +136,6 @@ class AchievementService extends BaseService {
 			else
 				return Promise.resolve();
 		}
-		else
-			return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.YEAR_REQUIRED));
 	}
 }
 
