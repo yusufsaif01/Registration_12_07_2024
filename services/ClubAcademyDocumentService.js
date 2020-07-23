@@ -61,13 +61,7 @@ class ClubAcademyDocumentService {
       },
     });
 
-    if (res.nModified) {
-      this.emailService.documentApproval({
-        email: user.email,
-        documentType: type,
-        name: user.name,
-      });
-    }
+    
 
     // reload model
     user = await this.getUser(user.user_id);
@@ -104,14 +98,6 @@ class ClubAcademyDocumentService {
     });
 
     if (res.nModified) {
-      
-      // email notification
-      this.emailService.documentDisApproval({
-        email: user.email,
-        documentType: type,
-        name: user.name,
-        reason: remarks
-      });
 
       let updated = await this.loginDetailsInst.updateOne(
         {
