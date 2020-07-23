@@ -17,6 +17,7 @@ const GENDER = require('../../constants/gender');
 const ASSOCIATED_CLUB_ACADEMY = require('../../constants/AssociatedClubAcademy');
 const LEAGUE = require('../../constants/League');
 const customMessage = require("./CustomMessages");
+const CONTACT_PERSON = require('../../constants/ContactPerson');
 
 class UserValidator {
 
@@ -227,12 +228,11 @@ class UserValidator {
             "linked_in": Joi.string().allow(""),
         }
         let clubAcademyProfessionalDetail = {
-            "contact_person": Joi.string(),
+            "contact_person": Joi.string().required(),
             "trophies": Joi.string(),
             "league": Joi.string().required().valid(LEAGUE.ALLOWED_VALUES),
             "league_other": Joi.string().allow(""),
             "top_signings": Joi.string(),
-            "top_players": Joi.string(),
             "type": Joi.string().trim().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required(),
             "association": Joi.string().required().valid(STATE_ASSOCIATIONS.ALLOWED_VALUES),
             "association_other": Joi.string().allow("")
@@ -260,8 +260,6 @@ class UserValidator {
                 clubAcademyDocumentDetail.document_type = Joi.string().valid(DOCUMENT_TYPE.AIFF, DOCUMENT_TYPE.PAN, DOCUMENT_TYPE.TIN, DOCUMENT_TYPE.COI);
             if (req.params._category === PROFILE_DETAIL.PERSONAL) {
                 req.body.name = req.body.name ? req.body.name.trim() : req.body.name
-                clubAcademyPersonalDetail.address = Joi.string().trim().required();
-                clubAcademyPersonalDetail.pincode = Joi.string().trim().required();
             }
         }
         if (req.body.document_type) {
@@ -280,7 +278,7 @@ class UserValidator {
                     };
                 })
             }
-            if (document_type === DOCUMENT_TYPE.COI) {
+            if (document_type === DOCUMENT_TYPE.TIN) {
                 clubAcademyDocumentDetail.number = Joi.string().min(9).max(12).regex(/^\d+$/).error(() => {
                     return {
                         message: RESPONSE_MESSAGE.TIN_NUMBER_INVALID,
@@ -381,6 +379,103 @@ class UserValidator {
         } catch (err) {
             console.log(err.details);
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
+
+    async contactPersonValidation(reqObj) {
+        const schema = Joi.object().keys({
+            contact_person: Joi.array()
+                .items({
+                    designation: Joi.string().valid(CONTACT_PERSON.ALLOWED_DESIGNATION).required().error(
+                        customMessage(
+                            {
+                                "any.required": RESPONSE_MESSAGE.DESIGNATION_OF_CONTACT_PERSON_REQUIRED,
+                            },
+                            `${RESPONSE_MESSAGE.DESIGNATION_OF_CONTACT_PERSON_INVALID}, must be one of [${CONTACT_PERSON.ALLOWED_DESIGNATION}]`
+                        )
+                    ),
+                    name: Joi.string().trim().required().min(1).error(
+                        customMessage(
+                            {
+                                "any.required": RESPONSE_MESSAGE.NAME_OF_CONTACT_PERSON_REQUIRED,
+                            },
+                            RESPONSE_MESSAGE.NAME_OF_CONTACT_PERSON_INVALID
+                        )
+                    ),
+                    email: Joi.string().email({ minDomainSegments: 2 }).required().error(
+                        customMessage(
+                            {
+                                "any.required": RESPONSE_MESSAGE.EMAIL_OF_CONTACT_PERSON_REQUIRED,
+                            },
+                            RESPONSE_MESSAGE.EMAIL_OF_CONTACT_PERSON_INVALID
+                        )
+                    ),
+                    mobile_number: Joi.string().required().regex(/^[0-9]{10}$/).error(
+                        customMessage(
+                            {
+                                "any.required": RESPONSE_MESSAGE.MOBILE_NO_OF_CONTACT_PERSON_REQUIRED,
+                            },
+                            RESPONSE_MESSAGE.MOBILE_NO_OF_CONTACT_PERSON_INVALID
+                        )
+                    )
+                })
+        })
+        try {
+            await Joi.validate(reqObj, schema);
+            return Promise.resolve()
+        } catch (err) {
+            console.log(err.details);
+            return Promise.reject(new errors.ValidationFailed(err.details[0].message));
+        }
+    }
+
+    async trophiesValidation(reqObj) {
+        const schema = Joi.object().keys({
+            trophies: Joi.array()
+                .items({
+                    name: Joi.string().trim().error(() => {
+                        return {
+                            message: RESPONSE_MESSAGE.TROPHY_NAME_INVALID,
+                        };
+                    }),
+                    position: Joi.string().trim().error(() => {
+                        return {
+                            message: RESPONSE_MESSAGE.TROPHY_POSITION_INVALID,
+                        };
+                    }),
+                    year: Joi.number().error(() => {
+                        return {
+                            message: RESPONSE_MESSAGE.TROPHY_YEAR_INVALID,
+                        };
+                    })
+                })
+        })
+        try {
+            await Joi.validate(reqObj, schema);
+            return Promise.resolve()
+        } catch (err) {
+            console.log(err.details);
+            return Promise.reject(new errors.ValidationFailed(err.details[0].message));
+        }
+    }
+
+    async topSigningsValidation(reqObj) {
+        const schema = Joi.object().keys({
+            top_signings: Joi.array()
+                .items({
+                    name: Joi.string().trim().error(() => {
+                        return {
+                            message: RESPONSE_MESSAGE.TOP_SIGNINGS_NAME_INVALID,
+                        };
+                    })
+                })
+        })
+        try {
+            await Joi.validate(reqObj, schema);
+            return Promise.resolve()
+        } catch (err) {
+            console.log(err.details);
+            return Promise.reject(new errors.ValidationFailed(err.details[0].message));
         }
     }
 }

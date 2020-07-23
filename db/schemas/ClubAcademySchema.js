@@ -134,9 +134,6 @@ module.exports = {
                 }
             }
         }],
-        top_players: {
-            type: Array
-        },
         league: {
             type: String
         },
@@ -185,7 +182,7 @@ module.exports = {
             email: {
                 type: String
             },
-            phone_number: {
+            mobile_number: {
                 type: String
             },
             designation: {
