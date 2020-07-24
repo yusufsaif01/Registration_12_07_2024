@@ -37,7 +37,7 @@ class LocationValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async addCityAPIValidation(req, res, next) {
+    async addDistrictAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {
@@ -55,7 +55,7 @@ class LocationValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async editCityAPIValidation(req, res, next) {
+    async editDistrictAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z0-9\&\- ]+$/).error(() => {
                 return {

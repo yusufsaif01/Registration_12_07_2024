@@ -23,7 +23,7 @@ module.exports = (router) => {
     *                  "country": "India",
     *                  "country_id": "3bcda0b2-2bc6-4c0c-bc42-82c4aa42ec39",
     *                  "no_of_state": 10,
-    *                  "no_of_city": 10 }
+    *                  "no_of_district": 10 }
     *               ]
     *     }
     *
@@ -200,11 +200,11 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {post} /master/city/add add city
-     * @apiName add city
+     * @api {post} /master/district/add add district
+     * @apiName add district
      * @apiGroup Location
      *
-     * @apiParam (body) {String} name city name
+     * @apiParam (body) {String} name district name
      * @apiParam (body) {String} country_id country id
      * @apiParam (body) {String} state_id state id
      * 
@@ -230,7 +230,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "City already added",
+	 *       "message": "District already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -253,15 +253,15 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/city/add", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.addCityAPIValidation, function (req, res) {
+    router.post("/master/district/add", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.addDistrictAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.addCity({
+        return responseHandler(req, res, serviceInst.addDistrict({
             reqObj: req.body
         }));
     });
     /**
-     * @api {get} /master/city/list/:country_id/:state_id?page_size=<10>&page_no=<1>&search=<text> city listing
-     * @apiName city listing
+     * @api {get} /master/district/list/:country_id/:state_id?page_size=<10>&page_no=<1>&search=<text> district listing
+     * @apiName district listing
      * @apiGroup Location
      * 
      * @apiSuccess {String} status success
@@ -293,7 +293,7 @@ module.exports = (router) => {
      *
      */
 
-    router.get("/master/city/list/:country_id/:state_id", function (req, res) {
+    router.get("/master/district/list/:country_id/:state_id", function (req, res) {
         let paginationOptions = {};
         let filter = {};
 
@@ -305,18 +305,18 @@ module.exports = (router) => {
             search: (req.query && req.query.search) ? req.query.search : null
         }
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.getCityList({
+        return responseHandler(req, res, serviceInst.getDistrictList({
             country_id: req.params.country_id,
             state_id: req.params.state_id, paginationOptions, filter
         }));
     });
 
     /**
-     * @api {put} /master/city/:country_id/:state_id/:city_id edit city
-     * @apiName edit city
+     * @api {put} /master/district/:country_id/:state_id/:district_id edit district
+     * @apiName edit district
      * @apiGroup Location
      *
-     * @apiParam (body) {String} name city name
+     * @apiParam (body) {String} name district name
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -340,7 +340,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "City already added",
+	 *       "message": "District already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -348,7 +348,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} NOT_FOUND
      *     HTTP/1.1 404 Not found
      *     {
-     *       "message": "City not found",
+     *       "message": "District not found",
      *       "code": "NOT_FOUND",
      *       "httpCode": 404
      *     }
@@ -371,12 +371,12 @@ module.exports = (router) => {
      * 
      */
 
-    router.put("/master/city/:country_id/:state_id/:city_id", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.editCityAPIValidation, function (req, res) {
+    router.put("/master/district/:country_id/:state_id/:district_id", checkAuthToken, checkRole([ROLE.ADMIN]), locationValidator.editDistrictAPIValidation, function (req, res) {
         let serviceInst = new LocationService();
-        return responseHandler(req, res, serviceInst.editCity({
+        return responseHandler(req, res, serviceInst.editDistrict({
             reqObj: req.body,
             country_id: req.params.country_id, state_id: req.params.state_id,
-            city_id: req.params.city_id
+            district_id: req.params.district_id
         }));
     });
 };

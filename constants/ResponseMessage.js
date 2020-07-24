@@ -202,8 +202,8 @@ class ResponseMessage {
     static get STATE_NOT_FOUND() {
         return "State not found"
     }
-    static get CITY_NOT_FOUND() {
-        return "City not found"
+    static get DISTRICT_NOT_FOUND() {
+        return "District not found"
     }
     static get ABILITY_NOT_FOUND() {
         return "Ability not found"
@@ -217,8 +217,8 @@ class ResponseMessage {
     static get STATE_ALREADY_ADDED() {
         return "State already added"
     }
-    static get CITY_ALREADY_ADDED() {
-        return "City already added"
+    static get DISTRICT_ALREADY_ADDED() {
+        return "District already added"
     }
     static get ABILITY_ALREADY_ADDED() {
         return "Ability already added"

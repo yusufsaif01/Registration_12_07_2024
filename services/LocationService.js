@@ -5,7 +5,7 @@ const DistrictUtility = require('../db/utilities/DistrictUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
-const CityListResponseMapper = require("../dataModels/responseMapper/CityListResponseMapper");
+const DistrictListResponseMapper = require("../dataModels/responseMapper/DistrictListResponseMapper");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
@@ -25,12 +25,12 @@ class LocationService {
                 { $lookup: { from: "states", localField: "id", foreignField: "country_id", as: "output" } },
                 { $project: { total_states: { $size: "$output" }, id: 1, name: 1, output: 1 } },
                 { $unwind: { path: "$output", preserveNullAndEmptyArrays: true } },
-                { $lookup: { from: "cities", localField: "output.id", foreignField: "state_id", as: "city list" } },
-                { $project: { id: 1, total_states: 1, name: 1, total_cities: { $size: "$city list" } } },
+                { $lookup: { from: "districts", localField: "output.id", foreignField: "state_id", as: "district list" } },
+                { $project: { id: 1, total_states: 1, name: 1, total_districts: { $size: "$district list" } } },
                 {
                     $group: {
                         _id: { country: "$name", country_id: "$id", total_states: "$total_states" },
-                        total_cities: { $sum: "$total_cities" }
+                        total_districts: { $sum: "$total_districts" }
                     }
                 }])
             data = new LocationListResponseMapper().map(data);
@@ -129,7 +129,7 @@ class LocationService {
             return Promise.reject(e);
         }
     }
-    async addCity(data = {}) {
+    async addDistrict(data = {}) {
         try {
             let reqObj = data.reqObj;
             let country = await this.countryUtilityInst.findOne({ id: reqObj.country_id });
@@ -148,18 +148,18 @@ class LocationService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const city = await this.cityUtilityInst.findOne({ name: regex, state_id: reqObj.state_id });
-            if (!_.isEmpty(city)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
+            const district = await this.districtUtilityInst.findOne({ name: regex, state_id: reqObj.state_id });
+            if (!_.isEmpty(district)) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DISTRICT_ALREADY_ADDED));
             }
-            await this.cityUtilityInst.insert({ name: reqObj.name, state_id: reqObj.state_id })
+            await this.districtUtilityInst.insert({ name: reqObj.name, state_id: reqObj.state_id })
             return Promise.resolve()
         } catch (e) {
-            console.log("Error in addCity() of LocationService", e);
+            console.log("Error in addDistrict() of LocationService", e);
             return Promise.reject(e);
         }
     }
-    async getCityList(requestedData = {}) {
+    async getDistrictList(requestedData = {}) {
         try {
             let conditions = this._prepareSearchCondition(requestedData.filter);
 
@@ -180,17 +180,17 @@ class LocationService {
                 return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
             }
             conditions.state_id = requestedData.state_id;
-            totalRecords = await this.cityUtilityInst.countList(conditions);
+            totalRecords = await this.districtUtilityInst.countList(conditions);
             let projection = { name: 1, id: 1 };
-            let data = await this.cityUtilityInst.find(conditions, projection, options);
-            data = new CityListResponseMapper().map(data);
+            let data = await this.districtUtilityInst.find(conditions, projection, options);
+            data = new DistrictListResponseMapper().map(data);
             response = {
                 total: totalRecords,
                 records: data
             }
             return response;
         } catch (e) {
-            console.log("Error in getCityList() of LocationService", e);
+            console.log("Error in getDistrictList() of LocationService", e);
             return Promise.reject(e);
         }
     }
@@ -213,7 +213,7 @@ class LocationService {
         }
         return condition;
     }
-    async editCity(data = {}) {
+    async editDistrict(data = {}) {
         try {
             let country = await this.countryUtilityInst.findOne({ id: data.country_id });
             if (_.isEmpty(country)) {
@@ -226,12 +226,12 @@ class LocationService {
             if (_.isEmpty(foundState)) {
                 return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
             }
-            let foundCity = await this.cityUtilityInst.findOne({
-                id: data.city_id,
+            let foundDistrict = await this.districtUtilityInst.findOne({
+                id: data.district_id,
                 state_id: data.state_id
             })
-            if (_.isEmpty(foundCity)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+            if (_.isEmpty(foundDistrict)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.DISTRICT_NOT_FOUND));
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
@@ -239,17 +239,17 @@ class LocationService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const city = await this.cityUtilityInst.findOne({ name: regex, state_id: data.state_id });
-            if (!_.isEmpty(city)) {
-                if (city.id !== foundCity.id)
-                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.CITY_ALREADY_ADDED));
+            const district = await this.districtUtilityInst.findOne({ name: regex, state_id: data.state_id });
+            if (!_.isEmpty(district)) {
+                if (district.id !== foundDistrict.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DISTRICT_ALREADY_ADDED));
             }
-            await this.cityUtilityInst.updateOne({ id: data.city_id }, { name: reqObj.name })
-            await this.playerUtilityInst.updateMany({ "city.id": data.city_id }, { "city.name": reqObj.name });
-            await this.clubAcademyUtilityInst.updateMany({ "city.id": data.city_id }, { "city.name": reqObj.name });
+            await this.districtUtilityInst.updateOne({ id: data.district_id }, { name: reqObj.name })
+            await this.playerUtilityInst.updateMany({ "district.id": data.district_id }, { "district.name": reqObj.name });
+            await this.clubAcademyUtilityInst.updateMany({ "district.id": data.district_id }, { "district.name": reqObj.name });
             return Promise.resolve()
         } catch (e) {
-            console.log("Error in editCity() of LocationService", e);
+            console.log("Error in editDistrict() of LocationService", e);
             return Promise.reject(e);
         }
     }
