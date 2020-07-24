@@ -59,14 +59,6 @@ class PlayerDocumentsService {
     });
 
     if (res.nModified) {
-
-      // document approval
-      this.emailService.documentApproval({
-        email: user.email,
-        documentType: type,
-        name: [user.first_name, user.last_name].join(" "),
-      });
-
       // profile approval
       await this.loginDetailsInst.updateOne(
         {
@@ -102,17 +94,6 @@ class PlayerDocumentsService {
       },
     });
     if (res.nModified) {
-
-      /**
-       * Send email notification
-       */
-      this.emailService.documentDisApproval({
-        email: user.email,
-        documentType: type,
-        name: [user.first_name, user.last_name].join(" "),
-        reason: remarks,
-      });
-
       /**
        * Update profile status
        * 1. find existing verified user

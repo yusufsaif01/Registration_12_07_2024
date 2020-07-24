@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const MEMBER = require('../../constants/MemberType')
 
 class PostsListResponseMapper {
     map(posts, commentFlag) {
@@ -37,6 +38,7 @@ class PostsListResponseMapper {
                                             "user_id": commentData.player_detail.user_id,
                                             "name": (commentData.player_detail.first_name || "") + " " + (commentData.player_detail.last_name || ""),
                                             "type": commentData.player_detail.player_type || "-",
+                                            "member_type": MEMBER.PLAYER,
                                             "position": "-",
                                         };
                                         commented_by.name = String(commented_by.name).trim().length > 0 ? String(commented_by.name).trim() : "-";
@@ -50,7 +52,8 @@ class PostsListResponseMapper {
                                             "avatar": commentData.club_academy_detail.avatar_url || "-",
                                             "user_id": commentData.club_academy_detail.user_id,
                                             "name": commentData.club_academy_detail.name,
-                                            "type": commentData.club_academy_detail.member_type,
+                                            "type": commentData.club_academy_detail.type || "-",
+                                            "member_type": commentData.club_academy_detail.member_type,
                                         };
                                         comment_data.commented_by = commented_by;
                                     }
@@ -77,6 +80,7 @@ class PostsListResponseMapper {
                             "user_id": p.player_detail.user_id,
                             "name": (p.player_detail.first_name || "") + " " + (p.player_detail.last_name || ""),
                             "type": p.player_detail.player_type || "-",
+                            "member_type": MEMBER.PLAYER,
                             "position": "-",
                         };
                         posted_by.name = String(posted_by.name).trim().length > 0 ? String(posted_by.name).trim() : "-";
@@ -90,7 +94,8 @@ class PostsListResponseMapper {
                             "avatar": p.club_academy_detail.avatar_url || "-",
                             "user_id": p.club_academy_detail.user_id,
                             "name": p.club_academy_detail.name,
-                            "type": p.club_academy_detail.member_type,
+                            "member_type": p.club_academy_detail.member_type,
+                            "type": p.club_academy_detail.type || "",
                         };
                         data.posted_by = posted_by;
                     }

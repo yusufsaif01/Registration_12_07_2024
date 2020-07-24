@@ -4,8 +4,6 @@ const welcome = require("./welcomeMailTemplate");
 const changePassword = require("./changePasswordMailTemplate");
 const profileVerified = require("./profileVerifiedTemplate");
 const profileDisapproved = require("./profileDisapprovedTemplate");
-const documentApproval = require("./documentApprovalTemplate");
-const documentDisapproval = require("./documentDisApprovalTemplate");
 const footplayerRequest = require("./footplayerRequestMailTemplate");
 const footplayerInvite = require("./footplayerInviteMailTemplate");
 const employmentContractDisapprovalByPlayer = require("./employmentContractDisapprovalByPlayer");
@@ -29,8 +27,6 @@ module.exports = {
   changePassword,
   profileVerified,
   profileDisapproved,
-  documentApproval,
-  documentDisapproval,
   footplayerRequest,
   footplayerInvite,
   employmentContractDisapprovalByPlayer,

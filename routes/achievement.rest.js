@@ -73,7 +73,8 @@ module.exports = (router) => {
  *           {
  *             "type":"Individual awards",
  *             "name": "Devdar trophy",
- *             "year": "1989",
+ *             "from": "2010",
+ *             "to": "2011",
  *             "position": "First",
  *             "media": "\\uploads\\documents\\Sample.jpg",
  *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996"
@@ -119,7 +120,8 @@ module.exports = (router) => {
  *   
  * @apiParam (body) {String} type type of achievement
  * @apiParam (body) {String} name name of achievement
- * @apiParam (body) {String} year year of achievement
+ * @apiParam (body) {String} from from year of achievement
+ * @apiParam (body) {String} to to year of achievement
  * @apiParam (body) {String} position position achieved
  * @apiParam (body) {String} achievement achievement image
  * 
@@ -179,7 +181,8 @@ module.exports = (router) => {
 *   
 * @apiParam (body) {String} type type of achievement
 * @apiParam (body) {String} name name of achievement
-* @apiParam (body) {String} year year of achievement
+* @apiParam (body) {String} from from year of achievement
+* @apiParam (body) {String} to to year of achievement
 * @apiParam (body) {String} position position achieved
 * @apiParam (body) {String} achievement achievement image
 * 
