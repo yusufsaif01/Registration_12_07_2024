@@ -7,7 +7,8 @@ class AchievementListResponseMapper {
                 let data = {
                             "type": achievement.type,
                             "name": achievement.name || "",
-                            "year": achievement.year,
+                            "from": achievement.from,
+                            "to": achievement.to,
                             "position": achievement.position || "",
                             "media": achievement.media_url || "",
                             "id": achievement.id

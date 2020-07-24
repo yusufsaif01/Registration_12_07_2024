@@ -90,7 +90,8 @@ module.exports = (router) => {
      *                 "avatar": "/uploads/avatar/user-avatar.png",
      *                 "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
      *                 "name": "yuvraj singh",
-     *                 "type": "professional/club/accademy",
+     *                 "type": "professional/amateur/grassroot/Residential/Non-Residential",
+     *                 "member_type": "player/club/academy",
      *                 "position": "position of first priority" },
      *             "is_liked": true,
      *             "likes": 5,
@@ -101,7 +102,8 @@ module.exports = (router) => {
      *                                    "avatar": "/uploads/avatar/user-avatar.png",
      *                                    "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
      *                                    "name": "yuvraj singh",
-     *                                    "type": "professional/club/accademy",
+     *                                    "type": "professional/Residential/Non-Residential",
+     *                                    "member_type": "player/club/academy",
      *                                    "position": "position of first priority" },
      *                                    "commented_at": "2020-05-22T06:58:45.136Z"
      *                                  }]

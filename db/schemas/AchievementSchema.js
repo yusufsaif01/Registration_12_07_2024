@@ -21,7 +21,11 @@ module.exports = {
             type: String,
             required: true
         },
-        year: {
+        from: {
+            type: String,
+            required: true
+        },
+        to: {
             type: String,
             required: true
         },

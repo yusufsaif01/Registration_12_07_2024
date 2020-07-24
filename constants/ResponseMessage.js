@@ -135,22 +135,27 @@ class ResponseMessage {
     static get TROPHY_YEAR_CANNOT_BE_ZERO() {
         return "Trophy year cannot be zero"
     }
-    static get YEAR_GREATER_THAN_CURRENT_YEAR() {
+    static get FROM_GREATER_THAN_CURRENT_YEAR() {
         let d = new Date();
         let currentYear = d.getFullYear();
-        return "Year is greater than " + currentYear
+        return "From year is greater than " + currentYear
     }
-    static get YEAR_CANNOT_BE_NEGATIVE() {
-        return "Year cannot be negative"
+    static get TO_GREATER_THAN_CURRENT_YEAR() {
+        let d = new Date();
+        let currentYear = d.getFullYear();
+        return "To year is greater than " + currentYear
     }
-    static get YEAR_CANNOT_BE_ZERO() {
-        return "Year cannot be zero"
+    static get FROM_CANNOT_BE_NEGATIVE() {
+        return "From year cannot be negative"
     }
-    static get YEAR_REQUIRED() {
-        return "Year is required"
+    static get FROM_CANNOT_BE_ZERO() {
+        return "From year cannot be zero"
     }
-    static get YEAR_LESS_THAN_1970() {
-        return "Year is less than 1970"
+    static get FROM_GREATER_THAN_TO() {
+        return "From year cannot be greater than To year"
+    }
+    static get FROM_LESS_THAN_1970() {
+        return "From year is less than 1970"
     }
     static get INVALID_VALUE_CONTACT_PERSONS() {
         return "Invalid value for contact_persons"
@@ -407,8 +412,8 @@ class ResponseMessage {
     static get MOBILE_NUMBER_REQUIRED() {
         return "Mobile number is required"
     }
-    static get YEAR_LESS_THAN_DOB() {
-        return "Year should be greater than DOB year"
+    static get FROM_LESS_THAN_DOB() {
+        return "From year should be greater than DOB year"
     }
     static get PHONE_REQUIRED() {
         return "Phone is required"
@@ -511,6 +516,18 @@ class ResponseMessage {
     }
     static get HEAD_COACH_PHONE_INVALID() {
         return "Head coach phone number invalid"
+    }
+    static get FROM_REQUIRED() {
+        return "From year is required"
+    }
+    static get FROM_INVALID() {
+        return "From year is invalid"
+    }
+    static get TO_REQUIRED() {
+        return "To year is required"
+    }
+    static get TO_INVALID() {
+        return "To year is invalid"
     }
 }
 
