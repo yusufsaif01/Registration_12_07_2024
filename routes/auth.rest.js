@@ -14,7 +14,8 @@ module.exports = (router) => {
 	 * @apiParam (body) {String} first_name if member type player
 	 * @apiParam (body) {String} last_name if member type player
 	 * @apiParam (body) {String} name if member type club/academy
-	 * @apiParam (body) {String} type type of member Residential/Non-Residential/grassroot/amateur/professional
+	 * @apiParam (body) {String} type type of club/academy Residential/Non-Residential
+	 * @apiParam (body) {String} dob dob of player
 	 * @apiParam (body) {String} phone phone number of member
 	 * @apiParam (body) {String} email email of member
 	 *
