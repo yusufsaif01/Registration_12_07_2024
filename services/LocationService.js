@@ -1,7 +1,7 @@
 const CountryUtility = require('../db/utilities/CountryUtility');
 const errors = require("../errors");
 const StateUtility = require('../db/utilities/StateUtility');
-const CityUtility = require('../db/utilities/CityUtility');
+const DistrictUtility = require('../db/utilities/DistrictUtility');
 const _ = require("lodash");
 const LocationListResponseMapper = require("../dataModels/responseMapper/LocationListResponseMapper");
 const StateListResponseMapper = require("../dataModels/responseMapper/StateListResponseMapper");
@@ -14,7 +14,7 @@ class LocationService {
     constructor() {
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
-        this.cityUtilityInst = new CityUtility();
+        this.districtUtilityInst = new DistrictUtility();
         this.playerUtilityInst = new PlayerUtility();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
     }

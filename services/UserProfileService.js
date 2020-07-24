@@ -17,7 +17,7 @@ const DOCUMENT_TYPE = require('../constants/DocumentType');
 const PROFILE_STATUS = require('../constants/ProfileStatus');
 const CountryUtility = require('../db/utilities/CountryUtility');
 const StateUtility = require('../db/utilities/StateUtility');
-const CityUtility = require('../db/utilities/CityUtility');
+const DistrictUtility = require('../db/utilities/DistrictUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const PLAYER = require('../constants/PlayerType');
 const DOCUMENT_STATUS = require('../constants/DocumentStatus')
@@ -43,7 +43,7 @@ class UserProfileService {
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.countryUtilityInst = new CountryUtility();
         this.stateUtilityInst = new StateUtility();
-        this.cityUtilityInst = new CityUtility();
+        this.districtUtilityInst = new DistrictUtility();
         this.loginUtilityInst = new LoginUtility();
         this.employmentContractUtilityInst = new EmploymentContractUtility();
     }
