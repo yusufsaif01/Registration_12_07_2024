@@ -728,9 +728,9 @@ class FootPlayerService {
           "send_to_user.state.name": new RegExp(filterConditions.state, 'i')
         });
       }
-      if (filterConditions.city) {
+      if (filterConditions.district) {
         filterArr.push({
-          "send_to_user.city.name": new RegExp(filterConditions.city, 'i')
+          "send_to_user.district.name": new RegExp(filterConditions.district, 'i')
         });
       }
       if (filterConditions.strong_foot && filterConditions.strong_foot.length) {
