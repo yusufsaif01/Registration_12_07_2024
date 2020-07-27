@@ -265,8 +265,8 @@ class UserProfileService {
 
             if (!_.isEmpty(social_profiles))
                 data.social_profiles = social_profiles;
-            if (data.country && data.state && data.city) {
-                let { country, state, city } = data;
+            if (data.country && data.state && data.district) {
+                let { country, state, district } = data;
                 let foundCountry = await this.countryUtilityInst.findOne({ id: country }, { name: 1 });
                 if (_.isEmpty(foundCountry)) {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
@@ -278,12 +278,12 @@ class UserProfileService {
                 if (_.isEmpty(foundState)) {
                     return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
                 }
-                let foundCity = await this.cityUtilityInst.findOne({
-                    id: city,
+                let foundDistrict = await this.districtUtilityInst.findOne({
+                    id: district,
                     state_id: state,
                 }, { name: 1 })
-                if (_.isEmpty(foundCity)) {
-                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.CITY_NOT_FOUND));
+                if (_.isEmpty(foundDistrict)) {
+                    return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.DISTRICT_NOT_FOUND));
                 }
                 let countryObj = {
                     id: country,
@@ -293,13 +293,13 @@ class UserProfileService {
                     id: state,
                     name: foundState.name
                 };
-                let cityObj = {
-                    id: city,
-                    name: foundCity.name
+                let districtObj = {
+                    id: district,
+                    name: foundDistrict.name
                 };
                 data.country = countryObj;
                 data.state = stateObj;
-                data.city = cityObj;
+                data.district = districtObj;
             }
             if (member_type === MEMBER.PLAYER) {
                 if (data.dob) {

@@ -184,8 +184,8 @@ class ResponseMessage {
     static get INVALID_VALUE_STATE() {
         return "Invalid value for state"
     }
-    static get INVALID_VALUE_CITY() {
-        return "Invalid value for city"
+    static get INVALID_VALUE_DISTRICT() {
+        return "Invalid value for District"
     }
     static get STATUS_ALREADY_ACTIVE() {
         return "Status is already active"
