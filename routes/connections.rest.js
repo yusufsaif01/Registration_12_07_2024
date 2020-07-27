@@ -243,7 +243,7 @@ module.exports = (router) => {
     });
 
     /**
-     * @api {get} /connection/list?page_no=1&page_size=20&position=<positions>&player_category=<player_category>&age=<age_range>&country=<country>&city=<city>&state=<state>&strong_foot=<strong_foot> footmates listing
+     * @api {get} /connection/list?page_no=1&page_size=20&position=<positions>&player_category=<player_category>&age=<age_range>&country=<country>&distirct=<distirct>&state=<state>&strong_foot=<strong_foot> footmates listing
      * @apiName Footmates listing
      * @apiGroup Connections
      *
@@ -254,7 +254,7 @@ module.exports = (router) => {
      * @apiParam (query) {String} age comma separated age range
      * @apiParam (query) {String} country country name
      * @apiParam (query) {String} state state name
-     * @apiParam (query) {String} city city name
+     * @apiParam (query) {String} distirct distirct name
      * @apiParam (query) {String} strong_foot comma separated strong_foot
      * 
      * @apiSuccess {String} status success
@@ -325,7 +325,7 @@ module.exports = (router) => {
             age: (req.query && req.query.age) ? req.query.age.split(",") : null,
             country: (req.query && req.query.country) ? req.query.country : null,
             state: (req.query && req.query.state) ? req.query.state : null,
-            city: (req.query && req.query.city) ? req.query.city : null,
+            district: (req.query && req.query.district) ? req.query.district : null,
             strong_foot: (req.query && req.query.strong_foot) ? req.query.strong_foot.split(",") : null,
         };
         let serviceInst = new ConnectionService();
