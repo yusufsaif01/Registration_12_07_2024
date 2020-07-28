@@ -25,6 +25,7 @@ const CONTRACT_STATUS = require("../constants/ContractStatus");
 const EmploymentContractUtility = require("../db/utilities/EmploymentContractUtility");
 const PROFILE_DETAIL = require('../constants/ProfileDetailType');
 const userValidator = require("../middleware/validators").userValidator;
+const UserRegistrationService = require('./UserRegistrationService');
 
 /**
  *
@@ -305,6 +306,8 @@ class UserProfileService {
             if (member_type === MEMBER.PLAYER) {
                 if (data.dob) {
                     data.dob = moment(data.dob).format("YYYY-MM-DD");
+                    let userRegistrationServiceInst = new UserRegistrationService()
+                    data.player_type = await userRegistrationServiceInst.getPlayerTypeFromDOB(data.dob);
                 }
                 let institute = {
                     "school": data.school ? data.school : null,
