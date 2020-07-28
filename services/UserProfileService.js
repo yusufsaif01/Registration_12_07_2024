@@ -24,6 +24,8 @@ const DOCUMENT_STATUS = require('../constants/DocumentStatus')
 const CONTRACT_STATUS = require("../constants/ContractStatus");
 const EmploymentContractUtility = require("../db/utilities/EmploymentContractUtility");
 const PROFILE_DETAIL = require('../constants/ProfileDetailType');
+const userValidator = require("../middleware/validators").userValidator;
+const UserRegistrationService = require('./UserRegistrationService');
 
 /**
  *
@@ -304,6 +306,8 @@ class UserProfileService {
             if (member_type === MEMBER.PLAYER) {
                 if (data.dob) {
                     data.dob = moment(data.dob).format("YYYY-MM-DD");
+                    let userRegistrationServiceInst = new UserRegistrationService()
+                    data.player_type = await userRegistrationServiceInst.getPlayerTypeFromDOB(data.dob);
                 }
                 let institute = {
                     "school": data.school ? data.school : null,
@@ -349,7 +353,7 @@ class UserProfileService {
     }
 
     async updateProfileDetailsValidation(data, member_type, user_id) {
-        const { founded_in, trophies, _category } = data
+        const { founded_in, trophies, contact_person, top_signings, _category } = data
         if (founded_in) {
             let msg = null;
             let d = new Date();
@@ -370,6 +374,7 @@ class UserProfileService {
             }
         }
         if (trophies) {
+            await userValidator.trophiesValidation({ trophies: trophies });
             let msg = null;
             let d = new Date();
             let currentYear = d.getFullYear();
@@ -388,7 +393,12 @@ class UserProfileService {
                 return Promise.reject(new errors.ValidationFailed(msg));
             }
         }
-
+        if (contact_person) {
+            await userValidator.contactPersonValidation({ contact_person: contact_person });
+        }
+        if (top_signings) {
+            await userValidator.topSigningsValidation({ top_signings: top_signings });
+        }
         if (data.profileStatus && member_type === MEMBER.PLAYER && _category === PROFILE_DETAIL.PERSONAL) {
             if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED));
@@ -510,16 +520,6 @@ class UserProfileService {
                 } catch (e) {
                     console.log(e);
                     throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_POSITION);
-                }
-            }
-
-            if (reqObj.top_players) {
-                try {
-                    let top_players = JSON.parse(reqObj.top_players);
-                    reqObj.top_players = top_players;
-                } catch (e) {
-                    console.log(e);
-                    throw new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_TOP_PLAYERS);
                 }
             }
 

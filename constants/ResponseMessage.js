@@ -517,6 +517,42 @@ class ResponseMessage {
     static get HEAD_COACH_PHONE_INVALID() {
         return "Head coach phone number invalid"
     }
+    static get NAME_OF_CONTACT_PERSON_REQUIRED() {
+        return "Name of contact person required"
+    }
+    static get NAME_OF_CONTACT_PERSON_INVALID() {
+        return "Name of contact person is invalid"
+    }
+    static get MOBILE_NO_OF_CONTACT_PERSON_REQUIRED() {
+        return "Mobile number of contact person required"
+    }
+    static get MOBILE_NO_OF_CONTACT_PERSON_INVALID() {
+        return "Mobile number of contact person is invalid"
+    }
+    static get EMAIL_OF_CONTACT_PERSON_REQUIRED() {
+        return "Email of contact person required"
+    }
+    static get EMAIL_OF_CONTACT_PERSON_INVALID() {
+        return "Email of contact person is invalid"
+    }
+    static get DESIGNATION_OF_CONTACT_PERSON_REQUIRED() {
+        return "Designation of contact person required"
+    }
+    static get DESIGNATION_OF_CONTACT_PERSON_INVALID() {
+        return "Designation of contact person is invalid"
+    }
+    static get TROPHY_YEAR_INVALID() {
+        return "Trophy year invalid"
+    }
+    static get TROPHY_NAME_INVALID() {
+        return "Trophy name invalid"
+    }
+    static get TROPHY_POSITION_INVALID() {
+        return "Trophy position invalid"
+    }
+    static get TOP_SIGNINGS_NAME_INVALID() {
+        return "Top signings name invalid"
+    }
     static get FROM_REQUIRED() {
         return "From year is required"
     }

@@ -159,7 +159,6 @@ module.exports = (router) => {
      * @apiGroup Profile
      *
      * @apiParam (param) {String} _category  valid values (personal_details, professional_details, document_details)
-     * @apiParam (body) {String} player_type player type can be grassroot/amateur/professional (when _category = personal_details)
      * @apiParam (body) {String} bio bio of member (when _category = personal_details)
      * @apiParam (body) {String} facebook facebook profile link of member (when _category = personal_details)
      * @apiParam (body) {String} twitter twitter profile link of member (when _category = personal_details)
@@ -174,7 +173,8 @@ module.exports = (router) => {
      * @apiParam (body) {String} first_name player first name (when _category = personal_details)
      * @apiParam (body) {String} last_name player last name (when _category = personal_details)
      * @apiParam (body) {String} dob player date of birth (when _category = personal_details)
-     * @apiParam (body) {String} player_height_feet player height feett (when _category = personal_details)
+     * @apiParam (body) {String} gender gender (when _category = personal_details)
+     * @apiParam (body) {String} player_height_feet player height feet (when _category = personal_details)
      * @apiParam (body) {String} player_height_inches player height inches (when _category = personal_details)
      * @apiParam (body) {String} weight player weight (when _category = personal_details)
      * @apiParam (body) {String} country country id (when _category = personal_details)
@@ -195,7 +195,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} former_club_academy player former club/academy (when _category = professional_details)
      * @apiParam (body) {String} pincode club/academy pincode (when _category = personal_details)
      * @apiParam (body) {String} address club/academy address (when _category = personal_details)
-     * @apiParam (body) {String} document_type club/academy document_type (when _category = document_details)
+     * @apiParam (body) {String} document_type academy document_type (when _category = document_details)
      * @apiParam (body) {String} type club/academy type (when _category = professional_details)
      * @apiParam (body) {String} number academy PAN/ COI/ Tin Number (when _category = document_details)
      * @apiParam (body) {String} document document file for academy (when _category = document_details)
@@ -210,8 +210,7 @@ module.exports = (router) => {
      * @apiParam (body) {string} association_other club/academy/player other association (when _category = professional_details)
      * @apiParam (body) {string} short_name club/academy short name (when _category = personal_details)
      * @apiParam (body) {string} founded_in club/academy founded year (when _category = personal_details)
-     * @apiParam (body) {string} top_signings club top_signings (when _category = professional_details)
-     * @apiParam (body) {string} top_players academy top_players (when _category = professional_details)
+     * @apiParam (body) {string} top_signings club/academy top_signings (when _category = professional_details)
      * @apiParam (body) {string} contact_person club/academy contact person (when _category = professional_details)
      *   
      * 
