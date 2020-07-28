@@ -17,6 +17,7 @@ const GENDER = require('../../constants/gender');
 const ASSOCIATED_CLUB_ACADEMY = require('../../constants/AssociatedClubAcademy');
 const LEAGUE = require('../../constants/League');
 const customMessage = require("./CustomMessages");
+const moment = require("moment");
 
 class UserValidator {
 
@@ -33,7 +34,7 @@ class UserValidator {
             "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
             "type": Joi.when("member_type", {
                 is: MEMBER.PLAYER,
-                then: Joi.string().valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
+                then: Joi.string().allow(""),
                 otherwise: Joi.string().valid(TYPE.RESIDENTIAL, TYPE.NON_RESIDENTIAL).required()
             }),
             "name": Joi.when("member_type", {
@@ -72,7 +73,12 @@ class UserValidator {
                 ),
                 otherwise: Joi.string().allow(""),
             }),
-            "email": Joi.string().email({ minDomainSegments: 2 }).required()
+            "email": Joi.string().email({ minDomainSegments: 2 }).required(),
+            "dob": Joi.when("member_type", {
+                is: MEMBER.PLAYER,
+                then: Joi.date().iso().required().max(moment().format("YYYY-MM-DD")),
+                otherwise: Joi.date(),
+            })
         };
 
         if (req.body.type && req.body.member_type) {
@@ -110,7 +116,6 @@ class UserValidator {
 
     async updateDetailsAPIValidation(req, res, next) {
         let playerPersonalDetail = {
-            "player_type": Joi.string().trim().min(1).valid(PLAYER.GRASSROOT, PLAYER.AMATEUR, PLAYER.PROFESSIONAL).required(),
             "first_name": Joi.string().trim().min(1).required().regex(/^(?:[0-9]+[ a-zA-Z]|[a-zA-Z])[a-zA-Z0-9 ]*$/).error(
                 customMessage(
                     {
@@ -140,7 +145,7 @@ class UserValidator {
                     RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
                 )
             ),
-            "dob": Joi.string().trim(),
+            "dob": Joi.date().iso().required().max(moment().format("YYYY-MM-DD")),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
             "district": Joi.string().required(),

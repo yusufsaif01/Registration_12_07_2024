@@ -18,6 +18,8 @@ const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const redisServiceInst = require('../redis/RedisService');
 const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
+const moment = require('moment');
+const PLAYER_TYPE = require("../constants/PlayerType");
 
 /**
  *
@@ -103,7 +105,8 @@ class UserRegistrationService extends UserService {
             userData.login_details = loginDetails._id;
 
             if (userData.member_type == MEMBER.PLAYER) {
-                userData.player_type = userData.type;
+                userData.dob = moment(userData.dob).format("YYYY-MM-DD")
+                userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
                 await this.playerUtilityInst.insert(userData);
             } else {
                 await this.clubAcademyUtilityInst.insert(userData);
@@ -198,6 +201,24 @@ class UserRegistrationService extends UserService {
         adminDetails.login_details = loginDetails._id;
 
         await this.adminUtilityInst.insert(adminDetails);
+    }
+
+    /**
+     * returns player type wrt dob
+     *
+     * @param {*} dob
+     * @memberof UserRegistrationService
+     */
+    async getPlayerTypeFromDOB(dob) {
+        try {
+            let now = moment();
+            let age = now.diff(dob, 'years', true)
+            let playerType = age > 12 ? PLAYER_TYPE.AMATEUR : PLAYER_TYPE.GRASSROOT;
+            return Promise.resolve(playerType);
+        } catch (e) {
+            console.log("Error in getPlayerTypeFromDOB() of UserRegistrationService", e);
+            return Promise.reject(e);
+        }
     }
 }
 
