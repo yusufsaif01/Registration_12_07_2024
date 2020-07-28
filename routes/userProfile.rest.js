@@ -159,7 +159,6 @@ module.exports = (router) => {
      * @apiGroup Profile
      *
      * @apiParam (param) {String} _category  valid values (personal_details, professional_details, document_details)
-     * @apiParam (body) {String} player_type player type can be grassroot/amateur/professional (when _category = personal_details)
      * @apiParam (body) {String} bio bio of member (when _category = personal_details)
      * @apiParam (body) {String} facebook facebook profile link of member (when _category = personal_details)
      * @apiParam (body) {String} twitter twitter profile link of member (when _category = personal_details)
