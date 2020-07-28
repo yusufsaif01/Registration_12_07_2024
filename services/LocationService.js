@@ -49,29 +49,6 @@ class LocationService {
             return err;
         }
     }
-    async addState(data = {}) {
-        try {
-            let reqObj = data.reqObj;
-            let country = await this.countryUtilityInst.findOne({ id: reqObj.country_id })
-            if (_.isEmpty(country)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
-            if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
-            }
-            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const state = await this.stateUtilityInst.findOne({ name: regex, country_id: reqObj.country_id });
-            if (!_.isEmpty(state)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
-            }
-            await this.stateUtilityInst.insert({ name: reqObj.name, country_id: reqObj.country_id })
-            return Promise.resolve()
-        } catch (e) {
-            console.log("Error in addState() of LocationService", e);
-            return Promise.reject(e);
-        }
-    }
     async getStateList(country_id) {
         try {
             let response = {}, totalRecords = 0;
@@ -90,72 +67,6 @@ class LocationService {
             return response;
         } catch (e) {
             console.log("Error in getStateList() of LocationService", e);
-            return Promise.reject(e);
-        }
-    }
-    async editState(data = {}) {
-        try {
-            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
-            if (_.isEmpty(country)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            const foundState = await this.stateUtilityInst.findOne({
-                id: data.state_id,
-                country_id: data.country_id
-            })
-            if (_.isEmpty(foundState)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
-            }
-            let reqObj = data.reqObj;
-            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
-            if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
-            }
-            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const state = await this.stateUtilityInst.findOne({
-                name: regex,
-                country_id: data.country_id
-            });
-            if (!_.isEmpty(state)) {
-                if (state.id !== foundState.id)
-                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.STATE_ALREADY_ADDED));
-            }
-            await this.stateUtilityInst.updateOne({ id: data.state_id }, { name: reqObj.name })
-            await this.playerUtilityInst.updateMany({ "state.id": data.state_id }, { "state.name": reqObj.name });
-            await this.clubAcademyUtilityInst.updateMany({ "state.id": data.state_id }, { "state.name": reqObj.name });
-            return Promise.resolve()
-        } catch (e) {
-            console.log("Error in editState() of LocationService", e);
-            return Promise.reject(e);
-        }
-    }
-    async addDistrict(data = {}) {
-        try {
-            let reqObj = data.reqObj;
-            let country = await this.countryUtilityInst.findOne({ id: reqObj.country_id });
-            if (_.isEmpty(country)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            let foundState = await this.stateUtilityInst.findOne({
-                id: reqObj.state_id,
-                country_id: reqObj.country_id
-            })
-            if (_.isEmpty(foundState)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
-            }
-            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
-            if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
-            }
-            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const district = await this.districtUtilityInst.findOne({ name: regex, state_id: reqObj.state_id });
-            if (!_.isEmpty(district)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DISTRICT_ALREADY_ADDED));
-            }
-            await this.districtUtilityInst.insert({ name: reqObj.name, state_id: reqObj.state_id })
-            return Promise.resolve()
-        } catch (e) {
-            console.log("Error in addDistrict() of LocationService", e);
             return Promise.reject(e);
         }
     }
@@ -212,46 +123,6 @@ class LocationService {
             };
         }
         return condition;
-    }
-    async editDistrict(data = {}) {
-        try {
-            let country = await this.countryUtilityInst.findOne({ id: data.country_id });
-            if (_.isEmpty(country)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.COUNTRY_NOT_FOUND));
-            }
-            let foundState = await this.stateUtilityInst.findOne({
-                id: data.state_id,
-                country_id: data.country_id
-            })
-            if (_.isEmpty(foundState)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.STATE_NOT_FOUND));
-            }
-            let foundDistrict = await this.districtUtilityInst.findOne({
-                id: data.district_id,
-                state_id: data.state_id
-            })
-            if (_.isEmpty(foundDistrict)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.DISTRICT_NOT_FOUND));
-            }
-            let reqObj = data.reqObj;
-            reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
-            if (_.isEmpty(reqObj.name)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
-            }
-            let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const district = await this.districtUtilityInst.findOne({ name: regex, state_id: data.state_id });
-            if (!_.isEmpty(district)) {
-                if (district.id !== foundDistrict.id)
-                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.DISTRICT_ALREADY_ADDED));
-            }
-            await this.districtUtilityInst.updateOne({ id: data.district_id }, { name: reqObj.name })
-            await this.playerUtilityInst.updateMany({ "district.id": data.district_id }, { "district.name": reqObj.name });
-            await this.clubAcademyUtilityInst.updateMany({ "district.id": data.district_id }, { "district.name": reqObj.name });
-            return Promise.resolve()
-        } catch (e) {
-            console.log("Error in editDistrict() of LocationService", e);
-            return Promise.reject(e);
-        }
     }
 }
 
