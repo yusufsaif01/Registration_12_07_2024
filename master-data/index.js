@@ -2,19 +2,19 @@ const config = require("../config");
 const StorageProvider = require('../storage-provider');
 let countryList = [];
 let stateList = [];
-let cityList = [];
+let districtList = [];
 
 module.exports = {
 
     getDataFromS3: async function () {
         try {
-            const storageProviderInst = new StorageProvider(config.state_city_storage).getInstance();
+            const storageProviderInst = new StorageProvider(config.state_district_storage).getInstance();
             let countryData = await storageProviderInst.getDocument('country.json')
             countryList = JSON.parse(countryData.Body.toString());
             let stateData = await storageProviderInst.getDocument('state.json')
             stateList = JSON.parse(stateData.Body.toString());
-            let cityData = await storageProviderInst.getDocument('city.json')
-            cityList = JSON.parse(cityData.Body.toString());
+            let districtData = await storageProviderInst.getDocument('district.json')
+            districtList = JSON.parse(districtData.Body.toString());
             return Promise.resolve();
         }
         catch (e) {
@@ -50,17 +50,17 @@ module.exports = {
     },
 
 
-    getAllCities: function () {
-        return cityList;
+    getAllDistricts: function () {
+        return districtList;
     },
-    getCityById: function (id) {
-        return _findById(cityList, id);
+    getDistrictById: function (id) {
+        return _findById(districtList, id);
     },
-    getCitiesByStateId: function (stateId) {
-        var cities = cityList.filter(function (value, index) {
+    getDistrictsByStateId: function (stateId) {
+        var districts = districtList.filter(function (value, index) {
             return value.state_id === stateId
         })
-        return cities.sort(compare)
+        return districts.sort(compare)
     }
 }
 

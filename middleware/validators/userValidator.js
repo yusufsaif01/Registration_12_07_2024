@@ -149,7 +149,7 @@ class UserValidator {
             "dob": Joi.date().iso().required().max(moment().format("YYYY-MM-DD")),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
-            "city": Joi.string().required(),
+            "district": Joi.string().required(),
             "school": Joi.string().trim().allow(""),
             "college": Joi.string().trim().allow(""),
             "university": Joi.string().trim().allow(""),
@@ -208,7 +208,7 @@ class UserValidator {
             "founded_in": Joi.number().min(1).required(),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
-            "city": Joi.string().required(),
+            "district": Joi.string().required(),
             "address": Joi.string().trim().allow(""),
             "pincode": Joi.string().trim().allow(""),
             "phone": Joi.string().regex(/^[0-9]{10}$/).error(() => {

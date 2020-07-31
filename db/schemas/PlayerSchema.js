@@ -66,7 +66,7 @@ module.exports = {
                 type: String
             }
         },
-        city: {
+        district: {
             id: {
                 type: String
             },

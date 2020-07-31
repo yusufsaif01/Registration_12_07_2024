@@ -113,7 +113,7 @@ class FootPlayerValidator {
             "age": Joi.string(),
             "country": Joi.string(),
             "state": Joi.string(),
-            "city": Joi.string(),
+            "district": Joi.string(),
             "strong_foot": Joi.string(),
             "ability": Joi.string(),
             "status": Joi.string(),
