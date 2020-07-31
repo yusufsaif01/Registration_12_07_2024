@@ -31,7 +31,7 @@ module.exports = (router) => {
      *                   "phone": "0987654321",
      *                   "avatar_url": "/uploads/avatar/user-avatar.png",
      *                   "player_type": "grassroot",
-     *                   "city": {
+     *                   "district": {
      *                   "id": "354ab9a6-a617-428e-ad09-2d71464cc98b",
      *                   "name": "New delhi" },
      *                   "country": {
@@ -179,7 +179,7 @@ module.exports = (router) => {
      * @apiParam (body) {String} weight player weight (when _category = personal_details)
      * @apiParam (body) {String} country country id (when _category = personal_details)
      * @apiParam (body) {String} state state id (when _category = personal_details)
-     * @apiParam (body) {String} city city id (when _category = personal_details)
+     * @apiParam (body) {String} district district id (when _category = personal_details)
      * @apiParam (body) {String} school player school (when _category = personal_details)
      * @apiParam (body) {String} college player college (when _category = personal_details)
      * @apiParam (body) {String} university player university (when _category = personal_details)

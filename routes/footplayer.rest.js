@@ -374,7 +374,7 @@ module.exports = (router) => {
     * @apiParam (query) {String} age comma seperated age range
     * @apiParam (query) {String} country country name
     * @apiParam (query) {String} state state name
-    * @apiParam (query) {String} city city name
+    * @apiParam (query) {String} district district name
     * @apiParam (query) {String} strong_foot comma seperated strong_foot
     * @apiParam (query) {String} status comma seperated status
     * @apiParam (query) {String} ability comma seperated ability name
@@ -399,6 +399,7 @@ module.exports = (router) => {
     *                      "id": "d41d5897-42db-4b0f-aab0-10b08b9b6b09",
     *                      "canAddContract": true,
     *                      "email": "test@test.com",
+    *                      "phone": "9876543210",
     *                      "status": "pending"
     *                  },
     *              ]
@@ -448,7 +449,7 @@ module.exports = (router) => {
         age: (req.query && req.query.age) ? req.query.age.split(",") : null,
         country: (req.query && req.query.country) ? req.query.country : null,
         state: (req.query && req.query.state) ? req.query.state : null,
-        city: (req.query && req.query.city) ? req.query.city : null,
+        district: (req.query && req.query.district) ? req.query.district : null,
         strong_foot: (req.query && req.query.strong_foot) ? req.query.strong_foot.split(",") : null,
         ability: (req.query && req.query.ability) ? req.query.ability.split(",") : null,
         status: (req.query && req.query.status) ? req.query.status.split(",") : null,

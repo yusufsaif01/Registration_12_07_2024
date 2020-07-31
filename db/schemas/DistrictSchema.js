@@ -17,7 +17,7 @@ module.exports = {
             type: String
         }
     },
-    schemaName: "city",
+    schemaName: "district",
     options: {
         timestamps: true
     }

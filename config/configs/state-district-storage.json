@@ -1,0 +1,51 @@
+{
+    "provider": {
+        "doc": "state-district-storage-provider",
+        "format": "String",
+        "default": "S3",
+        "env": "STATE_DISTRICT_STORAGE_PROVIDER",
+        "arg": "state_district_storage_provider"
+    },
+    "bucket_name": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_BUCKET_NAME",
+        "arg": "state_district_bucket_name"
+    },
+    "bucket_acl": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_BUCKET_ACL",
+        "arg": "state_district_bucket_acl"
+    },
+    "access_key_id": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_STORAGE_ACCESS_KEY_ID",
+        "arg": "state_district_storage_access_key_id"
+    },
+    "secret_access_key": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_STORAGE_SECRET_ACCESS_KEY",
+        "arg": "state_district_storage_secret_access_key"
+    },
+    "region": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_REGION",
+        "arg": "state_district_region"
+    },
+    "spaceEndpoint": {
+        "doc": "",
+        "format": "String",
+        "default": "",
+        "env": "STATE_DISTRICT_SPACEENDPOINT",
+        "arg": "state_district_spaceEndpoint"
+    }
+}

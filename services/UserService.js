@@ -239,7 +239,7 @@ class UserService extends BaseService {
             return {
                 gender: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1,
                 institute: 1, bio: 1, player_type: 1, email: 1, name: 1, avatar_url: 1, state: 1,
-                country: 1, city: 1, phone: 1, founded_in: 1, address: 1, stadium_name: 1, short_name: 1,
+                country: 1, district: 1, phone: 1, founded_in: 1, address: 1, stadium_name: 1, short_name: 1,
                 mobile_number: 1, social_profiles: 1, _id: 0
             };
         }
@@ -315,12 +315,12 @@ class UserService extends BaseService {
 
     getPublicProfileProjection() {
         return {
-            nationality: 1, top_players: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1,
-            institute: 1, about: 1, bio: 1, position: 1, strong_foot: 1, weak_foot: 1, former_club: 1, type: 1,
-            former_academy: 1, player_type: 1, name: 1, avatar_url: 1, state: 1, league: 1, league_other: 1,
-            country: 1, city: 1, founded_in: 1, address: 1, stadium_name: 1, owner: 1, manager: 1, short_name: 1,
-            contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, association: 1,
-            association_other: 1, _id: 0
+            gender: 1, first_name: 1, last_name: 1, height: 1, weight: 1, dob: 1, institute: 1,
+            bio: 1, player_type: 1, email: 1, name: 1, avatar_url: 1, state: 1, country: 1,
+            district: 1, phone: 1, founded_in: 1, address: 1, stadium_name: 1, short_name: 1,
+            mobile_number: 1, social_profiles: 1, position: 1, strong_foot: 1, weak_foot: 1,
+            former_club_academy: 1, contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1,
+            associated_club_academy: 1, type: 1, league: 1, league_other: 1, association: 1, association_other: 1, _id: 0
         };
     }
 

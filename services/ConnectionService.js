@@ -392,23 +392,18 @@ class ConnectionService {
             { $unwind: { path: "$mutual" } },
             { "$lookup": { "from": "player_details", "localField": "user_id_footmate", "foreignField": "user_id", "as": "player_details" } },
             { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
-            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1 } },
+            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, district: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1 } },
             { $match: filterConditions },
             { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, position: 1, player_type: 1, avatar_url: 1 }, mutual: 1, } },
-            { $skip: options.skip }, { $limit: options.limit }]);
-            data = new FootmateListResponseMapper().map(data);
-            let totalRecords = await this.connectionUtilityInst.aggregate([{ $match: { user_id: requestedData.user_id, is_deleted: false } },
-            { $project: { footmates: 1, current_user_footmates: "$footmates", _id: 0 } }, { $unwind: { path: "$footmates" } },
-            { "$lookup": { "from": "connections", "localField": "footmates", "foreignField": "user_id", "as": "connection_of_current_user_footmate" } },
-            { $unwind: { path: "$connection_of_current_user_footmate" } },
-            { $project: { connection_of_current_user_footmate: { footmates: 1, user_id: 1 }, current_user_footmates: 1 } },
-            { $project: { user_id_footmate: "$connection_of_current_user_footmate.user_id", mutual: { $size: { $setIntersection: ["$current_user_footmates", "$connection_of_current_user_footmate.footmates"] } } } },
-            { $unwind: { path: "$mutual" } },
-            { "$lookup": { "from": "player_details", "localField": "user_id_footmate", "foreignField": "user_id", "as": "player_details" } },
-            { $unwind: { path: "$player_details", preserveNullAndEmptyArrays: true } },
-            { $project: { player_details: { first_name: 1, last_name: 1, user_id: 1, strong_foot: 1, country: 1, state: 1, city: 1, position: 1, player_type: 1, avatar_url: 1, dob: 1 }, mutual: 1 } },
-            { $match: filterConditions }]);
-            let response = { total: totalRecords.length, records: data }
+            { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit },], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }]);
+            let responseData = [], totalRecords = 0;
+            if (data && data.length && data[0] && data[0].data) {
+                responseData = new FootmateListResponseMapper().map(data[0].data);
+                if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+                    totalRecords = data[0].total_data[0].count;
+                }
+            }
+            let response = { total: totalRecords, records: responseData }
             return Promise.resolve(response);
         }
         catch (e) {
@@ -455,9 +450,9 @@ class ConnectionService {
                     "player_details.state.name": new RegExp(filterConditions.state, 'i')
                 });
             }
-            if (filterConditions.city) {
+            if (filterConditions.district) {
                 filterArr.push({
-                    "player_details.city.name": new RegExp(filterConditions.city, 'i')
+                    "player_details.district.name": new RegExp(filterConditions.district, 'i')
                 });
             }
             if (filterConditions.strong_foot && filterConditions.strong_foot.length) {

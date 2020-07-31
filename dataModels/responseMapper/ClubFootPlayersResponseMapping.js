@@ -19,6 +19,7 @@ class ClubFootPlayersResponseMapping {
           data.id = request.id;
           data.canAddContract = false,
           data.email = request.send_to.email;
+          data.phone = request.send_to.phone || "";
           data.status = request.status;
         }
         if(request.status && request.status === FOOTPLAYER_STATUS.ADDED && footplayers === 0) 
