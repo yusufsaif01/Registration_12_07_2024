@@ -17,7 +17,7 @@ module.exports = {
             type: String
         }
     },
-    schemaName: "parameter",
+    schemaName: "attribute",
     options: {
         timestamps: true
     }
