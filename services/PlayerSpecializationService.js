@@ -1,10 +1,10 @@
 const _ = require("lodash");
 const errors = require("../errors");
 const AbilityUtility = require('../db/utilities/AbilityUtility');
-const ParameterUtility = require('../db/utilities/ParameterUtility');
+const AttributeUtility = require('../db/utilities/AttributeUtility');
 const PositionUtility = require('../db/utilities/PositionUtility');
 const AbilityListResponseMapper = require("../dataModels/responseMapper/AbilityListResponseMapper");
-const ParameterListResponseMapper = require("../dataModels/responseMapper/ParameterListResponseMapper");
+const AttributeListResponseMapper = require("../dataModels/responseMapper/AttributeListResponseMapper");
 const PositionListResponseMapper = require("../dataModels/responseMapper/PositionListResponseMapper");
 const RESPONSE_MESSAGE = require('../constants/ResponseMessage');
 const PlayerUtility = require('../db/utilities/PlayerUtility')
@@ -13,7 +13,7 @@ class PlayerSpecializationService {
 
     constructor() {
         this.abilityUtilityInst = new AbilityUtility();
-        this.parameterUtilityInst = new ParameterUtility();
+        this.attributeUtilityInst = new AttributeUtility();
         this.positionUtilityInst = new PositionUtility();
         this.playerUtilityInst = new PlayerUtility();
     }
@@ -77,7 +77,7 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
-    async addParameter(data = {}) {
+    async addAttribute(data = {}) {
         try {
             let reqObj = data.reqObj;
             let foundAbility = await this.abilityUtilityInst.findOne({ id: reqObj.ability_id });
@@ -89,28 +89,28 @@ class PlayerSpecializationService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: reqObj.ability_id });
-            if (!_.isEmpty(parameter)) {
-                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
+            const attribute = await this.attributeUtilityInst.findOne({ name: regex, ability_id: reqObj.ability_id });
+            if (!_.isEmpty(attribute)) {
+                return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ATTRIBUTE_ALREADY_ADDED));
             }
-            await this.parameterUtilityInst.insert({ name: reqObj.name, ability_id: reqObj.ability_id })
+            await this.attributeUtilityInst.insert({ name: reqObj.name, ability_id: reqObj.ability_id })
             return Promise.resolve()
         } catch (e) {
-            console.log("Error in addParameter() of PlayerSpecializationService", e);
+            console.log("Error in addAttribute() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
-    async getParameterList(ability_id) {
+    async getAttributeList(ability_id) {
         try {
             let response = {}, totalRecords = 0;
             let foundAbility = await this.abilityUtilityInst.findOne({ id: ability_id });
             if (_.isEmpty(foundAbility)) {
                 return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
-            totalRecords = await this.parameterUtilityInst.countList({ ability_id: ability_id });
+            totalRecords = await this.attributeUtilityInst.countList({ ability_id: ability_id });
             let projection = { id: 1, name: 1 }
-            let data = await this.parameterUtilityInst.find({ ability_id: ability_id }, projection);
-            data = new ParameterListResponseMapper().map(data);
+            let data = await this.attributeUtilityInst.find({ ability_id: ability_id }, projection);
+            data = new AttributeListResponseMapper().map(data);
             let abilityName = "";
             abilityName = foundAbility.name ? foundAbility.name : "";
             response = {
@@ -120,19 +120,19 @@ class PlayerSpecializationService {
             }
             return response;
         } catch (e) {
-            console.log("Error in getParameterList() of PlayerSpecializationService", e);
+            console.log("Error in getAttributeList() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
-    async editParameter(data = {}) {
+    async editAttribute(data = {}) {
         try {
             let foundAbility = await this.abilityUtilityInst.findOne({ id: data.ability_id });
             if (_.isEmpty(foundAbility)) {
                 return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ABILITY_NOT_FOUND));
             }
-            let foundParameter = await this.parameterUtilityInst.findOne({ id: data.parameter_id, ability_id: data.ability_id });
-            if (_.isEmpty(foundParameter)) {
-                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.PARAMETER_NOT_FOUND));
+            let foundAttribute = await this.attributeUtilityInst.findOne({ id: data.attribute_id, ability_id: data.ability_id });
+            if (_.isEmpty(foundAttribute)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.ATTRIBUTE_NOT_FOUND));
             }
             let reqObj = data.reqObj;
             reqObj.name = reqObj.name.trim().replace(/\s\s+/g, ' ');
@@ -140,15 +140,15 @@ class PlayerSpecializationService {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NAME_CANNOT_BE_EMPTY));
             }
             let regex = new RegExp(["^", reqObj.name, "$"].join(""), "i");
-            const parameter = await this.parameterUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
-            if (!_.isEmpty(parameter)) {
-                if (parameter.id !== foundParameter.id)
-                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.PARAMETER_ALREADY_ADDED));
+            const attribute = await this.attributeUtilityInst.findOne({ name: regex, ability_id: data.ability_id });
+            if (!_.isEmpty(attribute)) {
+                if (attribute.id !== foundAttribute.id)
+                    return Promise.reject(new errors.Conflict(RESPONSE_MESSAGE.ATTRIBUTE_ALREADY_ADDED));
             }
-            await this.parameterUtilityInst.updateOne({ id: data.parameter_id }, { name: reqObj.name })
+            await this.attributeUtilityInst.updateOne({ id: data.attribute_id }, { name: reqObj.name })
             return Promise.resolve()
         } catch (e) {
-            console.log("Error in editParameter() of PlayerSpecializationService", e);
+            console.log("Error in editAttribute() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }

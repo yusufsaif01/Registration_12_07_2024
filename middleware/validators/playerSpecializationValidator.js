@@ -20,7 +20,7 @@ class PlayerSpecializationValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async addParameterAPIValidation(req, res, next) {
+    async addAttributeAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {
@@ -37,7 +37,7 @@ class PlayerSpecializationValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
-    async editParameterAPIValidation(req, res, next) {
+    async editAttributeAPIValidation(req, res, next) {
         const schema = Joi.object().keys({
             "name": Joi.string().required().regex(/^[a-zA-Z ]+$/).error(() => {
                 return {

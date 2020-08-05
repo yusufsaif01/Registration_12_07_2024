@@ -137,11 +137,11 @@ module.exports = (router) => {
         });
 
     /**
-     * @api {post} /master/player-specialization/parameter/add add parameter
-     * @apiName add parameter
+     * @api {post} /master/player-specialization/attribute/add add attribute
+     * @apiName add attribute
      * @apiGroup Player specialization
      *
-     * @apiParam (body) {String} name parameter name
+     * @apiParam (body) {String} name attribute name
      * @apiParam (body) {String} ability_id ability id
      * 
      * @apiSuccess {String} status success
@@ -165,7 +165,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "Parameter already added",
+	 *       "message": "Attribute already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -180,15 +180,15 @@ module.exports = (router) => {
      * 
      */
 
-    router.post("/master/player-specialization/parameter/add", checkAuthToken, checkRole([ROLE.ADMIN]),
-        playerSpecializationValidator.addParameterAPIValidation, function (req, res) {
+    router.post("/master/player-specialization/attribute/add", checkAuthToken, checkRole([ROLE.ADMIN]),
+        playerSpecializationValidator.addAttributeAPIValidation, function (req, res) {
             let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.addParameter({ reqObj: req.body }));
+            return responseHandler(req, res, serviceInst.addAttribute({ reqObj: req.body }));
         });
 
     /**
-     * @api {get} /master/player-specialization/parameter/list/:ability_id parameter listing
-     * @apiName parameter listing
+     * @api {get} /master/player-specialization/attribute/list/:ability_id attribute listing
+     * @apiName attribute listing
      * @apiGroup Player specialization
      * 
      * @apiSuccess {String} status success
@@ -221,17 +221,17 @@ module.exports = (router) => {
      * 
      */
 
-    router.get("/master/player-specialization/parameter/list/:ability_id", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
+    router.get("/master/player-specialization/attribute/list/:ability_id", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
         let serviceInst = new PlayerSpecializationService();
-        return responseHandler(req, res, serviceInst.getParameterList(req.params.ability_id));
+        return responseHandler(req, res, serviceInst.getAttributeList(req.params.ability_id));
     });
 
     /**
-     * @api {put} /master/player-specialization/parameter/:ability_id/:parameter_id edit parameter
-     * @apiName edit parameter
+     * @api {put} /master/player-specialization/attribute/:ability_id/:attribute_id edit attribute
+     * @apiName edit attribute
      * @apiGroup Player specialization
      *
-     * @apiParam (body) {String} name parameter name
+     * @apiParam (body) {String} name attribute name
      * 
      * @apiSuccess {String} status success
      * @apiSuccess {String} message Successfully done
@@ -254,7 +254,7 @@ module.exports = (router) => {
      * @apiErrorExample {json} CONFLICT
 	 *     HTTP/1.1 409 Conflict
 	 *     {
-	 *       "message": "Parameter already added",
+	 *       "message": "Attribute already added",
      *       "code": "CONFLICT",
      *       "httpCode": 409
 	 *     }
@@ -270,19 +270,19 @@ module.exports = (router) => {
      * @apiErrorExample {json} NOT_FOUND
      *     HTTP/1.1 404 Not found
      *     {
-     *       "message": "Parameter not found",
+     *       "message": "Attribute not found",
      *       "code": "NOT_FOUND",
      *       "httpCode": 404
      *     }
      * 
      */
 
-    router.put("/master/player-specialization/parameter/:ability_id/:parameter_id", checkAuthToken, checkRole([ROLE.ADMIN]),
-        playerSpecializationValidator.editParameterAPIValidation, function (req, res) {
+    router.put("/master/player-specialization/attribute/:ability_id/:attribute_id", checkAuthToken, checkRole([ROLE.ADMIN]),
+        playerSpecializationValidator.editAttributeAPIValidation, function (req, res) {
             let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.editParameter({
+            return responseHandler(req, res, serviceInst.editAttribute({
                 reqObj: req.body,
-                ability_id: req.params.ability_id, parameter_id: req.params.parameter_id
+                ability_id: req.params.ability_id, attribute_id: req.params.attribute_id
             }));
         });
 
