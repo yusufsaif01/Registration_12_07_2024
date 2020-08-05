@@ -208,9 +208,6 @@ class ResponseMessage {
     static get ABILITY_NOT_FOUND() {
         return "Ability not found"
     }
-    static get ATTRIBUTE_NOT_FOUND() {
-        return "Attribute not found"
-    }
     static get POSITION_NOT_FOUND() {
         return "Position not found"
     }
@@ -222,9 +219,6 @@ class ResponseMessage {
     }
     static get ABILITY_ALREADY_ADDED() {
         return "Ability already added"
-    }
-    static get ATTRIBUTE_ALREADY_ADDED() {
-        return "Attribute already added"
     }
     static get POSITION_ALREADY_ADDED() {
         return "Position already added"
