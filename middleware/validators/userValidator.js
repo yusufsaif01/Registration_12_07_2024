@@ -146,7 +146,7 @@ class UserValidator {
                     RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
                 )
             ),
-            "dob": Joi.date().iso().required().max(moment().format("YYYY-MM-DD")),
+            "dob": Joi.date().iso().max(moment().format("YYYY-MM-DD")),
             "country": Joi.string().required(),
             "state": Joi.string().required(),
             "district": Joi.string().required(),
