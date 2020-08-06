@@ -1,52 +1,8 @@
 const PlayerSpecializationService = require('../services/PlayerSpecializationService');
-const { checkAuthToken, checkRole } = require('../middleware/auth');
+const { checkAuthToken } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
-const playerSpecializationValidator = require("../middleware/validators").playerSpecializationValidator;
-const ROLE = require('../constants/Role')
 
 module.exports = (router) => {
-    /**
-     * @api {post} /master/player-specialization/ability/add add ability
-     * @apiName add ability
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name ability name
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Ability already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     */
-
-    router.post("/master/player-specialization/ability/add", checkAuthToken,
-        playerSpecializationValidator.AbilityAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.addAbility({ reqObj: req.body }));
-        });
-
     /**
      * @api {get} /master/player-specialization/ability/list ability listing
      * @apiName ability listing
@@ -80,115 +36,14 @@ module.exports = (router) => {
      *     }
      * 
      */
-
     router.get("/master/player-specialization/ability/list", checkAuthToken, function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getAbilityList());
     });
 
     /**
-     * @api {put} /master/player-specialization/ability/:ability_id edit ability
-     * @apiName edit ability
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name ability name
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Ability already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     * @apiErrorExample {json} NOT_FOUND
-     *     HTTP/1.1 404 Not found
-     *     {
-     *       "message": "Ability not found",
-     *       "code": "NOT_FOUND",
-     *       "httpCode": 404
-     *     }
-     * 
-     */
-
-    router.put("/master/player-specialization/ability/:ability_id", checkAuthToken,
-        playerSpecializationValidator.AbilityAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.editAbility({ reqObj: req.body, ability_id: req.params.ability_id }));
-        });
-
-    /**
-     * @api {post} /master/player-specialization/parameter/add add parameter
-     * @apiName add parameter
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name parameter name
-     * @apiParam (body) {String} ability_id ability id
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Parameter already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     * @apiErrorExample {json} NOT_FOUND
-     *     HTTP/1.1 404 Not found
-     *     {
-     *       "message": "Ability not found",
-     *       "code": "NOT_FOUND",
-     *       "httpCode": 404
-     *     }
-     * 
-     */
-
-    router.post("/master/player-specialization/parameter/add", checkAuthToken, checkRole([ROLE.ADMIN]),
-        playerSpecializationValidator.addParameterAPIValidation, function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.addParameter({ reqObj: req.body }));
-        });
-
-    /**
-     * @api {get} /master/player-specialization/parameter/list/:ability_id parameter listing
-     * @apiName parameter listing
+     * @api {get} /master/player-specialization/attribute/list/:ability_id attribute listing
+     * @apiName attribute listing
      * @apiGroup Player specialization
      * 
      * @apiSuccess {String} status success
@@ -220,115 +75,10 @@ module.exports = (router) => {
      *     }
      * 
      */
-
-    router.get("/master/player-specialization/parameter/list/:ability_id", checkAuthToken, checkRole([ROLE.ADMIN]), function (req, res) {
+    router.get("/master/player-specialization/attribute/list/:ability_id", checkAuthToken, function (req, res) {
         let serviceInst = new PlayerSpecializationService();
-        return responseHandler(req, res, serviceInst.getParameterList(req.params.ability_id));
+        return responseHandler(req, res, serviceInst.getAttributeList(req.params.ability_id));
     });
-
-    /**
-     * @api {put} /master/player-specialization/parameter/:ability_id/:parameter_id edit parameter
-     * @apiName edit parameter
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name parameter name
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Parameter already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     * @apiErrorExample {json} NOT_FOUND
-     *     HTTP/1.1 404 Not found
-     *     {
-     *       "message": "Ability not found",
-     *       "code": "NOT_FOUND",
-     *       "httpCode": 404
-     *     }
-     * 
-     * @apiErrorExample {json} NOT_FOUND
-     *     HTTP/1.1 404 Not found
-     *     {
-     *       "message": "Parameter not found",
-     *       "code": "NOT_FOUND",
-     *       "httpCode": 404
-     *     }
-     * 
-     */
-
-    router.put("/master/player-specialization/parameter/:ability_id/:parameter_id", checkAuthToken, checkRole([ROLE.ADMIN]),
-        playerSpecializationValidator.editParameterAPIValidation, function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.editParameter({
-                reqObj: req.body,
-                ability_id: req.params.ability_id, parameter_id: req.params.parameter_id
-            }));
-        });
-
-    /**
-     * @api {post} /master/player-specialization/position/add add position
-     * @apiName add position
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name position name
-     * @apiParam (body) {String} abbreviation abbreviation
-     * @apiParam (body) {Array} abilities array of ability_id
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Position already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     */
-
-    router.post("/master/player-specialization/position/add", checkAuthToken,
-        playerSpecializationValidator.PositionAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.addPosition({ reqObj: req.body }));
-        });
 
     /**
      * @api {get} /master/player-specialization/position/list position listing
@@ -367,60 +117,8 @@ module.exports = (router) => {
      *     }
      * 
      */
-
     router.get("/master/player-specialization/position/list", checkAuthToken, function (req, res) {
         let serviceInst = new PlayerSpecializationService();
         return responseHandler(req, res, serviceInst.getPositionList());
     });
-
-    /**
-     * @api {put} /master/player-specialization/position/:position_id edit position
-     * @apiName edit position
-     * @apiGroup Player specialization
-     *
-     * @apiParam (body) {String} name position name
-     * @apiParam (body) {String} abbreviation abbreviation
-     * @apiParam (body) {Array} abilities array of ability_id
-     * 
-     * @apiSuccess {String} status success
-     * @apiSuccess {String} message Successfully done
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "status": "success",
-     *       "message": "Successfully done"
-     *     }
-     *
-     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
-     *     HTTP/1.1 500 Internal server error
-     *     {
-     *       "message": "Internal Server Error",
-     *       "code": "INTERNAL_SERVER_ERROR",
-     *       "httpCode": 500
-     *     }
-     *
-     * @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Position with same name already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }    
-     * 
-     *  @apiErrorExample {json} CONFLICT
-	 *     HTTP/1.1 409 Conflict
-	 *     {
-	 *       "message": "Position with same abbreviation already added",
-     *       "code": "CONFLICT",
-     *       "httpCode": 409
-	 *     }
-     * 
-     */
-
-    router.put("/master/player-specialization/position/:position_id", checkAuthToken,
-        playerSpecializationValidator.PositionAPIValidation, checkRole([ROLE.ADMIN]), function (req, res) {
-            let serviceInst = new PlayerSpecializationService();
-            return responseHandler(req, res, serviceInst.editPosition({ reqObj: req.body, position_id: req.params.position_id }));
-        });
 };

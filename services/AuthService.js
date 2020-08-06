@@ -158,7 +158,8 @@ class AuthService {
                     return Promise.reject(new errors.Unauthorized(RESPONSE_MESSAGE.USER_BLOCKED));
                 }
                 if (loginDetails.status !== ACCOUNT.ACTIVE) {
-                    return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.ACCOUNT_NOT_ACTIVATED));
+                    await this.resendEmailVerificationLink(loginDetails);
+                    return Promise.resolve();
                 }
                 const tokenForForgetPassword = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
                 let resetPasswordURL = config.app.baseURL + "reset-password?token=" + tokenForForgetPassword;
@@ -386,6 +387,25 @@ class AuthService {
         return Promise.resolve();
     }
 
+    async resendEmailVerificationLink(loginDetails = {}) {
+        try {
+            const tokenForAccountActivation = await this.authUtilityInst.getAuthToken(loginDetails.user_id, loginDetails.username, loginDetails.member_type);
+            await redisServiceInst.deleteByKey(`keyForForgotPassword${loginDetails.forgot_password_token}`);
+            await redisServiceInst.setKeyValuePair(`keyForForgotPassword${tokenForAccountActivation}`, loginDetails.user_id)
+            await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { forgot_password_token: tokenForAccountActivation });
+            let userDataFromCache = await redisServiceInst.getUserFromCacheByKey(loginDetails.user_id);
+            userDataFromCache.forgot_password_token = tokenForAccountActivation;
+            await redisServiceInst.setKeyValuePair(loginDetails.user_id, JSON.stringify(userDataFromCache));
+            let accountActivationURL = config.app.baseURL + "create-password?token=" + tokenForAccountActivation;
+            let user_name = '';
+            user_name = await this.getProfileName(loginDetails, user_name);
+            this.emailService.emailVerification(loginDetails.username, accountActivationURL, user_name);
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in resendEmailVerificationLink() of AuthService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = AuthService;
