@@ -38,7 +38,7 @@ module.exports = (router) => {
      *             "position": "Goalkeeper",
      *             "member_type": "player",
      *             "is_verified": true,
-     *             "status": pending/added/rejected/null
+     *             "status": "pending/added/rejected/null",
      *             "club_name": "xyz club"
      *            }] }
      *     }
