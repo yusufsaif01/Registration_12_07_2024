@@ -634,6 +634,7 @@ class FootPlayerService {
       searchConditions["$or"] = [
         "send_to.name",
         "send_to_user.player_type",
+        "send_to.email"
       ].map((field) => {
         return {
           [field]: regexp,
