@@ -74,14 +74,14 @@ class PostService {
         if (!reqObj.text && reqObj.media_url) {
             record.media = {
                 media_url: reqObj.media_url,
-                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
+                media_type: POST_MEDIA.IMAGE
             }
         }
         if (reqObj.text && reqObj.media_url) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
+                media_type: POST_MEDIA.IMAGE
             }
         }
         return Promise.resolve(record);
@@ -198,7 +198,7 @@ class PostService {
         record.media = {
             text: reqObj.text || (currentDataOfPost.media ? currentDataOfPost.media.text : ""),
             media_url: reqObj.media_url || (currentDataOfPost.media ? currentDataOfPost.media.media_url : ""),
-            media_type: currentDataOfPost.media ? currentDataOfPost.media.media_type : POST_MEDIA.ALLOWED_MEDIA_TYPE
+            media_type: currentDataOfPost.media ? currentDataOfPost.media.media_type : POST_MEDIA.IMAGE
         }
         return Promise.resolve(record);
     }
