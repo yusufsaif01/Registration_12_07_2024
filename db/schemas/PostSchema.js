@@ -35,8 +35,13 @@ module.exports = {
       default: POST_TYPE.TIMELINE_POST,
     },
     meta: {
-      attributes: [{ type: String }],
-      abilities: [{ type: String }],
+      attributes: [
+        {
+          attribute_id: String,
+          attribute_name: String,
+          abilities: [{ ability_id: String, ability_name: String }],
+        },
+      ],
     },
     created_at: {
       type: Date,
