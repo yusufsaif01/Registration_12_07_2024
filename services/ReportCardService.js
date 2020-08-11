@@ -348,6 +348,62 @@ class ReportCardService {
             return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.INVALID_VALUE_ABILITY));
         }
     }
+
+    /**
+     * edit report card with draft status
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async editReportCard(requestedData = {}) {
+        try {
+            let reqObj = await this.editReportCardValidation(requestedData);
+            let now = moment();
+            reqObj.published_at = new Date(now.format("YYYY-MM-DD"));
+            reqObj.sent_by = requestedData.authUser.user_id;
+            let player_detail = await this.playerUtilityInst.findOne({ user_id: reqObj.send_to }, { first_name: 1, email: 1 });
+            let club_academy_detail = await this.clubAcademyUtilityInst.findOne({ user_id: requestedData.authUser.user_id }, { name: 1 });
+            await this.reportCardUtilityInst.updateOne({ id: requestedData.report_card_id }, reqObj);
+            if (reqObj.status === REPORT_CARD_STATUS.PUBLISHED) {
+                this.emailService.reportCardAdded({
+                    player_name: player_detail.first_name,
+                    club_academy_name: club_academy_detail.name, player_email: player_detail.email, published_at: now.format("DD-MMMM-YYYY").split('-').join(' ')
+                });
+            }
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in editReportCard() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates request data for edit report card
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async editReportCardValidation(requestedData = {}) {
+        try {
+            let reqObj = await this.parseAbilities(requestedData.reqObj);
+            await reportCardValidator.editReportCardValidation(reqObj);
+            reqObj = await this.validateAbilitiesAttributes(reqObj);
+            let foundReportCard = await this.reportCardUtilityInst.findOne({ sent_by: requestedData.authUser.user_id, id: requestedData.report_card_id }, { status: 1, send_to: 1 });
+            if (_.isEmpty(foundReportCard)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.REPORT_CARD_NOT_FOUND));
+            }
+            if (foundReportCard.status !== REPORT_CARD_STATUS.DRAFT) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.REPORT_CARD_CANNOT_BE_EDITED));
+            }
+            reqObj.send_to = foundReportCard.send_to;
+            return Promise.resolve(reqObj);
+        } catch (e) {
+            console.log("Error in editReportCardValidation() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = ReportCardService;

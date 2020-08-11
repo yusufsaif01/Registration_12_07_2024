@@ -577,11 +577,17 @@ class ResponseMessage {
     static get DUPLICATE_ABILITY_ID() {
         return "Duplicate id for ability"
     }
-    static get SCORE_CRITERIA_FAILED(){
+    static get SCORE_CRITERIA_FAILED() {
         return "Please provide scores for atleast 3 abilities and 3 related attributes"
     }
     static get DRAFT_EXISTS() {
         return "You have a report in draft status"
+    }
+    static get REPORT_CARD_NOT_FOUND() {
+        return "Report card not found"
+    }
+    static get REPORT_CARD_CANNOT_BE_EDITED() {
+        return "Only report card with draft status can be edited"
     }
 }
 

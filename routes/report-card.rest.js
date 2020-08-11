@@ -109,4 +109,40 @@ module.exports = (router) => {
         let serviceInst = new ReportCardService();
         return responseHandler(req, res, serviceInst.createReportCard({ reqObj: req.body, authUser: req.authUser }));
     });
+
+    /**
+     * @api {put} /report-card/:report_card_id edit draft report-card
+     * @apiName edit draft report card
+     * @apiGroup Report-card
+     * 
+     * @apiParam (body) {String} [remarks] remarks
+     * @apiParam (body) {String} status report card status (published/draft)
+     * @apiParam (body) {String} abilities array of object with fields (ability_id, attributes (array of object with fields (attribute_id, attribute_score)))
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.put('/report-card/:report_card_id', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), function (req, res) {
+        let serviceInst = new ReportCardService();
+        return responseHandler(req, res, serviceInst.editReportCard({
+            reqObj: req.body,
+            authUser: req.authUser, report_card_id: req.params.report_card_id
+        }));
+    });
 };
