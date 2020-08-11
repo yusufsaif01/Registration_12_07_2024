@@ -96,8 +96,8 @@ class ReportCardService {
                         status: { $cond: { if: { $eq: ["$player_detail.draft_status", true] }, then: REPORT_CARD_STATUS.DRAFT, else: "$player_detail.report_card.status" } }, published_at: "$player_detail.report_card.published_at"
                     }
                 },
-                { $match: filterConditions }, { $match: searchConditions },
-                { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }, { $sort: options.sort }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
+                { $match: filterConditions }, { $match: searchConditions }, { $sort: options.sort },
+                { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
             ]);
             let responseData = [], totalRecords = 0;
             if (data && data.length && data[0] && data[0].data) {
