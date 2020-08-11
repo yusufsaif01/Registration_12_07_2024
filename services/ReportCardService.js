@@ -158,7 +158,7 @@ class ReportCardService {
             if (filterConditions.player_category && filterConditions.player_category.length) {
                 let player_category = [];
                 filterConditions.player_category.forEach(val => {
-                    player_category.push({ "player_type": new RegExp(val, 'i') })
+                    player_category.push({ "category": new RegExp(val, 'i') })
                 });
                 filterArr.push({ $or: player_category })
             }
