@@ -55,7 +55,7 @@ module.exports = (router) => {
     * 
     */
 
-    router.get("/manage/report-card/list", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]),reportCardValidator.manageReportCardListValidation, function (req, res) {
+    router.get("/manage/report-card/list", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), reportCardValidator.manageReportCardListValidation, function (req, res) {
         let paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
@@ -74,5 +74,39 @@ module.exports = (router) => {
 
         let serviceInst = new ReportCardService();
         return responseHandler(req, res, serviceInst.getManageReportCardList({ authUser: req.authUser, paginationOptions, sortOptions, filters }));
+    });
+
+    /**
+     * @api {post} /report-card create report-card
+     * @apiName create report card
+     * @apiGroup Report-card
+     * 
+     * @apiParam (body) {String} send_to user_id of player for whom report card is being created
+     * @apiParam (body) {String} [remarks] remarks
+     * @apiParam (body) {String} status report card status (published/draft)
+     * @apiParam (body) {String} abilities array of object with fields (ability_id, attributes (array of object with fields (attribute_id, attribute_score)))
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "status": "success",
+     *       "message": "Successfully done"
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.post('/report-card', checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), function (req, res) {
+        let serviceInst = new ReportCardService();
+        return responseHandler(req, res, serviceInst.createReportCard({ reqObj: req.body, authUser: req.authUser }));
     });
 };
