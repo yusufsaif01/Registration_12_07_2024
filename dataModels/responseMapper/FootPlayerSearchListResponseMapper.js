@@ -12,8 +12,8 @@ class FootPlayerSearchListResponseMapper {
                         "member_type": member.player_detail.member_type,
                         "category": member.player_detail.player_type || "-",
                         "position": "-",
-                        "is_verified": member.player_detail.is_verified || false
-
+                        "is_verified": member.player_detail.is_verified || false,
+                        "status": member.player_detail.status || null
                     };
                     data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";
 
