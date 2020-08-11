@@ -14,6 +14,9 @@ class ManageReportCardListResponseMapper {
                     "status": record.status || "",
                 };
                 data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";
+                if (record.draft_report_card && record.draft_report_card.length && record.draft_report_card[0] && record.draft_report_card[0].id) {
+                    data.id = record.draft_report_card[0].id;
+                }
                 response.push(data);
             });
         }
