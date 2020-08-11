@@ -69,27 +69,13 @@ class ReportCardService {
                 {
                     $project: {
                         player_detail: {
-                            avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1, report_card: 1,
-                            draft_status: {
-                                $cond: {
-                                    if: {
-                                        $eq: [{
-                                            $filter: {
-                                                input: "$player_detail.report_card", as: "element",
-                                                cond: { $eq: ["$$element.status", REPORT_CARD_STATUS.DRAFT] }
-                                            }
-                                        }, []]
-                                    }, then: false, else: true
+                            avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1,
+                            draft_report_card: {
+                                $filter: {
+                                    input: "$player_detail.report_card", as: "element",
+                                    cond: { $eq: ["$$element.status", REPORT_CARD_STATUS.DRAFT] }
                                 }
-                            }
-                        }
-                    }
-                },
-                {
-                    $project: {
-                        player_detail: {
-                            avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1, draft_status: 1,
-                            report_card: {
+                            }, report_card: {
                                 $filter: {
                                     input: "$player_detail.report_card", as: "element",
                                     cond: { $ne: ["$$element.status", REPORT_CARD_STATUS.DRAFT] }
@@ -98,7 +84,23 @@ class ReportCardService {
                         }
                     }
                 },
-                { $project: { player_detail: { avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1, draft_status: 1, report_card: 1, total_report_cards: { $size: "$player_detail.report_card" } } } },
+                {
+                    $project: {
+                        player_detail: {
+                            avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1, draft_report_card: 1,
+                            report_card: 1, draft_status: { $cond: { if: { $eq: ["$player_detail.draft_report_card", []] }, then: false, else: true } }
+
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        player_detail: {
+                            avatar_url: 1, first_name: 1, last_name: 1, player_type: 1, user_id: 1,
+                            draft_report_card: 1, draft_status: 1, report_card: 1, total_report_cards: { $size: "$player_detail.report_card" }
+                        }
+                    }
+                },
                 { $unwind: { path: "$player_detail.report_card", preserveNullAndEmptyArrays: true } },
                 { $sort: { "player_detail.report_card.published_at": -1 } },
                 { $group: { _id: "$player_detail.user_id", player_detail: { $first: "$player_detail" } } },
@@ -107,7 +109,11 @@ class ReportCardService {
                         avatar_url: "$player_detail.avatar_url", first_name: "$player_detail.first_name", last_name: "$player_detail.last_name",
                         name: { $toLower: { $concat: ["$player_detail.first_name", " ", "$player_detail.last_name"] } }, category: "$player_detail.player_type",
                         user_id: "$player_detail.user_id", total_report_cards: "$player_detail.total_report_cards",
-                        status: { $cond: { if: { $eq: ["$player_detail.draft_status", true] }, then: REPORT_CARD_STATUS.DRAFT, else: "$player_detail.report_card.status" } }, published_at: "$player_detail.report_card.published_at"
+                        status: {
+                            $cond: {
+                                if: { $eq: ["$player_detail.draft_status", true] }, then: REPORT_CARD_STATUS.DRAFT, else: "$player_detail.report_card.status"
+                            }
+                        }, published_at: "$player_detail.report_card.published_at", draft_report_card: "$player_detail.draft_report_card"
                     }
                 },
                 { $match: filterConditions }, { $match: searchConditions }, { $sort: options.sort },
