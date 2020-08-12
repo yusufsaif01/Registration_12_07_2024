@@ -1,5 +1,5 @@
 module.exports = class PostStatus {
-  static get PENDING() { // change to pending
+  static get PENDING() {
     return "pending";
   }
   static get PUBLISHED() {
