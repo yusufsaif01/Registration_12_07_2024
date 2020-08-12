@@ -1,6 +1,7 @@
 const uuidv4 = require("uuid/v4");
 const POST_TYPE = require("../../constants/PostType");
 const POST_MEDIA = require("../../constants/PostMedia");
+const POST_STATUS = require("../../constants/PostStatus");
 
 module.exports = {
   fields: {
@@ -29,17 +30,21 @@ module.exports = {
         enum: POST_MEDIA.ALLOWED_MEDIA_TYPES,
       },
     },
+    status: {
+      type: String,
+      enum: POST_STATUS.AVAILABLE_POST_STATUS,
+    },
     post_type: {
       type: String,
       enum: POST_TYPE.ALLOWED_POST_TYPES,
-      default: POST_TYPE.TIMELINE_POST,
+      default: POST_TYPE.TIMELINE,
     },
     meta: {
-      attributes: [
+      abilities: [
         {
-          attribute_id: String,
-          attribute_name: String,
-          abilities: [{ ability_id: String, ability_name: String }],
+          abilities_id: String,
+          abilities_name: String,
+          attributes: [{ attributes_id: String, attributes_name: String }],
         },
       ],
     },

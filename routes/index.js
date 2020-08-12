@@ -13,6 +13,7 @@ const clubAcademyDocuments = require('./club-academy-documents.rest');
 const footplayerRoutes = require('./footplayer.rest');
 const peopleRoutes = require('./people.rest');
 const employmentContract = require('./employment-contract.rest');
+const video = require('./video.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -32,6 +33,7 @@ class Route {
 		footplayerRoutes(apiRouter);
 		peopleRoutes(apiRouter);
 		employmentContract(apiRouter);
+		video(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));

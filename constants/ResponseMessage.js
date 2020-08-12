@@ -284,7 +284,7 @@ class ResponseMessage {
         return "Already footmate"
     }
     static get TEXT_OR_IMAGE_REQUIRED() {
-        return "Text or image required"
+        return "Text, image or video required"
     }
     static get POST_NOT_FOUND() {
         return "Post not found"
@@ -559,6 +559,19 @@ class ResponseMessage {
     static get TO_INVALID() {
         return "To year is invalid"
     }
+    static get INVALID_POST_TYPE(){
+        return "Post type is invalid";
+    }
+    static get NOT_ALLOWED_TO_UPLOAD_VIDEO(){
+        return "You are not allowed to upload the specific video";
+    }
+    static get ATTRIBUTE_NOT_FOUND() {
+        return "Attribute not found";
+    }
+    static get ATTRIBUTE_ABILITY_ERROR() {
+        return "Attribute or Ability format is incorrect.";
+    }
+    
 }
 
 module.exports = ResponseMessage
