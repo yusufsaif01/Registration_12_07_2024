@@ -42,9 +42,9 @@ module.exports = {
     meta: {
       abilities: [
         {
-          abilities_id: String,
-          abilities_name: String,
-          attributes: [{ attributes_id: String, attributes_name: String }],
+          ability_id: String,
+          ability_name: String,
+          attributes: [{ attribute_id: String, attribute_name: String }],
         },
       ],
     },
