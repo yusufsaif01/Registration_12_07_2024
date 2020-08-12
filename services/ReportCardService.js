@@ -404,6 +404,75 @@ class ReportCardService {
             return Promise.reject(e);
         }
     }
+
+    /**
+     * manage player report card list for club/academy
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async getManagePlayerReportCardList(requestedData = {}) {
+        try {
+            await this.validatePlayerUserId(requestedData.player_id);
+            await this.checkIsFootplayer(requestedData.authUser.user_id, requestedData.player_id);
+            let paginationOptions = requestedData.paginationOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount };
+
+            let data = await this.reportCardUtilityInst.aggregate([
+                { $match: { send_to: requestedData.player_id, is_deleted: false, $or: [{ status: { $ne: REPORT_CARD_STATUS.DRAFT } }, { sent_by: requestedData.authUser.user_id }] } },
+                { $lookup: { from: "club_academy_details", localField: "sent_by", foreignField: "user_id", as: "club_academy_detail" } },
+                { $unwind: { path: "$club_academy_detail" } },
+                { $project: { sent_by: 1, created_by: "$club_academy_detail.name", published_at: 1, status: 1, id: 1, _id: 0 } },
+                { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
+            ]);
+            let responseData = [], totalRecords = 0;
+            if (data && data.length && data[0] && data[0].data) {
+                responseData = data[0].data;
+                if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+                    totalRecords = data[0].total_data[0].count;
+                }
+            }
+            let player_detail = await this.playerUtilityInst.findOne({ user_id: requestedData.player_id }, { first_name: 1, last_name: 1 });
+            let response = { total: totalRecords, player_name: `${player_detail.first_name} ${player_detail.last_name}`, records: responseData }
+            return Promise.resolve(response);
+        } catch (e) {
+            console.log("Error in getManagePlayerReportCardList() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates player user_id
+     *
+     * @param {*} user_id
+     * @returns
+     * @memberof ReportCardService
+     */
+    async validatePlayerUserId(user_id) {
+        let user = await this.loginUtilityInst.findOne({ user_id: user_id, member_type: MEMBER.PLAYER });
+        if (!user) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.PLAYER_NOT_FOUND));
+        }
+        return Promise.resolve();
+    }
+
+    /**
+     * checks if the player is a footplayer of the club/academy
+     *
+     * @param {*} club_academy_id
+     * @param {*} player_id
+     * @returns
+     * @memberof ReportCardService
+     */
+    async checkIsFootplayer(club_academy_id, player_id) {
+        let footplayer = await this.footPlayerUtilityInst.findOne({ sent_by: club_academy_id, "send_to.user_id": player_id });
+        if (!footplayer) {
+            return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.NOT_FOOTPLAYER));
+        }
+        return Promise.resolve();
+    }
 }
 
 module.exports = ReportCardService;

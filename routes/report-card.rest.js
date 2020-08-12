@@ -145,4 +145,55 @@ module.exports = (router) => {
             authUser: req.authUser, report_card_id: req.params.report_card_id
         }));
     });
+
+    /**
+     * @api {get} /manage/report-card/list/:player_id player report-card listing for club/academy
+     * @apiName player report card listing for club/academy
+     * @apiGroup Report-card
+     * 
+     * @apiParam (param) {String} player_id user_id of player
+     * @apiParam (query) {String} page_no page number
+     * @apiParam (query) {String} page_size page size
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *          "status": "success",
+     *          "message": "Successfully done",
+     *          "data": {
+     *              "total": 1,
+     *              "player_name": "test",
+     *              "records": [
+     *                  {
+     *                      "id": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
+     *                      "sent_by": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
+     *                      "published_at": "2020-08-10T00:00:00.000Z",
+     *                      "created_by": "xyz club",
+     *                      "status": "published/draft"
+     *                  },
+     *              ]
+     *          }
+     *      }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.get("/manage/report-card/list/:player_id", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]),
+        reportCardValidator.managePlayerReportCardListValidation, function (req, res) {
+            let paginationOptions = {
+                page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+                limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+            };
+            let serviceInst = new ReportCardService();
+            return responseHandler(req, res, serviceInst.getManagePlayerReportCardList({ authUser: req.authUser, player_id: req.params.player_id, paginationOptions }));
+        });
 };
