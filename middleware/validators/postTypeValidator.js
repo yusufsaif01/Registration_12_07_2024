@@ -1,3 +1,4 @@
+const { extname } = require("path");
 const ResponseHandler = require("../../ResponseHandler");
 const PostType = require("../../constants/PostType");
 const errors = require("../../errors");
@@ -5,6 +6,7 @@ const ResponseMessage = require("../../constants/ResponseMessage");
 const Role = require("../../constants/Role");
 const Joi = require("@hapi/joi");
 const CustomMessages = require("./CustomMessages");
+const PostMedia = require("../../constants/PostMedia");
 
 module.exports = {
   middleware(req, res, next) {
@@ -100,5 +102,38 @@ module.exports = {
         Promise.reject(new errors.ValidationFailed(error.details[0].message))
       );
     }
+  },
+
+  checkUploadedVideo(req, res, next) {
+    if (req.files && req.files.media) {
+      let uploadedMedia = req.files.media;
+
+      // allow only one video at a time.
+      if (Array.isArray(uploadedMedia)) {
+        uploadedMedia = uploadedMedia[0];
+      }
+
+      const { name } = uploadedMedia;
+
+      if (PostMedia.ALLOWED_VIDEO_EXTENSIONS.includes(extname(name))) {
+        return next();
+      } else {
+        return ResponseHandler(
+          req,
+          res,
+          Promise.reject(
+            new errors.ValidationFailed(ResponseMessage.INVALID_VIDEO_FORMAT)
+          )
+        );
+      }
+    }
+
+    return ResponseHandler(
+      req,
+      res,
+      Promise.reject(
+        new errors.ValidationFailed(ResponseMessage.VIDEO_IS_REQUIRED)
+      )
+    );
   },
 };

@@ -4,6 +4,7 @@ const AbilityUtility = require("../db/utilities/AbilityUtility");
 const AttributeUtility = require("../db/utilities/AttributeUtility");
 const errors = require("../errors");
 const ResponseMessage = require("../constants/ResponseMessage");
+const vimeoLib = require("../lib/vimeo");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
@@ -15,6 +16,7 @@ module.exports = class VideoService {
     try {
       const videoOptions = this.getUploadOptions(authUser, type);
       await this.validateAttributesAndAbilities(tags);
+      await this.uploadToVimeo(media, videoOptions);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -64,5 +66,9 @@ module.exports = class VideoService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async uploadToVimeo(media, { max_duration }) {
+    
   }
 };

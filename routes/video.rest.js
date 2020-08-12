@@ -7,7 +7,8 @@ const videoServiceInst = new VideoService();
 const {
   middleware: validatePostType,
   userCanUploadVideo,
-  validateData
+  validateData,
+  checkUploadedVideo
 } = require("../middleware/validators/postTypeValidator");
 
 /**
@@ -23,6 +24,7 @@ module.exports = (router) => {
     checkAuthToken,
     validatePostType,
     userCanUploadVideo,
+    checkUploadedVideo,
     validateData,
     async (req, res, next) => {
       const { type } = req.query;

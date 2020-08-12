@@ -601,6 +601,15 @@ class ResponseMessage {
     static ATTRIBUTE_MAX_VALIDATION(max) {
         return `Only ${max} attributes can be selected`;
     }
+    static VIDEO_DURATION_EXCEEDED(maxDuration) {
+        return `Video length cannot be more than ${maxDuration / 60} minutes`;
+    }
+    static get INVALID_VIDEO_FORMAT() {
+        return "Uploaded video format is not valid";
+    }
+    static get VIDEO_IS_REQUIRED() {
+        return "Video is required";
+    }
     
 }
 
