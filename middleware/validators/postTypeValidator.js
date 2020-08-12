@@ -4,6 +4,7 @@ const errors = require("../../errors");
 const ResponseMessage = require("../../constants/ResponseMessage");
 const Role = require("../../constants/Role");
 const Joi = require("@hapi/joi");
+const CustomMessages = require("./CustomMessages");
 
 module.exports = {
   middleware(req, res, next) {
@@ -41,7 +42,7 @@ module.exports = {
       max_abilities: 2,
     };
 
-    let abilitiesSchema = Joi.array().min(1).required().unique('attributes');
+    let abilitiesSchema = Joi.array().min(1).required().unique("ability");
     let attributesSchema = Joi.array().min(1).required().unique();
 
     if (req.authUser.role == Role.PLAYER) {
@@ -50,6 +51,33 @@ module.exports = {
         playerRestrictions.max_attributes
       );
     }
+
+    abilitiesSchema = abilitiesSchema.error(
+      CustomMessages(
+        {
+          "any.required": ResponseMessage.ABILITY_REQUIRED,
+          "array.min": ResponseMessage.ABILITY_MIN_VALIDATION,
+          "array.unique": ResponseMessage.ABILITY_UNIQUE_VALIDATION,
+          "array.max": ResponseMessage.ABILITY_MAX_VALIDATION(
+            playerRestrictions.max_abilities
+          ),
+        },
+        ResponseMessage.ABILITY_INVALID_VALIDATION
+      )
+    );
+    attributesSchema = attributesSchema.error(
+      CustomMessages(
+        {
+          "any.required": ResponseMessage.ATTRIBUTE_REQUIRED,
+          "array.min": ResponseMessage.ATTRIBUTE_MIN_VALIDATION,
+          "array.unique": ResponseMessage.ATTRIBUTE_UNIQUE_VALIDATION,
+          "array.max": ResponseMessage.ATTRIBUTE_MAX_VALIDATION(
+            playerRestrictions.max_abilities
+          ),
+        },
+        ResponseMessage.ATTRIBUTE_INVALID_VALIDATION
+      )
+    );
 
     const schema = Joi.object().keys({
       tags: abilitiesSchema.items(

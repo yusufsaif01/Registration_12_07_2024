@@ -569,7 +569,37 @@ class ResponseMessage {
         return "Attribute not found";
     }
     static get ATTRIBUTE_ABILITY_ERROR() {
-        return "Attribute or Ability format is incorrect.";
+        return "Attribute or Ability format is incorrect";
+    }
+    static get ABILITY_REQUIRED() {
+        return "Ability is required";
+    }
+    static get ABILITY_MIN_VALIDATION() {
+        return "At least one ability is required";
+    }
+    static get ABILITY_UNIQUE_VALIDATION() {
+        return "Duplicate abilities are not allowed";
+    }
+    static get ABILITY_INVALID_VALIDATION() {
+        return "Ability is Invalid";
+    }
+    static ABILITY_MAX_VALIDATION(max) {
+        return `Only ${max} abilities can be selected`;
+    }
+    static get ATTRIBUTE_REQUIRED() {
+        return "Attribute is required";
+    }
+    static get ATTRIBUTE_MIN_VALIDATION() {
+        return "At least one attribute is required";
+    }
+    static get ATTRIBUTE_UNIQUE_VALIDATION() {
+        return "Duplicate attributes are not allowed";
+    }
+    static get ATTRIBUTE_INVALID_VALIDATION() {
+        return "Attribute is Invalid";
+    }
+    static ATTRIBUTE_MAX_VALIDATION(max) {
+        return `Only ${max} attributes can be selected`;
     }
     
 }
