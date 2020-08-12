@@ -589,6 +589,12 @@ class ResponseMessage {
     static get REPORT_CARD_CANNOT_BE_EDITED() {
         return "Only report card with draft status can be edited"
     }
+    static get NOT_ALLOWED_TO_VIEW_REPORT_CARD() {
+        return "Not allowed to view report card"
+    }
+    static get NOT_ALLOWED_TO_VIEW_OTHER_DRAFT() {
+        return "Not allowed to view others Draft"
+    }
 }
 
 module.exports = ResponseMessage
