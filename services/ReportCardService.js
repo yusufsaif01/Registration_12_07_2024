@@ -15,6 +15,7 @@ const AttributeUtility = require('../db/utilities/AttributeUtility');
 const EmailService = require('./EmailService');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const PROFILE_STATUS = require('../constants/ProfileStatus');
 
 class ReportCardService {
     constructor() {
@@ -237,10 +238,7 @@ class ReportCardService {
             let reqObj = await this.parseAbilities(requestedData.reqObj);
             await reportCardValidator.createReportCardValidation(reqObj);
             reqObj = await this.validateAbilitiesAttributes(reqObj);
-            let send_to_details = await this.loginUtilityInst.findOne({ user_id: reqObj.send_to, member_type: MEMBER.PLAYER });
-            if (_.isEmpty(send_to_details)) {
-                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_NOT_FOUND));
-            }
+            await this.profileVerification(requestedData.authUser.user_id, reqObj.send_to);
             let footplayer_details = await this.footPlayerUtilityInst.findOne({ sent_by: requestedData.authUser.user_id, status: FOOTPLAYER_STATUS.ADDED, "send_to.user_id": reqObj.send_to });
             if (_.isEmpty(footplayer_details)) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NOT_FOOTPLAYER));
@@ -401,6 +399,7 @@ class ReportCardService {
             if (foundReportCard.status !== REPORT_CARD_STATUS.DRAFT) {
                 return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.REPORT_CARD_CANNOT_BE_EDITED));
             }
+            await this.profileVerification(requestedData.authUser.user_id, foundReportCard.send_to);
             reqObj.send_to = foundReportCard.send_to;
             return Promise.resolve(reqObj);
         } catch (e) {
@@ -606,6 +605,38 @@ class ReportCardService {
             }
         }
         return filterArr.length ? condition : {}
+    }
+
+
+    /**
+     * checks if profile of logged in user or player is verified
+     *
+     * @param {*} authUser_id
+     * @param {*} player_id
+     * @returns
+     * @memberof ReportCardService
+     */
+    async profileVerification(authUser_id, player_id) {
+        try {
+            let player_detail = await this.loginUtilityInst.findOne({ user_id: player_id, member_type: MEMBER.PLAYER }, { profile_status: 1 });
+            if (_.isEmpty(player_detail)) {
+                return Promise.reject(new errors.NotFound(RESPONSE_MESSAGE.PLAYER_NOT_FOUND));
+            }
+            if (player_detail.profile_status.status !== PROFILE_STATUS.VERIFIED) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PROFILE_NOT_VERIFIED));
+            }
+            let user_details = await this.loginUtilityInst.findOne({
+                user_id: authUser_id,
+                "profile_status.status": PROFILE_STATUS.VERIFIED
+            });
+            if (_.isEmpty(user_details)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.USER_PROFILE_NOT_VERIFIED));
+            }
+            return Promise.resolve();
+        } catch (e) {
+            console.log("Error in profileVerification() of ReportCardService", e);
+            return Promise.reject(e);
+        }
     }
 }
 
