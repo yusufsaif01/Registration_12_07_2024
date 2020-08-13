@@ -6,6 +6,7 @@ const POST_MEDIA = require('../constants/PostMedia')
 const StorageProvider = require('storage-provider');
 const config = require("../config");
 const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
+const POST_TYPE = require('../constants/PostType');
 
 module.exports = (router) => {
 
@@ -141,10 +142,14 @@ module.exports = (router) => {
         let commentOptions = {
             comments: (req.query && req.query.comments) ? Number(req.query.comments) : 0
         }
+        
+        let filters = {
+          type: POST_TYPE.TIMELINE,
+        };
 
         let serviceInst = new PostService();
         responseHandler(req, res, serviceInst.getPostsList({
-            paginationOptions, commentOptions, user_id: req.authUser.user_id
+            paginationOptions, commentOptions, user_id: req.authUser.user_id, filters
         }));
     });
 

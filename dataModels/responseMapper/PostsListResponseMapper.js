@@ -71,7 +71,19 @@ class PostsListResponseMapper {
                         data.post = {
                             text: p.post.media.text ? p.post.media.text : "",
                             media_url: p.post.media.media_url ? p.post.media.media_url : "",
-                            media_type: p.post.media.media_type ? p.post.media.media_type : ""
+                            media_type: p.post.media.media_type ? p.post.media.media_type : "",
+                            media_thumbnail: p.post.media.media_thumbnail ? p.post.media.media_thumbnail : ""
+                        }
+                    }
+                    if (p.post.meta) {
+                        data.post.meta = {};
+                        if (p.post.meta.abilities) {
+                            data.post.meta.abilities = p.post.meta.abilities.map((ability) => {
+                                return {
+                                  abilities: ability.ability_name,
+                                  attributes: ability.attributes.map(attr => attr.attribute_name)
+                                };
+                            });
                         }
                     }
                     if (p.player_detail) {

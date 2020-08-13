@@ -105,8 +105,8 @@ class PostService {
             if (connection && connection.followings) {
                 user_id_array_for_post = user_id_array_for_post.concat(connection.followings);
             }
-            let data = await this.postUtilityInst.aggregate([{ $match: { posted_by: { $in: user_id_array_for_post }, is_deleted: false } },
-            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", created_at: "$created_at" }, _id: 0 } },
+            let data = await this.postUtilityInst.aggregate([{ $match: { posted_by: { $in: user_id_array_for_post }, is_deleted: false, post_type: requestedData.filters.type  } },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
@@ -129,7 +129,10 @@ class PostService {
             { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } }, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
             { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
-            let totalPosts = await this.postUtilityInst.countList({ posted_by: { $in: user_id_array_for_post } });
+            let totalPosts = await this.postUtilityInst.countList({
+              posted_by: { $in: user_id_array_for_post },
+              post_type: requestedData.filters.type,
+            });
             data = new PostsListResponseMapper().map(data, commentOptions.comments);
             let record = { total: totalPosts, records: data }
             return Promise.resolve(record)
