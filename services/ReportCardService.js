@@ -521,6 +521,88 @@ class ReportCardService {
             return Promise.reject(e);
         }
     }
+
+    /**
+     * report card list for player
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async getPlayerReportCardList(requestedData = {}) {
+        try {
+            let searchConditions = this.prepareManageReportCardSearchCondition(requestedData.filters);
+            let filterConditions = this.preparePlayerReportCardFilterCondition(requestedData.filters);
+            let paginationOptions = requestedData.paginationOptions || {};
+            let sortOptions = requestedData.sortOptions || {};
+            let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
+            let options = { limit: paginationOptions.limit, skip: skipCount, sort: {} };
+            options.sort[sortOptions.sort_by] = sortOptions.sort_order;
+
+            let data = await this.reportCardUtilityInst.aggregate([
+                { $match: { send_to: requestedData.authUser.user_id, is_deleted: false, status: REPORT_CARD_STATUS.PUBLISHED } },
+                { $lookup: { from: "club_academy_details", localField: "sent_by", foreignField: "user_id", as: "club_academy_detail" } },
+                { $unwind: { path: "$club_academy_detail" } },
+                { $project: { sent_by: 1, name: "$club_academy_detail.name", created_by: "$club_academy_detail.member_type", published_at: 1, id: 1, _id: 0 } },
+                { $match: filterConditions }, { $match: searchConditions }, { $sort: options.sort },
+                { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
+            ]);
+            let responseData = [], totalRecords = 0;
+            if (data && data.length && data[0] && data[0].data) {
+                responseData = data[0].data;
+                if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
+                    totalRecords = data[0].total_data[0].count;
+                }
+            }
+            let response = { total: totalRecords, records: responseData }
+            return Promise.resolve(response);
+        } catch (e) {
+            console.log("Error in getPlayerReportCardList() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * prepare filter conditions for player report card list
+     *
+     * @param {*} [filterConditions={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    preparePlayerReportCardFilterCondition(filterConditions = {}) {
+        let condition = {};
+        let filterArr = []
+        if (filterConditions) {
+            if (filterConditions.from && filterConditions.to) {
+                let published_at = [];
+                let fromDate = moment(filterConditions.from).toDate();
+                let toDate = moment(filterConditions.to).toDate();
+                published_at.push({
+                    "published_at": {
+                        $gte: fromDate,
+                        $lte: toDate
+                    }
+                });
+                filterArr.push({ $or: published_at })
+            }
+            if (filterConditions.name) {
+                filterArr.push({
+                    "name": new RegExp(filterConditions.name, 'i')
+                });
+            }
+            if (filterConditions.created_by && filterConditions.created_by.length) {
+                let created_by = [];
+                filterConditions.created_by.forEach(val => {
+                    created_by.push({ "created_by": new RegExp(val, 'i') })
+                });
+                filterArr.push({ $or: created_by })
+            }
+            condition = {
+                $and: filterArr
+            }
+        }
+        return filterArr.length ? condition : {}
+    }
 }
 
 module.exports = ReportCardService;
