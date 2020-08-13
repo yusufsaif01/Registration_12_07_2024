@@ -366,6 +366,7 @@ module.exports = (router) => {
     * @apiGroup Club/Academy FootPlayers
     * 
     * @apiParam (query) {String} footplayers (1 for usage in club/academy footplayers module else 0 set by default)
+    * @apiParam (query) {String} user_id user_id of player in case of public profile
     * @apiParam (query) {String} search Search query.
     * @apiParam (query) {String} page_no page number.
     * @apiParam (query) {String} page_size page size.
@@ -456,7 +457,7 @@ module.exports = (router) => {
       };
 
       let criteria = {
-        sentBy: req.authUser.user_id,
+        sentBy: (req.query && req.query.user_id) ? req.query.user_id : req.authUser.user_id,
       };
 
       const params = {

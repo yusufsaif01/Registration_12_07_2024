@@ -266,12 +266,19 @@ class ReportCardService {
     async validateAbilitiesAttributes(reqObj = {}) {
         try {
             if (reqObj.abilities) {
+                const { map } = require("bluebird");
                 let msg = null;
                 let abilityArray = [];
                 let abilityWithAttributeScore = 0;
-                for (const ability of reqObj.abilities) {
+                let abilityIdArray = await map(reqObj.abilities, (ability) => ability.ability_id);
+                let abilitiesDB = await this.abilityUtilityInst.aggregate([
+                    { $match: { id: { $in: abilityIdArray } } },
+                    { $lookup: { from: "attributes", localField: "id", foreignField: "ability_id", as: "attributes" } },
+                    { $project: { _id: 0, id: 1, name: 1, attributes: { id: 1, name: 1 } } }
+                ]);
+                await map(reqObj.abilities, async (ability) => {
                     let abilityObj = {};
-                    let foundAbility = await this.abilityUtilityInst.findOne({ id: ability.ability_id });
+                    let foundAbility = _.find(abilitiesDB, { id: ability.ability_id });
                     if (_.isEmpty(foundAbility)) {
                         msg = RESPONSE_MESSAGE.ABILITY_NOT_FOUND
                     }
@@ -280,14 +287,11 @@ class ReportCardService {
                         abilityObj.ability_name = foundAbility.name;
                         let attributeArray = [];
                         let attributeScoreCount = 0;
-                        for (const attribute of ability.attributes) {
+                        await map(ability.attributes, async (attribute) => {
                             let attributeObj = {};
-                            let foundAttribute = await this.attributeUtilityInst.findOne({ id: attribute.attribute_id });
+                            let foundAttribute = _.find(foundAbility.attributes, { id: attribute.attribute_id });
                             if (_.isEmpty(foundAttribute)) {
                                 msg = RESPONSE_MESSAGE.ATTRIBUTE_NOT_FOUND
-                            }
-                            else if (foundAttribute.ability_id !== ability.ability_id) {
-                                msg = `Attribute ${foundAttribute.name} not mapped to ability ${foundAbility.name}`
                             }
                             else {
                                 attributeObj.attribute_id = attribute.attribute_id;
@@ -302,7 +306,7 @@ class ReportCardService {
                                     attributeScoreCount += 1;
                                 attributeArray.push(attributeObj);
                             }
-                        }
+                        })
                         abilityObj.attributes = attributeArray;
                         abilityArray.filter((val) => {
                             if (val.ability_id === abilityObj.ability_id) {
@@ -313,12 +317,12 @@ class ReportCardService {
                             abilityWithAttributeScore += 1;
                         abilityArray.push(abilityObj);
                     }
+                })
+                if (msg) {
+                    return Promise.reject(new errors.ValidationFailed(msg));
                 }
                 if (abilityWithAttributeScore < 3) {
                     return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.SCORE_CRITERIA_FAILED))
-                }
-                if (msg) {
-                    return Promise.reject(new errors.ValidationFailed(msg));
                 }
                 reqObj.abilities = abilityArray;
             }

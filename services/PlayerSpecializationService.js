@@ -59,7 +59,7 @@ class PlayerSpecializationService {
             return Promise.reject(e);
         }
     }
-    
+
     async addPositions(data = []) {
         try {
             await this.positionUtilityInst.insertMany(data)
@@ -91,6 +91,29 @@ class PlayerSpecializationService {
             return response;
         } catch (e) {
             console.log("Error in getPositionList() of PlayerSpecializationService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * get all abilities with related attributes
+     *
+     * @returns
+     * @memberof PlayerSpecializationService
+     */
+    async getAbilityAttributeList() {
+        try {
+            let data = await this.abilityUtilityInst.aggregate([
+                { $lookup: { from: "attributes", localField: "id", foreignField: "ability_id", as: "attributes" } },
+                { $project: { _id: 0, id: 1, name: 1, attributes: { id: 1, name: 1 } } }
+            ]);
+            let responseData = [], totalRecords = 0;
+            responseData = data;
+            totalRecords = await this.abilityUtilityInst.countList();
+            let response = { total: totalRecords, records: responseData }
+            return Promise.resolve(response);
+        } catch (e) {
+            console.log("Error in getAbilityAttributeList() of PlayerSpecializationService", e);
             return Promise.reject(e);
         }
     }
