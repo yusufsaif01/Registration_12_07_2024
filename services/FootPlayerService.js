@@ -17,6 +17,8 @@ const moment = require('moment');
 const ClubFootPlayersResponseMapping = require("../dataModels/responseMapper/ClubFootPlayersResponseMapping");
 const CONTRACT_STATUS = require("../constants/ContractStatus");
 const UtilityService = require('./UtilityService');
+const ReportCardUtility = require('../db/utilities/ReportCardUtility');
+const REPORT_CARD_STATUS = require('../constants/ReportCardStatus');
 
 class FootPlayerService {
 
@@ -27,6 +29,7 @@ class FootPlayerService {
         this.emailService = new EmailService();
         this.clubAcademyUtilityInst = new ClubAcademyUtility();
         this.utilityService = new UtilityService();
+        this.reportCardUtilityInst = new ReportCardUtility();
     }
 
     /**
@@ -677,6 +680,8 @@ class FootPlayerService {
           is_deleted: true,
           deleted_at: date,
         });
+        let reportCardCondition = { sent_by: userId, send_to: request.send_to.user_id, status: REPORT_CARD_STATUS.DRAFT }
+        await this.reportCardUtilityInst.updateOne(reportCardCondition, { is_deleted: true, deleted_at: date });
         return Promise.resolve();
       }
 
