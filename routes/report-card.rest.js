@@ -196,4 +196,70 @@ module.exports = (router) => {
             let serviceInst = new ReportCardService();
             return responseHandler(req, res, serviceInst.getManagePlayerReportCardList({ authUser: req.authUser, player_id: req.params.player_id, paginationOptions }));
         });
+
+    /**
+     * @api {get} /report-card/view/:report_card_id view report card
+     * @apiName view report card
+     * @apiGroup Report-card
+     * 
+     * @apiParam (param) {String} report_card_id report card id
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *         "status": "success",
+     *         "message": "Successfully done",
+     *         "data": {
+     *             "send_to": "28c9b093-a7b6-4734-89a1-dc2e964754a5",
+     *             "abilities": [
+     *                 {
+     *                     "_id": "5f33f45e99f991234462f50a",
+     *                     "ability_id": "bf81cb90-9bd5-4026-af53-a09ef28beaca",
+     *                     "ability_name": "Physical",
+     *                     "attributes": [
+     *                         {
+     *                             "_id": "5f33f45e99f991234462f50b",
+     *                             "attribute_id": "9a1a7067-78e1-45ed-8125-70f0223e11f1",
+     *                             "attribute_name": "Speed",
+     *                             "attribute_score": 10
+     *                         },
+     *                         {
+     *                             "_id": "5f33f45e99f991234462f50c",
+     *                             "attribute_id": "ea0f55c2-9002-4d1c-b3f1-15492ce8f42f",
+     *                             "attribute_name": "Strength",
+     *                             "attribute_score": 10
+     *                         },
+     *                         {
+     *                             "_id": "5f33f45e99f991234462f50d",
+     *                             "attribute_id": "4c112c16-9f74-48d4-a2a4-21af94413217",
+     *                             "attribute_name": "Agile",
+     *                             "attribute_score": 10
+     *                         }
+     *                     ]
+     *                 }
+     *             ],
+     *             "remarks": "xyz",
+     *             "status": "published",
+     *             "published_at": "2020-08-12T00:00:00.000Z",
+     *             "sent_by": "3271a11e-2a4a-45ec-bc83-ffbfcb4b0c5b",
+     *             "id": "43950653-b597-4805-b7fc-a483c7629ecd"
+     *         }
+     *     }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.get("/report-card/view/:report_card_id", checkAuthToken, function (req, res) {
+        let serviceInst = new ReportCardService();
+        return responseHandler(req, res, serviceInst.viewReportCard({ authUser: req.authUser, report_card_id: req.params.report_card_id }));
+    });
 };

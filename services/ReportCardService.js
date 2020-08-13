@@ -477,6 +477,54 @@ class ReportCardService {
         }
         return Promise.resolve();
     }
+
+    /**
+     * view report card
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async viewReportCard(requestedData = {}) {
+        try {
+            let report_card_details = await this.viewReportCardValidation(requestedData);
+            return Promise.resolve(report_card_details);
+        } catch (e) {
+            console.log("Error in viewReportCard() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
+
+    /**
+     * validates view report card request 
+     *
+     * @param {*} [requestedData={}]
+     * @returns
+     * @memberof ReportCardService
+     */
+    async viewReportCardValidation(requestedData = {}) {
+        try {
+            let foundReportCard = await this.reportCardUtilityInst.findOne({ id: requestedData.report_card_id },
+                { _id: 0, sent_by: 1, id: 1, send_to: 1, remarks: 1, published_at: 1, status: 1, abilities: 1 });
+            if (_.isEmpty(foundReportCard)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.REPORT_CARD_NOT_FOUND));
+            }
+            if (foundReportCard.status === REPORT_CARD_STATUS.DRAFT && foundReportCard.sent_by !== requestedData.authUser.user_id) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NOT_ALLOWED_TO_VIEW_OTHER_DRAFT));
+            }
+            let associated_club_academy = await this.footPlayerUtilityInst.aggregate([{ $match: { is_deleted: false, "send_to.user_id": foundReportCard.send_to } },
+            { $project: { _id: 0, user_id: "$sent_by" } }
+            ]);
+            let allowed_users = associated_club_academy.concat({ user_id: foundReportCard.send_to });
+            if (!allowed_users.some(val => val.user_id === requestedData.authUser.user_id)) {
+                return Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.NOT_ALLOWED_TO_VIEW_REPORT_CARD));
+            }
+            return Promise.resolve(foundReportCard);
+        } catch (e) {
+            console.log("Error in viewReportCardValidation() of ReportCardService", e);
+            return Promise.reject(e);
+        }
+    }
 }
 
 module.exports = ReportCardService;
