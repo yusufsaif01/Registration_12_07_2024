@@ -559,6 +559,30 @@ class ResponseMessage {
     static get TO_INVALID() {
         return "To year is invalid"
     }
+    static get NOT_FOOTPLAYER() {
+        return "Player is not a footplayer"
+    }
+    static get PLAYER_NOT_FOUND() {
+        return "Player not found"
+    }
+    static get INVALID_VALUE_ABILITY() {
+        return "Invalid value for abilities"
+    }
+    static get ATTRIBUTE_NOT_FOUND() {
+        return "Attribute not found"
+    }
+    static get DUPLICATE_ATTRIBUTE_ID() {
+        return "Duplicate id for attribute"
+    }
+    static get DUPLICATE_ABILITY_ID() {
+        return "Duplicate id for ability"
+    }
+    static get SCORE_CRITERIA_FAILED(){
+        return "Please provide scores for atleast 3 abilities and 3 related attributes"
+    }
+    static get DRAFT_EXISTS() {
+        return "You have a report in draft status"
+    }
 }
 
 module.exports = ResponseMessage
