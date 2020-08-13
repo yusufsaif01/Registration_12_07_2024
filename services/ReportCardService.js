@@ -438,8 +438,15 @@ class ReportCardService {
                     totalRecords = data[0].total_data[0].count;
                 }
             }
+            let draft = await this.reportCardUtilityInst.findOne({
+                sent_by: requestedData.authUser.user_id,
+                send_to: requestedData.player_id, status: REPORT_CARD_STATUS.DRAFT
+            }, { id: 1, _id: 0 });
             let player_detail = await this.playerUtilityInst.findOne({ user_id: requestedData.player_id }, { first_name: 1, last_name: 1 });
-            let response = { total: totalRecords, player_name: `${player_detail.first_name} ${player_detail.last_name}`, records: responseData }
+            let response = {
+                total: totalRecords, draft_id: draft ? draft.id : null,
+                player_name: `${player_detail.first_name} ${player_detail.last_name}`, records: responseData
+            }
             return Promise.resolve(response);
         } catch (e) {
             console.log("Error in getManagePlayerReportCardList() of ReportCardService", e);
