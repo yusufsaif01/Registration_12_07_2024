@@ -104,6 +104,7 @@ class FootPlayerValidator {
 
     async footplayersListValidation(req, res, next) {
         const query = Joi.object().keys({
+            "user_id": Joi.string(),
             "page_size": Joi.number(),
             "page_no": Joi.number(),
             "footplayers": Joi.number().valid([1, 0]),
