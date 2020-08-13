@@ -15,6 +15,7 @@ const AttributeUtility = require('../db/utilities/AttributeUtility');
 const EmailService = require('./EmailService');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
+const { map } = require('bluebird');
 
 class ReportCardService {
     constructor() {
@@ -266,14 +267,17 @@ class ReportCardService {
     async validateAbilitiesAttributes(reqObj = {}) {
         try {
             if (reqObj.abilities) {
+                const { map } = require("bluebird");
                 let msg = null;
                 let abilityArray = [];
                 let abilityWithAttributeScore = 0;
+                let abilityIdArray = await map(reqObj.abilities, (ability) => ability.ability_id);
                 let abilitiesDB = await this.abilityUtilityInst.aggregate([
+                    { $match: { id: { $in: abilityIdArray } } },
                     { $lookup: { from: "attributes", localField: "id", foreignField: "ability_id", as: "attributes" } },
                     { $project: { _id: 0, id: 1, name: 1, attributes: { id: 1, name: 1 } } }
                 ]);
-                reqObj.abilities.map((ability) => {
+                await map(reqObj.abilities, async (ability) => {
                     let abilityObj = {};
                     let foundAbility = _.find(abilitiesDB, { id: ability.ability_id });
                     if (_.isEmpty(foundAbility)) {
@@ -284,7 +288,7 @@ class ReportCardService {
                         abilityObj.ability_name = foundAbility.name;
                         let attributeArray = [];
                         let attributeScoreCount = 0;
-                        ability.attributes.map((attribute) => {
+                        await map(ability.attributes, async (attribute) => {
                             let attributeObj = {};
                             let foundAttribute = _.find(foundAbility.attributes, { id: attribute.attribute_id });
                             if (_.isEmpty(foundAttribute)) {
