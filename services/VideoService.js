@@ -8,20 +8,32 @@ const vimeoLib = require("../lib/vimeo");
 const PostUtility = require("../db/utilities/PostUtility");
 const PostMedia = require("../constants/PostMedia");
 const PostStatus = require("../constants/PostStatus");
+const VideoQueueService = require("./VideoQueueService");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
 const postInst = new PostUtility();
 
 module.exports = class VideoService {
-  constructor() {}
+  constructor() {
+    this.videoQueueService = new VideoQueueService();
+  }
 
   async uploadVideo(authUser, type, { tags, media }) {
     try {
       const videoOptions = this.getUploadOptions(authUser, type);
       const tagsData = await this.validateAttributesAndAbilities(tags);
       const videoResponse = await this.uploadToVimeo(media, videoOptions);
-      await this.addPost(authUser, type, tagsData, videoResponse);
+      const postDocument = await this.addPost(
+        authUser,
+        type,
+        tagsData,
+        videoResponse
+      );
+      await this.videoQueueService.addToQueue({
+        post_id: postDocument.id,
+        uri: videoResponse.uri,
+      });
     } catch (error) {
       return Promise.reject(error);
     }
@@ -117,7 +129,7 @@ module.exports = class VideoService {
 
       return payload;
     } catch (error) {
-      console.log('There was an error in uploading video to Vimeo server');
+      console.log("There was an error in uploading video to Vimeo server");
       return Promise.reject(error);
     }
   }
@@ -125,7 +137,8 @@ module.exports = class VideoService {
   async addPost(authUser, type, dataTags, videoResponse) {
     try {
       const data = {
-        posted_by: authUser.id,
+        posted_by: authUser.user_id,
+        create_at: Date.now(),
         media: {
           media_url: videoResponse.link,
           media_thumbnail: "",
