@@ -15,7 +15,6 @@ const AttributeUtility = require('../db/utilities/AttributeUtility');
 const EmailService = require('./EmailService');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const ClubAcademyUtility = require('../db/utilities/ClubAcademyUtility');
-const { map } = require('bluebird');
 
 class ReportCardService {
     constructor() {
