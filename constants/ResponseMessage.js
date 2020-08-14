@@ -614,6 +614,45 @@ class ResponseMessage {
         return "Video not found";
     }
     
+    static get NOT_FOOTPLAYER() {
+        return "Player is not a footplayer"
+    }
+    static get PLAYER_NOT_FOUND() {
+        return "Player not found"
+    }
+    static get INVALID_VALUE_ABILITY() {
+        return "Invalid value for abilities"
+    }
+    static get ATTRIBUTE_NOT_FOUND() {
+        return "Attribute not found"
+    }
+    static get DUPLICATE_ATTRIBUTE_ID() {
+        return "Duplicate id for attribute"
+    }
+    static get DUPLICATE_ABILITY_ID() {
+        return "Duplicate id for ability"
+    }
+    static get SCORE_CRITERIA_FAILED() {
+        return "Please provide scores for atleast 3 abilities and 3 related attributes"
+    }
+    static get DRAFT_EXISTS() {
+        return "You have a report in draft status"
+    }
+    static get REPORT_CARD_NOT_FOUND() {
+        return "Report card not found"
+    }
+    static get REPORT_CARD_CANNOT_BE_EDITED() {
+        return "Only report card with draft status can be edited"
+    }
+    static get NOT_ALLOWED_TO_VIEW_REPORT_CARD() {
+        return "Not allowed to view report card"
+    }
+    static get NOT_ALLOWED_TO_VIEW_OTHER_DRAFT() {
+        return "Not allowed to view others Draft"
+    }
+    static get PLAYER_PROFILE_NOT_VERIFIED() {
+        return "Player profile is not verified"
+    }
 }
 
 module.exports = ResponseMessage
