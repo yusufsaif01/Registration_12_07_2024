@@ -67,50 +67,49 @@ module.exports = class VideoService {
    * @param {array} tags
    */
   async validateAttributesAndAbilities(tags) {
-    const data = [];
-
     try {
-      for (const tag of tags) {
-        let eachTag = {};
-
-        const ability = await abilityInst.findOne(
-          {
-            id: tag.ability,
+      const abilityIdArray = tags.map((tag) => tag.ability);
+      let abilitiesDB = await abilityInst.aggregate([
+        { $match: { id: { $in: abilityIdArray } } },
+        {
+          $lookup: {
+            from: "attributes",
+            localField: "id",
+            foreignField: "ability_id",
+            as: "attributes",
           },
-          { id: 1, name: 1 }
-        );
-        if (!ability) {
-          throw new errors.ValidationFailed(ResponseMessage.ABILITY_NOT_FOUND);
+        },
+        {
+          $project: { _id: 0, id: 1, name: 1, attributes: { id: 1, name: 1 } },
+        },
+      ]);
+
+      let mappedData = {};
+      abilitiesDB.forEach((abilities) => {
+        mappedData[abilities.id] = abilities;
+      });
+
+      return tags.map((tag) => {
+        if (!mappedData[tag.ability]) {
+          return null;
         }
-        eachTag = {
+
+        const ability = mappedData[tag.ability];
+
+        return {
           ability_id: ability.id,
           ability_name: ability.name,
-          attributes: [],
+          attributes: ability.attributes
+            .filter((attr) => tag.attributes.includes(attr.id))
+            .map((filteredAttr) => ({
+              attribute_id: filteredAttr.id,
+              attribute_name: filteredAttr.name,
+            })),
         };
-        for (const attribute of tag.attributes) {
-          const attr = await attributeInst.findOne(
-            {
-              id: attribute,
-              ability_id: tag.ability,
-            },
-            { id: 1, name: 1 }
-          );
-          if (!attr) {
-            throw new errors.ValidationFailed(
-              ResponseMessage.ATTRIBUTE_NOT_FOUND
-            );
-          }
-          eachTag.attributes.push({
-            attribute_id: attr.id,
-            attribute_name: attr.name,
-          });
-        }
-        data.push(eachTag);
-      }
-
-      return data;
+      });
     } catch (error) {
-      throw error;
+      console.log("Error in processing mapped attributes", error);
+      throw new errors.ValidationFailed(ResponseMessage.ERROR_IN_TAGS);
     }
   }
 

@@ -598,6 +598,9 @@ class ResponseMessage {
     static get ATTRIBUTE_INVALID_VALIDATION() {
         return "Attribute is Invalid";
     }
+    static get ERROR_IN_TAGS() {
+        return "Error in processing attributes and abilities";
+    }
     static ATTRIBUTE_MAX_VALIDATION(max) {
         return `Only ${max} attributes can be selected`;
     }
