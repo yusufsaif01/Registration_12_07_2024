@@ -62,7 +62,7 @@ module.exports = ({ published_at, club_academy_name, player_name, player_email }
 
 			<tr style="display:block; width: 100%;text-align: center;">
 				<td style=" display:block; width: 100%; text-align: center;">
-					<a href="${data.appUrl}player/report-card" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
+					<a href="${data.appUrl}member/manage-report-card" style="background: #FF9933;display: inline-block; border:none; color: #fff;font-family: 'Montserrat',
 						sans-serif;font-size: 18px;border-radius: 10px;text-decoration:none;padding: 15px 40px;">View the new uploaded report card
 					</a>
 				</td>
