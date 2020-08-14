@@ -165,6 +165,7 @@ module.exports = (router) => {
      *          "message": "Successfully done",
      *          "data": {
      *              "total": 1,
+     *              "draft_id": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
      *              "player_name": "test",
      *              "records": [
      *                  {
