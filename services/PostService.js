@@ -127,7 +127,9 @@ class PostService {
                 if (!Array.isArray(attribute)) {
                     attribute = [attribute];
                 }
-                matchCriteria['meta.abilities.attributes.attribute_id'] = {$in : attribute};
+                matchCriteria["meta.abilities.attributes.attribute_name"] = {
+                  $in: attribute,
+                };
             }
 
             let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
