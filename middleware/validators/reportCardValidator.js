@@ -86,6 +86,27 @@ class ReportCardValidator {
             return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
         }
     }
+
+    async playerReportCardListValidation(req, res, next) {
+        const query = Joi.object().keys({
+            "page_size": Joi.number(),
+            "page_no": Joi.number(),
+            "sort_order": Joi.number().valid([1, -1]),
+            "sort_by": Joi.string().valid(['name', 'created_by', 'published_at']),
+            "search": Joi.string(),
+            "created_by": Joi.string(),
+            "from": Joi.date().iso().max(moment().format("YYYY-MM-DD")),
+            "to": Joi.date().iso().max(moment().format("YYYY-MM-DD")).min(Joi.ref("from")),
+            "name": Joi.string(),
+        });
+        try {
+            await Joi.validate(req.query, query);
+            return next();
+        } catch (err) {
+            console.log(err.details);
+            return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(err.details[0].message)));
+        }
+    }
 }
 
 module.exports = new ReportCardValidator();

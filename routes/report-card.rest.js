@@ -165,6 +165,7 @@ module.exports = (router) => {
      *          "message": "Successfully done",
      *          "data": {
      *              "total": 1,
+     *              "draft_id": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
      *              "player_name": "test",
      *              "records": [
      *                  {
@@ -261,5 +262,71 @@ module.exports = (router) => {
     router.get("/report-card/view/:report_card_id", checkAuthToken, function (req, res) {
         let serviceInst = new ReportCardService();
         return responseHandler(req, res, serviceInst.viewReportCard({ authUser: req.authUser, report_card_id: req.params.report_card_id }));
+    });
+
+    /**
+     * @api {get} /player/report-card/list report-card listing for player
+     * @apiName player report card listing
+     * @apiGroup Report-card
+     * 
+     * @apiParam (query) {String} search search will be done on the basis of club/academy name
+     * @apiParam (query) {String} page_no page number
+     * @apiParam (query) {String} page_size page size
+     * @apiParam (query) {String} sort_by sort by field name (name, created_by, published_at)
+     * @apiParam (query) {String} sort_order (1 for ascending, -1 for descending)
+     * @apiParam (query) {String} created_by comma seperated created_by
+     * @apiParam (query) {String} from from date (eg. 2020-07-10T00:00:00.000Z)
+     * @apiParam (query) {String} to to date (eg. 2020-08-10T00:00:00.000Z)
+     * @apiParam (query) {String} name club/academy name
+     * 
+     * @apiSuccess {String} status success
+     * @apiSuccess {String} message Successfully done
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *          "status": "success",
+     *          "message": "Successfully done",
+     *          "data": {
+     *              "total": 1,
+     *              "records": [
+     *                  {
+     *                      "sent_by": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
+     *                      "name": "xyz club",
+     *                      "created_by": "club",
+     *                      "published_at": "2020-08-10T00:00:00.000Z"
+     *                  },
+     *              ]
+     *          }
+     *      }
+     *
+     * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+     *     HTTP/1.1 500 Internal server error
+     *     {
+     *       "message": "Internal Server Error",
+     *       "code": "INTERNAL_SERVER_ERROR",
+     *       "httpCode": 500
+     *     }
+     * 
+     */
+    router.get("/player/report-card/list", checkAuthToken, reportCardValidator.playerReportCardListValidation, function (req, res) {
+        let paginationOptions = {
+            page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
+            limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
+        },
+            sortOptions = {
+                sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "published_at",
+                sort_order: (req.query && req.query.sort_order) ? Number(req.query.sort_order) : -1
+            },
+            filters = {
+                search: (req.query && req.query.search) ? req.query.search : null,
+                from: (req.query && req.query.from) ? req.query.from : null,
+                to: (req.query && req.query.to) ? req.query.to : null,
+                created_by: (req.query && req.query.created_by) ? req.query.created_by.split(",") : null,
+                name: (req.query && req.query.name) ? req.query.name : null,
+            };
+
+        let serviceInst = new ReportCardService();
+        return responseHandler(req, res, serviceInst.getPlayerReportCardList({ authUser: req.authUser, paginationOptions, sortOptions, filters }));
     });
 };
