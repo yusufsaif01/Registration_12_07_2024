@@ -610,6 +610,9 @@ class ResponseMessage {
     static get VIDEO_IS_REQUIRED() {
         return "Video is required";
     }
+    static get VIDEO_NOT_FOUND () {
+        return "Video not found";
+    }
     
 }
 

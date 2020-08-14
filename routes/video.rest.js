@@ -51,6 +51,25 @@ module.exports = (router) => {
     }
   );
 
+  router.put(
+    "/video/:id",
+    checkAuthToken,
+    validateData,
+    async (req, res, next) => {
+      const { id } = req.params;
+      const reqBody = req.body;
+      try {
+        return responseHandler(
+          req,
+          res,
+          videoServiceInst.updateVideo(id, req.authUser, reqBody)
+        );
+      } catch (error) {
+        return responseHandler(req, res, Promise.reject(error));
+      }
+    }
+  );
+
   router.get(
     "/video",
     checkAuthToken,

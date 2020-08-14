@@ -157,4 +157,38 @@ module.exports = class VideoService {
       return Promise.reject(error);
     }
   }
+
+  async updateVideo(postId, authUser, { tags }) {
+    try {
+      const tagsData = await this.validateAttributesAndAbilities(tags);
+      const $where = {
+        id: postId,
+        posted_by: authUser.user_id,
+        "media.media_type": PostMedia.VIDEO,
+      };
+      await this.getVideo($where);
+      await postInst.updateOne($where, {
+        "meta.abilities": tagsData,
+      });
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getVideo(query) {
+    try {
+      console.log(query);
+      const video = await postInst.findOne(query);
+
+      if (!video) {
+        throw new errors.NotFound(ResponseMessage.VIDEO_NOT_FOUND);
+      }
+
+      return video;
+    } catch (error) {
+      console.log("Error getting video", error);
+      throw error;
+    }
+  }
 };
