@@ -595,6 +595,9 @@ class ResponseMessage {
     static get NOT_ALLOWED_TO_VIEW_OTHER_DRAFT() {
         return "Not allowed to view others Draft"
     }
+    static get PLAYER_PROFILE_NOT_VERIFIED() {
+        return "Player profile is not verified"
+    }
 }
 
 module.exports = ResponseMessage
