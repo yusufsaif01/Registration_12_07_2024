@@ -86,6 +86,9 @@ class PostsListResponseMapper {
                             });
                         }
                     }
+                    if (p.post.status) {
+                        data.post.status = p.post.status;
+                    }
                     if (p.player_detail) {
                         let posted_by = {
                             "avatar": p.player_detail.avatar_url || "-",

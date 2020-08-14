@@ -11,6 +11,7 @@ const MEMBER = require('../constants/MemberType');
 const PLAYER = require('../constants/PlayerType');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
+const PostStatus = require('../constants/PostStatus');
 
 class PostService {
 
@@ -132,8 +133,10 @@ class PostService {
                 };
             }
 
+            matchCriteria["$or"] = [{ status: PostStatus.PUBLISHED }, {posted_by: requestedData.user_id}];
+
             let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
-            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
