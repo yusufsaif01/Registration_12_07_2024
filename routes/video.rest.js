@@ -2,6 +2,7 @@ const { checkAuthToken } = require("../middleware/auth");
 const responseHandler = require("../ResponseHandler");
 const VideoService = require("../services/VideoService");
 const PostService = require("../services/PostService");
+const PostMedia = require("../constants/PostMedia");
 
 const videoServiceInst = new VideoService();
 const postServiceInst = new PostService();
@@ -216,6 +217,7 @@ module.exports = (router) => {
       let filters = {
         type,
         attribute: req.query.attribute ? req.query.attribute : null,
+        media_type: PostMedia.VIDEO
       };
 
       responseHandler(

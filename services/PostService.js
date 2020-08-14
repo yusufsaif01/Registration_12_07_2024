@@ -139,6 +139,13 @@ class PostService {
                 };
             }
 
+            // filter to be provided by video list controller
+            // to get only videos
+            if (requestedData.filters.media_type) {
+                matchCriteria["media.media_type"] =
+                  requestedData.filters.media_type;
+            }
+
             matchCriteria["$or"] = [{ status: PostStatus.PUBLISHED }, {posted_by: requestedData.user_id}];
 
             let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
@@ -165,10 +172,7 @@ class PostService {
             { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } }, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
             { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
-            let totalPosts = await this.postUtilityInst.countList({
-              posted_by: { $in: user_id_array_for_post },
-              post_type: requestedData.filters.type,
-            });
+            let totalPosts = await this.postUtilityInst.countList(matchCriteria);
             data = new PostsListResponseMapper().map(data, commentOptions.comments);
             let record = { total: totalPosts, records: data }
             return Promise.resolve(record)
