@@ -105,7 +105,32 @@ class PostService {
             if (connection && connection.followings) {
                 user_id_array_for_post = user_id_array_for_post.concat(connection.followings);
             }
-            let data = await this.postUtilityInst.aggregate([{ $match: { posted_by: { $in: user_id_array_for_post }, is_deleted: false, post_type: requestedData.filters.type  } },
+
+            const matchCriteria = {
+              posted_by: { $in: user_id_array_for_post },
+              is_deleted: false,
+              post_type: requestedData.filters.type,             
+            };
+
+            // disabled for now
+            if (false && requestedData.filters.ability) {
+                let ability = requestedData.filters.ability;
+                ability = ability.split(',')
+                if (!Array.isArray(ability)) {
+                    ability = [ability];
+                }
+                matchCriteria['meta.abilities.ability_id'] = {$in : ability};
+            }
+            if (requestedData.filters.attribute) {
+                let attribute = requestedData.filters.attribute;
+                attribute = attribute.split(',')
+                if (!Array.isArray(attribute)) {
+                    attribute = [attribute];
+                }
+                matchCriteria['meta.abilities.attributes.attribute_id'] = {$in : attribute};
+            }
+
+            let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
             { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },

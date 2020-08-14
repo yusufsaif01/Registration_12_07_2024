@@ -2,6 +2,7 @@ const Joi = require('@hapi/joi');
 const errors = require("../../errors");
 const responseHandler = require("../../ResponseHandler");
 const RESPONSE_MESSAGE = require('../../constants/ResponseMessage');
+const PostType = require('../../constants/PostType');
 
 class PostValidator {
     async addPostAPIValidation(req, res, next) {
@@ -51,7 +52,10 @@ class PostValidator {
         const query = Joi.object().keys({
             "page_size": Joi.number(),
             "page_no": Joi.number(),
-            "comments": Joi.number().valid(1, 0)
+            "comments": Joi.number().valid(1, 0),
+            "ability": Joi.string(),
+            "attribute": Joi.string(),
+            "type": Joi.string().valid(PostType.ALLOWED_POST_TYPES)
         })
         try {
 
