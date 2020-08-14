@@ -16,14 +16,37 @@ const {
   postListQueryValidation,
 } = require("../middleware/validators/postValidator");
 
-/**
- *
- * /video/match_videos (X)
- * /video?type=match_videos [POST|GET]
- *
- */
-
 module.exports = (router) => {
+  /**
+   * @api {post} /video Upload Video
+   * @apiName Upload Video
+   * @apiGroup Video
+   *
+   * @apiParam (query) {String} type Video type [timeline|learning_or_training_video|match_videos]
+   *
+   * @apiParam (body) {Object} tags Abilities and attributes object.
+   * @apiParam (body) {File} media Video to upload.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *     "tags": [
+   *         {
+   *             "ability": "299cf30d-d417-46c1-a70c-5b7f420f4fd8",
+   *             "attributes": ["92c078c9-1225-45fc-add7-44c816be3f60"]
+   *         }
+   *     ]
+   * }
+   *
+   *
+   * @apiSuccess {String} status Status of the Response.
+   * @apiSuccess {String} message  Success Message.
+   *
+   * @apiSuccessExample {json} Response-Example:
+   * {
+   *     "status": "success",
+   *     "message": "Successfully done"
+   * }
+   */
   router.post(
     "/video",
     checkAuthToken,
@@ -51,6 +74,33 @@ module.exports = (router) => {
     }
   );
 
+  /**
+   * @api {put} /video/:id Edit Video
+   * @apiName Edit Video
+   * @apiGroup Video
+   *
+   * @apiParam (body) {Object} tags Abilities and attributes object.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *     "tags": [
+   *         {
+   *             "ability": "299cf30d-d417-46c1-a70c-5b7f420f4fd8",
+   *             "attributes": ["92c078c9-1225-45fc-add7-44c816be3f60"]
+   *         }
+   *     ]
+   * }
+   *
+   *
+   * @apiSuccess {String} status Status of the Response.
+   * @apiSuccess {String} message  Success Message.
+   *
+   * @apiSuccessExample {json} Response-Example:
+   * {
+   *     "status": "success",
+   *     "message": "Successfully done"
+   * }
+   */
   router.put(
     "/video/:id",
     checkAuthToken,
@@ -70,6 +120,80 @@ module.exports = (router) => {
     }
   );
 
+  /**
+   * @api {get} /video?page_no=1&page_size=20&comments=1 Video listing
+   * @apiName Video Listing
+   * @apiGroup Video
+   *
+   * @apiParam (query) {Number} page_no page number.
+   * @apiParam (query) {Number} page_size records per page
+   * @apiParam (query) {Number} comments 0 for no data in comments object, 1 for data in comments object
+   * @apiParam (query) {String} attributes Comma separated list of attributes name to filter videos
+   *
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *     "status": "success",
+   *     "message": "Successfully done",
+   *     "data": {
+   *         "total": 1,
+   *         "records": [
+   *             {
+   *                 "id": "4bb031b7-1a42-404c-8d67-1ae109db0550",
+   *                 "post": {
+   *                     "text": "",
+   *                     "media_url": "https://vimeo.com/447456562",
+   *                     "media_type": "video",
+   *                     "media_thumbnail": "",
+   *                     "meta": {
+   *                         "abilities": [
+   *                             {
+   *                                 "abilities": "Mental",
+   *                                 "attributes": [
+   *                                     "endurance"
+   *                                 ]
+   *                             }
+   *                         ]
+   *                     },
+   *                     "status": "pending"
+   *                 },
+   *                 "posted_by": {
+   *                     "avatar": "/uploads/avatar/user-avatar.png",
+   *                     "user_id": "49c9f40f-cb50-436f-900e-e98e6e76915b",
+   *                     "name": "acad5",
+   *                     "member_type": "academy",
+   *                     "type": "Residential"
+   *                 },
+   *                 "is_liked": false,
+   *                 "likes": 0,
+   *                 "comments": {
+   *                     "total": 0
+   *                 }
+   *             }
+   *         ]
+   *     }
+   * }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *
+   * @apiErrorExample {json} UNAUTHORIZED
+   *     HTTP/1.1 401 Unauthorized
+   *     {
+   *       "message": "Unauthorized",
+   *       "code": "UNAUTHORIZED",
+   *       "httpCode": 401
+   *     }
+   *
+   */
   router.get(
     "/video",
     checkAuthToken,
@@ -81,7 +205,7 @@ module.exports = (router) => {
       let paginationOptions = {
         page_no: req.query && req.query.page_no ? req.query.page_no : 1,
         limit:
-          req.query && req.query.page_size ? Number(req.query.page_size) : 10,
+          req.query && req.query.page_size ? Number(req.query.page_size) : 12,
       };
 
       let commentOptions = {

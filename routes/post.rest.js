@@ -82,35 +82,32 @@ module.exports = (router) => {
      *         "total":100,
      *         "records":[
      *           {
-     *             "id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-     *             "post": {
-     *                        "text": "",
-     *                        "media_url": "",
-     *                        "media_type": "" },
+     *              "id": "4f89042a-3a6d-4cb5-bc82-17b87e07016f",
+     *              "post": {
+     *                  "text": "Amazing Post",
+     *                  "media_url": "/uploads/documents/125-536x3541597393441636.jpg",
+     *                  "media_type": "image",
+     *                  "media_thumbnail": "",
+     *                  "meta": {
+     *                      "abilities": []
+     *                  },
+     *                  "status": "published"
+     *              },
      *              "posted_by": {
-     *                 "avatar": "/uploads/avatar/user-avatar.png",
-     *                 "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-     *                 "name": "yuvraj singh",
-     *                 "type": "professional/amateur/grassroot/Residential/Non-Residential",
-     *                 "member_type": "player/club/academy",
-     *                 "position": "position of first priority" },
-     *             "is_liked": true,
-     *             "likes": 5,
-     *             "comments": { 
-     *                          "total":100,
-     *                          "data":[{ "comment": "first comment",
-     *                                    "commented_by": {
-     *                                    "avatar": "/uploads/avatar/user-avatar.png",
-     *                                    "user_id": "7b2aae40-b92d-41c9-a1b5-84c0b20d9996",
-     *                                    "name": "yuvraj singh",
-     *                                    "type": "professional/Residential/Non-Residential",
-     *                                    "member_type": "player/club/academy",
-     *                                    "position": "position of first priority" },
-     *                                    "commented_at": "2020-05-22T06:58:45.136Z"
-     *                                  }]
-     *                          }
-     *             "created_at": "2020-05-22T06:58:45.136Z"
-     *           }
+     *                  "avatar": "/uploads/avatar/user-avatar.png",
+     *                  "user_id": "09f631b4-41ea-49ad-975c-390c4204fc7b",
+     *                  "name": "use less",
+     *                  "type": "professional",
+     *                  "member_type": "player",
+     *                  "position": "Right Midfielder"
+     *              },
+     *              "is_liked": false,
+     *              "likes": 0,
+     *              "comments": {
+     *                  "total": 0
+     *              },
+     *              "created_at": "2020-08-14T08:24:01.639Z"
+     *          },
      *         ]}
      *     }
      *
