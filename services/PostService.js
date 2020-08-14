@@ -12,6 +12,7 @@ const PLAYER = require('../constants/PlayerType');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
 const PostStatus = require('../constants/PostStatus');
+const PostType = require('../constants/PostType');
 
 class PostService {
 
@@ -85,6 +86,11 @@ class PostService {
                 media_type: POST_MEDIA.IMAGE
             }
         }
+
+        // Default values for timeline post
+        record.status = PostStatus.PUBLISHED;
+        record.post_type = PostType.TIMELINE;
+
         return Promise.resolve(record);
     }
 
