@@ -14,6 +14,7 @@ const employmentContractCreatedClubAcademy = require("./employmentContractCreate
 const employmentContractCreatedPlayer = require("./employmentContractCreatedPlayer");
 const footPlayerInviteAccepted = require("./footPlayerInviteAccepted");
 const postEmailConfirmation = require("./postEmailConfirmation");
+const reportCardAdded = require("./reportCardAddedMailTemplate");
 
 /** Admin */
 const employmentContractApprovalAdmin = require('./employmentContractApprovalTemplateAdmin');
@@ -36,6 +37,7 @@ module.exports = {
   employmentContractCreatedClubAcademy,
   employmentContractCreatedPlayer,
   footPlayerInviteAccepted,
+  reportCardAdded,
 
   /** Admin */
   employmentContractApprovalAdmin,

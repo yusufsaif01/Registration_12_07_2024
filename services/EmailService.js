@@ -92,6 +92,9 @@ class EmailService {
     async postEmailConfirmation (data) {
         await this.sendMail("postEmailConfirmation", data);
     }
+    async reportCardAdded(data) {
+        await this.sendMail("reportCardAdded", data);
+    }
 }
 
 module.exports = EmailService;
