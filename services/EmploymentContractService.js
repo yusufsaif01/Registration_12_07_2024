@@ -188,7 +188,7 @@ class EmploymentContractService {
 
   async clubAcademyCreatingContract(body, authUser) {
     body.sent_by = authUser.user_id;
-    let player = await this.findPlayerLogin(body.user_id);
+    let player = await this.findPlayerLogin(body.user_id, authUser.role);
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
@@ -355,7 +355,7 @@ class EmploymentContractService {
     return await this.findLoginByUser(userId, category);
   }
 
-  async findLoginByUser(userId, category) {
+  async findLoginByUser(userId, category, created_by) {
     const $where = {
       user_id: userId,
       role: category,
@@ -373,7 +373,10 @@ class EmploymentContractService {
     ) {
       throw new errors.ValidationFailed(`${category} profile is not verified.`);
     }
-
+    if (created_by !== Role.PLAYER && category === Role.PLAYER && user.profile_status.status != ProfileStatus.VERIFIED
+      ) {
+        throw new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PROFILE_NOT_VERIFIED);
+      }
     if (user.status != ACCOUNT_STATUS.ACTIVE) {
       throw new errors.ValidationFailed(`${category} profile is suspended.`);
     }
@@ -381,8 +384,8 @@ class EmploymentContractService {
     return user;
   }
 
-  async findPlayerLogin(userId) {
-    return await this.findLoginByUser(userId, Role.PLAYER);
+  async findPlayerLogin(userId, created_by) {
+    return await this.findLoginByUser(userId, Role.PLAYER, created_by);
   }
 
   checkExpiryDate(body) {
