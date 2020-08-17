@@ -148,7 +148,29 @@ module.exports = (router) => {
    *                     "text": "",
    *                     "media_url": "https://vimeo.com/447456562",
    *                     "media_type": "video",
-   *                     "media_thumbnail": "",
+   *                     "media_thumbnail": {
+   *                         "sizes": [
+   *                           {
+   *                             "width": 200,
+   *                             "height": 150,
+   *                             "link": "",
+   *                             "link_with_play_button": ""
+   *                           },
+   *                           {
+   *                             "width": 1920,
+   *                             "height": 1080,
+   *                             "link": "",
+   *                             "link_with_play_button": ""
+   *                           },
+   *                           {
+   *                             "width": 960,
+   *                             "height": 540,
+   *                             "link": "",
+   *                             "link_with_play_button": ""
+   *                           }
+   *                         ],
+   *                         "url": "public/video-in-processing.jpg"
+   *                       },
    *                     "meta": {
    *                         "abilities": [
    *                             {
@@ -217,7 +239,7 @@ module.exports = (router) => {
       let filters = {
         type,
         attribute: req.query.attribute ? req.query.attribute : null,
-        media_type: PostMedia.VIDEO
+        media_type: PostMedia.VIDEO,
       };
 
       responseHandler(
@@ -232,4 +254,103 @@ module.exports = (router) => {
       );
     }
   );
+
+  /**
+   * @api {get} /video/:id Video view one
+   * @apiName Video View One
+   * @apiGroup Video
+   *
+   *
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *     "status": "success",
+   *     "message": "Successfully done",
+   *     "data": {
+   *          "id": "4bb031b7-1a42-404c-8d67-1ae109db0550",
+   *          "post": {
+   *              "text": "",
+   *              "media_url": "https://vimeo.com/447456562",
+   *              "media_type": "video",
+   *              "media_thumbnail": {
+   *                  "sizes": [
+   *                    {
+   *                      "width": 200,
+   *                      "height": 150,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    },
+   *                    {
+   *                      "width": 1920,
+   *                      "height": 1080,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    },
+   *                    {
+   *                      "width": 960,
+   *                      "height": 540,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    }
+   *                  ],
+   *                  "url": "public/video-in-processing.jpg"
+   *                },
+   *              "meta": {
+   *                  "abilities": [
+   *                      {
+   *                          "abilities": "Mental",
+   *                          "attributes": [
+   *                              "endurance"
+   *                          ]
+   *                      }
+   *                  ]
+   *              },
+   *              "status": "pending"
+   *          },
+   *          "posted_by": {
+   *              "avatar": "/uploads/avatar/user-avatar.png",
+   *              "user_id": "49c9f40f-cb50-436f-900e-e98e6e76915b",
+   *              "name": "acad5",
+   *              "member_type": "academy",
+   *              "type": "Residential"
+   *          },
+   *          "is_liked": false,
+   *          "likes": 0,
+   *          "comments": {
+   *              "total": 0
+   *          }
+   *      }
+   * }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *
+   * @apiErrorExample {json} UNAUTHORIZED
+   *     HTTP/1.1 401 Unauthorized
+   *     {
+   *       "message": "Unauthorized",
+   *       "code": "UNAUTHORIZED",
+   *       "httpCode": 401
+   *     }
+   *
+   */
+  router.get("/video/:id", checkAuthToken, async (req, res, next) => {
+    const { id } = req.params;
+
+    const query = {
+      id: id,
+      user_id: req.authUser.user_id,
+      media_type: PostMedia.VIDEO,
+    };
+
+    responseHandler(req, res, postServiceInst.getPost(query));
+  });
 };

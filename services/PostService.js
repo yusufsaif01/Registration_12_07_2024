@@ -183,6 +183,56 @@ class PostService {
         }
     }
 
+    async getPost ({id, user_id, media_type}) {
+        try {
+            const $where = {
+              id: id,
+              posted_by: user_id,
+              is_deleted: false,
+              "media.media_type": media_type,
+            };
+
+        const commentOptions = {
+            comments: 1
+        }
+
+        let data = await this.postUtilityInst.aggregate([{ $match: $where },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
+            { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
+            { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
+            { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", user_id] } } } } },
+            { "$lookup": { "from": "comments", "localField": "post.id", "foreignField": "post_id", "as": "comment_documents" } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, not_deleted_comments: { $filter: { input: "$comment_documents", as: "commentDocument", cond: { $eq: ["$$commentDocument.is_deleted", false] } } } } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: { $size: "$not_deleted_comments" }, data: { $reverseArray: { $slice: ["$not_deleted_comments", -3] } } } } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } } } },
+            { $unwind: { path: "$comments.data", preserveNullAndEmptyArrays: true } },
+            { "$lookup": { "from": "club_academy_details", "localField": "comments.data.commented_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { created_at: 1, comment: 1, commented_by: 1, club_academy_detail: { avatar_url: "$club_academy_detail.avatar_url", name: "$club_academy_detail.name", member_type: "$club_academy_detail.member_type", user_id: "$club_academy_detail.user_id", type: "$club_academy_detail.type" } } } } },
+            { "$lookup": { "from": "player_details", "localField": "comments.data.commented_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { created_at: 1, comment: 1, club_academy_detail: 1, player_detail: { first_name: "$player_detail.first_name", last_name: "$player_detail.last_name", avatar_url: "$player_detail.avatar_url", user_id: "$player_detail.user_id", player_type: "$player_detail.player_type", position: "$player_detail.position" } } } } },
+            { "$group": { _id: "$post.id", likedByMe: { $first: "$likedByMe" }, likes: { $first: "$likes" }, post: { $first: "$post" }, total_comments: { $first: "$comments.total" }, data: { $push: "$comments.data" } } },
+            { $project: { _id: 0, post: 1, likedByMe: 1, likes: 1, comments: { total: "$total_comments", data: { $cond: { if: { $eq: ["$total_comments", 0] }, then: [], else: "$data" } } } } },
+            { "$lookup": { "from": "club_academy_details", "localField": "post.posted_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: 1, club_academy_detail: { avatar_url: 1, name: 1, type: 1, member_type: 1, user_id: 1 } } },
+            { "$lookup": { "from": "player_details", "localField": "post.posted_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } }, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } }
+        ]);
+
+        if (data.length == 0) {
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        }
+
+        data = new PostsListResponseMapper().map(data, commentOptions.comments);
+
+        return Promise.resolve(data[0]);
+        } catch (error) {
+            console.log("Error in getting post", error);
+            return Promise.reject(error)
+        }
+    }
+
     /**
      * edit post
      *
