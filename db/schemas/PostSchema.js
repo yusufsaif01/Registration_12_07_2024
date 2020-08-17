@@ -23,7 +23,12 @@ module.exports = {
         type: String,
       },
       media_thumbnail: {
-        type: String,
+        url: {
+          type: String,
+        },
+        sizes: {
+          type: Array,
+        },
       },
       media_type: {
         type: String,

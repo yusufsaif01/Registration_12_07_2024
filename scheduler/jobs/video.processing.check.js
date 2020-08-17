@@ -13,6 +13,10 @@ module.exports = async () => {
       const videoResponse = await vimeo.getVideoStatus(video.uri);
       console.log("[+] ", video.uri, ":", videoResponse.transcode.status);
       if (videoResponse.transcode.status == "complete") {
+        const videoThumbnail = videoResponse.pictures.sizes.filter((size) =>
+          [200, 960, 1920].includes(size.width)
+        );
+
         await postUtilityInst.updateOne(
           {
             id: video.post_id,
@@ -20,12 +24,13 @@ module.exports = async () => {
           },
           {
             status: POST_STATUS.PUBLISHED,
+            "media.media_thumbnail.sizes": videoThumbnail,
           }
         );
         await videoQueueInst.removeItem(video.id);
       }
     } catch (error) {
-      console.log("Unable to process the video", video.uri);
+      console.log("Unable to process the video", video.uri, error);
     }
   });
 };

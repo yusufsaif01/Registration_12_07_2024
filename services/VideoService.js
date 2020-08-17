@@ -9,6 +9,7 @@ const PostUtility = require("../db/utilities/PostUtility");
 const PostMedia = require("../constants/PostMedia");
 const PostStatus = require("../constants/PostStatus");
 const VideoQueueService = require("./VideoQueueService");
+const config = require("../config");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
@@ -140,7 +141,9 @@ module.exports = class VideoService {
         create_at: Date.now(),
         media: {
           media_url: videoResponse.link,
-          media_thumbnail: "",
+          media_thumbnail: {
+            url: config.vimeo.video_in_processing_thumbnail,
+          },
           media_type: PostMedia.VIDEO,
         },
         status: PostStatus.PENDING,
