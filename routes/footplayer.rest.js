@@ -402,7 +402,8 @@ module.exports = (router) => {
     *                      "canAddContract": true,
     *                      "email": "test@test.com",
     *                      "phone": "9876543210",
-    *                      "status": "pending"
+    *                      "status": "pending",
+    *                      "profile_status": "verified",
     *                  },
     *              ]
     *          }
