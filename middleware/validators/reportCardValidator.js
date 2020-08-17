@@ -33,10 +33,10 @@ class ReportCardValidator {
             send_to: Joi.string().required(),
             remarks: Joi.string(),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
-            abilities: Joi.array().required().min(3)
+            abilities: Joi.array().required()
                 .items({
                     ability_id: Joi.string().required(),
-                    attributes: Joi.array().required().min(3).items({
+                    attributes: Joi.array().required().items({
                         attribute_id: Joi.string().required(),
                         attribute_score: Joi.number().min(0).max(99).required()
                     })
@@ -55,10 +55,10 @@ class ReportCardValidator {
         const schema = Joi.object().keys({
             remarks: Joi.string(),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
-            abilities: Joi.array().required().min(3)
+            abilities: Joi.array().required()
                 .items({
                     ability_id: Joi.string().required(),
-                    attributes: Joi.array().required().min(3).items({
+                    attributes: Joi.array().required().items({
                         attribute_id: Joi.string().required(),
                         attribute_score: Joi.number().min(0).max(99).required()
                     })
