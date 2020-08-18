@@ -7,6 +7,7 @@ const Role = require("../../constants/Role");
 const Joi = require("@hapi/joi");
 const CustomMessages = require("./CustomMessages");
 const PostMedia = require("../../constants/PostMedia");
+const PostOtherTags = require("../../constants/PostOtherTags");
 
 module.exports = {
   middleware(req, res, next) {
@@ -87,6 +88,9 @@ module.exports = {
           ability: Joi.string().required(),
           attributes: attributesSchema.items(Joi.string().required()),
         })
+      ),
+      others: Joi.array().unique().items(
+        Joi.string().valid(PostOtherTags.VALID_POST_TAGS).error(() => ResponseMessage.TAG_IS_INVALID)
       ),
     });
 

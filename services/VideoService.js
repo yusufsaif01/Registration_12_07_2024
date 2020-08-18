@@ -20,7 +20,7 @@ module.exports = class VideoService {
     this.videoQueueService = new VideoQueueService();
   }
 
-  async uploadVideo(authUser, type, { tags, media }) {
+  async uploadVideo(authUser, type, { tags, media, others }) {
     try {
       const videoOptions = this.getUploadOptions(authUser, type);
       const tagsData = await this.validateAttributesAndAbilities(tags);
@@ -29,7 +29,8 @@ module.exports = class VideoService {
         authUser,
         type,
         tagsData,
-        videoResponse
+        videoResponse,
+        others
       );
       await this.videoQueueService.addToQueue({
         post_id: postDocument.id,
@@ -134,7 +135,7 @@ module.exports = class VideoService {
     }
   }
 
-  async addPost(authUser, type, dataTags, videoResponse) {
+  async addPost(authUser, type, dataTags, videoResponse, others) {
     try {
       const data = {
         posted_by: authUser.user_id,
@@ -150,6 +151,7 @@ module.exports = class VideoService {
         post_type: type,
         meta: {
           abilities: dataTags,
+          others: others,
         },
       };
       const document = await postInst.insert(data);
@@ -160,7 +162,7 @@ module.exports = class VideoService {
     }
   }
 
-  async updateVideo(postId, authUser, { tags }) {
+  async updateVideo(postId, authUser, { tags, others }) {
     try {
       const tagsData = await this.validateAttributesAndAbilities(tags);
       const $where = {
@@ -171,6 +173,7 @@ module.exports = class VideoService {
       await this.getVideo($where);
       await postInst.updateOne($where, {
         "meta.abilities": tagsData,
+        "meta.others": others
       });
       return Promise.resolve();
     } catch (error) {

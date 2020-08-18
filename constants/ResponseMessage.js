@@ -616,7 +616,7 @@ class ResponseMessage {
     static get VIDEO_NOT_FOUND () {
         return "Video not found";
     }
-    
+
     static get NOT_FOOTPLAYER() {
         return "Player is not a footplayer"
     }
@@ -655,6 +655,9 @@ class ResponseMessage {
     }
     static get PLAYER_PROFILE_NOT_VERIFIED() {
         return "Player profile is not verified"
+    }
+    static get TAG_IS_INVALID () {
+        return "Selected Tag is invalid";
     }
 }
 

@@ -52,6 +52,7 @@ module.exports = {
           attributes: [{ attribute_id: String, attribute_name: String }],
         },
       ],
+      others:[String],
     },
     created_at: {
       type: Date,

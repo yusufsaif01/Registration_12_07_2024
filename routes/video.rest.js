@@ -61,6 +61,7 @@ module.exports = (router) => {
       const reqBody = {
         tags: req.body.tags,
         media: req.files.media,
+        others:req.body.others
       };
 
       try {
