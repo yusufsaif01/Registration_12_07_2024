@@ -183,7 +183,6 @@ module.exports = class VideoService {
 
   async getVideo(query) {
     try {
-      console.log(query);
       const video = await postInst.findOne(query);
 
       if (!video) {
