@@ -35,7 +35,8 @@ module.exports = (router) => {
    *             "ability": "299cf30d-d417-46c1-a70c-5b7f420f4fd8",
    *             "attributes": ["92c078c9-1225-45fc-add7-44c816be3f60"]
    *         }
-   *     ]
+   *     ],
+   *     "others": ["Team Play"]
    * }
    *
    *
@@ -90,7 +91,8 @@ module.exports = (router) => {
    *             "ability": "299cf30d-d417-46c1-a70c-5b7f420f4fd8",
    *             "attributes": ["92c078c9-1225-45fc-add7-44c816be3f60"]
    *         }
-   *     ]
+   *     ],
+   *     "others": ["Team Play"]
    * }
    *
    *
@@ -131,6 +133,7 @@ module.exports = (router) => {
    * @apiParam (query) {Number} page_size records per page
    * @apiParam (query) {Number} comments 0 for no data in comments object, 1 for data in comments object
    * @apiParam (query) {String} attributes Comma separated list of attributes name to filter videos
+   * @apiParam (query) {String} others Comma separated list of other tags name to filter videos
    *
    * @apiSuccess {String} status success
    * @apiSuccess {String} message Successfully done
@@ -180,7 +183,8 @@ module.exports = (router) => {
    *                                     "endurance"
    *                                 ]
    *                             }
-   *                         ]
+   *                         ],
+   *                         "others": ["Team Play"]
    *                     },
    *                     "status": "pending"
    *                 },
@@ -308,7 +312,8 @@ module.exports = (router) => {
    *                              "endurance"
    *                          ]
    *                      }
-   *                  ]
+   *                  ],
+   *                  "others": ["Team Play"]
    *              },
    *              "status": "pending"
    *          },
