@@ -240,6 +240,7 @@ module.exports = (router) => {
       let filters = {
         type,
         attribute: req.query.attribute ? req.query.attribute : null,
+        others: req.query.others ? req.query.others : null,
         media_type: PostMedia.VIDEO,
       };
 

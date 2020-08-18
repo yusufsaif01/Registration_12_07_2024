@@ -85,6 +85,9 @@ class PostsListResponseMapper {
                                 };
                             });
                         }
+                        if (p.post.meta.others) {
+                            data.post.meta.others = p.post.meta.others;
+                        }
                     }
                     if (p.post.status) {
                         data.post.status = p.post.status;

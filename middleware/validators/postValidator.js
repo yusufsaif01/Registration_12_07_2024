@@ -55,6 +55,7 @@ class PostValidator {
             "comments": Joi.number().valid(1, 0),
             "ability": Joi.string(),
             "attribute": Joi.string(),
+            "others": Joi.string(),
             "type": Joi.string().valid(PostType.ALLOWED_POST_TYPES)
         })
         try {

@@ -139,6 +139,17 @@ class PostService {
                 };
             }
 
+            if (requestedData.filters.others) {
+                let others = requestedData.filters.others;
+                others = others.split(",");
+                if (!Array.isArray(others)) {
+                    others = [others];
+                }
+                matchCriteria["meta.others"] = {
+                  $in: others,
+                };
+            }
+
             // filter to be provided by video list controller
             // to get only videos
             if (requestedData.filters.media_type) {
