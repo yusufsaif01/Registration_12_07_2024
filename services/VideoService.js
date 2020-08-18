@@ -10,6 +10,7 @@ const PostMedia = require("../constants/PostMedia");
 const PostStatus = require("../constants/PostStatus");
 const VideoQueueService = require("./VideoQueueService");
 const config = require("../config");
+const VideoResponseMapper = require("../dataModels/responseMapper/VideoResponseMapper");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
@@ -173,7 +174,7 @@ module.exports = class VideoService {
       await this.getVideo($where);
       await postInst.updateOne($where, {
         "meta.abilities": tagsData,
-        "meta.others": others
+        "meta.others": others,
       });
       return Promise.resolve();
     } catch (error) {
@@ -193,6 +194,57 @@ module.exports = class VideoService {
     } catch (error) {
       console.log("Error getting video", error);
       throw error;
+    }
+  }
+
+  async getVideosList({ query, pagination }) {
+    try {
+      const skipCount = (pagination.page_no - 1) * pagination.limit;
+      const options = { limit: pagination.limit, skip: skipCount };
+
+      const $where = {
+        posted_by: query.user_id,
+        post_type: query.post_type,
+        "media.media_type": query.media_type,
+      };
+
+      if (query.others) {
+        const others = query.others.split(",");
+        $where["meta.others"] = {
+          $in: others,
+        };
+      }
+      if (query.attribute) {
+        const attribute = query.attribute.split(",");
+        $where["meta.abilities.attributes.attribute_name"] = {
+          $in: attribute,
+        };
+      }
+
+      const pipelines = [
+        {
+          $match: $where,
+        },
+        {
+          $sort: { "post.createdAt": -1 },
+        },
+        { $skip: options.skip },
+        { $limit: options.limit },
+      ];
+
+      console.log(pipelines);
+      
+      const posts = await postInst.aggregate(pipelines);
+
+      const totalCount = await postInst.countList($where);
+
+      return {
+        total: totalCount,
+        records: VideoResponseMapper.map(posts),
+      };
+    } catch (error) {
+      console.log("Error in getVideosList() of VideoService", error);
+      return Promise.reject(error);
     }
   }
 };
