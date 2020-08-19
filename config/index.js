@@ -9,7 +9,6 @@ const helper = require("./configs/helper");
 const jwt = require("./configs/jwt");
 const redis = require("./configs/redis")
 const storage = require("./configs/storage");
-const scheduler = require("./configs/scheduler.json");
 const state_district_storage = require("./configs/state-district-storage");
 
 // Define a schema
@@ -23,7 +22,6 @@ var config = convict({
 	jwt,
 	redis,
 	storage,
-	scheduler,
 	state_district_storage
 });
 
