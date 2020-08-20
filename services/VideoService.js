@@ -146,7 +146,7 @@ module.exports = class VideoService {
     try {
       const data = {
         posted_by: authUser.user_id,
-        create_at: Date.now(),
+        created_at: Date.now(),
         media: {
           media_url: videoResponse.link,
           media_thumbnail: {
