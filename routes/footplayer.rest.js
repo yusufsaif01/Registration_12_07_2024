@@ -32,6 +32,7 @@ module.exports = (router) => {
      *         "records":[{
      *             "user_id": "f9cdd4d4-fe2d-4166-9685-6638fa80e526",
      *             "avatar": "number of players associated",
+     *             "email": "test@email.com",
      *             "name": "/uploads/avatar/user-avatar.png",
      *             "member_type": "player",
      *             "category": "professional",
