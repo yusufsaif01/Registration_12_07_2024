@@ -69,6 +69,7 @@ module.exports = (router) => {
      *       "status": "success",
      *       "message": "Successfully done",
      *       "data": { 
+     *                   "player_type": "grassroot",
      *                   "position": [
      *                       {
      *                   "_id": "5f05d6a21a4dba1d2068e288",
