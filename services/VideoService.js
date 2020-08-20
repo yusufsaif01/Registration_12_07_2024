@@ -11,10 +11,16 @@ const PostStatus = require("../constants/PostStatus");
 const VideoQueueService = require("./VideoQueueService");
 const config = require("../config");
 const VideoResponseMapper = require("../dataModels/responseMapper/VideoResponseMapper");
+const LoginUtility = require("../db/utilities/LoginUtility");
+const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
+const PostType = require("../constants/PostType");
+const FootPlayerStatus = require("../constants/FootPlayerStatus");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
 const postInst = new PostUtility();
+const loginInst = new LoginUtility();
+const footPlayerInst = new FootPlayerUtility();
 
 module.exports = class VideoService {
   constructor() {
@@ -202,11 +208,7 @@ module.exports = class VideoService {
       const skipCount = (pagination.page_no - 1) * pagination.limit;
       const options = { limit: pagination.limit, skip: skipCount };
 
-      const $where = {
-        posted_by: query.user_id,
-        post_type: query.post_type,
-        "media.media_type": query.media_type,
-      };
+      const $where = await this.listMatchCriteria(query);
 
       if (query.others) {
         const others = query.others.split(",");
@@ -232,8 +234,6 @@ module.exports = class VideoService {
         { $limit: options.limit },
       ];
 
-      console.log(pipelines);
-      
       const posts = await postInst.aggregate(pipelines);
 
       const totalCount = await postInst.countList($where);
@@ -246,5 +246,66 @@ module.exports = class VideoService {
       console.log("Error in getVideosList() of VideoService", error);
       return Promise.reject(error);
     }
+  }
+
+  async listMatchCriteria(query) {
+    try {
+      const defaults = {
+        posted_by: query.user_id,
+        post_type: query.post_type,
+        "media.media_type": query.media_type,
+      };
+
+      if (query.mode == "public") {
+        return await this.getPublicMatchCriteria(query);
+      }
+
+      return defaults;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getPublicMatchCriteria(query) {
+    try {
+      const defaults = {
+        posted_by: query.user_id,
+        post_type: query.post_type,
+        "media.media_type": query.media_type,
+      };
+
+      if (query.user_id == query.authUser.user_id) {
+        return defaults;
+      }
+
+      defaults.status = PostStatus.PUBLISHED
+
+      const userLoginDetails = await this.getUserLogin(query.user_id);
+
+      if ([ROLE.CLUB, ROLE.ACADEMY].includes(userLoginDetails.role)) {
+        const ifExists = await footPlayerInst.findOne({
+          sent_by: userLoginDetails.user_id,
+          'send_to.user_id': query.authUser.user_id,
+          status: FootPlayerStatus.ADDED
+        });
+
+        if (!ifExists && query.post_type != PostType.TIMELINE) {
+          // defaults.post_type = PostType.TIMELINE
+          throw new errors.NotFound();
+        }
+      }
+      return defaults;
+
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getUserLogin(userId) {
+    const user = await loginInst.findOne({ user_id: userId });
+    if (!user) {
+      throw new errors.NotFound(ResponseMessage.USER_NOT_FOUND);
+    }
+    return user;
   }
 };

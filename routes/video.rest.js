@@ -378,6 +378,128 @@ module.exports = (router) => {
       );
     }
   );
+  /**
+   * @api {get} /video/gallery/:user_id/public Video Gallery Public Api
+   * @apiName Video Gallery Public
+   * @apiGroup Video
+   *
+   * @apiParam (url) {String} user_id videos uploaded by this user id.
+   * 
+   * @apiParam (query) {String} type Type of posts to filter.
+   * @apiParam (query) {Number} page_no page number.
+   * @apiParam (query) {Number} page_size records per page
+   * @apiParam (query) {String} attributes Comma separated list of attributes name to filter videos
+   * @apiParam (query) {String} others Comma separated list of other tags name to filter videos
+   *
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *      "status": "success",
+   *      "message": "Successfully done",
+   *      "data": {
+   *          "total": 1,
+   *          "records": [
+   *              {
+   *                  "id": "db72f50f-e297-41ae-a4f6-b02d1ce2b1c4",
+   *                  "media": {
+   *                      "media_thumbnail": {
+   *                          "sizes": [
+   *                              {
+   *                                  "width": 200,
+   *                                  "height": 150,
+   *                                  "link": "",
+   *                                  "link_with_play_button": ""
+   *                              },
+   *                              {
+   *                                  "width": 1920,
+   *                                  "height": 1080,
+   *                                  "link": "",
+   *                                  "link_with_play_button": ""
+   *                              },
+   *                              {
+   *                                  "width": 960,
+   *                                  "height": 540,
+   *                                  "link": "",
+   *                                  "link_with_play_button": ""
+   *                              }
+   *                          ],
+   *                          "url": "public/video-in-processing.jpg"
+   *                      },
+   *                      "media_url": "https://vimeo.com/448783922",
+   *                      "media_type": "video"
+   *                  },
+   *                  "type": "timeline",
+   *                  "status": "published",
+   *                  "meta": {
+   *                      "abilities": [
+   *                          {
+   *                              "ability": "Mental",
+   *                              "attributes": [
+   *                                  "endurance"
+   *                              ]
+   *                          }
+   *                      ]
+   *                  }
+   *              }
+   *          ]
+   *      }
+   *  }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *
+   * @apiErrorExample {json} UNAUTHORIZED
+   *     HTTP/1.1 401 Unauthorized
+   *     {
+   *       "message": "Unauthorized",
+   *       "code": "UNAUTHORIZED",
+   *       "httpCode": 401
+   *     }
+   *
+   */
+  router.get(
+    "/video/gallery/:id/public",
+    checkAuthToken,
+    validatePostType,
+    postListQueryValidation,
+    (req, res, next) => {
+      const { type } = req.query;
+      const { id } = req.params;
+
+      let paginationOptions = {
+        page_no: req.query && req.query.page_no ? req.query.page_no : 1,
+        limit:
+          req.query && req.query.page_size ? Number(req.query.page_size) : 12,
+      };
+
+      let query = {
+        post_type: type,
+        attribute: req.query.attribute ? req.query.attribute : null,
+        others: req.query.others ? req.query.others : null,
+        user_id: id,
+        authUser: req.authUser,
+        media_type: PostMedia.VIDEO,
+        mode: "public",
+      };
+
+      responseHandler(
+        req,
+        res,
+        videoServiceInst.getVideosList({
+          query,
+          pagination: paginationOptions,
+        })
+      );
+    }
+  );
 
   /**
    * @api {get} /video/:id Video view one
