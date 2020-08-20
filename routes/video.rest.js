@@ -384,7 +384,7 @@ module.exports = (router) => {
    * @apiGroup Video
    *
    * @apiParam (url) {String} user_id videos uploaded by this user id.
-   * 
+   *
    * @apiParam (query) {String} type Type of posts to filter.
    * @apiParam (query) {Number} page_no page number.
    * @apiParam (query) {Number} page_size records per page
@@ -506,6 +506,7 @@ module.exports = (router) => {
    * @apiName Video View One
    * @apiGroup Video
    *
+   * @apiParam (url) {String} id video id
    *
    * @apiSuccess {String} status success
    * @apiSuccess {String} message Successfully done
@@ -600,4 +601,117 @@ module.exports = (router) => {
 
     responseHandler(req, res, postServiceInst.getPost(query));
   });
+
+  /**
+   * @api {get} /video/gallery/:user_id/public/:video_id Video view one public
+   * @apiName Video View One Public
+   * @apiGroup Video
+   *
+   * @apiParam (url) {String} user_id videos uploaded by this user id.
+   * @apiParam (url) {String} user_id videos uploaded by this user id.
+   * @apiParam (query) {String} type type of video to view[timeline|match_videos|learning_or_training_video].
+   *
+   *
+   * @apiSuccess {String} status success
+   * @apiSuccess {String} message Successfully done
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *    HTTP/1.1 200 OK
+   *    {
+   *     "status": "success",
+   *     "message": "Successfully done",
+   *     "data": {
+   *          "id": "4bb031b7-1a42-404c-8d67-1ae109db0550",
+   *          "post": {
+   *              "text": "",
+   *              "media_url": "https://vimeo.com/447456562",
+   *              "media_type": "video",
+   *              "media_thumbnail": {
+   *                  "sizes": [
+   *                    {
+   *                      "width": 200,
+   *                      "height": 150,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    },
+   *                    {
+   *                      "width": 1920,
+   *                      "height": 1080,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    },
+   *                    {
+   *                      "width": 960,
+   *                      "height": 540,
+   *                      "link": "",
+   *                      "link_with_play_button": ""
+   *                    }
+   *                  ],
+   *                  "url": "public/video-in-processing.jpg"
+   *                },
+   *              "meta": {
+   *                  "abilities": [
+   *                      {
+   *                          "abilities": "Mental",
+   *                          "attributes": [
+   *                              "endurance"
+   *                          ]
+   *                      }
+   *                  ],
+   *                  "others": ["Team Play"]
+   *              },
+   *              "status": "pending"
+   *          },
+   *          "posted_by": {
+   *              "avatar": "/uploads/avatar/user-avatar.png",
+   *              "user_id": "49c9f40f-cb50-436f-900e-e98e6e76915b",
+   *              "name": "acad5",
+   *              "member_type": "academy",
+   *              "type": "Residential"
+   *          },
+   *          "is_liked": false,
+   *          "likes": 0,
+   *          "comments": {
+   *              "total": 0
+   *          }
+   *      }
+   * }
+   *
+   * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
+   *     HTTP/1.1 500 Internal server error
+   *     {
+   *       "message": "Internal Server Error",
+   *       "code": "INTERNAL_SERVER_ERROR",
+   *       "httpCode": 500
+   *     }
+   *
+   * @apiErrorExample {json} UNAUTHORIZED
+   *     HTTP/1.1 401 Unauthorized
+   *     {
+   *       "message": "Unauthorized",
+   *       "code": "UNAUTHORIZED",
+   *       "httpCode": 401
+   *     }
+   *
+   */
+  router.get(
+    "/video/gallery/:user_id/public/:video_id",
+    checkAuthToken,
+    validatePostType,
+    async (req, res, next) => {
+      const { user_id, video_id } = req.params;
+      const { type } = req.query;
+
+      const query = {
+        id: video_id,
+        user_id: user_id,
+        authUser: req.authUser,
+        mode: "public",
+        media_type: PostMedia.VIDEO,
+        post_type: type
+      };
+
+      responseHandler(req, res, postServiceInst.getPost(query));
+    }
+  );
 };

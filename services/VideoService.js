@@ -278,26 +278,29 @@ module.exports = class VideoService {
         return defaults;
       }
 
-      defaults.status = PostStatus.PUBLISHED
+      defaults.status = PostStatus.PUBLISHED;
 
-      const userLoginDetails = await this.getUserLogin(query.user_id);
-
-      if ([ROLE.CLUB, ROLE.ACADEMY].includes(userLoginDetails.role)) {
-        const ifExists = await footPlayerInst.findOne({
-          sent_by: userLoginDetails.user_id,
-          'send_to.user_id': query.authUser.user_id,
-          status: FootPlayerStatus.ADDED
-        });
-
-        if (!ifExists && query.post_type != PostType.TIMELINE) {
-          // defaults.post_type = PostType.TIMELINE
-          throw new errors.NotFound();
-        }
-      }
+      await this.matchesPublicCriteria(query);
       return defaults;
-
     } catch (error) {
       return Promise.reject(error);
+    }
+  }
+
+  async matchesPublicCriteria(query) {
+    const userLoginDetails = await this.getUserLogin(query.user_id);
+
+    if ([ROLE.CLUB, ROLE.ACADEMY].includes(userLoginDetails.role)) {
+      const ifExists = await footPlayerInst.findOne({
+        sent_by: userLoginDetails.user_id,
+        "send_to.user_id": query.authUser.user_id,
+        status: FootPlayerStatus.ADDED,
+      });
+
+      if (!ifExists && query.post_type != PostType.TIMELINE) {
+        // defaults.post_type = PostType.TIMELINE
+        throw new errors.NotFound();
+      }
     }
   }
 

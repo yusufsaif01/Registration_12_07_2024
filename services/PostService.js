@@ -13,6 +13,7 @@ const PlayerUtility = require('../db/utilities/PlayerUtility');
 const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
 const PostStatus = require('../constants/PostStatus');
 const PostType = require('../constants/PostType');
+const VideoService = require('./VideoService');
 
 class PostService {
 
@@ -22,6 +23,7 @@ class PostService {
         this.commentUtilityInst = new CommentUtility();
         this.likeUtilityInst = new LikeUtility();
         this.playerUtilityInst = new PlayerUtility();
+        this.videoService = new VideoService();
     }
 
     /**
@@ -194,7 +196,7 @@ class PostService {
         }
     }
 
-    async getPost ({id, user_id, media_type}) {
+    async getPost ({id, user_id, media_type, mode, authUser, post_type}) {
         try {
             const $where = {
               id: id,
@@ -202,6 +204,17 @@ class PostService {
               is_deleted: false,
               "media.media_type": media_type,
             };
+
+            if (mode == 'public') {
+                $where.status = PostStatus.PUBLISHED; // show only published videos
+                if (user_id != authUser.user_id) { // user can see his uploaded video
+                    await this.videoService.matchesPublicCriteria({
+                        user_id,
+                        authUser,
+                        post_type 
+                    });
+                }
+            }
 
         const commentOptions = {
             comments: 1
