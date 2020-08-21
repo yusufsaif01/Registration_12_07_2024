@@ -245,7 +245,7 @@ class UserService extends BaseService {
         }
         if (_category === PROFILE_DETAIL.PROFESSIONAL) {
             return {
-                position: 1, strong_foot: 1, weak_foot: 1, former_club_academy: 1,
+                position: 1, strong_foot: 1, weak_foot: 1, former_club_academy: 1, player_type: 1,
                 contact_person: 1, trophies: 1, club_academy_details: 1, top_signings: 1, associated_club_academy: 1,
                 type: 1, league: 1, league_other: 1, association: 1, association_other: 1, _id: 0
             };

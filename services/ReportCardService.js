@@ -5,6 +5,7 @@ const REPORT_CARD_STATUS = require('../constants/ReportCardStatus');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
 const ManageReportCardListResponseMapper = require("../dataModels/responseMapper/ManageReportCardListResponseMapper");
+const PlayerReportCardListResponseMapper = require("../dataModels/responseMapper/PlayerReportCardListResponseMapper");
 const _ = require("lodash");
 const moment = require('moment');
 const LoginUtility = require('../db/utilities/LoginUtility');
@@ -114,7 +115,7 @@ class ReportCardService {
                             $cond: {
                                 if: { $eq: ["$player_detail.draft_status", true] }, then: REPORT_CARD_STATUS.DRAFT, else: "$player_detail.report_card.status"
                             }
-                        }, published_at: "$player_detail.report_card.published_at", draft_report_card: "$player_detail.draft_report_card"
+                        }, published_at: "$player_detail.report_card.published_at", created_at: "$player_detail.report_card.createdAt", draft_report_card: "$player_detail.draft_report_card"
                     }
                 },
                 { $match: filterConditions }, { $match: searchConditions }, { $sort: options.sort },
@@ -427,7 +428,8 @@ class ReportCardService {
                 { $match: { send_to: requestedData.player_id, is_deleted: false, $or: [{ status: { $ne: REPORT_CARD_STATUS.DRAFT } }, { sent_by: requestedData.authUser.user_id }] } },
                 { $lookup: { from: "club_academy_details", localField: "sent_by", foreignField: "user_id", as: "club_academy_detail" } },
                 { $unwind: { path: "$club_academy_detail" } },
-                { $project: { sent_by: 1, created_by: "$club_academy_detail.name", published_at: 1, status: 1, id: 1, _id: 0 } },
+                { $project: { sent_by: 1, created_by: "$club_academy_detail.name", published_at: 1, created_at: "$createdAt", status: 1, id: 1, _id: 0 } },
+                { $sort: { created_at: -1 } },
                 { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
             ]);
             let responseData = [], totalRecords = 0;
@@ -553,13 +555,13 @@ class ReportCardService {
                 { $match: { send_to: requestedData.authUser.user_id, is_deleted: false, status: REPORT_CARD_STATUS.PUBLISHED } },
                 { $lookup: { from: "club_academy_details", localField: "sent_by", foreignField: "user_id", as: "club_academy_detail" } },
                 { $unwind: { path: "$club_academy_detail" } },
-                { $project: { sent_by: 1, name: "$club_academy_detail.name", created_by: "$club_academy_detail.member_type", published_at: 1, id: 1, _id: 0 } },
+                { $project: { sent_by: 1, name: "$club_academy_detail.name", created_at: "$createdAt", created_by: "$club_academy_detail.member_type", published_at: 1, id: 1, _id: 0 } },
                 { $match: filterConditions }, { $match: searchConditions }, { $sort: options.sort },
                 { $facet: { data: [{ $skip: options.skip }, { $limit: options.limit }], total_data: [{ $group: { _id: null, count: { $sum: 1 } } }] } }
             ]);
             let responseData = [], totalRecords = 0;
             if (data && data.length && data[0] && data[0].data) {
-                responseData = data[0].data;
+                responseData = new PlayerReportCardListResponseMapper().map(data[0].data);
                 if (data[0].data.length && data[0].total_data && data[0].total_data.length && data[0].total_data[0].count) {
                     totalRecords = data[0].total_data[0].count;
                 }
