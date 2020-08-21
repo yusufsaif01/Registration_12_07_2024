@@ -31,7 +31,7 @@ class ReportCardValidator {
     async createReportCardValidation(reqObj) {
         const schema = Joi.object().keys({
             send_to: Joi.string().required(),
-            remarks: Joi.string(),
+            remarks: Joi.string().allow(""),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
             abilities: Joi.array().required()
                 .items({
@@ -53,7 +53,7 @@ class ReportCardValidator {
 
     async editReportCardValidation(reqObj) {
         const schema = Joi.object().keys({
-            remarks: Joi.string(),
+            remarks: Joi.string().allow(""),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
             abilities: Joi.array().required()
                 .items({
