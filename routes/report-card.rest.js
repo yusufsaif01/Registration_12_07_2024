@@ -14,7 +14,7 @@ module.exports = (router) => {
     * @apiParam (query) {String} search search will be done on the basis of player name
     * @apiParam (query) {String} page_no page number
     * @apiParam (query) {String} page_size page size
-    * @apiParam (query) {String} sort_by sort by field name (name, category, total_report_cards, published_at, status)
+    * @apiParam (query) {String} sort_by sort by field name (name, category, total_report_cards, published_at, status, created_at)
     * @apiParam (query) {String} sort_order (1 for ascending, -1 for descending)
     * @apiParam (query) {String} player_category comma seperated player_category
     * @apiParam (query) {String} from from date (eg. 2020-07-10T00:00:00.000Z)
@@ -272,7 +272,7 @@ module.exports = (router) => {
      * @apiParam (query) {String} search search will be done on the basis of club/academy name
      * @apiParam (query) {String} page_no page number
      * @apiParam (query) {String} page_size page size
-     * @apiParam (query) {String} sort_by sort by field name (name, created_by, published_at)
+     * @apiParam (query) {String} sort_by sort by field name (name, created_by, published_at, created_at)
      * @apiParam (query) {String} sort_order (1 for ascending, -1 for descending)
      * @apiParam (query) {String} created_by comma seperated created_by
      * @apiParam (query) {String} from from date (eg. 2020-07-10T00:00:00.000Z)
@@ -291,6 +291,7 @@ module.exports = (router) => {
      *              "total": 1,
      *              "records": [
      *                  {
+     *                      "id": "06fd3ebf-b78c-477c-a549-5c07c684753f",
      *                      "sent_by": "9e770dd5-629d-4d73-9e53-ad4b798a201e",
      *                      "name": "xyz club",
      *                      "created_by": "club",
@@ -315,7 +316,7 @@ module.exports = (router) => {
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
         },
             sortOptions = {
-                sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "published_at",
+                sort_by: (req.query && req.query.sort_by) ? req.query.sort_by : "created_at",
                 sort_order: (req.query && req.query.sort_order) ? Number(req.query.sort_order) : -1
             },
             filters = {

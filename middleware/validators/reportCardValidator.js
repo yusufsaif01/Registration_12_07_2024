@@ -12,7 +12,7 @@ class ReportCardValidator {
             "page_size": Joi.number(),
             "page_no": Joi.number(),
             "sort_order": Joi.number().valid([1, -1]),
-            "sort_by": Joi.string().valid(['name', 'category', 'total_report_cards', 'published_at', 'status']),
+            "sort_by": Joi.string().valid(['name', 'category', 'total_report_cards', 'published_at', 'status', 'created_at']),
             "search": Joi.string(),
             "player_category": Joi.string(),
             "from": Joi.date().iso().max(moment().format("YYYY-MM-DD")),
@@ -31,7 +31,7 @@ class ReportCardValidator {
     async createReportCardValidation(reqObj) {
         const schema = Joi.object().keys({
             send_to: Joi.string().required(),
-            remarks: Joi.string(),
+            remarks: Joi.string().allow(""),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
             abilities: Joi.array().required()
                 .items({
@@ -53,7 +53,7 @@ class ReportCardValidator {
 
     async editReportCardValidation(reqObj) {
         const schema = Joi.object().keys({
-            remarks: Joi.string(),
+            remarks: Joi.string().allow(""),
             status: Joi.string().valid([REPORT_CARD_STATUS.PUBLISHED, REPORT_CARD_STATUS.DRAFT]).required(),
             abilities: Joi.array().required()
                 .items({
@@ -92,7 +92,7 @@ class ReportCardValidator {
             "page_size": Joi.number(),
             "page_no": Joi.number(),
             "sort_order": Joi.number().valid([1, -1]),
-            "sort_by": Joi.string().valid(['name', 'created_by', 'published_at']),
+            "sort_by": Joi.string().valid(['name', 'created_by', 'published_at', 'created_at']),
             "search": Joi.string(),
             "created_by": Joi.string(),
             "from": Joi.date().iso().max(moment().format("YYYY-MM-DD")),
