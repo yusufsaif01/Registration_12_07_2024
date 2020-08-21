@@ -6,6 +6,7 @@ module.exports = class VideoResponseMapper {
         media: record.media,
         type: record.post_type,
         status: record.status,
+        created_at: record.created_at,
         meta: {
           abilities: record.meta.abilities.map((ability) => ({
             ability: ability.ability_name,
