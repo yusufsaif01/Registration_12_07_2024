@@ -46,13 +46,19 @@ class FootPlayerService {
             { $project: { user_id: 1, profile_status: 1, _id: 0 } }, { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } }, { $unwind: { path: "$player_detail" } },
             { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, last_name: 1, is_verified: { $cond: { if: { $eq: ["$profile_status.status", PROFILE_STATUS.VERIFIED] }, then: true, else: false } }, position: 1, member_type: MEMBER.PLAYER, player_type: 1, avatar_url: 1, phone: 1 } } },
             { "$lookup": { "from": "foot_players", "localField": "player_detail.user_id", "foreignField": "send_to.user_id", "as": "footplayerDocument" } },
-            { $project: { player_detail: 1, filteredfootplayerDocument: { $filter: { input: "$footplayerDocument", as: "element", cond: { $and: [{ $ne: ["$$element.sent_by", requestedData.user_id] }, { $eq: ["$$element.status", FOOTPLAYER_STATUS.ADDED] }, { $eq: ["$$element.is_deleted", false] }] } } } } },
+            {
+              $project: {
+              player_detail: 1, footplayer_request: { $filter: { input: "$footplayerDocument", as: "element", cond: { $and: [{ $eq: ["$$element.sent_by", requestedData.user_id] }, { $eq: ["$$element.is_deleted", false] }] } } },
+              filteredfootplayerDocument: { $filter: { input: "$footplayerDocument", as: "element", cond: { $and: [{ $ne: ["$$element.sent_by", requestedData.user_id] }, { $eq: ["$$element.status", FOOTPLAYER_STATUS.ADDED] }, { $eq: ["$$element.is_deleted", false] }] } } }
+              }
+            },
             { $unwind: { path: "$filteredfootplayerDocument", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$footplayer_request", preserveNullAndEmptyArrays: true } },
             { "$lookup": { "from": "club_academy_details", "localField": "filteredfootplayerDocument.sent_by", "foreignField": "user_id", "as": "SentBy" } },
-            { $project: { player_detail: 1, club: { $filter: { input: "$SentBy", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
-            { $unwind: { path: "$club", preserveNullAndEmptyArrays: true } }, { "$group": { _id: "$player_detail.user_id", player_detail: { $first: "$player_detail" }, club: { $addToSet: "$club" } } },
+            { $project: { player_detail: 1, status: "$footplayer_request.status", club: { $filter: { input: "$SentBy", as: "element", cond: { $eq: ["$$element.member_type", MEMBER.CLUB] } } } } },
+            { $unwind: { path: "$club", preserveNullAndEmptyArrays: true } }, { "$group": { _id: "$player_detail.user_id", status: { $first: "$status" }, player_detail: { $first: "$player_detail" }, club: { $addToSet: "$club" } } },
             { $unwind: { path: "$club", preserveNullAndEmptyArrays: true } },
-            { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, is_verified: 1, last_name: 1, position: 1, member_type: 1, player_type: 1, avatar_url: 1, phone: 1, club_name: "$club.name" } } },
+            { $project: { player_detail: { user_id: 1, email: 1, first_name: 1, is_verified: 1, last_name: 1, position: 1, member_type: 1, player_type: 1, avatar_url: 1, phone: 1, club_name: "$club.name", status: "$status" } } },
             { $match: filterConditions }]);
             if (_.isEmpty(data)) {
                 filterConditions = this._prepareClubAcademyFilterCondition(requestedData.filterConditions);
@@ -556,6 +562,15 @@ class FootPlayerService {
         $match: searchConditions,
       },
       {
+        $lookup: { from: "login_details", localField: "send_to.user_id", foreignField: "user_id", as: "login_detail" }
+      },
+      {
+        $unwind: {
+          path: "$login_detail",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $lookup:
         {
           from: "employment_contracts",
@@ -594,6 +609,7 @@ class FootPlayerService {
             name: 1,
             email: 1,
             phone: 1,
+            profile_status: "$login_detail.profile_status.status"
           },
         },
       },
@@ -618,6 +634,7 @@ class FootPlayerService {
           name: 1,
           email: 1,
           phone: 1,
+          profile_status: 1
         },
       },
     };
@@ -631,6 +648,7 @@ class FootPlayerService {
       searchConditions["$or"] = [
         "send_to.name",
         "send_to_user.player_type",
+        "send_to.email"
       ].map((field) => {
         return {
           [field]: regexp,
