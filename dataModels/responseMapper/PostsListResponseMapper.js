@@ -85,7 +85,11 @@ class PostsListResponseMapper {
                             data.post.meta.abilities = p.post.meta.abilities.map((ability) => {
                                 return {
                                   ability_name: ability.ability_name,
-                                  attributes: ability.attributes.map(attr => attr.attribute_name)
+                                  ability_id: ability.ability_id,
+                                  attributes: ability.attributes.map(attr => ({
+                                      attribute_name: attr.attribute_name,
+                                      attribute_id: attr.attribute_id,
+                                  }))
                                 };
                             });
                         }
