@@ -23,7 +23,7 @@ module.exports = (router) => {
    * @apiName Upload Video
    * @apiGroup Video
    *
-   * @apiParam (query) {String} type Video type [timeline|learning_or_training_video|match_videos]
+   * @apiParam (query) {String} type Video type [timeline|learning_or_training|match]
    *
    * @apiParam (body) {Object} tags Abilities and attributes object.
    * @apiParam (body) {File} media Video to upload.
@@ -609,7 +609,7 @@ module.exports = (router) => {
    *
    * @apiParam (url) {String} user_id videos uploaded by this user id.
    * @apiParam (url) {String} user_id videos uploaded by this user id.
-   * @apiParam (query) {String} type type of video to view[timeline|match_videos|learning_or_training_video].
+   * @apiParam (query) {String} type type of video to view[timeline|match|learning_or_training].
    *
    *
    * @apiSuccess {String} status success

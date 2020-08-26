@@ -53,10 +53,10 @@ module.exports = class VideoService {
       [POST_TYPE.TIMELINE]: {
         max_duration: 60 * 2,
       },
-      [POST_TYPE.LEARNING_OR_TRAINING_VIDEO]: {
+      [POST_TYPE.LEARNING_OR_TRAINING]: {
         max_duration: 60 * 30,
       },
-      [POST_TYPE.MATCH_VIDEOS]: {
+      [POST_TYPE.MATCH]: {
         max_duration: 150 * 60,
       },
     };
