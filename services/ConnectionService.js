@@ -426,6 +426,7 @@ class ConnectionService {
                 academy_footplayer_requests = footplayer_requests[0].academy_request || 0;
             }
             let response = {
+                total_requests: footmate_requests + club_footplayer_requests + academy_footplayer_requests,
                 footmate_requests: footmate_requests,
                 club_footplayer_requests: club_footplayer_requests,
                 academy_footplayer_requests: academy_footplayer_requests,
