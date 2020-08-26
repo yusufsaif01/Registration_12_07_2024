@@ -20,7 +20,8 @@ const FOOT_PLAYER_STATUS = require("../constants/FootPlayerStatus");
 const EmploymentContractListResponseMapper = require("../dataModels/responseMapper/EmploymentContractListResponseMapper");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const AdminUtility = require("../db/utilities/AdminUtility");
-const {map} = require('bluebird');
+const { map } = require('bluebird');
+const UserRegistrationService = require('./UserRegistrationService');
 
 class EmploymentContractService {
   constructor() {
@@ -98,7 +99,8 @@ class EmploymentContractService {
     body.sent_by = authUser.user_id;
     let clubOrAcademy = await this.findClubAcademyLogin(
       body.user_id,
-      body.category
+      body.category,
+      authUser.role
     );
 
     body.send_to = clubOrAcademy.user_id;
@@ -188,7 +190,7 @@ class EmploymentContractService {
 
   async clubAcademyCreatingContract(body, authUser) {
     body.sent_by = authUser.user_id;
-    let player = await this.findPlayerLogin(body.user_id);
+    let player = await this.findPlayerLogin(body.user_id, authUser.role);
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
@@ -253,7 +255,8 @@ class EmploymentContractService {
     body.sent_by = authUser.user_id;
     let clubOrAcademy = await this.findClubAcademyLogin(
       body.user_id,
-      body.category
+      body.category,
+      authUser.role
     );
 
     body.send_to = clubOrAcademy.user_id;
@@ -276,7 +279,7 @@ class EmploymentContractService {
 
     body.sent_by = authUser.user_id;
 
-    let player = await this.findPlayerLogin(body.user_id);
+    let player = await this.findPlayerLogin(body.user_id, authUser.role);
 
     await this.checkPlayerCanAcceptContract(player.username);
     await this.checkDuplicateContract(
@@ -351,11 +354,11 @@ class EmploymentContractService {
     }
   }
 
-  async findClubAcademyLogin(userId, category) {
-    return await this.findLoginByUser(userId, category);
+  async findClubAcademyLogin(userId, category, created_by) {
+    return await this.findLoginByUser(userId, category, created_by);
   }
 
-  async findLoginByUser(userId, category) {
+  async findLoginByUser(userId, category, created_by) {
     const $where = {
       user_id: userId,
       role: category,
@@ -373,7 +376,10 @@ class EmploymentContractService {
     ) {
       throw new errors.ValidationFailed(`${category} profile is not verified.`);
     }
-
+    if (created_by !== Role.PLAYER && category === Role.PLAYER && user.profile_status.status != ProfileStatus.VERIFIED
+      ) {
+        throw new errors.ValidationFailed(RESPONSE_MESSAGE.PLAYER_PROFILE_NOT_VERIFIED);
+      }
     if (user.status != ACCOUNT_STATUS.ACTIVE) {
       throw new errors.ValidationFailed(`${category} profile is suspended.`);
     }
@@ -381,8 +387,8 @@ class EmploymentContractService {
     return user;
   }
 
-  async findPlayerLogin(userId) {
-    return await this.findLoginByUser(userId, Role.PLAYER);
+  async findPlayerLogin(userId, created_by) {
+    return await this.findLoginByUser(userId, Role.PLAYER, created_by);
   }
 
   checkExpiryDate(body) {
@@ -663,16 +669,18 @@ class EmploymentContractService {
         documents = [],
         clubAcademyEmail = "",
         clubAcademyType = "",
-        clubAcademyName = "";
+        clubAcademyName = "",
+        dob = "";
       if (isSendToPlayer || sentByUser.member_type === MEMBER.PLAYER) {
         playerUserId = isSendToPlayer ? data.send_to : data.sent_by;
         let player = await this.playerUtilityInst.findOne(
           { user_id: playerUserId },
-          { first_name: 1, last_name: 1, player_type: 1, documents: 1 }
+          { first_name: 1, last_name: 1, player_type: 1, documents: 1, dob: 1 }
         );
         player_name = `${player.first_name} ${player.last_name}`;
         playerType = player.player_type;
         documents = player.documents;
+        dob = player.dob;
       }
 
       const clubAcademyId = isSendToPlayer ? data.sent_by : data.send_to;
@@ -748,17 +756,17 @@ class EmploymentContractService {
         }
       }
       if (reqObj.status === ContractStatus.DISAPPROVED) {
-        await this.contractInst.updateOne(
-          { id: requestedData.id },
-          { status: ContractStatus.DISAPPROVED }
-        );
         await this.updateProfileStatus({
           id: requestedData.id,
           playerUserId: playerUserId,
           documents: documents,
           status: reqObj.status,
+          dob: dob
         });
-
+        await this.contractInst.updateOne(
+          { id: requestedData.id },
+          { status: ContractStatus.DISAPPROVED }
+        );
         if (requestedData.user.role == 'player') {
           await this.emailService.employmentContractDisapprovalByPlayer({
             email: sentByUser.username,
@@ -946,6 +954,7 @@ class EmploymentContractService {
   async updateProfileStatus(requestedData = {}) {
     try {
       let profileStatus = ProfileStatus.NON_VERIFIED;
+      let checkAadhaar = false;
       if (requestedData.status === ContractStatus.DISAPPROVED) {
         let condition = {
           id: { $ne: requestedData.id },
@@ -966,13 +975,22 @@ class EmploymentContractService {
         profileStatus = playerContract
           ? ProfileStatus.VERIFIED
           : ProfileStatus.NON_VERIFIED;
+        if (!playerContract) {
+          condition.id = requestedData.id;
+          let current_contract = await this.contractInst.findOne(condition)
+          checkAadhaar = current_contract ? true : false;
+        }
       }
-      if (requestedData.status === ContractStatus.APPROVED) {
+      if (requestedData.status === ContractStatus.APPROVED || checkAadhaar) {
         let aadhaar = _.find(requestedData.documents, {
           type: DOCUMENT_TYPE.AADHAR,
         });
-        if (aadhaar && aadhaar.status === DOCUMENT_STATUS.APPROVED)
+        if (aadhaar && aadhaar.status === DOCUMENT_STATUS.APPROVED) {
           profileStatus = ProfileStatus.VERIFIED;
+          if (checkAadhaar) {
+            await this.updatePlayerTypeWrtDOB(requestedData);
+          }
+        }
       }
       await this.loginUtilityInst.updateOne(
         { user_id: requestedData.playerUserId },
@@ -1035,6 +1053,26 @@ class EmploymentContractService {
       }
     } catch (error) {
       console.log("Error in sending", status, "notification to admin", error);
+    }
+  }
+
+  /**
+   * updates player type wrt DOB
+   *
+   * @param {*} [requestedData={}]
+   * @returns
+   * @memberof EmploymentContractService
+   */
+  async updatePlayerTypeWrtDOB(requestedData = {}) {
+    try {
+      let userRegistrationServiceInst = new UserRegistrationService()
+      let player_type = await userRegistrationServiceInst.getPlayerTypeFromDOB(requestedData.dob);
+      await this.playerUtilityInst.updateOne({ user_id: requestedData.playerUserId }, { player_type: player_type });
+      return Promise.resolve();
+    } catch (e) {
+      console.log(
+        "Error in updatePlayerTypeWrtDOB() of EmploymentContractService", e);
+      return Promise.reject(e);
     }
   }
 }

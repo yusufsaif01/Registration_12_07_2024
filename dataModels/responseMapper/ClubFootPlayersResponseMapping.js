@@ -21,6 +21,7 @@ class ClubFootPlayersResponseMapping {
           data.email = request.send_to.email;
           data.phone = request.send_to.phone || "";
           data.status = request.status;
+          data.profile_status = request.send_to.profile_status
         }
         if(request.status && request.status === FOOTPLAYER_STATUS.ADDED && footplayers === 0) 
         {

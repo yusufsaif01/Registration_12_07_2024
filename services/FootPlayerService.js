@@ -562,6 +562,15 @@ class FootPlayerService {
         $match: searchConditions,
       },
       {
+        $lookup: { from: "login_details", localField: "send_to.user_id", foreignField: "user_id", as: "login_detail" }
+      },
+      {
+        $unwind: {
+          path: "$login_detail",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $lookup:
         {
           from: "employment_contracts",
@@ -600,6 +609,7 @@ class FootPlayerService {
             name: 1,
             email: 1,
             phone: 1,
+            profile_status: "$login_detail.profile_status.status"
           },
         },
       },
@@ -624,6 +634,7 @@ class FootPlayerService {
           name: 1,
           email: 1,
           phone: 1,
+          profile_status: 1
         },
       },
     };
