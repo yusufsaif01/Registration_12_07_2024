@@ -190,6 +190,7 @@ module.exports = class VideoService {
 
   async getVideo(query) {
     try {
+      query["is_deleted"] = false;
       const video = await postInst.findOne(query);
 
       if (!video) {
@@ -209,6 +210,8 @@ module.exports = class VideoService {
       const options = { limit: pagination.limit, skip: skipCount };
 
       const $where = await this.listMatchCriteria(query);
+
+      $where['is_deleted'] = false;
 
       if (query.others) {
         const others = query.others.split(",");
