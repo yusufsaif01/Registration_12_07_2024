@@ -379,7 +379,7 @@ module.exports = (router) => {
     }
   );
   /**
-   * @api {get} /video/gallery/:user_id/public Video Gallery Public Api
+   * @api {get} /video/public/gallery/:user_id Video Gallery Public Api
    * @apiName Video Gallery Public
    * @apiGroup Video
    *
@@ -471,13 +471,13 @@ module.exports = (router) => {
    *
    */
   router.get(
-    "/video/gallery/:id/public",
+    "/video/public/gallery/:user_id",
     checkAuthToken,
     validatePostType,
     postListQueryValidation,
     (req, res, next) => {
       const { type } = req.query;
-      const { id } = req.params;
+      const { user_id } = req.params;
 
       let paginationOptions = {
         page_no: req.query && req.query.page_no ? req.query.page_no : 1,
@@ -489,7 +489,7 @@ module.exports = (router) => {
         post_type: type,
         attribute: req.query.attribute ? req.query.attribute : null,
         others: req.query.others ? req.query.others : null,
-        user_id: id,
+        user_id,
         authUser: req.authUser,
         media_type: PostMedia.VIDEO,
         mode: "public",
@@ -608,7 +608,7 @@ module.exports = (router) => {
   });
 
   /**
-   * @api {get} /video/gallery/:user_id/public/:video_id Video view one public
+   * @api {get} /video/public/gallery/:user_id/:video_id Video view one public
    * @apiName Video View One Public
    * @apiGroup Video
    *
@@ -700,7 +700,7 @@ module.exports = (router) => {
    *
    */
   router.get(
-    "/video/gallery/:user_id/public/:video_id",
+    "/video/public/gallery/:user_id/:video_id",
     checkAuthToken,
     validatePostType,
     async (req, res, next) => {
