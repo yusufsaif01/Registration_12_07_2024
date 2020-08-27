@@ -614,7 +614,6 @@ module.exports = (router) => {
    *
    * @apiParam (url) {String} user_id videos uploaded by this user id.
    * @apiParam (url) {String} user_id videos uploaded by this user id.
-   * @apiParam (query) {String} type type of video to view[timeline|match|learning_or_training].
    *
    *
    * @apiSuccess {String} status success
@@ -702,10 +701,8 @@ module.exports = (router) => {
   router.get(
     "/video/public/gallery/:user_id/:video_id",
     checkAuthToken,
-    validatePostType,
     async (req, res, next) => {
       const { user_id, video_id } = req.params;
-      const { type } = req.query;
 
       const query = {
         id: video_id,
@@ -713,10 +710,9 @@ module.exports = (router) => {
         authUser: req.authUser,
         mode: "public",
         media_type: PostMedia.VIDEO,
-        post_type: type,
       };
 
-      responseHandler(req, res, postServiceInst.getPost(query));
+      responseHandler(req, res, postServiceInst.getPublicVideo(query));
     }
   );
 };

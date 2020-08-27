@@ -196,6 +196,36 @@ class PostService {
         }
     }
 
+    async getPublicVideo (query) {
+        const findWhere = {
+            id: query.id,
+            posted_by: query.user_id,
+            is_deleted: false,
+            "media.media_type": query.media_type,
+        };
+        if (query.user_id != query.authUser.user_id) {
+            findWhere["status"] = PostStatus.PUBLISHED;
+        }
+        const preFetchVideo = await this.postUtilityInst.findOne(findWhere, {post_type:1});
+
+        if (!preFetchVideo) {
+            return Promise.reject(
+              new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND)
+            );
+        }
+
+        if (query.user_id != query.authUser.user_id) {
+          // user can see his uploaded video
+          await this.videoService.matchesPublicCriteria({
+            user_id: query.user_id,
+            authUser: query.authUser,
+            post_type: preFetchVideo.post_type,
+          });
+        }
+
+        return await this.getPost(query);
+    }
+
     async getPost ({id, user_id, media_type, mode, authUser, post_type}) {
         try {
             const $where = {
@@ -206,13 +236,9 @@ class PostService {
             };
 
             if (mode == 'public') {
-                $where.status = PostStatus.PUBLISHED; // show only published videos
-                if (user_id != authUser.user_id) { // user can see his uploaded video
-                    await this.videoService.matchesPublicCriteria({
-                        user_id,
-                        authUser,
-                        post_type 
-                    });
+                // show only published video to viewers
+                if (user_id != authUser.user_id) {
+                    $where.status = PostStatus.PUBLISHED;
                 }
             }
 
