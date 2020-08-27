@@ -211,7 +211,7 @@ module.exports = class VideoService {
 
       const $where = await this.listMatchCriteria(query);
 
-      $where['is_deleted'] = false;
+      $where["is_deleted"] = false;
 
       if (query.others) {
         const others = query.others.split(",");
@@ -229,6 +229,28 @@ module.exports = class VideoService {
       const pipelines = [
         {
           $match: $where,
+        },
+        {
+          $lookup: {
+            as: "posted_by",
+            localField: "posted_by",
+            foreignField: "user_id",
+            from: "login_details",
+          },
+        },
+        {
+          $project: {
+            id: 1,
+            media: 1,
+            post_type: 1,
+            status: 1,
+            created_at: 1,
+            meta: 1,
+            posted_by: {
+              user_id: 1,
+              role: 1,
+            },
+          },
         },
         {
           $sort: { "post.createdAt": -1 },

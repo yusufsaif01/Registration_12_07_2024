@@ -433,6 +433,11 @@ module.exports = (router) => {
    *                  },
    *                  "type": "timeline",
    *                  "status": "published",
+   *                   "created_at": "2020-08-21T13:24:12.921Z",
+   *                   "posted_by": {
+   *                     "member_type": "academy",
+   *                     "user_id": "49c9f40f-cb50-436f-900e-e98e6e76915b"
+   *                   },
    *                  "meta": {
    *                      "abilities": [
    *                          {
@@ -708,7 +713,7 @@ module.exports = (router) => {
         authUser: req.authUser,
         mode: "public",
         media_type: PostMedia.VIDEO,
-        post_type: type
+        post_type: type,
       };
 
       responseHandler(req, res, postServiceInst.getPost(query));
