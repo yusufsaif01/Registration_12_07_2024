@@ -14,6 +14,7 @@ const footplayerRoutes = require('./footplayer.rest');
 const peopleRoutes = require('./people.rest');
 const employmentContract = require('./employment-contract.rest');
 const reportCardRoutes = require('./report-card.rest');
+const accessToken = require('./access-token.rest');
 
 class Route {
 	loadRoutes(app) {
@@ -34,6 +35,7 @@ class Route {
 		peopleRoutes(apiRouter);
 		employmentContract(apiRouter);
 		reportCardRoutes(apiRouter);
+		accessToken(apiRouter);
 
 		app.use('/api', apiRouter);
 		app.use("/apidocs", express.static("apidocs/doc"));
