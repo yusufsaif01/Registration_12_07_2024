@@ -162,7 +162,7 @@ class PostService {
             matchCriteria["$or"] = [{ status: PostStatus.PUBLISHED }, {posted_by: requestedData.user_id}];
 
             let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
-            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", post_type:"$post_type", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
@@ -247,7 +247,7 @@ class PostService {
         }
 
         let data = await this.postUtilityInst.aggregate([{ $match: $where },
-            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status",post_type: "$post_type", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", user_id] } } } } },

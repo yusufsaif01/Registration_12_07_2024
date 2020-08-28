@@ -96,6 +96,9 @@ class PostsListResponseMapper {
                         if (p.post.meta.others) {
                             data.post.meta.others = p.post.meta.others;
                         }
+                        if (p.post.post_type) {
+                            data.post.type = p.post.post_type;
+                        }
                     }
                     if (p.post.status) {
                         data.post.status = p.post.status;
