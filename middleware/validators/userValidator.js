@@ -468,7 +468,7 @@ class UserValidator {
         const schema = Joi.object().keys({
             top_signings: Joi.array()
                 .items({
-                    name: Joi.string().trim().error(() => {
+                    name: Joi.string().trim().allow("").error(() => {
                         return {
                             message: RESPONSE_MESSAGE.TOP_SIGNINGS_NAME_INVALID,
                         };
