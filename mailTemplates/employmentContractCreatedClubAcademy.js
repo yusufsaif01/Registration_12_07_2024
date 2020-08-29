@@ -16,7 +16,7 @@ module.exports = ({ email, from, name, category }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Dear ${name},</h1>
+						Dear ${name.charAt(0).toUpperCase() + name.slice(1)},</h1>
 				</td>
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
@@ -40,7 +40,7 @@ module.exports = ({ email, from, name, category }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						We are pleased to inform you that ${from}, has uploaded your contract information and is requesting that you as a player verify that you are holding a valid contract with this organisation.</p>
+						We are pleased to inform you that ${from.charAt(0).toUpperCase() + from.slice(1)}, has uploaded your contract information and is requesting that you as a player verify that you are holding a valid contract with this organisation.</p>
 				</td>
 			</tr>
 			<tr style="height: 10px;">
