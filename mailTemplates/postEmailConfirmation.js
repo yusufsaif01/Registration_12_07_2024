@@ -27,7 +27,7 @@ module.exports = ({ email, name }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						Hey ${name}, welcome to YFTChain! We’re glad to have you onboard. All you have to do is
+						Hey ${name.charAt(0).toUpperCase() + name.slice(1)}, welcome to YFTChain! We’re glad to have you onboard. All you have to do is
 						verify your identity
 						before you can start enjoying all showcasing features of YFTChain. Head to the YFTChain website
 						now, and we’ll
