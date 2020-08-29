@@ -418,7 +418,10 @@ module.exports = (router) => {
      *       "status": "success",
      *       "message": "Successfully done",
      *       "data": {
+     *                  total_requests: 4,
      *                  footmate_requests: 2,
+     *                  club_footplayer_requests: 1,
+     *                  academy_footplayer_requests: 1,
      *                  footmates: 8,
      *                  followers: 8,
      *                  followings: 8 
