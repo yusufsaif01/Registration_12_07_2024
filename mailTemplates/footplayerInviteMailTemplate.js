@@ -6,6 +6,7 @@ module.exports = ({
   link,
 }) => {
   send_to_name = send_to_name || "User";
+  sent_by_name = sent_by_name.charAt(0).toUpperCase() + sent_by_name.slice(1)
   return {
     to: send_to_email,
     subject: "Register on YFTChain",
@@ -23,7 +24,7 @@ module.exports = ({
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Dear ${send_to_name},</h1>
+						Dear ${send_to_name.charAt(0).toUpperCase() + send_to_name.slice(1)},</h1>
 				</td>
 			</tr>
 			<!--  -->

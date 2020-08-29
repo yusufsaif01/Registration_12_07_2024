@@ -1,4 +1,5 @@
 module.exports = ({ email, approved, approver, reason }) => {
+	approved.name = approved.name.charAt(0).toUpperCase() + approved.name.slice(1)
   return {
     to: email,
     subject: `${approved.name} employment contract details not approved`,
@@ -48,7 +49,7 @@ module.exports = ({ email, approved, approver, reason }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 20px; font-weight: 700;display:block;color:#626262;">
-						Disapproval member name: ${approver.name}
+						Disapproval member name: ${approver.name.charAt(0).toUpperCase() + approver.name.slice(1)}
 					</p>
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 20px; font-weight: 700;display:block;color:#626262;">

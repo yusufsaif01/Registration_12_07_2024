@@ -1,4 +1,5 @@
 module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_name }) => {
+	sent_by_name = sent_by_name.charAt(0).toUpperCase() + sent_by_name.slice(1)
     return {
       to: send_to_email,
       subject: "FooTPlayer request",
@@ -15,7 +16,7 @@ module.exports = ({ send_to_email, sent_by_member_type, sent_by_name, player_nam
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Dear ${player_name},</h1>
+						Dear ${player_name.charAt(0).toUpperCase() + player_name.slice(1)},</h1>
 				</td>
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
