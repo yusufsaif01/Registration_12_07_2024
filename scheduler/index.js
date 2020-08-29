@@ -3,7 +3,6 @@ const updateContractStatus = require("../seeders/EmploymentContractStatus");
 const updatePlayerType = require("../seeders/playerTypeUpdate");
 const documentReminderJob = require("./jobs/document.submission");
 const config = require("../config");
-const videoProcessingCheck = require("./jobs/video.processing.check");
 
 const contractRule = config.scheduler.contract_status_update_schedule;
 const playerRule = config.scheduler.player_type_update_schedule;
@@ -24,8 +23,4 @@ if (config.scheduler.document_reminder_schedule_enabled) {
   });
 }
 
-schedule.scheduleJob(config.vimeo.queue_processing_duration, () => {
-  console.log("Started vimeo video status check job");
-  videoProcessingCheck();
-});
 module.exports = { contractStatusUpdateScheduler, playerTypeUpdateScheduler };

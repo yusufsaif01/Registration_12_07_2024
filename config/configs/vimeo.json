@@ -28,5 +28,12 @@
     "default": "uploads/vimeo",
     "env": "VIMEO_UPLOAD_PATH",
     "arg": "vimeo_upload_path"
+  },
+  "video_in_processing_thumbnail": {
+    "doc": "Default media thumbnail for video",
+    "format": "String",
+    "default": "public/video-in-processing.jpg",
+    "env": "VIDEO_PROCESSING_THUMBNAIL",
+    "arg": "video_processing_thumbnail"
   }
 }
