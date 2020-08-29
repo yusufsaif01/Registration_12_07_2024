@@ -13,7 +13,7 @@ module.exports = ({ email, name, from }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Dear ${name},</h1>
+						Dear ${name.charAt(0).toUpperCase() + name.slice(1)},</h1>
 				</td>
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
@@ -37,7 +37,7 @@ module.exports = ({ email, name, from }) => {
 					<p style="font-family: 'Montserrat', sans-serif;
 					font-size: 16px;font-weight: 300;color:#626262;
 					">
-						You are now a FooTPlayer associated with ${from}
+						You are now a FooTPlayer associated with ${from.charAt(0).toUpperCase() + from.slice(1)}
 					</p>
 				</td>
 			</tr>

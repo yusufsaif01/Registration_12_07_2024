@@ -1,5 +1,6 @@
 const _ = require("lodash");
-const MEMBER = require('../../constants/MemberType')
+const MEMBER = require('../../constants/MemberType');
+const PostMedia = require("../../constants/PostMedia");
 
 class PostsListResponseMapper {
     map(posts, commentFlag) {
@@ -71,8 +72,36 @@ class PostsListResponseMapper {
                         data.post = {
                             text: p.post.media.text ? p.post.media.text : "",
                             media_url: p.post.media.media_url ? p.post.media.media_url : "",
-                            media_type: p.post.media.media_type ? p.post.media.media_type : ""
+                            media_type: p.post.media.media_type ? p.post.media.media_type : "",
+                            media_thumbnail: p.post.media.media_thumbnail ? p.post.media.media_thumbnail : ""
                         }
+                        if (data.post.media_type != PostMedia.VIDEO) {
+                            delete data.post.media_thumbnail;
+                        }
+                    }
+                    if (data.post.media_type == PostMedia.VIDEO && p.post.meta) {
+                        data.post.meta = {};
+                        if (p.post.meta.abilities) {
+                            data.post.meta.abilities = p.post.meta.abilities.map((ability) => {
+                                return {
+                                  ability_name: ability.ability_name,
+                                  ability_id: ability.ability_id,
+                                  attributes: ability.attributes.map(attr => ({
+                                      attribute_name: attr.attribute_name,
+                                      attribute_id: attr.attribute_id,
+                                  }))
+                                };
+                            });
+                        }
+                        if (p.post.meta.others) {
+                            data.post.meta.others = p.post.meta.others;
+                        }
+                        if (p.post.post_type) {
+                            data.post.type = p.post.post_type;
+                        }
+                    }
+                    if (p.post.status) {
+                        data.post.status = p.post.status;
                     }
                     if (p.player_detail) {
                         let posted_by = {

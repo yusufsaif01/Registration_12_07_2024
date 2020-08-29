@@ -10,6 +10,7 @@ const jwt = require("./configs/jwt");
 const redis = require("./configs/redis")
 const storage = require("./configs/storage");
 const state_district_storage = require("./configs/state-district-storage");
+const vimeo = require('./configs/vimeo');
 
 // Define a schema
 var config = convict({
@@ -22,7 +23,8 @@ var config = convict({
 	jwt,
 	redis,
 	storage,
-	state_district_storage
+	state_district_storage,
+	vimeo
 });
 
 // Perform validation

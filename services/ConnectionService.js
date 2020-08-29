@@ -9,6 +9,8 @@ const CONNECTION_REQUEST = require('../constants/ConnectionRequestStatus');
 const FootmateRequestListResponseMapper = require("../dataModels/responseMapper/FootmateRequestListResponseMapper");
 const MutualFootmateListResponseMapper = require("../dataModels/responseMapper/MutualFootmateListResponseMapper");
 const FootmateListResponseMapper = require("../dataModels/responseMapper/FootmateListResponseMapper");
+const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
+const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const moment = require('moment');
 
 class ConnectionService {
@@ -16,6 +18,7 @@ class ConnectionService {
         this.connectionUtilityInst = new ConnectionUtility();
         this.connectionRequestUtilityInst = new ConnectionRequestUtility();
         this.loginUtilityInst = new LoginUtility();
+        this.footPlayerUtilityInst = new FootPlayerUtility();
     }
 
     async followMember(requestedData = {}, isUsedByAcceptRequestFunc) {
@@ -364,8 +367,69 @@ class ConnectionService {
                 if (connection_of_user.followings && connection_of_user.followings.length)
                     followings = connection_of_user.followings.length;
             }
+            let club_footplayer_requests = 0, academy_footplayer_requests = 0;
+            let footplayer_requests = await this.footPlayerUtilityInst.aggregate([
+                { $match: { "send_to.user_id": requestedData.user_id, status: FOOTPLAYER_STATUS.PENDING, is_deleted: false } },
+                { $lookup: { from: "club_academy_details", localField: "sent_by", foreignField: "user_id", as: "club_academy_detail" } },
+                { $unwind: { path: "$club_academy_detail" } },
+                {
+                    $group:
+                    {
+                        _id: "$send_to.user_id",
+                        club_request: {
+                            $push: {
+                                $cond: {
+                                    if: { $eq: ["$club_academy_detail.member_type", MEMBER.CLUB] },
+                                    then: "$club_academy_detail",
+                                    else: null,
+                                }
+                            }
+                        },
+                        academy_request: {
+                            $push: {
+                                $cond: {
+                                    if: { $eq: ["$club_academy_detail.member_type", MEMBER.ACADEMY] },
+                                    then: "$club_academy_detail",
+                                    else: null,
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        user_id: 1, club_request: {
+                            $size: {
+                                $filter: {
+                                    input: "$club_request", as: "element",
+                                    cond: {
+                                        $ne: ["$$element", null]
+                                    }
+                                }
+                            }
+                        },
+                        academy_request: {
+                            $size: {
+                                $filter: {
+                                    input: "$academy_request", as: "element",
+                                    cond: {
+                                        $ne: ["$$element", null]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]);
+            if (footplayer_requests && footplayer_requests.length > 0 && footplayer_requests[0]) {
+                club_footplayer_requests = footplayer_requests[0].club_request || 0;
+                academy_footplayer_requests = footplayer_requests[0].academy_request || 0;
+            }
             let response = {
+                total_requests: footmate_requests + club_footplayer_requests + academy_footplayer_requests,
                 footmate_requests: footmate_requests,
+                club_footplayer_requests: club_footplayer_requests,
+                academy_footplayer_requests: academy_footplayer_requests,
                 footmates: footmates,
                 followers: followers,
                 followings: followings
