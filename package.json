@@ -32,6 +32,7 @@
     "prompts": "^2.2.1",
     "redis": "^3.0.2",
     "storage-provider": "file:./storage-provider",
+    "vimeo": "^2.1.1",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.1.0"
   },
