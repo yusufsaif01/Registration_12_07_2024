@@ -9,8 +9,8 @@ const helper = require("./configs/helper");
 const jwt = require("./configs/jwt");
 const redis = require("./configs/redis")
 const storage = require("./configs/storage");
-const scheduler = require("./configs/scheduler.json");
 const state_district_storage = require("./configs/state-district-storage");
+const vimeo = require('./configs/vimeo');
 
 // Define a schema
 var config = convict({
@@ -23,8 +23,8 @@ var config = convict({
 	jwt,
 	redis,
 	storage,
-	scheduler,
-	state_district_storage
+	state_district_storage,
+	vimeo
 });
 
 // Perform validation

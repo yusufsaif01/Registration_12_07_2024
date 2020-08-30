@@ -26,12 +26,12 @@
     "moment": "^2.25.3",
     "mongoose": "^5.9.4",
     "morgan": "~1.9.1",
-    "node-schedule": "^1.3.2",
     "node-verhoeff": "0.0.11",
     "nodemailer": "^6.3.0",
     "prompts": "^2.2.1",
     "redis": "^3.0.2",
     "storage-provider": "file:./storage-provider",
+    "vimeo": "^2.1.1",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.1.0"
   },

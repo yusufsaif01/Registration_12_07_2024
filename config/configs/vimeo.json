@@ -1,0 +1,39 @@
+{
+  "access_token": {
+    "doc": "Vimeo API Access Token",
+    "format": "String",
+    "default": "",
+    "env": "VIMEO_ACCESS_TOKEN",
+    "arg": "vimeo_access_token"
+  },
+
+  "client_id": {
+    "doc": "Vimeo client ID",
+    "format": "String",
+    "default": "",
+    "env": "VIMEO_CLIENT_ID",
+    "arg": "vimeo_client_id"
+  },
+
+  "client_secret": {
+    "doc": "Vimeo client secret",
+    "format": "String",
+    "default": "",
+    "env": "VIMEO_CLIENT_SECRET",
+    "arg": "vimeo_client_secret"
+  },
+  "upload_path": {
+    "doc": "Temporary path for storing uploaded files",
+    "format": "String",
+    "default": "uploads/vimeo",
+    "env": "VIMEO_UPLOAD_PATH",
+    "arg": "vimeo_upload_path"
+  },
+  "video_in_processing_thumbnail": {
+    "doc": "Default media thumbnail for video",
+    "format": "String",
+    "default": "public/video-in-processing.jpg",
+    "env": "VIDEO_PROCESSING_THUMBNAIL",
+    "arg": "video_processing_thumbnail"
+  }
+}
