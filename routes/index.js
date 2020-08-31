@@ -16,10 +16,12 @@ const employmentContract = require('./employment-contract.rest');
 const video = require('./video.rest');
 const reportCardRoutes = require('./report-card.rest');
 const accessToken = require('./access-token.rest');
+const checkAccessToken = require('../middleware/auth/access-token');
 
 class Route {
 	loadRoutes(app) {
 		const apiRouter = express.Router();
+		const accessTokenRouter = express.Router();
 
 		authRoutes(apiRouter);
 		userProfileRoutes(apiRouter);
@@ -37,12 +39,15 @@ class Route {
 		employmentContract(apiRouter);
 		video(apiRouter);
 		reportCardRoutes(apiRouter);
-		accessToken(apiRouter);
+		
+		accessToken(accessTokenRouter);
 
-		app.use('/api', apiRouter);
-		app.use("/apidocs", express.static("apidocs/doc"));
-		app.use("/uploads", express.static("uploads"));
-		app.use("/public", express.static("public"));
+		app.use("/api/access-token", accessTokenRouter)
+		app.use('/api', checkAccessToken(), apiRouter);
+		app.use("/apidocs", checkAccessToken(), express.static("apidocs/doc"));
+		app.use("/uploads", checkAccessToken(), express.static("uploads"));
+		app.use("/public", checkAccessToken(), express.static("public"));
+
 	}
 }
 

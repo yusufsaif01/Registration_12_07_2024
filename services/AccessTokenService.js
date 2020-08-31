@@ -1,8 +1,10 @@
 const moment = require("moment");
+const jsonwebtoken = require("jsonwebtoken");
 const AccessWhitelistUtility = require("../db/utilities/AccessWhitelistUtility");
 const errors = require("../errors");
 const ResponseMessage = require("../constants/ResponseMessage");
 const EmailService = require("./EmailService");
+const config = require("../config");
 
 module.exports = class AccessWhitelistService {
   constructor() {
@@ -40,8 +42,8 @@ module.exports = class AccessWhitelistService {
     }
   }
 
-  async verifyOtp ({email, otp}) {
-    const $where = {email, otp, is_deleted: false};
+  async verifyOtp({ email, otp }) {
+    const $where = { email, otp, is_deleted: false };
 
     const found = await this.accessWhiteListInst.findOne($where);
 
@@ -55,10 +57,18 @@ module.exports = class AccessWhitelistService {
       throw new errors.BadRequest(ResponseMessage.OTP_EXPIRED);
     }
 
-    return Promise.resolve({
-      access_token: 'random-access-token'
-    });
+    await this.accessWhiteListInst.updateOne(
+      {
+        id: found.id,
+      },
+      {
+        otp: null,
+      }
+    );
 
+    return Promise.resolve({
+      access_token: await this.generateAccessToken(email),
+    });
   }
 
   generateOtp(length = 6) {
@@ -71,5 +81,16 @@ module.exports = class AccessWhitelistService {
 
   async sendOtpEmail(data) {
     this.emailServiceInst.sendOtpEmail(data);
+  }
+
+  async generateAccessToken(email) {
+    return jsonwebtoken.sign({}, config.jwt.jwt_secret, {
+      expiresIn: config.jwt.access_token_expiry_in,
+      subject: email,
+    });
+  }
+
+  async verifyAccessToken(token) {
+    return jsonwebtoken.verify(token, config.jwt.jwt_secret);
   }
 };

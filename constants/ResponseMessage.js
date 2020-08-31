@@ -662,6 +662,15 @@ class ResponseMessage {
     static get OTP_EXPIRED() {
         return "OTP has expired";
     }
+    static get ACCESS_TOKEN_REQUIRED() {
+        return "Access token is required";
+    }
+    static get ACCESS_TOKEN_INVALID() {
+        return "Access token is invalid";
+    }
+    static get ACCESS_TOKEN_EXPIRED() {
+        return "Access token is expired";
+    }
 }
 
 module.exports = ResponseMessage
