@@ -24,7 +24,7 @@ module.exports = ({ email, password_reset_link, name }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Hi ${name}</h1>
+						Hi ${name.charAt(0).toUpperCase() + name.slice(1)}</h1>
 				</td>
 			</tr>
 

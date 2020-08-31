@@ -11,6 +11,9 @@ const MEMBER = require('../constants/MemberType');
 const PLAYER = require('../constants/PlayerType');
 const PlayerUtility = require('../db/utilities/PlayerUtility');
 const CommentsListResponseMapper = require("../dataModels/responseMapper/CommentListResponseMapper");
+const PostStatus = require('../constants/PostStatus');
+const PostType = require('../constants/PostType');
+const VideoService = require('./VideoService');
 
 class PostService {
 
@@ -20,6 +23,7 @@ class PostService {
         this.commentUtilityInst = new CommentUtility();
         this.likeUtilityInst = new LikeUtility();
         this.playerUtilityInst = new PlayerUtility();
+        this.videoService = new VideoService();
     }
 
     /**
@@ -74,16 +78,21 @@ class PostService {
         if (!reqObj.text && reqObj.media_url) {
             record.media = {
                 media_url: reqObj.media_url,
-                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
+                media_type: POST_MEDIA.IMAGE
             }
         }
         if (reqObj.text && reqObj.media_url) {
             record.media = {
                 text: reqObj.text,
                 media_url: reqObj.media_url,
-                media_type: POST_MEDIA.ALLOWED_MEDIA_TYPE
+                media_type: POST_MEDIA.IMAGE
             }
         }
+
+        // Default values for timeline post
+        record.status = PostStatus.PUBLISHED;
+        record.post_type = PostType.TIMELINE;
+
         return Promise.resolve(record);
     }
 
@@ -105,8 +114,55 @@ class PostService {
             if (connection && connection.followings) {
                 user_id_array_for_post = user_id_array_for_post.concat(connection.followings);
             }
-            let data = await this.postUtilityInst.aggregate([{ $match: { posted_by: { $in: user_id_array_for_post }, is_deleted: false } },
-            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", created_at: "$created_at" }, _id: 0 } },
+
+            const matchCriteria = {
+              posted_by: { $in: user_id_array_for_post },
+              is_deleted: false,
+              post_type: requestedData.filters.type,             
+            };
+
+            // disabled for now
+            if (false && requestedData.filters.ability) {
+                let ability = requestedData.filters.ability;
+                ability = ability.split(',')
+                if (!Array.isArray(ability)) {
+                    ability = [ability];
+                }
+                matchCriteria['meta.abilities.ability_id'] = {$in : ability};
+            }
+            if (requestedData.filters.attribute) {
+                let attribute = requestedData.filters.attribute;
+                attribute = attribute.split(',')
+                if (!Array.isArray(attribute)) {
+                    attribute = [attribute];
+                }
+                matchCriteria["meta.abilities.attributes.attribute_name"] = {
+                  $in: attribute,
+                };
+            }
+
+            if (requestedData.filters.others) {
+                let others = requestedData.filters.others;
+                others = others.split(",");
+                if (!Array.isArray(others)) {
+                    others = [others];
+                }
+                matchCriteria["meta.others"] = {
+                  $in: others,
+                };
+            }
+
+            // filter to be provided by video list controller
+            // to get only videos
+            if (requestedData.filters.media_type) {
+                matchCriteria["media.media_type"] =
+                  requestedData.filters.media_type;
+            }
+
+            matchCriteria["$or"] = [{ status: PostStatus.PUBLISHED }, {posted_by: requestedData.user_id}];
+
+            let data = await this.postUtilityInst.aggregate([{ $match: matchCriteria },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status", post_type:"$post_type", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
             { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
             { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
             { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", requestedData.user_id] } } } } },
@@ -129,7 +185,7 @@ class PostService {
             { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } }, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } },
             { $sort: { "post.created_at": -1 } }, { $skip: options.skip }, { $limit: options.limit }
             ]);
-            let totalPosts = await this.postUtilityInst.countList({ posted_by: { $in: user_id_array_for_post } });
+            let totalPosts = await this.postUtilityInst.countList(matchCriteria);
             data = new PostsListResponseMapper().map(data, commentOptions.comments);
             let record = { total: totalPosts, records: data }
             return Promise.resolve(record)
@@ -137,6 +193,93 @@ class PostService {
         catch (e) {
             console.log("Error in getPostsList() of PostService", e);
             return Promise.reject(e);
+        }
+    }
+
+    async getPublicVideo (query) {
+        const findWhere = {
+            id: query.id,
+            posted_by: query.user_id,
+            is_deleted: false,
+            "media.media_type": query.media_type,
+        };
+        if (query.user_id != query.authUser.user_id) {
+            findWhere["status"] = PostStatus.PUBLISHED;
+        }
+        const preFetchVideo = await this.postUtilityInst.findOne(findWhere, {post_type:1});
+
+        if (!preFetchVideo) {
+            return Promise.reject(
+              new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND)
+            );
+        }
+
+        if (query.user_id != query.authUser.user_id) {
+          // user can see his uploaded video
+          await this.videoService.matchesPublicCriteria({
+            user_id: query.user_id,
+            authUser: query.authUser,
+            post_type: preFetchVideo.post_type,
+          });
+        }
+
+        return await this.getPost(query);
+    }
+
+    async getPost ({id, user_id, media_type, mode, authUser, post_type}) {
+        try {
+            const $where = {
+              id: id,
+              posted_by: user_id,
+              is_deleted: false,
+              "media.media_type": media_type,
+            };
+
+            if (mode == 'public') {
+                // show only published video to viewers
+                if (user_id != authUser.user_id) {
+                    $where.status = PostStatus.PUBLISHED;
+                }
+            }
+
+        const commentOptions = {
+            comments: 1
+        }
+
+        let data = await this.postUtilityInst.aggregate([{ $match: $where },
+            { $project: { post: { id: "$id", posted_by: "$posted_by", media: "$media", status: "$status",post_type: "$post_type", meta:"$meta", created_at: "$created_at" }, _id: 0 } },
+            { "$lookup": { "from": "likes", "localField": "post.id", "foreignField": "post_id", "as": "like_documents" } },
+            { $project: { post: 1, filtered_likes: { $filter: { input: "$like_documents", as: "likeDocument", cond: { $eq: ["$$likeDocument.is_deleted", false] } } } } },
+            { $project: { post: 1, likes: { $size: "$filtered_likes" }, likedByMe: { $filter: { input: "$filtered_likes", as: "likeDocument", cond: { $eq: ["$$likeDocument.liked_by", user_id] } } } } },
+            { "$lookup": { "from": "comments", "localField": "post.id", "foreignField": "post_id", "as": "comment_documents" } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, not_deleted_comments: { $filter: { input: "$comment_documents", as: "commentDocument", cond: { $eq: ["$$commentDocument.is_deleted", false] } } } } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: { $size: "$not_deleted_comments" }, data: { $reverseArray: { $slice: ["$not_deleted_comments", -3] } } } } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } } } },
+            { $unwind: { path: "$comments.data", preserveNullAndEmptyArrays: true } },
+            { "$lookup": { "from": "club_academy_details", "localField": "comments.data.commented_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { created_at: 1, comment: 1, commented_by: 1, club_academy_detail: { avatar_url: "$club_academy_detail.avatar_url", name: "$club_academy_detail.name", member_type: "$club_academy_detail.member_type", user_id: "$club_academy_detail.user_id", type: "$club_academy_detail.type" } } } } },
+            { "$lookup": { "from": "player_details", "localField": "comments.data.commented_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } },
+            { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { created_at: 1, comment: 1, club_academy_detail: 1, player_detail: { first_name: "$player_detail.first_name", last_name: "$player_detail.last_name", avatar_url: "$player_detail.avatar_url", user_id: "$player_detail.user_id", player_type: "$player_detail.player_type", position: "$player_detail.position" } } } } },
+            { "$group": { _id: "$post.id", likedByMe: { $first: "$likedByMe" }, likes: { $first: "$likes" }, post: { $first: "$post" }, total_comments: { $first: "$comments.total" }, data: { $push: "$comments.data" } } },
+            { $project: { _id: 0, post: 1, likedByMe: 1, likes: 1, comments: { total: "$total_comments", data: { $cond: { if: { $eq: ["$total_comments", 0] }, then: [], else: "$data" } } } } },
+            { "$lookup": { "from": "club_academy_details", "localField": "post.posted_by", "foreignField": "user_id", "as": "club_academy_detail" } },
+            { $unwind: { path: "$club_academy_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: 1, club_academy_detail: { avatar_url: 1, name: 1, type: 1, member_type: 1, user_id: 1 } } },
+            { "$lookup": { "from": "player_details", "localField": "post.posted_by", "foreignField": "user_id", "as": "player_detail" } },
+            { $unwind: { path: "$player_detail", preserveNullAndEmptyArrays: true } }, { $project: { post: 1, likedByMe: 1, likes: 1, comments: { total: 1, data: { $cond: { if: { $eq: [commentOptions.comments, 0] }, then: [], else: "$comments.data" } } }, club_academy_detail: 1, player_detail: { first_name: 1, last_name: 1, avatar_url: 1, user_id: 1, player_type: 1, position: 1 } } }
+        ]);
+
+        if (data.length == 0) {
+            throw new errors.NotFound(RESPONSE_MESSAGE.POST_NOT_FOUND);
+        }
+
+        data = new PostsListResponseMapper().map(data, commentOptions.comments);
+
+        return Promise.resolve(data[0]);
+        } catch (error) {
+            console.log("Error in getting post", error);
+            return Promise.reject(error)
         }
     }
 
@@ -198,7 +341,7 @@ class PostService {
         record.media = {
             text: reqObj.text || (currentDataOfPost.media ? currentDataOfPost.media.text : ""),
             media_url: reqObj.media_url || (currentDataOfPost.media ? currentDataOfPost.media.media_url : ""),
-            media_type: currentDataOfPost.media ? currentDataOfPost.media.media_type : POST_MEDIA.ALLOWED_MEDIA_TYPE
+            media_type: currentDataOfPost.media ? currentDataOfPost.media.media_type : POST_MEDIA.IMAGE
         }
         return Promise.resolve(record);
     }

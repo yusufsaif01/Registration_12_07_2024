@@ -3,6 +3,7 @@ const updateContractStatus = require("../seeders/EmploymentContractStatus");
 const updatePlayerType = require("../seeders/playerTypeUpdate");
 const documentReminderJob = require("./jobs/document.submission");
 const config = require("../config");
+
 const contractRule = config.scheduler.contract_status_update_schedule;
 const playerRule = config.scheduler.player_type_update_schedule;
 const contractStatusUpdateScheduler = schedule.scheduleJob(
@@ -21,4 +22,5 @@ if (config.scheduler.document_reminder_schedule_enabled) {
     documentReminderJob();
   });
 }
+
 module.exports = { contractStatusUpdateScheduler, playerTypeUpdateScheduler };

@@ -23,7 +23,7 @@ module.exports = ({ email, activation_link, name }) => {
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						${data.name}</h1>
+						${data.name.charAt(0).toUpperCase() + data.name.slice(1)}</h1>
 				</td>
 			</tr>
 			<!--  -->

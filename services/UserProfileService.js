@@ -249,7 +249,11 @@ class UserProfileService {
                     data.position = positionArray;
                 }
             }
-
+            else {
+                if (data.top_signings) {
+                    _.remove(data.top_signings, (val) => val.name === '');
+                }
+            }
         }
         if (data._category === PROFILE_DETAIL.PERSONAL) {
             let social_profiles = {};

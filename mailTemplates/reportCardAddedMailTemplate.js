@@ -1,4 +1,5 @@
 module.exports = ({ published_at, club_academy_name, player_name, player_email }) => {
+	club_academy_name = club_academy_name.charAt(0).toUpperCase() + club_academy_name.slice(1)
     return {
         to: player_email,
         subject: `Your new report card uploaded by ${club_academy_name}`,
@@ -15,7 +16,7 @@ module.exports = ({ published_at, club_academy_name, player_name, player_email }
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;
 					font-size: 48px;font-weight: 700;color:#626262">
-						Dear ${player_name},</h1>
+						Dear ${player_name.charAt(0).toUpperCase() + player_name.slice(1)},</h1>
 				</td>
 				<td style="display:block; width: 100%; text-align: center;">
 					<h1 style="font-family: 'Paytone One', sans-serif;

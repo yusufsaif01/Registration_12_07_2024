@@ -20,6 +20,7 @@ RUN apk --no-cache --virtual build-dependencies add \
     && npm install \
     && apk del build-dependencies
 
+RUN apk add --no-cache ffmpeg
 
 RUN npm install
 # If you are building your code for production
