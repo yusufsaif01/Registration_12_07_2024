@@ -8,6 +8,11 @@ const Joi = require("@hapi/joi");
 const CustomMessages = require("./CustomMessages");
 const PostMedia = require("../../constants/PostMedia");
 const PostOtherTags = require("../../constants/PostOtherTags");
+const LoginUtility = require("../../db/utilities/LoginUtility");
+const ProfileStatus = require("../../constants/ProfileStatus");
+const AccountStatus = require("../../constants/AccountStatus");
+
+const loginUtilityInst = new LoginUtility();
 
 module.exports = {
   middleware(req, res, next) {
@@ -23,21 +28,42 @@ module.exports = {
     }
     next();
   },
-  userCanUploadVideo(req, res, next) {
-    const { type } = req.query;
+  async userCanUploadVideo(req, res, next) {
+    try {
+      const { type } = req.query;
 
-    if (type != PostType.TIMELINE && req.authUser.role == Role.PLAYER) {
-      return ResponseHandler(
-        req,
-        res,
-        Promise.reject(
-          new errors.ValidationFailed(
-            ResponseMessage.NOT_ALLOWED_TO_UPLOAD_VIDEO
-          )
-        )
+      if (type != PostType.TIMELINE && req.authUser.role == Role.PLAYER) {
+        throw new errors.ValidationFailed(
+          ResponseMessage.NOT_ALLOWED_TO_UPLOAD_VIDEO
+        );
+      }
+
+      const loginUser = await loginUtilityInst.findOne(
+        {
+          user_id: req.authUser.user_id,
+          is_deleted: false,
+        },
+        { profile_status: 1, status: 1 }
       );
+
+      if (!loginUser) {
+        throw new errors.ValidationFailed(ResponseMessage.USER_NOT_FOUND);
+      }
+
+      if (loginUser.status != AccountStatus.ACTIVE) throw new errors.ValidationFailed(
+        ResponseMessage.ACCOUNT_NOT_ACTIVATED
+      );
+
+      if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
+        throw new errors.ValidationFailed(
+          ResponseMessage.PROFILE_NOT_VERIFIED_VIDEO
+        );
+      }
+
+      next();
+    } catch (error) {
+      return ResponseHandler(req, res, Promise.reject(error));
     }
-    next();
   },
   async validateData(req, res, next) {
     const playerRestrictions = {
@@ -89,9 +115,13 @@ module.exports = {
           attributes: attributesSchema.items(Joi.string().required()),
         })
       ),
-      others: Joi.array().unique().items(
-        Joi.string().valid(PostOtherTags.VALID_POST_TAGS).error(() => ResponseMessage.TAG_IS_INVALID)
-      ),
+      others: Joi.array()
+        .unique()
+        .items(
+          Joi.string()
+            .valid(PostOtherTags.VALID_POST_TAGS)
+            .error(() => ResponseMessage.TAG_IS_INVALID)
+        ),
     });
 
     try {
