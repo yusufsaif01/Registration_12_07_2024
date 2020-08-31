@@ -25,7 +25,10 @@ module.exports = {
     access_token: {
       type: String,
     },
-    expiry: {
+    otp_expiry: {
+      type: Date,
+    },
+    access_token_expiry: {
       type: Date,
     },
     is_deleted: {

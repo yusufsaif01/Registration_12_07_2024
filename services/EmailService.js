@@ -95,6 +95,10 @@ class EmailService {
     async reportCardAdded(data) {
         await this.sendMail("reportCardAdded", data);
     }
+
+    async sendOtpEmail (data) {
+        await this.sendMail("sendOtpEmail", data);
+    }
 }
 
 module.exports = EmailService;

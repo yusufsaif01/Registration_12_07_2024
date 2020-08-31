@@ -659,6 +659,9 @@ class ResponseMessage {
     static get TAG_IS_INVALID () {
         return "Selected Tag is invalid";
     }
+    static get OTP_EXPIRED() {
+        return "OTP has expired";
+    }
 }
 
 module.exports = ResponseMessage
