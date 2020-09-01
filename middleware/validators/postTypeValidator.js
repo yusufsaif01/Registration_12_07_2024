@@ -45,8 +45,19 @@ module.exports = {
       max_abilities: 2,
     };
 
-    let abilitiesSchema = Joi.array().min(1).required().unique("ability");
-    let attributesSchema = Joi.array().min(1).required().unique();
+    let abilitiesSchema = Joi.array().unique("ability");
+    let attributesSchema = Joi.array().unique();
+
+    let others = [];
+
+    try {
+      others = JSON.parse(req.body.others);
+    } catch (error) {}
+
+    if (!others || (Array.isArray(others) && others.length == 0)) {
+      abilitiesSchema = abilitiesSchema.required().min(1);
+      attributesSchema = attributesSchema.required().min(1);
+    }
 
     if (req.authUser.role == Role.PLAYER) {
       abilitiesSchema = abilitiesSchema.max(playerRestrictions.max_abilities);
@@ -89,9 +100,13 @@ module.exports = {
           attributes: attributesSchema.items(Joi.string().required()),
         })
       ),
-      others: Joi.array().unique().items(
-        Joi.string().valid(PostOtherTags.VALID_POST_TAGS).error(() => ResponseMessage.TAG_IS_INVALID)
-      ),
+      others: Joi.array()
+        .unique()
+        .items(
+          Joi.string()
+            .valid(PostOtherTags.VALID_POST_TAGS)
+            .error(() => ResponseMessage.TAG_IS_INVALID)
+        ),
     });
 
     try {
