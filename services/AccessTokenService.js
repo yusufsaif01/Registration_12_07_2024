@@ -5,6 +5,7 @@ const errors = require("../errors");
 const ResponseMessage = require("../constants/ResponseMessage");
 const EmailService = require("./EmailService");
 const config = require("../config");
+const WhitelistStatus = require("../constants/WhitelistStatus");
 
 module.exports = class AccessWhitelistService {
   constructor() {
@@ -14,7 +15,11 @@ module.exports = class AccessWhitelistService {
 
   async requestOtp(email) {
     try {
-      const $where = { email: email, is_deleted: false };
+      const $where = {
+        email: email,
+        is_deleted: false,
+        status: WhitelistStatus.ACTIVE,
+      };
       const found = await this.accessWhiteListInst.findOne($where);
 
       if (!found) {
@@ -43,7 +48,12 @@ module.exports = class AccessWhitelistService {
   }
 
   async verifyOtp({ email, otp }) {
-    const $where = { email, otp, is_deleted: false };
+    const $where = {
+      email,
+      otp,
+      is_deleted: false,
+      status: WhitelistStatus.ACTIVE,
+    };
 
     const found = await this.accessWhiteListInst.findOne($where);
 

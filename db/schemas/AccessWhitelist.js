@@ -1,4 +1,5 @@
 const uuidv4 = require("uuid/v4");
+const WhitelistStatus = require("../../constants/WhitelistStatus");
 
 module.exports = {
   fields: {
@@ -18,6 +19,10 @@ module.exports = {
     },
     phone: {
       type: String,
+    },
+    status: {
+      type: String,
+      enum: WhitelistStatus.ALLOWED_STATUS,
     },
     otp: {
       type: String,
