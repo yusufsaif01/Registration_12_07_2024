@@ -75,13 +75,12 @@ module.exports = {
     let abilitiesSchema = Joi.array().unique("ability");
     let attributesSchema = Joi.array().unique();
 
-    let others = [];
+    let others = req.body.others;
 
     try {
-      if (typeof req.body.others == "string") {
-        others = JSON.parse(req.body.others);
+      if (typeof others == "string") {
+        others = JSON.parse(others);
       }
-      others = req.body.others;
     } catch (error) {
       return ResponseHandler(
         req,
