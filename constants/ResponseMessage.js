@@ -605,7 +605,7 @@ class ResponseMessage {
         return `Only ${max} attributes can be selected`;
     }
     static VIDEO_DURATION_EXCEEDED(maxDuration) {
-        return `Video length cannot be more than ${maxDuration / 60} minutes`;
+        return `Max ${maxDuration / 60} mins length of video allowed`;
     }
     static get INVALID_VIDEO_FORMAT() {
         return "Uploaded video format is not valid";
