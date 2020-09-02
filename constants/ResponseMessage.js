@@ -662,6 +662,9 @@ class ResponseMessage {
     static get INVALID_JSON() {
         return "Invalid input supplied"
     }
+    static get PROFILE_NOT_VERIFIED_VIDEO() {
+        return "Verify your documents in order to upload the video"
+    }
 }
 
 module.exports = ResponseMessage
