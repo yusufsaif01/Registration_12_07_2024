@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 app.use(StorageProvider.addUploadMiddleware({
   limits: {
-      fileSize: 25 * 1024 * 1024 // 15 MB
+    fileSize: 5 * 1024 * 1024 * 1024 // 5 GB
   },
   createParentPath: true,
   uriDecodeFileNames: true,
@@ -33,7 +33,7 @@ app.use(StorageProvider.addUploadMiddleware({
   preserveExtension: 4,
   abortOnLimit: true,
   limitHandler: function (req, res, next) {
-      next(new errors.MaxFileLimitExceeded(null, { size: "15 MB" }));
+      next(new errors.MaxFileLimitExceeded(null, { size: "5 GB" }));
   },
   useTempFiles: true,
   tempFileDir: "/tmp",
