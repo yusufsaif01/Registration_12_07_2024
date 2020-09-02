@@ -50,9 +50,10 @@ module.exports = {
         throw new errors.ValidationFailed(ResponseMessage.USER_NOT_FOUND);
       }
 
-      if (loginUser.status != AccountStatus.ACTIVE) throw new errors.ValidationFailed(
-        ResponseMessage.ACCOUNT_NOT_ACTIVATED
-      );
+      if (loginUser.status != AccountStatus.ACTIVE)
+        throw new errors.ValidationFailed(
+          ResponseMessage.ACCOUNT_NOT_ACTIVATED
+        );
 
       if (loginUser.profile_status.status != ProfileStatus.VERIFIED) {
         throw new errors.ValidationFailed(
@@ -71,8 +72,27 @@ module.exports = {
       max_abilities: 2,
     };
 
-    let abilitiesSchema = Joi.array().min(1).required().unique("ability");
-    let attributesSchema = Joi.array().min(1).required().unique();
+    let abilitiesSchema = Joi.array().unique("ability");
+    let attributesSchema = Joi.array().unique();
+
+    let others = [];
+
+    try {
+      others = JSON.parse(req.body.others);
+    } catch (error) {
+      return ResponseHandler(
+        req,
+        res,
+        Promise.reject(
+          new errors.ValidationFailed(ResponseMessage.INVALID_JSON)
+        )
+      );
+    }
+
+    if (!others || (Array.isArray(others) && others.length == 0)) {
+      abilitiesSchema = abilitiesSchema.required().min(1);
+      attributesSchema = attributesSchema.required().min(1);
+    }
 
     if (req.authUser.role == Role.PLAYER) {
       abilitiesSchema = abilitiesSchema.max(playerRestrictions.max_abilities);
