@@ -659,6 +659,9 @@ class ResponseMessage {
     static get TAG_IS_INVALID () {
         return "Selected Tag is invalid";
     }
+    static get INVALID_JSON() {
+        return "Invalid input supplied"
+    }
 }
 
 module.exports = ResponseMessage

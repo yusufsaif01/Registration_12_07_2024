@@ -52,7 +52,15 @@ module.exports = {
 
     try {
       others = JSON.parse(req.body.others);
-    } catch (error) {}
+    } catch (error) {
+      return ResponseHandler(
+        req,
+        res,
+        Promise.reject(
+          new errors.ValidationFailed(ResponseMessage.INVALID_JSON)
+        )
+      );
+    }
 
     if (!others || (Array.isArray(others) && others.length == 0)) {
       abilitiesSchema = abilitiesSchema.required().min(1);
