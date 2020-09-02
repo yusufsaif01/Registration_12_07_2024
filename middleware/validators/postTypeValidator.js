@@ -78,7 +78,10 @@ module.exports = {
     let others = [];
 
     try {
-      others = JSON.parse(req.body.others);
+      if (typeof req.body.others == "string") {
+        others = JSON.parse(req.body.others);
+      }
+      others = req.body.others;
     } catch (error) {
       return ResponseHandler(
         req,
