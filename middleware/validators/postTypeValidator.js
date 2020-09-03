@@ -1,4 +1,5 @@
 const { extname } = require("path");
+const { unlink } = require("fs");
 const ResponseHandler = require("../../ResponseHandler");
 const PostType = require("../../constants/PostType");
 const errors = require("../../errors");
@@ -14,10 +15,33 @@ const AccountStatus = require("../../constants/AccountStatus");
 
 const loginUtilityInst = new LoginUtility();
 
+// delete the uploaded file if there is any validation error
+const deleteUploadedFile = (file) => {
+  try {
+    if (!file || !file.media) {
+      return;
+    }
+    file = file.media
+    if (Array.isArray(file)) {
+      file.forEach((uploadedFile) =>
+        unlink(
+          uploadedFile.tempFilePath,
+          console.log(file.tempFilePath, "removed")
+        )
+      );
+      return;
+    }
+    unlink(file.tempFilePath, () => console.log(file.tempFilePath, "removed"));
+  } catch (error) {
+    console.log("Error in deleting temp. file", error);
+  }
+};
+
 module.exports = {
   middleware(req, res, next) {
     const { type } = req.query;
     if (!PostType.ALLOWED_POST_TYPES.includes(type)) {
+      deleteUploadedFile(req.files);
       return ResponseHandler(
         req,
         res,
@@ -63,6 +87,7 @@ module.exports = {
 
       next();
     } catch (error) {
+      deleteUploadedFile(req.files);
       return ResponseHandler(req, res, Promise.reject(error));
     }
   },
@@ -152,6 +177,7 @@ module.exports = {
       next();
     } catch (error) {
       console.log(error);
+      deleteUploadedFile(req.files);
       return ResponseHandler(
         req,
         res,
@@ -175,6 +201,7 @@ module.exports = {
         req.files.media = uploadedMedia;
         return next();
       } else {
+        deleteUploadedFile(req.files);
         return ResponseHandler(
           req,
           res,
@@ -184,7 +211,7 @@ module.exports = {
         );
       }
     }
-
+    deleteUploadedFile(req.files);
     return ResponseHandler(
       req,
       res,
