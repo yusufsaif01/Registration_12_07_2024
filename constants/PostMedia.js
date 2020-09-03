@@ -10,7 +10,18 @@ class PostMedia {
   }
 
   static get ALLOWED_VIDEO_EXTENSIONS() {
-    return [".mp4", ".avi", ".mkv"];
+    return [
+      ".mp4",
+      ".avi",
+      ".mkv",
+      ".webm",
+      ".mpg",
+      ".mp2",
+      ".ogg",
+      ".wmv",
+      ".mov",
+      ".flv",
+    ];
   }
 
   static get ALLOWED_MEDIA_TYPES() {
