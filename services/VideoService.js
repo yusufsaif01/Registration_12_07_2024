@@ -251,21 +251,40 @@ module.exports = class VideoService {
 
       const totalCount = await postInst.countList($where);
 
-      return {
-        total: totalCount,
-        records: VideoResponseMapper.map(posts),
-        posted_by: await loginInst.findOne(
-          {
-            user_id: query.user_id,
-            is_deleted: false,
-          },
-          { member_type: 1, user_id: 1, _id:0 }
-        ),
-      };
+      return this.processVideoListResponse(
+        {
+          total: totalCount,
+          records: VideoResponseMapper.map(posts),
+          posted_by: await loginInst.findOne(
+            {
+              user_id: query.user_id,
+              is_deleted: false,
+            },
+            { member_type: 1, user_id: 1, _id: 0 }
+          ),
+        },
+        query
+      );
     } catch (error) {
       console.log("Error in getVideosList() of VideoService", error);
       return Promise.reject(error);
     }
+  }
+
+  async processVideoListResponse(data, query) {
+    if (
+      [ROLE.CLUB, ROLE.ACADEMY].includes(data.posted_by.member_type) &&
+      query.authUser.user_id != query.user_id
+    ) {
+      const ifExists = await footPlayerInst.findOne({
+        sent_by: query.user_id,
+        "send_to.user_id": query.authUser.user_id,
+        status: FootPlayerStatus.ADDED,
+      });
+      ifExists ? (data.is_footplayer = true) : (data.is_footplayer = false);
+    }
+
+    return data;
   }
 
   async listMatchCriteria(query) {

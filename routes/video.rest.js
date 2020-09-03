@@ -393,6 +393,7 @@ module.exports = (router) => {
    *
    * @apiSuccess {String} status success
    * @apiSuccess {String} message Successfully done
+   * @apiSuccess {Boolean} [data.is_footplayer] Checks whether active authUer(player) is footPlayer of club/academy. only visible in player viewing profile of club/academy
    *
    * @apiSuccessExample {json} Success-Response:
    *    HTTP/1.1 200 OK
@@ -450,6 +451,7 @@ module.exports = (router) => {
    *            "member_type": "academy",
    *            "user_id": "49c9f40f-cb50-436f-900e-e98e6e76915b"
    *          },
+   *          "is_footplayer": true
    *      }
    *  }
    *
