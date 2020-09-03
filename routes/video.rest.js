@@ -365,6 +365,7 @@ module.exports = (router) => {
         attribute: req.query.attribute ? req.query.attribute : null,
         others: req.query.others ? req.query.others : null,
         user_id: req.authUser.user_id,
+        authUser: req.authUser,
         media_type: PostMedia.VIDEO,
       };
 
