@@ -231,14 +231,6 @@ module.exports = class VideoService {
           $match: $where,
         },
         {
-          $lookup: {
-            as: "posted_by",
-            localField: "posted_by",
-            foreignField: "user_id",
-            from: "login_details",
-          },
-        },
-        {
           $project: {
             id: 1,
             media: 1,
@@ -246,10 +238,6 @@ module.exports = class VideoService {
             status: 1,
             created_at: 1,
             meta: 1,
-            posted_by: {
-              user_id: 1,
-              role: 1,
-            },
           },
         },
         {
@@ -266,6 +254,13 @@ module.exports = class VideoService {
       return {
         total: totalCount,
         records: VideoResponseMapper.map(posts),
+        posted_by: await loginInst.findOne(
+          {
+            user_id: query.user_id,
+            is_deleted: false,
+          },
+          { member_type: 1, user_id: 1, _id:0 }
+        ),
       };
     } catch (error) {
       console.log("Error in getVideosList() of VideoService", error);
