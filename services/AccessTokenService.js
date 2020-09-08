@@ -50,7 +50,6 @@ module.exports = class AccessWhitelistService {
   async verifyOtp({ email, otp }) {
     const $where = {
       email,
-      otp,
       is_deleted: false,
       status: WhitelistStatus.ACTIVE,
     };
@@ -59,6 +58,10 @@ module.exports = class AccessWhitelistService {
 
     if (!found) {
       throw new errors.NotFound();
+    }
+
+    if (found.otp != otp) {
+      throw new errors.BadRequest(ResponseMessage.OTP_INVALID);
     }
 
     const isExpired = new Date() > new Date(found.otp_expiry);
