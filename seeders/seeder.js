@@ -6,6 +6,9 @@ const path = require('path');
 let baseDir = path.resolve(__dirname);
 global.__basedir = baseDir.split('\seeders')[0];
 const UserRegistrationService = require('../services/UserRegistrationService');
+const AccessTokenService = require("../services/AccessTokenService");
+const accessTokenInst = new AccessTokenService();
+
 
 const onCancel = prompt => {
     console.log('Closing app without creating the admin.');
@@ -35,6 +38,15 @@ var adminSeeder = () => {
 
             const registrationInst = new UserRegistrationService();
             await registrationInst.adminRegistration(response);
+
+             try {
+               await accessTokenInst.whiteListUser({
+                   name: response.name,
+                   email: response.email,
+               });
+             } catch (error) {
+               console.log(error.message);
+             }
 
             console.log("#############DONE##############");
             process.exit();

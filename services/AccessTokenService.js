@@ -106,4 +106,37 @@ module.exports = class AccessWhitelistService {
   async verifyAccessToken(token) {
     return jsonwebtoken.verify(token, config.jwt.jwt_secret);
   }
+
+  async whiteListUser(data) {
+    try {
+      await this.checkDuplicateRecord(data);
+      data.status = WhitelistStatus.ACTIVE;
+      await this.accessWhiteListInst.insert(data);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async checkDuplicateRecord(data, id = null) {
+    const getRecord = await this.getByEmail(data.email, id);
+
+    if (getRecord) {
+      throw new errors.Conflict(ResponseMessage.USER_ALREADY_WHITELISTED);
+    }
+  }
+
+  async getByEmail(email, ignore = null) {
+    try {
+      const where = {
+        email,
+        is_deleted: false,
+      };
+      if (ignore) where["id"] = { $ne: ignore };
+      const record = await this.accessWhiteListInst.findOne(where);
+      return record;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 };

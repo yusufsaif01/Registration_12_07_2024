@@ -680,6 +680,9 @@ class ResponseMessage {
     static get PROFILE_NOT_VERIFIED_VIDEO() {
         return "Verify your documents in order to upload the video"
     }
+    static get USER_ALREADY_WHITELISTED() {
+        return "User is already whitelisted"
+    }
 }
 
 module.exports = ResponseMessage
