@@ -659,6 +659,21 @@ class ResponseMessage {
     static get TAG_IS_INVALID () {
         return "Selected Tag is invalid";
     }
+    static get OTP_EXPIRED() {
+        return "OTP has expired";
+    }
+    static get OTP_INVALID() {
+        return "OTP is invalid";
+    }
+    static get ACCESS_TOKEN_REQUIRED() {
+        return "Access token is required";
+    }
+    static get ACCESS_TOKEN_INVALID() {
+        return "Access token is invalid";
+    }
+    static get ACCESS_TOKEN_EXPIRED() {
+        return "Access token is expired";
+    }
     static get INVALID_JSON() {
         return "Invalid input supplied"
     }

@@ -95,6 +95,13 @@
         "default": "admin@yftchain.com",
         "env": "CONTACT_US_EMAIL",
         "arg": "contact_us_email"
+    },
+	"restricted_access": {
+        "doc": "restricts access on backend server",
+        "format": "Boolean",
+        "default": "true",
+        "env": "RESTRICTED_ACCESS",
+        "arg": "restricted_access"
     }
 
 }

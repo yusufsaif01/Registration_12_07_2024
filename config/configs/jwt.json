@@ -13,5 +13,12 @@
         "default": "24h",
         "env": "JWT_EXPIRY_IN",
         "arg": "jwt_expiry_in"
+    },
+    "access_token_expiry_in" : {
+        "doc": "expiry time for signed token",
+        "format": "String",
+        "default": "1h",
+        "env": "ACCESS_TOKEN_EXPIRY_IN",
+        "arg": "access_token_expiry_in"
     }
 }
