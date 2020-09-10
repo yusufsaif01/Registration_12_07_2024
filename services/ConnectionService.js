@@ -430,7 +430,7 @@ class ConnectionService {
                 academy_footplayer_requests = footplayer_requests[0].academy_request || 0;
             }
 
-            const videoCount = await this.postUtilityInst.countList({
+            const video_count = await this.postUtilityInst.countList({
                 'media.media_type': POST_MEDIA.VIDEO,
                 'status': POST_STATUS.PUBLISHED,
                 'is_deleted':false
@@ -441,7 +441,7 @@ class ConnectionService {
                 footmate_requests: footmate_requests,
                 club_footplayer_requests: club_footplayer_requests,
                 academy_footplayer_requests: academy_footplayer_requests,
-                video_count: videoCount,
+                video_count: video_count,
                 footmates: footmates,
                 followers: followers,
                 followings: followings
