@@ -12,6 +12,9 @@ const FootmateListResponseMapper = require("../dataModels/responseMapper/Footmat
 const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const moment = require('moment');
+const PostUtility = require('../db/utilities/PostUtility');
+const POST_MEDIA = require('../constants/PostMedia');
+const POST_STATUS = require('../constants/PostStatus');
 
 class ConnectionService {
     constructor() {
@@ -19,6 +22,7 @@ class ConnectionService {
         this.connectionRequestUtilityInst = new ConnectionRequestUtility();
         this.loginUtilityInst = new LoginUtility();
         this.footPlayerUtilityInst = new FootPlayerUtility();
+        this.postUtilityInst = new PostUtility();
     }
 
     async followMember(requestedData = {}, isUsedByAcceptRequestFunc) {
@@ -425,11 +429,20 @@ class ConnectionService {
                 club_footplayer_requests = footplayer_requests[0].club_request || 0;
                 academy_footplayer_requests = footplayer_requests[0].academy_request || 0;
             }
+
+            const video_count = await this.postUtilityInst.countList({
+              "media.media_type": POST_MEDIA.VIDEO,
+              "status": POST_STATUS.PUBLISHED,
+              "is_deleted": false,
+              "posted_by": requestedData.user_id,
+            });
+
             let response = {
                 total_requests: footmate_requests + club_footplayer_requests + academy_footplayer_requests,
                 footmate_requests: footmate_requests,
                 club_footplayer_requests: club_footplayer_requests,
                 academy_footplayer_requests: academy_footplayer_requests,
+                video_count: video_count,
                 footmates: footmates,
                 followers: followers,
                 followings: followings
