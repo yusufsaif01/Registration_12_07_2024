@@ -197,7 +197,7 @@ module.exports = {
 
       const { name } = uploadedMedia;
 
-      if (PostMedia.ALLOWED_VIDEO_EXTENSIONS.includes(extname(name))) {
+      if (PostMedia.ALLOWED_VIDEO_EXTENSIONS.includes(extname(name).toLowerCase())) {
         req.files.media = uploadedMedia;
         return next();
       } else {
