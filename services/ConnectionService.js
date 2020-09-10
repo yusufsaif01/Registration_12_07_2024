@@ -13,8 +13,8 @@ const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const moment = require('moment');
 const PostUtility = require('../db/utilities/PostUtility');
-const PostMedia = require('../constants/PostMedia');
-const PostStatus = require('../constants/PostStatus');
+const POST_MEDIA = require('../constants/PostMedia');
+const POST_STATUS = require('../constants/PostStatus');
 
 class ConnectionService {
     constructor() {
@@ -431,9 +431,9 @@ class ConnectionService {
             }
 
             const videoCount = await this.postUtilityInst.countList({
-                'media.media_type': PostMedia.VIDEO,
-                'status': PostStatus.PUBLISHED,
-                is_deleted:false
+                'media.media_type': POST_MEDIA.VIDEO,
+                'status': POST_STATUS.PUBLISHED,
+                'is_deleted':false
             });
 
             let response = {
