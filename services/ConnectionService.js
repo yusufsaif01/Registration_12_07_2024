@@ -431,9 +431,10 @@ class ConnectionService {
             }
 
             const video_count = await this.postUtilityInst.countList({
-                'media.media_type': POST_MEDIA.VIDEO,
-                'status': POST_STATUS.PUBLISHED,
-                'is_deleted':false
+              "media.media_type": POST_MEDIA.VIDEO,
+              status: POST_STATUS.PUBLISHED,
+              is_deleted: false,
+              posted_by: requestedData.user_id,
             });
 
             let response = {
