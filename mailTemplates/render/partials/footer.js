@@ -1,148 +1,597 @@
 module.exports = (footer) => {
   return `
-      <tfoot
-        style="
-          display: block;
-          width: 100%;
-          background: #fbf9f9;
-          border-bottom-left-radius: 10px;
-          border-bottom-right-radius: 10px;
-        "
-      >
-        <tr style="display:block;width: 100%;text-align: center;background: white;padding-bottom: 20px;">
-          <td style=" display:block; width: 100%; text-align: center;">
-            <p style="font-family: 'Montserrat', sans-serif;
-            font-size: 18px;font-weight: 300;color:#626262;
-            ">
-              See you online!
-            </p>
-            <p style="font-family: 'Montserrat', sans-serif;
-            font-size: 20px; font-weight: 700;display:block;color:#626262;
-            ">YFTChain Team</p>
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td></td>
-        </tr>
-        <!-- social media -->
-        <tr style="display: block; width: 100%;">
-          <td style="display: block; width: 100%; text-align: center;">
-            <!-- social -->
-            <div style="display: block; width: 100%; text-align: center;">
-              <ul style="list-style: none; padding: 0px;">
-                <li style="display: inline-block; width: 50px;">
-                  <a
-                    href="${footer.socialLinks.instagram}"
-                    style="display: inline-block; text-decoration: none;"
-                  >
-                    <img src="${footer.appUrl}assets/images/website/social/instagram.svg" alt="instagram" />
-                  </a>
-                </li>
-                <li style="display: inline-block; width: 50px;">
-                  <a
-                    href="${footer.socialLinks.facebook}"
-                    style="display: inline-block; text-decoration: none;"
-                  >
-                    <img src="${footer.appUrl}assets/images/website/social/facebook.svg" alt="facebook" />
-                  </a>
-                </li>
-                <li style="display: inline-block; width: 50px;">
-                  <a
-                    href="${footer.socialLinks.linkedin}"
-                    style="display: inline-block; text-decoration: none;"
-                  >
-                    <img src="${footer.appUrl}assets/images/website/social/linkedin.svg" alt="Linkedin" />
-                  </a>
-                </li>
-                <li style="display: inline-block; width: 50px;">
-                  <a
-                    href="${footer.socialLinks.twitter}"
-                    style="display: inline-block; text-decoration: none;"
-                  >
-                    <img src="${footer.appUrl}assets/images/website/social/twitter.svg" alt="twitter" />
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </td>
-        </tr>
-        <tr style="height: 10px;">
-          <td></td>
-        </tr>
-        <!-- copyright text -->
-        <tr style="display: block; width: 100%; height: 30px;">
-          <td style="display: block; width: 100%; text-align: center;">
-            <p
-              style="
-                font-family: 'Montserrat', sans-serif;
-                font-size: 16px;
-                font-weight: 600;
-                color: #626262;
-              "
+<table
+   class="spacer"
+   style="
+   border-collapse: collapse;
+   border-spacing: 0;
+   padding: 0;
+   vertical-align: top;
+   width: 100%;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <td
+            height="20"
+            style="
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            border-collapse: collapse !important;
+            hyphens: auto;
+            margin: 0;
+            mso-line-height-rule: exactly;
+            padding: 0;
+            vertical-align: top;
+            word-wrap: break-word;
+            "
             >
-              Copyright @ 2020, ${footer.appName}, All rights are reserved.
+            &nbsp;
+         </td>
+      </tr>
+   </tbody>
+</table>
+<table
+   width="100%"
+   style="
+   border-collapse: collapse;
+   border-spacing: 0;
+   padding: 0;
+   vertical-align: top;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <th style="margin: 0; padding: 0">
+            <p
+               class="text-center"
+               style="
+               color: #626262;
+               font-family: Montserrat, sans-serif;
+               font-size: 18px;
+               font-weight: 300;
+               line-height: 1.3;
+               margin: auto;
+               margin-bottom: 0px;
+               padding: 0;
+               text-align: center;
+               width: 90%;
+               "
+               >
+               See you online!
             </p>
-          </td>
-        </tr>
-        <!-- footerlinks -->
-        <tr style="display: block; width: 100%; height: 30px;">
-          <td style="display: block; width: 100%; text-align: center;">
-            <ul>
-              <li style="display: inline-block; width: 120px;">
-                <a
-                  style="
-                    font-family: 'Montserrat', sans-serif;
-                    text-decoration: none;
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: #ff9933;
-                  "
-                  href="${footer.footerLinks.privacyPolicy}"
-                  >Privacy policy</a
-                >
-              </li>
-              <li style="display: inline-block; width: 10px; font-weight: 700;">
-                |
-              </li>
-              <li style="display: inline-block; width: 180px;">
-                <a
-                  style="
-                    font-family: 'Montserrat', sans-serif;
-                    text-decoration: none;
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: #ff9933;
-                  "
-                  href="${footer.footerLinks.termsConditions}"
-                  >Terms & Conditions</a
-                >
-              </li>
-              <li style="display: inline-block; width: 10px; font-weight: 700;">
-                |
-              </li>
-              <li style="display: inline-block; width: 120px;">
-                <a
-                  style="
-                    font-family: 'Montserrat', sans-serif;
-                    text-decoration: none;
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: #ff9933;
-                  "
-                  href="${footer.footerLinks.contactUs}"
-                  >Contact us</a
-                >
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-  </body>
-</html>
-
-    `;
+         </th>
+      </tr>
+   </tbody>
+</table>
+<table
+   width="100%"
+   style="
+   border-collapse: collapse;
+   border-spacing: 0;
+   padding: 0;
+   vertical-align: top;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <th style="margin: 0; padding: 0">
+            <p
+               class="text-center"
+               style="
+               color: #626262;
+               font-family: Montserrat, sans-serif;
+               font-size: 20px;
+               font-weight: 700;
+               line-height: 1.3;
+               margin: auto;
+               margin-bottom: 0px;
+               padding: 0;
+               text-align: center;
+               width: 90%;
+               "
+               >
+               YFTChain Team
+            </p>
+         </th>
+      </tr>
+   </tbody>
+</table>
+<table
+   class="spacer"
+   style="
+   border-collapse: collapse;
+   border-spacing: 0;
+   padding: 0;
+   vertical-align: top;
+   width: 100%;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <td
+            height="20"
+            style="
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            border-collapse: collapse !important;
+            hyphens: auto;
+            margin: 0;
+            mso-line-height-rule: exactly;
+            padding: 0;
+            vertical-align: top;
+            word-wrap: break-word;
+            "
+            >
+            &nbsp;
+         </td>
+      </tr>
+   </tbody>
+</table>
+<table
+   class="row collapse"
+   align="center"
+   bgcolor="#FBF9F9"
+   style="
+   border-bottom-left-radius: 20px;
+   border-bottom-right-radius: 20px;
+   border-collapse: collapse;
+   border-spacing: 0;
+   display: table;
+   padding: 0;
+   position: relative;
+   vertical-align: top;
+   width: 100%;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <th
+            class="small-12 large-12 float-center"
+            style="
+            float: none;
+            margin: 0 auto;
+            padding: 0;
+            padding-left: 0;
+            padding-right: 0;
+            text-align: center;
+            width: 750px;
+            "
+            >
+            <table
+               class="spacer"
+               style="
+               border-collapse: collapse;
+               border-spacing: 0;
+               padding: 0;
+               vertical-align: top;
+               width: 100%;
+               "
+               >
+               <tbody>
+                  <tr
+                     style="
+                     padding: 0;
+                     vertical-align: top;
+                     "
+                     >
+                     <td
+                        height="20"
+                        style="
+                        -moz-hyphens: auto;
+                        -webkit-hyphens: auto;
+                        border-collapse: collapse !important;
+                        hyphens: auto;
+                        margin: 0;
+                        mso-line-height-rule: exactly;
+                        padding: 0;
+                        vertical-align: top;
+                        word-wrap: break-word;
+                        "
+                        >
+                        &nbsp;
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            <table
+               align="center"
+               style="
+               border-collapse: collapse;
+               border-spacing: 0;
+               padding: 0;
+               vertical-align: top;
+               "
+               >
+               <tbody>
+                  <tr
+                     style="
+                     padding: 0;
+                     vertical-align: top;
+                     "
+                     >
+                     <th style="margin: 0; padding: 0">
+                        <a
+                           href="${footer.socialLinks.instagram}"
+                           target="_blank"
+                           style="
+                           cursor: pointer;
+                           display: inline-block;
+                           margin: 0;
+                           padding: 0;
+                           text-decoration: none;
+                           "
+                           ><img
+                           src="${footer.appUrl}assets/emailer/png/instagram.png"
+                           alt=""
+                           style="
+                           -ms-interpolation-mode: bicubic;
+                           border: none;
+                           clear: both;
+                           display: block;
+                           max-width: 75%;
+                           outline: 0;
+                           text-decoration: none;
+                           width: auto;
+                           "
+                           /> </a
+                           ><a
+                           href="${footer.socialLinks.facebook}"
+                           target="_blank"
+                           style="
+                           cursor: pointer;
+                           display: inline-block;
+                           margin: 0;
+                           padding: 0;
+                           text-decoration: none;
+                           "
+                           ><img
+                           src="${footer.appUrl}assets/emailer/png/facebook.png"
+                           alt=""
+                           style="
+                           -ms-interpolation-mode: bicubic;
+                           border: none;
+                           clear: both;
+                           display: block;
+                           max-width: 75%;
+                           outline: 0;
+                           text-decoration: none;
+                           width: auto;
+                           "
+                           /> </a
+                           ><a
+                           href="${footer.socialLinks.twitter}"
+                           target="_blank"
+                           style="
+                           cursor: pointer;
+                           display: inline-block;
+                           margin: 0;
+                           padding: 0;
+                           text-decoration: none;
+                           "
+                           ><img
+                           src="${footer.appUrl}assets/emailer/png/twitter.png"
+                           alt=""
+                           style="
+                           -ms-interpolation-mode: bicubic;
+                           border: none;
+                           clear: both;
+                           display: block;
+                           max-width: 75%;
+                           outline: 0;
+                           text-decoration: none;
+                           width: auto;
+                           "
+                           /> </a
+                           ><a
+                           href="${footer.socialLinks.linkedin}"
+                           target="_blank"
+                           style="
+                           cursor: pointer;
+                           display: inline-block;
+                           margin: 0;
+                           padding: 0;
+                           text-decoration: none;
+                           "
+                           ><img
+                           src="${footer.appUrl}assets/emailer/png/linkdien.png"
+                           alt=""
+                           style="
+                           -ms-interpolation-mode: bicubic;
+                           border: none;
+                           clear: both;
+                           display: block;
+                           max-width: 75%;
+                           outline: 0;
+                           text-decoration: none;
+                           width: auto;
+                           "
+                           /></a>
+                     </th>
+                  </tr>
+               </tbody>
+            </table>
+            <table
+               width="100%"
+               style="
+               border-collapse: collapse;
+               border-spacing: 0;
+               padding: 0;
+               vertical-align: top;
+               "
+               >
+               <tbody>
+                  <tr
+                     style="
+                     padding: 0;
+                     vertical-align: top;
+                     "
+                     >
+                     <th style="margin: 0; padding: 0">
+                        <table
+                           class="spacer"
+                           style="
+                           border-collapse: collapse;
+                           border-spacing: 0;
+                           padding: 0;
+                           vertical-align: top;
+                           width: 100%;
+                           "
+                           >
+                           <tbody>
+                              <tr
+                                 style="
+                                 padding: 0;
+                                 vertical-align: top;
+                                 "
+                                 >
+                                 <td
+                                    height="5"
+                                    style="
+                                    -moz-hyphens: auto;
+                                    -webkit-hyphens: auto;
+                                    border-collapse: collapse !important;
+                                    hyphens: auto;
+                                    line-height: 0.5;
+                                    margin: 0;
+                                    mso-line-height-rule: exactly;
+                                    padding: 0;
+                                    vertical-align: top;
+                                    word-wrap: break-word;
+                                    "
+                                    >
+                                    &nbsp;
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                        <h6
+                           style="
+                           color: #626262;
+                           font-family: Montserrat,
+                           sans-serif;
+                           font-size: 16px;
+                           font-weight: 600;
+                           line-height: 1.3;
+                           margin: 0;
+                           padding: 0;
+                           text-align: center;
+                           word-wrap: normal;
+                           "
+                           >
+                           Copyright @ 2020, ${footer.appName}, All
+                           rights are reserved.
+                        </h6>
+                     </th>
+                  </tr>
+               </tbody>
+            </table>
+            <table
+               width="100%"
+               style="
+               border-collapse: collapse;
+               border-spacing: 0;
+               padding: 0;
+               vertical-align: top;
+               "
+               >
+               <tbody>
+                  <tr
+                     style="
+                     padding: 0;
+                     vertical-align: top;
+                     "
+                     >
+                     <th style="margin: 0; padding: 0">
+                        <table
+                           class="spacer"
+                           style="
+                           border-collapse: collapse;
+                           border-spacing: 0;
+                           padding: 0;
+                           vertical-align: top;
+                           width: 100%;
+                           "
+                           >
+                           <tbody>
+                              <tr
+                                 style="
+                                 padding: 0;
+                                 vertical-align: top;
+                                 "
+                                 >
+                                 <td
+                                    height="5"
+                                    style="
+                                    -moz-hyphens: auto;
+                                    -webkit-hyphens: auto;
+                                    border-collapse: collapse !important;
+                                    hyphens: auto;
+                                    margin: 0;
+                                    line-height: 0.5;
+                                    mso-line-height-rule: exactly;
+                                    padding: 0;
+                                    vertical-align: top;
+                                    word-wrap: break-word;
+                                    "
+                                    >
+                                    &nbsp;
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                        <p
+                           style="
+                           color: #626262;
+                           font-family: Montserrat,
+                           sans-serif;
+                           font-size: 14px;
+                           font-weight: 500;
+                           line-height: 1.3;
+                           margin: 0;
+                           margin-bottom: 0px;
+                           padding: 0;
+                           text-align: center;
+                           "
+                           >
+                           <a
+                              style="
+                              color: #f93;
+                              cursor: pointer;
+                              font-family: Montserrat,
+                              sans-serif;
+                              font-weight: 600;
+                              line-height: 1.3;
+                              margin: 0;
+                              padding: 0;
+                              text-decoration: none;
+                              "
+                              target="_blank"
+                              href="${footer.footerLinks.privacyPolicy}"
+                              >Privacy policy </a
+                              >|
+                           <a
+                              style="
+                              color: #f93;
+                              cursor: pointer;
+                              font-family: Montserrat,
+                              sans-serif;
+                              font-weight: 600;
+                              line-height: 1.3;
+                              margin: 0;
+                              padding: 0;
+                              text-decoration: none;
+                              "
+                              target="_blank"
+                              href="${footer.footerLinks.termsConditions}"
+                              >Terms &amp; Conditions </a
+                              >|
+                           <a
+                              style="
+                              color: #f93;
+                              cursor: pointer;
+                              font-family: Montserrat,
+                              sans-serif;
+                              font-weight: 600;
+                              line-height: 1.3;
+                              margin: 0;
+                              padding: 0;
+                              text-decoration: none;
+                              "
+                              target="_blank"
+                              href="${footer.footerLinks.contactUs}"
+                              >Contact us</a
+                              >
+                        </p>
+                     </th>
+                  </tr>
+               </tbody>
+            </table>
+            <table
+               class="spacer"
+               style="
+               border-collapse: collapse;
+               border-spacing: 0;
+               padding: 0;
+               vertical-align: top;
+               width: 100%;
+               "
+               >
+               <tbody>
+                  <tr
+                     style="
+                     padding: 0;
+                     vertical-align: top;
+                     "
+                     >
+                     <td
+                        height="20"
+                        style="
+                        -moz-hyphens: auto;
+                        -webkit-hyphens: auto;
+                        border-collapse: collapse !important;
+                        hyphens: auto;
+                        margin: 0;
+                        mso-line-height-rule: exactly;
+                        padding: 0;
+                        vertical-align: top;
+                        word-wrap: break-word;
+                        "
+                        >
+                        &nbsp;
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </th>
+      </tr>
+   </tbody>
+</table>
+</td >
+</tr >
+</tbody >
+</table >
+</td >
+</tr >
+</tbody >
+</table >
+</center >
+</td >
+</tr >
+</tbody >
+</table >
+<table
+   class="spacer"
+   style="
+   border-collapse: collapse;
+   border-spacing: 0;
+   padding: 0;
+   vertical-align: top;
+   width: 100%;
+   "
+   >
+   <tbody>
+      <tr style="padding: 0; vertical-align: top">
+         <td
+            height="30"
+            style="
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            border-collapse: collapse !important;
+            hyphens: auto;
+            margin: 0;
+            mso-line-height-rule: exactly;
+            padding: 0;
+            vertical-align: top;
+            word-wrap: break-word;
+            "
+            >
+            &nbsp;
+         </td>
+      </tr>
+   </tbody>
+</table>
+</body >
+</html >
+`;
 };
