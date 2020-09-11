@@ -5,6 +5,7 @@ const achievementValidator = require("../middleware/validators").achievementVali
 const StorageProvider = require('storage-provider');
 const config = require("../config");
 const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
+const DocumentMediaType = require('../constants/DocumentMediaType');
 
 module.exports = (router) => {
     /**
@@ -158,6 +159,8 @@ module.exports = (router) => {
             if (req.files) {
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS
+                options.allowed_extensions =
+                  DocumentMediaType.ALLOWED_MEDIA_EXTENSIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.achievement) {
                     let uploadResponse = await storageProviderInst.uploadDocument(req.files.achievement, options);
@@ -227,6 +230,7 @@ module.exports = (router) => {
             if (req.files) {
                 const configForLocal = config.storage;
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS
+                options.allowed_extensions = DocumentMediaType.ALLOWED_MEDIA_EXTENSIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
                 if (req.files.achievement) {
                     let uploadResponse = await storageProviderInst.uploadDocument(req.files.achievement, options);

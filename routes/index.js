@@ -44,9 +44,9 @@ class Route {
 
 		app.use("/api/access-token", accessTokenRouter)
 		app.use('/api', checkAccessToken(), apiRouter);
-		app.use("/apidocs", checkAccessToken(), express.static("apidocs/doc"));
-		app.use("/uploads", checkAccessToken(), express.static("uploads"));
-		app.use("/public", checkAccessToken(), express.static("public"));
+		app.use("/apidocs", express.static("apidocs/doc"));
+		app.use("/uploads", express.static("uploads"));
+		app.use("/public", express.static("public"));
 
 	}
 }

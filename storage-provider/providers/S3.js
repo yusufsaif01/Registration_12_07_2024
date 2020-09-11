@@ -163,7 +163,7 @@ class S3 {
     }
 
     validateFileExtension(fileName = "", allowedExt = []) {
-        let fileExtension = path.extname(fileName);
+        let fileExtension = path.extname(fileName).toLowerCase();
         if (allowedExt.length > 0 && !allowedExt.includes(fileExtension))
             throw new errors.InvalidFile("Invalid file " + fileName + ", allowed extensions - " + allowedExt);
         return true;
