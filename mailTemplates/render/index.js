@@ -12,9 +12,9 @@ const globalData = {
     twitter: config.app.twitter_url,
   },
   footerLinks: {
-    privacyPolicy: config.app.privacy_policy_url,
-    termsConditions: config.app.terms_and_conditions_url,
-    contactUs: config.app.contact_us_url,
+    privacyPolicy: config.app.baseURL,
+    termsConditions: config.app.baseURL,
+    contactUs: config.app.baseURL,
   },
   contactUsEmail: config.app.contact_us_email,
 };
