@@ -15,6 +15,7 @@ const LoginUtility = require("../db/utilities/LoginUtility");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const PostType = require("../constants/PostType");
 const FootPlayerStatus = require("../constants/FootPlayerStatus");
+const _ = require("lodash");
 
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
@@ -212,20 +213,13 @@ module.exports = class VideoService {
       const $where = await this.listMatchCriteria(query);
 
       $where["is_deleted"] = false;
-
-      if (query.others) {
-        const others = query.others.split(",");
-        $where["meta.others"] = {
-          $in: others,
-        };
-      }
+      
       if (query.attribute) {
         const attribute = query.attribute.split(",");
         $where["meta.abilities.attributes.attribute_name"] = {
           $in: attribute,
         };
       }
-
       const pipelines = [
         {
           $match: $where,
@@ -246,10 +240,43 @@ module.exports = class VideoService {
         { $skip: options.skip },
         { $limit: options.limit },
       ];
+      let posts = await postInst.aggregate(pipelines);
 
-      const posts = await postInst.aggregate(pipelines);
+      if (query.others) {
+        const $whereOthers = await this.listMatchCriteria(query);
 
-      const totalCount = await postInst.countList($where);
+        $whereOthers["is_deleted"] = false;
+        const others = query.others.split(",");
+        $whereOthers["meta.others"] = {
+          $in: others,
+        };
+
+        const othersPipelines = [
+          {
+            $match: $whereOthers,
+          },
+          {
+            $project: {
+              id: 1,
+              media: 1,
+              post_type: 1,
+              status: 1,
+              created_at: 1,
+              meta: 1,
+            },
+          },
+          {
+            $sort: { "post.createdAt": -1 },
+          },
+          { $skip: options.skip },
+          { $limit: options.limit },
+        ];
+        const otherPost = await postInst.aggregate(othersPipelines);
+        posts = [...posts, ...otherPost];
+        posts = _.uniqBy(posts, 'id');       
+      }
+
+      let totalCount = posts.length;
 
       return this.processVideoListResponse(
         {
