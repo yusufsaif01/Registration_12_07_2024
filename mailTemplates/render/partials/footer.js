@@ -467,7 +467,7 @@ module.exports = (footer) => {
                               text-decoration: none;
                               "
                               target="_blank"
-                              href="${footer.appUrl}"
+                              href="${footer.footerLinks.privacyPolicy}"
                               >Privacy policy </a
                               >|
                            <a
@@ -483,7 +483,7 @@ module.exports = (footer) => {
                               text-decoration: none;
                               "
                               target="_blank"
-                              href="${footer.appUrl}"
+                              href="${footer.footerLinks.termsConditions}"
                               >Terms &amp; Conditions </a
                               >|
                            <a
@@ -499,7 +499,7 @@ module.exports = (footer) => {
                               text-decoration: none;
                               "
                               target="_blank"
-                              href="${footer.appUrl}"
+                              href="${footer.footerLinks.contactUs}"
                               >Contact us</a
                               >
                         </p>
