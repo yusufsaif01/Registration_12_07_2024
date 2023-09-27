@@ -607,6 +607,9 @@ class ResponseMessage {
     static VIDEO_DURATION_EXCEEDED(maxDuration) {
         return `Max ${maxDuration / 60} mins length of video allowed`;
     }
+    static VIDEO_LIMIT_EXCEEDED (){
+        return `you have exceeded video upload limit for this week`;
+    }
     static get INVALID_VIDEO_FORMAT() {
         return "Uploaded video format is not valid";
     }

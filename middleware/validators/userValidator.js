@@ -24,14 +24,20 @@ class UserValidator {
 
     async createAPIValidation(req, res, next) {
         let registerRule = {
-            "phone": Joi.string().required().regex(/^[0-9]{10}$/).error(
-                customMessage(
-                    {
-                        "any.required": RESPONSE_MESSAGE.PHONE_REQUIRED,
-                    },
-                    RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
-                )
-            ),
+            
+            "phone": Joi.string().allow(""),
+            
+            // required().
+            // regex(/^[0-9]{10}$/).
+            // error(
+            //     customMessage(
+            //         {
+            //             "any.required": RESPONSE_MESSAGE.PHONE_REQUIRED,
+            //         },
+            //         // RESPONSE_MESSAGE.PHONE_NUMBER_INVALID
+            //     )
+            // ),
+            
             "member_type": Joi.string().valid(MEMBER.PLAYER, MEMBER.CLUB, MEMBER.ACADEMY).required(),
             "type": Joi.when("member_type", {
                 is: MEMBER.PLAYER,
@@ -79,7 +85,9 @@ class UserValidator {
                 is: MEMBER.PLAYER,
                 then: Joi.date().iso().required().max(moment().format("YYYY-MM-DD")),
                 otherwise: Joi.date(),
-            })
+            }),
+            "termsAccepted": Joi.boolean().required()
+
         };
 
         if (req.body.type && req.body.member_type) {

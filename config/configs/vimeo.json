@@ -2,7 +2,7 @@
   "access_token": {
     "doc": "Vimeo API Access Token",
     "format": "String",
-    "default": "",
+    "default": "df631a0b4dd02a051f05ef4ed105910e",
     "env": "VIMEO_ACCESS_TOKEN",
     "arg": "vimeo_access_token"
   },
@@ -10,7 +10,7 @@
   "client_id": {
     "doc": "Vimeo client ID",
     "format": "String",
-    "default": "",
+    "default": "0c6c797d8f942c4a3fb1af4ef36167d2ffb3f8a8",
     "env": "VIMEO_CLIENT_ID",
     "arg": "vimeo_client_id"
   },
@@ -18,7 +18,7 @@
   "client_secret": {
     "doc": "Vimeo client secret",
     "format": "String",
-    "default": "",
+    "default": "PdV6zLiEIO/nnwtecNLhWk4M0YAxcT4lH70rH2uR0Bu3WQMsRWb8FU3LJ3zD6opQ6ndhZIAZp7AwG/uzEWAxUFY0xsrhY1DYrdAQYGNr/q9TwaUSg0nUHOs/Jp4lDS8e",
     "env": "VIMEO_CLIENT_SECRET",
     "arg": "vimeo_client_secret"
   },

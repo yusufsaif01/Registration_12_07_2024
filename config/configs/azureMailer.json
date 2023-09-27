@@ -1,0 +1,17 @@
+{
+    "connection_String": {
+        "doc": "Connection String for azure",
+        "format": "String",
+        "default": "endpoint=https://email-yft.india.communication.azure.com/;accesskey=ifBcyjBa2XbAHc8IqjCKNlbZlF0CilzONmX5x2nWdaxJJhtrn5O6WWaCLFnR6yT1UTpgSrRNAp8gTlYFQdauDQ==",
+        "env": "MAILER_CONNECTION_STRING",
+        "arg": "mailer_connection_string"
+    },
+  
+    "senderAddress": {
+        "doc": "Sender email Address",
+        "format": "String",
+        "default": "support@yftchain.com",
+        "env": "MAILER_EMAIL",
+        "arg": "mailer_email"
+    }
+}

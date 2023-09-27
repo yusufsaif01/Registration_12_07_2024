@@ -56,6 +56,7 @@ module.exports = (router) => {
     */
 
     router.get("/manage/report-card/list", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]), reportCardValidator.manageReportCardListValidation, function (req, res) {
+        console.log("report card list ")
         let paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10
@@ -189,7 +190,8 @@ module.exports = (router) => {
      * 
      */
     router.get("/manage/report-card/list/:player_id", checkAuthToken, checkRole([ROLE.CLUB, ROLE.ACADEMY]),
-        reportCardValidator.managePlayerReportCardListValidation, function (req, res) {
+    reportCardValidator.managePlayerReportCardListValidation, function (req, res) {
+            console.log("report card list ")
             let paginationOptions = {
                 page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
                 limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10

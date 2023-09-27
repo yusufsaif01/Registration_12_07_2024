@@ -9,6 +9,8 @@ class SMTPMailer extends Mailer {
                 service: serviceName,
                 host: config.mailer.host,
                 port: config.mailer.port
+
+               
             };
 
         if (config.mailer.secure) {
@@ -27,3 +29,33 @@ class SMTPMailer extends Mailer {
 }
 
 module.exports = SMTPMailer;
+
+
+// const config = require('../config');
+// const Mailer = require("./Mailer");
+
+// class SMTPMailer extends Mailer {
+//   constructor() {
+//     let serviceName = 'SMTP';
+//     let transportConf = {
+//       service: serviceName,
+//       host: config.mailer.host,
+//       port: config.mailer.port,
+//     };
+
+//     if (config.mailer.provider === 'GOOGLE') {
+//       transportConf.service = 'Gmail';
+//       transportConf.auth = {
+//         user: config.mailer.email,
+//         pass: config.mailer.password,
+//       };
+//     }
+
+//     super({
+//       serviceName,
+//       transportConf,
+//     });
+//   }
+// }
+
+// module.exports = SMTPMailer;

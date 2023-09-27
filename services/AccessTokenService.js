@@ -97,6 +97,7 @@ module.exports = class AccessWhitelistService {
   }
 
   async generateAccessToken(email) {
+    console.log("inside generateAccessToken");
     return jsonwebtoken.sign({}, config.jwt.jwt_secret, {
       expiresIn: config.jwt.access_token_expiry_in,
       subject: email,

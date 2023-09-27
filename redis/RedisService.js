@@ -6,6 +6,7 @@ class RedisService {
     async setKeyValuePair(key, value) {
         try {
             client.set(key, value);
+            
             return Promise.resolve();
         }
         catch (e) {
@@ -28,7 +29,9 @@ class RedisService {
     async getUserFromCacheByKey(key) {
         try {
             let result = await client.getAsync(key);
+         
             result = JSON.parse(result)
+        
             return result;
         }
         catch (e) {
@@ -37,9 +40,9 @@ class RedisService {
         }
     }
 
-    async getUserIdFromCacheByKey(key) {
+    getUserIdFromCacheByKey(key) {
         try {
-            let result = await client.getAsync(key);
+            let result = client.getAsync(key);
             return result;
         }
         catch (e) {

@@ -18,6 +18,8 @@ module.exports = () => {
   return async function (req, res, next) {
     try {
       const accessToken = req.headers["x-access-token"];
+      console.log("*****************************");
+      console.log(accessToken)
       if (!accessToken)
         throw new errors.Unauthorized(ResponseMessage.ACCESS_TOKEN_REQUIRED);
 

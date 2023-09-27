@@ -23,14 +23,14 @@
     "db_user": {
         "doc": "Database username",
         "format": "String",
-        "default": "test",
+        "default": "",
         "env": "DB_USER",
         "arg": "db_user"
     },
     "db_pass": {
         "doc": "Database password",
         "format": "String",
-        "default": "test",
+        "default": "",
         "env": "DB_PASSWORD",
         "arg": "db_password"
     },

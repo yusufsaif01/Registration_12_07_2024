@@ -16,6 +16,8 @@ const ROLE = require('../constants/Role');
 const ACTIVITY = require('../constants/Activity');
 const redisServiceInst = require('../redis/RedisService');
 const UtilityService = require("./UtilityService");
+const ProfileStatus = require('../constants/ProfileStatus')
+
 
 class AuthService {
 
@@ -50,7 +52,7 @@ class AuthService {
         try {
             await this.loginValidator(email, password);
             const loginDetails = await this.findByCredentials(email, password);
-
+            console.log("request also come here in AuthService !!!!!!!!!!!!!!!!!!!!!!!")
             ActivityService.loginActivity(loginDetails.user_id, ACTIVITY.LOGIN);
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });
@@ -294,7 +296,9 @@ class AuthService {
                 const password = await this.authUtilityInst.bcryptToken(new_password);
                 await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, {
                     password: password,
-                    forgot_password_token: ""
+                    forgot_password_token: "",
+                    "profile_status.status": ProfileStatus.VERIFIED 
+
                 });
                 await redisServiceInst.deleteByKey(`keyForForgotPassword${tokenData.forgot_password_token}`);
                 let playerName = '';

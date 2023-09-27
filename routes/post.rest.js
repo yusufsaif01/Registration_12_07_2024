@@ -8,6 +8,9 @@ const config = require("../config");
 const STORAGE_PROVIDER_LOCAL = require('../constants/StorageProviderLocal');
 const POST_TYPE = require('../constants/PostType');
 
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { v1: uuidv1 } = require("uuid");
+
 module.exports = (router) => {
 
     /**
@@ -39,18 +42,81 @@ module.exports = (router) => {
      */
     router.post('/post/add', checkAuthToken, postValidator.addPostAPIValidation, async function (req, res) {
         let reqObj = req.body
+
         try {
+            console.log("inside try");
             if (req.files) {
-                const configForLocal = config.storage;
-                let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
-                options.allowed_extensions = POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS;
-                let storageProviderInst = new StorageProvider(configForLocal);
+                //  const configForLocal = config.storage;
+                // let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
+                //options.allowed_extensions = POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS;
+                //let storageProviderInst = new StorageProvider(configForLocal);
+                //console.log("inside firt if");
                 if (req.files.media) {
-                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.media, options);
-                    reqObj.media_url = uploadResponse.url;
+
+
+                    const AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=dytstorage;AccountKey=adrbqNi3IgyuPDfiJVOGg9cw/X9RqaPeoJz9o2+/n292oWxMP43zgHvSL5X0BBWoaukwuq0Zqayk+AStsbnsBg==;EndpointSuffix=core.windows.net";
+
+                    if (!AZURE_STORAGE_CONNECTION_STRING) {
+                        throw Error('Azure Storage Connection string not found');
+                    }
+
+                    // Create the BlobServiceClient object with connection string
+                    const blobServiceClient = BlobServiceClient.fromConnectionString(
+                        AZURE_STORAGE_CONNECTION_STRING
+                    );
+
+                    // Create a unique name for the container
+                    const containerName = 'dytimagescontainer'
+
+                    let i = 1;
+                    let containers = blobServiceClient.listContainers();
+                    for await (const container of containers) {
+
+                        if (container.name === 'dytimagescontainer') {
+
+                            // Create a unique name for the blob
+                            const blobName = 'quickstart' + uuidv1();
+                            const containerClient = blobServiceClient.getContainerClient(containerName);
+                            // Get a block blob client
+                            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+                            // Upload data to the blob
+
+                            const uploadBlobResponse = await blockBlobClient.uploadFile(req.files.media.tempFilePath);
+
+                            reqObj.media_url = `https://dytstorage.blob.core.windows.net/dytimagescontainer/${blobName}`
+
+                        }
+
+                        else {
+
+                            // Get a reference to a container
+                            const containerClient = blobServiceClient.getContainerClient(containerName);
+                            // Create the container
+                            const createContainerResponse = await containerClient.create();
+
+                            // Create a unique name for the blob
+                            const blobName = 'quickstart' + uuidv1();
+
+                            // Get a block blob client
+                            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+
+                            // Upload data to the blob
+
+                            const uploadBlobResponse = await blockBlobClient.uploadFile(req.files.media.tempFilePath);
+
+
+                            reqObj.media_url = `https://dytstorage.blob.core.windows.net/dytimagescontainer/${blobName}`
+
+                        }
+                    }
+
+
                 }
             }
             let serviceInst = new PostService();
+
             responseHandler(req, res, serviceInst.addPost({
                 reqObj: reqObj,
                 user_id: req.authUser.user_id
@@ -139,9 +205,9 @@ module.exports = (router) => {
         let commentOptions = {
             comments: (req.query && req.query.comments) ? Number(req.query.comments) : 0
         }
-        
+
         let filters = {
-          type: POST_TYPE.TIMELINE,
+            type: POST_TYPE.TIMELINE,
         };
 
         let serviceInst = new PostService();
@@ -193,9 +259,68 @@ module.exports = (router) => {
                 let options = STORAGE_PROVIDER_LOCAL.UPLOAD_OPTIONS;
                 options.allowed_extensions = POST_MEDIA.ALLOWED_MEDIA_EXTENSIONS;
                 let storageProviderInst = new StorageProvider(configForLocal);
-                if (req.files.media) {
-                    let uploadResponse = await storageProviderInst.uploadDocument(req.files.media, options);
-                    reqObj.media_url = uploadResponse.url;
+               if (req.files.media) {
+
+
+                    const AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=dytstorage;AccountKey=adrbqNi3IgyuPDfiJVOGg9cw/X9RqaPeoJz9o2+/n292oWxMP43zgHvSL5X0BBWoaukwuq0Zqayk+AStsbnsBg==;EndpointSuffix=core.windows.net";
+
+                    if (!AZURE_STORAGE_CONNECTION_STRING) {
+                        throw Error('Azure Storage Connection string not found');
+                    }
+
+                    // Create the BlobServiceClient object with connection string
+                    const blobServiceClient = BlobServiceClient.fromConnectionString(
+                        AZURE_STORAGE_CONNECTION_STRING
+                    );
+
+                    // Create a unique name for the container
+                    const containerName = 'dytimagescontainer'
+
+                    let i = 1;
+                    let containers = blobServiceClient.listContainers();
+                    for await (const container of containers) {
+
+                        if (container.name === 'dytimagescontainer') {
+
+                            // Create a unique name for the blob
+                            const blobName = 'quickstart' + uuidv1();
+                            const containerClient = blobServiceClient.getContainerClient(containerName);
+                            // Get a block blob client
+                            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+                            // Upload data to the blob
+
+                            const uploadBlobResponse = await blockBlobClient.uploadFile(req.files.media.tempFilePath);
+
+                            reqObj.media_url = `https://dytstorage.blob.core.windows.net/dytimagescontainer/${blobName}`
+
+                        }
+
+                        else {
+
+                            // Get a reference to a container
+                            const containerClient = blobServiceClient.getContainerClient(containerName);
+                            // Create the container
+                            const createContainerResponse = await containerClient.create();
+
+                            // Create a unique name for the blob
+                            const blobName = 'quickstart' + uuidv1();
+
+                            // Get a block blob client
+                            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+
+                            // Upload data to the blob
+
+                            const uploadBlobResponse = await blockBlobClient.uploadFile(req.files.media.tempFilePath);
+
+
+                            reqObj.media_url = `https://dytstorage.blob.core.windows.net/dytimagescontainer/${blobName}`
+
+                        }
+                    }
+
+
                 }
             }
             let serviceInst = new PostService();
@@ -282,20 +407,20 @@ module.exports = (router) => {
      *     }
      * 
      * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "Already liked",
+     *     HTTP/1.1 422 Validiation Failed
+     *     {
+     *       "message": "Already liked",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
-	 *     }     
+     *     }     
      * 
      * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "You do not follow the post owner",
+     *     HTTP/1.1 422 Validiation Failed
+     *     {
+     *       "message": "You do not follow the post owner",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
-	 *     }
+     *     }
      * 
      * @apiErrorExample {json} NOT_FOUND
      *     HTTP/1.1 404 Not found
@@ -338,12 +463,12 @@ module.exports = (router) => {
      *     }
      * 
      * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "Already disliked",
+     *     HTTP/1.1 422 Validiation Failed
+     *     {
+     *       "message": "Already disliked",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
-	 *     }
+     *     }
      * 
      * @apiErrorExample {json} NOT_FOUND
      *     HTTP/1.1 404 Not found
@@ -396,20 +521,20 @@ module.exports = (router) => {
      *     }
      * 
      * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "You do not follow the post owner",
+     *     HTTP/1.1 422 Validiation Failed
+     *     {
+     *       "message": "You do not follow the post owner",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
-	 *     }
+     *     }
      * 
      * @apiErrorExample {json} VALIDATION_FAILED
-	 *     HTTP/1.1 422 Validiation Failed
-	 *     {
-	 *       "message": "Not allowed to comment",
+     *     HTTP/1.1 422 Validiation Failed
+     *     {
+     *       "message": "Not allowed to comment",
      *       "code": "VALIDATION_FAILED",
      *       "httpCode": 422
-	 *     }
+     *     }
      * 
      */
     router.post('/post/:post_id/comment', checkAuthToken, postValidator.addCommentAPIValidation, function (req, res) {

@@ -1,27 +1,27 @@
 const convict = require("convict");
-
-const app = require("./configs/app");
-const mailer = require("./configs/mailer");
-const logger = require("./configs/logger");
-const server = require("./configs/server");
-const db = require("./configs/db");
-const helper = require("./configs/helper");
-const jwt = require("./configs/jwt");
-const redis = require("./configs/redis")
-const storage = require("./configs/storage");
-const state_district_storage = require("./configs/state-district-storage");
-const vimeo = require('./configs/vimeo');
+const app = require("./configs/app.json");
+const mailer = require("./configs/mailer.json");
+const azureMailer = require("./configs/azureMailer.json");
+const logger = require("./configs/logger.json");
+const server = require("./configs/server.json");
+const db = require("./configs/db.json");
+const helper = require("./configs/helper.json");
+const jwt = require("./configs/jwt.json");
+//const redis = require("./configs/redis.json")
+const storage = require("./configs/storage.json");
+const state_district_storage = require("./configs/state-district-storage.json");
+const vimeo = require('./configs/vimeo.json');
 
 // Define a schema
 var config = convict({
 	app,
 	mailer,
+	azureMailer,
 	logger,
 	db,
 	server,
 	helper,
 	jwt,
-	redis,
 	storage,
 	state_district_storage,
 	vimeo

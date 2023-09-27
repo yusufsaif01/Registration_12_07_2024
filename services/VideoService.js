@@ -29,7 +29,17 @@ module.exports = class VideoService {
   }
 
   async uploadVideo(authUser, type, { tags, media, others }) {
-    try {
+
+      
+    try { 
+      const totalUpload =  await this.getUploadLimit( authUser.role, type)
+      const hasUploaded = await this.hasUploadedInWeek(authUser, type, totalUpload)
+      // const hasUploaded = 1
+      console.log(totalUpload, " total upload ")
+      console.log(hasUploaded, " total hasUploaded ")
+
+      if (hasUploaded <totalUpload){
+     
       const videoOptions = this.getUploadOptions(authUser, type);
       const tagsData = await this.validateAttributesAndAbilities(tags);
       const videoResponse = await this.uploadToVimeo(media, videoOptions);
@@ -44,38 +54,131 @@ module.exports = class VideoService {
         post_id: postDocument.id,
         uri: videoResponse.uri,
       });
-    } catch (error) {
+
+      console.log("video uploaded -- test")
+    }
+  else{
+    console.log("error in uploading --limit exceeded");
+    throw new errors.ValidationFailed(ResponseMessage.VIDEO_LIMIT_EXCEEDED());
+  }
+  } catch (error) {
+
       return Promise.reject(error);
     }
   }
+  
 
-  getUploadOptions(authUser, type) {
+
+
+ async  getUploadOptions(authUser, type) {
     const options = {
       [POST_TYPE.TIMELINE]: {
         max_duration: 60 * 2,
       },
       [POST_TYPE.LEARNING_OR_TRAINING]: {
-        max_duration: 60 * 30,
+        max_duration: 60 * 10,
       },
       [POST_TYPE.MATCH]: {
-        max_duration: 150 * 60,
+        max_duration: 120 * 60,
       },
     };
 
     if ([ROLE.CLUB, ROLE.ACADEMY].includes(authUser.role)) {
-      options[POST_TYPE.TIMELINE].max_duration = 60 * 10;
+      options[POST_TYPE.TIMELINE].max_duration = 60 * 5;
     }
 
     return options[type];
   }
+  //
 
-  /**
-   * Check for abilities and attributes
-   *
-   * validates and return the expected data to be inserted into post.
-   *
-   * @param {array} tags
-   */
+ async  getUploadLimit(role, type) {
+  const uploadLimits = {
+    [ROLE.PLAYER]: {
+      [POST_TYPE.TIMELINE]: 1,
+    },
+    [ROLE.CLUB]: {
+      [POST_TYPE.TIMELINE]: 3,
+      [POST_TYPE.LEARNING_OR_TRAINING]: 3,
+      [POST_TYPE.MATCH]: 1,
+    },
+    [ROLE.ACADEMY]: {
+      [POST_TYPE.TIMELINE]: 3,
+      [POST_TYPE.LEARNING_OR_TRAINING]: 3,
+      [POST_TYPE.MATCH]: 1,
+    },
+  };
+
+  return uploadLimits[role][type] || 0;
+}
+
+async  hasUploadedInWeek(authUser, POST_TYPE, totalUpload) {
+
+  console.log(POST_TYPE)
+
+  //
+
+  
+
+  try {
+    
+const today = new Date();
+const todayISOString = today.toISOString();
+
+const startOfWeek = new Date(today);
+startOfWeek.setDate(today.getDate() - today.getDay());
+startOfWeek.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+startOfWeek.setUTCMilliseconds(-startOfWeek.getTimezoneOffset() * 60 * 1000);
+const startOfWeekISOString = startOfWeek.toISOString();
+
+const endOfWeek = new Date(today);
+endOfWeek.setDate(startOfWeek.getDate() + 6);
+endOfWeek.setHours(23, 59, 59, 999); // Set time to 23:59:59.999
+endOfWeek.setUTCMilliseconds(-endOfWeek.getTimezoneOffset() * 60 * 1000); 
+const endOfWeekISOString = endOfWeek.toISOString();
+
+console.log('Today:', todayISOString);
+console.log('Start of the week:', startOfWeekISOString);
+console.log('End of the week:', endOfWeekISOString);
+
+
+
+
+//const userId1 = { id: 'c13eff28-1ec6-477d-970c-3682911c8aea' }; 
+const userId1 = { id: authUser.user_id }; 
+console.log(userId1.id, " user id 1 value");
+
+//post_type:POST_TYPE
+
+
+
+    const conditions =  {posted_by:  userId1.id.toString() , "media.media_type" : "video", 
+    post_type: POST_TYPE,  
+    created_at: { $gte: startOfWeek.getTime(), $lte: endOfWeek.getTime() }
+  }
+ 
+   
+let  count = await postInst.countList(conditions);
+//const postCounts = { [userId1.id]: count };
+// console.log(postCounts, "count of posts")
+
+
+console.log(`Number of posts by ${userId1.id}: ${count}`);
+console.log(count)
+return count
+// console.log(postCounts);
+  } 
+
+  
+  catch (error) {
+    console.log("Error in checking video uploads for the week", error);
+    // throw new errors.ValidationFailed(ResponseMessage.UPLOAD_LIMIT_EXCEEDED);
+
+  }
+
+  
+}
+
+  
   async validateAttributesAndAbilities(tags) {
     try {
       const abilityIdArray = tags.map((tag) => tag.ability);

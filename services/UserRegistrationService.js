@@ -20,7 +20,7 @@ const FootPlayerUtility = require('../db/utilities/FootPlayerUtility');
 const FOOTPLAYER_STATUS = require('../constants/FootPlayerStatus');
 const moment = require('moment');
 const PLAYER_TYPE = require("../constants/PlayerType");
-
+const { EmailClient, KnownEmailSendStatus } = require("@azure/communication-email");
 /**
  *
  *
@@ -43,6 +43,9 @@ class UserRegistrationService extends UserService {
         this.adminUtilityInst = new AdminUtility();
         this.footPlayerUtilityInst = new FootPlayerUtility();
     }
+    connectionString = "endpoint=https://mycsr.unitedstates.communication.azure.com/;accesskey=hSLMNiZDd0wogPYNdT9tpLeqeWAO20/WMMcgjTCalrtIKKgLq+J66RHYPqvd8lK3Us9jfUKZzaySrUuplKohWw==";
+senderAddress = "DoNotReply@a1b588b6-9f22-4e0e-bbba-0f3fdd2d88f6.azurecomm.net"
+ecipientAddress = "yusufsaif0@gmail.com"
 
     /**
      *
@@ -120,6 +123,7 @@ class UserRegistrationService extends UserService {
               accountActivationURL,
               userData.first_name || userData.name
             );
+            
             return Promise.resolve();
         } catch (e) {
             console.log(e);

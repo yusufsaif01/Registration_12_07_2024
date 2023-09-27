@@ -40,6 +40,7 @@ module.exports = (router) => {
 	 *
 	 */
 	router.post('/register', userValidator.createAPIValidation, function (req, res) {
+		console.log("register api hits")
 		const serviceInst = new UserRegistrationService();
 		responseHandler(req, res, serviceInst.memberRegistration(req.body));
 	});
@@ -80,6 +81,7 @@ module.exports = (router) => {
 	 *
 	 */
 	router.post('/login', function (req, res) {
+		console.log("loggeddddd");
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
 	});

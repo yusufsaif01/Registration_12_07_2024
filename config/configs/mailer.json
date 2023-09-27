@@ -2,35 +2,35 @@
     "email": {
         "doc": "credential for google authentication",
         "format": "String",
-        "default": "",
+        "default": "kshitij.r.handa@yftchain.com",
         "env": "MAILER_USER",
         "arg": "mailer_user"
     },
     "password": {
         "doc": "credential for google authentication",
         "format": "String",
-        "default": "",
+        "default": "tvcbmhujyvopvhls",
         "env": "MAILER_USER_PASSWORD",
         "arg": "mailer_user_password"
     },
     "fromEmail": {
         "doc": "email",
         "format": "String",
-        "default": "support@4thpointer.in",
+        "default": "kshitij.r.handa@yftchain.com",
         "env": "MAILER_FROM_EMAIL",
         "arg": "mailer_from_email"
     },
     "host": {
         "doc": "mailer host",
         "format": "String",
-        "default": "139.59.77.111",
+        "default": "smtp.gmail.com",
         "env": "MAILER_HOST",
         "arg": "mailer_host"
     },
     "port": {
         "doc": "mailer port",
         "format": "Number",
-        "default": 1025,
+        "default": 587,
         "env": "MAILER_PORT",
         "arg": "mailer_port"
     },
@@ -44,7 +44,7 @@
     "provider": {
         "doc": "mailer provider - MAIL_HOG, AWS, GOOGLE",
         "format": "String",
-        "default": "MAIL_HOG",
+        "default": "GOOGLE",
         "env": "MAILER_PROVIDER",
         "arg": "mailer_provider"
     },

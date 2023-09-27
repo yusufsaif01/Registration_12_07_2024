@@ -124,7 +124,7 @@ module.exports = {
             status: {
                 type: String,
                 enum: [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.DISAPPROVED],
-                default: DOCUMENT_STATUS.PENDING
+                default: DOCUMENT_STATUS.APPROVED
             },
             remark: {
                 type: String

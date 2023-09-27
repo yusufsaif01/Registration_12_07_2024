@@ -16,10 +16,12 @@ class AuthUtility {
     }
 
     tokenCompare(pass1, pass2) {
+        console.log("inside tokenComapre !!!!!!!!!!!")
         return this.bcryptTokenCompare(pass1, pass2);
     }
 
     getAuthToken(id, email, member_type) {
+        console.log("inside getAuthToken !!!!!!!!!!!")
         return this.signWithJWT(JSON.stringify({
             id,
             email,
@@ -28,15 +30,18 @@ class AuthUtility {
     }
 
     randomBytes(len = 20) {
+        console.log("inside randomBytes !!!!!!!!!!!")
         return crypto.randomBytes(len).toString('hex');
     }
 
     async bcryptToken(password) {
+        console.log("inside bcryptToken !!!!!!!!!!!")
         const hash = await bcrypt.hash(password, 10);
         return hash;
     }
 
     async bcryptTokenCompare(pass1, pass2) {
+        console.log("inside bcryptTokenCompare !!!!!!!!!!!")
         let isMatched = await bcrypt.compare(pass1, pass2);
         isMatched = (isMatched) ? true : false;
         return Promise.resolve(isMatched);
@@ -55,6 +60,7 @@ class AuthUtility {
     }
 
     jwtVerification(token, secretKey) {
+     console.log("inside jwtVerification")
         return new Promise((resolve, reject) => {
             return jwt.verify(token.split(' ')[1], secretKey, function (err, data) {
                 if (err) {
@@ -69,6 +75,7 @@ class AuthUtility {
 
     async getUserByToken(token, isCheckStatus, isCheckForgotPassToken) {
         try {
+            console.log("inside getuser by token")
             token = token.split(' ')[1];
             let user_id = isCheckForgotPassToken ? await redisServiceInst.getUserIdFromCacheByKey(`keyForForgotPassword${token}`) : await redisServiceInst.getUserIdFromCacheByKey(token);
             if (!user_id) {
