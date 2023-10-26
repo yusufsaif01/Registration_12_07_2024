@@ -52,7 +52,7 @@ class EmailService {
   }
 
   async sendMail(mailTemplate, data) {
-    try {cd
+    try {
       let { to, subject, html, text } = mailTemplates[mailTemplate](data);
       if (html) {
         html = render(html, data);

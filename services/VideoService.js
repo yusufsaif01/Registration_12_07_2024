@@ -43,6 +43,7 @@ module.exports = class VideoService {
       const videoOptions = this.getUploadOptions(authUser, type);
       const tagsData = await this.validateAttributesAndAbilities(tags);
       const videoResponse = await this.uploadToVimeo(media, videoOptions);
+
       const postDocument = await this.addPost(
         authUser,
         type,
@@ -56,6 +57,7 @@ module.exports = class VideoService {
       });
 
       console.log("video uploaded -- test")
+      console.log(videoResponse.uri);
     }
   else{
     console.log("error in uploading --limit exceeded");
@@ -67,19 +69,16 @@ module.exports = class VideoService {
     }
   }
   
-
-
-
  async  getUploadOptions(authUser, type) {
     const options = {
       [POST_TYPE.TIMELINE]: {
-        max_duration: 60 * 2,
+        max_duration: 60 * 6,
       },
       [POST_TYPE.LEARNING_OR_TRAINING]: {
-        max_duration: 60 * 10,
+        max_duration: 60 * 40,
       },
       [POST_TYPE.MATCH]: {
-        max_duration: 120 * 60,
+        max_duration: 200 * 60,
       },
     };
 
@@ -94,16 +93,16 @@ module.exports = class VideoService {
  async  getUploadLimit(role, type) {
   const uploadLimits = {
     [ROLE.PLAYER]: {
-      [POST_TYPE.TIMELINE]: 1,
+      [POST_TYPE.TIMELINE]: 4,
     },
     [ROLE.CLUB]: {
-      [POST_TYPE.TIMELINE]: 3,
-      [POST_TYPE.LEARNING_OR_TRAINING]: 3,
+      [POST_TYPE.TIMELINE]: 4,
+      [POST_TYPE.LEARNING_OR_TRAINING]: 2,
       [POST_TYPE.MATCH]: 1,
     },
     [ROLE.ACADEMY]: {
-      [POST_TYPE.TIMELINE]: 3,
-      [POST_TYPE.LEARNING_OR_TRAINING]: 3,
+      [POST_TYPE.TIMELINE]: 4,
+      [POST_TYPE.LEARNING_OR_TRAINING]: 2,
       [POST_TYPE.MATCH]: 1,
     },
   };

@@ -40,8 +40,10 @@ class BaseUtility {
 			}
 
 			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
-			let result = await this.model.find(conditions, projection, options);
-			return result;
+			
+		//	console.log(this.model)
+			return await this.model.find(conditions,projection);
+			//return result;
 		} catch (e) {
 			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
 			throw e;
@@ -98,7 +100,7 @@ class BaseUtility {
 				await this.getModel();
 			}
 			conditions.deleted_at = { $exists: false };
-
+			
 			let result = await this.model.updateMany(conditions, updatedDoc, options);
 			return result;
 		} catch (e) {
@@ -175,7 +177,7 @@ class BaseUtility {
 			if (options && (!options.sort || !Object.keys(options.sort).length)) {
 				options.sort = { createdAt: -1 };
 			}
-
+			console.log("request also come in cursor function");
 			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
 			return this.model.find(conditions, projection, options).cursor();
 		} catch (e) {

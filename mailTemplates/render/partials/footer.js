@@ -260,30 +260,6 @@ module.exports = (footer) => {
                            "
                            /> </a
                            ><a
-                           href="${footer.socialLinks.twitter}"
-                           target="_blank"
-                           style="
-                           cursor: pointer;
-                           display: inline-block;
-                           margin: 0;
-                           padding: 0;
-                           text-decoration: none;
-                           "
-                           ><img
-                           src="${footer.appUrl}assets/emailer/png/twitter.png"
-                           alt=""
-                           style="
-                           -ms-interpolation-mode: bicubic;
-                           border: none;
-                           clear: both;
-                           display: block;
-                           max-width: 75%;
-                           outline: 0;
-                           text-decoration: none;
-                           width: auto;
-                           "
-                           /> </a
-                           ><a
                            href="${footer.socialLinks.linkedin}"
                            target="_blank"
                            style="
@@ -379,7 +355,7 @@ module.exports = (footer) => {
                            word-wrap: normal;
                            "
                            >
-                           Copyright @ 2020, ${footer.appName}, All
+                           Copyright @ 2023, ${footer.appName}, All
                            rights are reserved.
                         </h6>
                      </th>
@@ -499,7 +475,7 @@ module.exports = (footer) => {
                               text-decoration: none;
                               "
                               target="_blank"
-                              href="${footer.footerLinks.contactUs}"
+                              href="mailto:contact@yftchain.com"
                               >Contact us</a
                               >
                         </p>

@@ -72,8 +72,9 @@ class PlayerSpecializationService {
         try {
             let response = {}, totalRecords = 0;
             totalRecords = await this.positionUtilityInst.countList({});
+            console.log(totalRecords,totalRecords);
             let data = await this.positionUtilityInst.aggregate([
-                { $sort: { createdAt: -1 } },
+                
                 {
                     $lookup: { from: "abilities", localField: "abilities", foreignField: "id", as: "output" }
                 },

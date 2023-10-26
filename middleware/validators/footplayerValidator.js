@@ -15,9 +15,9 @@ class FootPlayerValidator {
         })
         try {
             await Joi.validate(req.query, query);
-            if (!req.query.email && !req.query.phone) {
-                return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMAIL_OR_PHONE_REQUIRED)));
-            }
+           // if (!req.query.email && !req.query.phone) {
+           //     return responseHandler(req, res, Promise.reject(new errors.ValidationFailed(RESPONSE_MESSAGE.EMAIL_OR_PHONE_REQUIRED)));
+           // }
             return next();
         } catch (err) {
             console.log(err.details);

@@ -83,6 +83,7 @@ module.exports = (router) => {
      */
 
     router.get("/master/state/list/:country_id", function (req, res) {
+        console.log("requrest come in state api");
         let serviceInst = new LocationService();
         return responseHandler(req, res, serviceInst.getStateList(req.params.country_id));
     });
@@ -123,7 +124,7 @@ module.exports = (router) => {
     router.get("/master/district/list/:country_id/:state_id", function (req, res) {
         let paginationOptions = {};
         let filter = {};
-
+        console.log("district hittttttttttttt");
         paginationOptions = {
             page_no: (req.query && req.query.page_no) ? req.query.page_no : 1,
             limit: (req.query && req.query.page_size) ? Number(req.query.page_size) : 10

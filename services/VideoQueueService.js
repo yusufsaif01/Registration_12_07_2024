@@ -15,6 +15,7 @@ module.exports = class VideoQueueService {
 
   getProcessingCursor() {
     try {
+      console.log("middleware wala");
       return this.videoUtilityInst.cursor({ is_deleted: false });
     } catch (error) {
       console.log("Unable to fetch videos list for processing");

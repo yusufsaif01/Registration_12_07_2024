@@ -52,7 +52,7 @@ class AuthService {
         try {
             await this.loginValidator(email, password);
             const loginDetails = await this.findByCredentials(email, password);
-            console.log("request also come here in AuthService !!!!!!!!!!!!!!!!!!!!!!!")
+           // console.log("request also come here in AuthService !!!!!!!!!!!!!!!!!!!!!!!")
             ActivityService.loginActivity(loginDetails.user_id, ACTIVITY.LOGIN);
             const tokenForAuthentication = await this.authUtilityInst.getAuthToken(loginDetails.user_id, email, loginDetails.member_type);
             await this.loginUtilityInst.updateOne({ user_id: loginDetails.user_id }, { token: tokenForAuthentication });

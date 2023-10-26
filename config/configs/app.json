@@ -29,7 +29,7 @@
 	},
 	"client_domains":{
 		"doc": "For setting down the client urls of app.",
-		"default": "http://yftchain.com,http://localhost,https://localhost,http://localhost:4200,http://yftchain.com",
+		"default": "http://yftchain.local,http://localhost,https://localhost,http://localhost:4200",
 		"env": "APP_CLIENT_URLS",
 		"arg": "app_client_urls"
 	},
@@ -37,21 +37,21 @@
 	"facebook_url": {
         "doc": "provide default facebook url",
         "format": "String",
-        "default": "https://www.facebook.com",
+        "default": "https://www.facebook.com/YFTCHAIN",
         "env": "FACEBOOK_URL",
         "arg": "facebook_url"
     },
 	"instagram_url": {
         "doc": "provide default instagram url",
         "format": "String",
-        "default": "#",
+        "default": "https://www.instagram.com/yftchain/",
         "env": "INSTAGRAM_URL",
         "arg": "instagram_url"
     },
 	"linkedin_url": {
         "doc": "provide default linkedin url",
         "format": "String",
-        "default": "#",
+        "default": "https://www.linkedin.com/company/decodingyouthtalent/",
         "env": "LINKEDIN_URL",
         "arg": "linkedin_url"
     },
@@ -65,14 +65,14 @@
 	"privacy_policy_url": {
         "doc": "provide default twitter url",
         "format": "String",
-        "default": "#",
+        "default": "http://yftchain.com/privacy-policy",
         "env": "PRIVACY_POLICY_URL",
         "arg": "privacy_policy_url"
     },
 	"terms_and_conditions_url": {
         "doc": "provide default twitter url",
         "format": "String",
-        "default": "#",
+        "default": "http://yftchain.com/terms&conditions",
         "env": "TERMS_AND_CONDITIONS_URL",
         "arg": "terms_and_conditions_url"
     },

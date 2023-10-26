@@ -18,6 +18,7 @@ class Connection {
 		return mongoose.connection.close();
 	}
 
+
 	async connectMongoDB() {
 		try {
 			let options = this.config.options || {};

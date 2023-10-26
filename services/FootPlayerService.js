@@ -41,8 +41,7 @@ class FootPlayerService {
    */
   async footplayerSearch(requestedData = {}) {
     try {
-      console.log("***************************")
-      console.log(requestedData)
+    
       let filterConditions = this._preparePlayerFilterCondition(requestedData.filterConditions)
       let data = await this.loginUtilityInst.aggregate([{ $match: { is_deleted: false, member_type: MEMBER.PLAYER } },
       { $project: { user_id: 1, profile_status: 1, _id: 0 } }, { "$lookup": { "from": "player_details", "localField": "user_id", "foreignField": "user_id", "as": "player_detail" } }, { $unwind: { path: "$player_detail" } },
@@ -64,7 +63,6 @@ class FootPlayerService {
       { $match: filterConditions }]
       );
 
-
       if (_.isEmpty(data)) {
         filterConditions = this._prepareClubAcademyFilterCondition(requestedData.filterConditions);
         data = await this.loginUtilityInst.aggregate([{ $match: { is_deleted: false, member_type: { $in: [MEMBER.CLUB, MEMBER.ACADEMY] } } },
@@ -73,6 +71,7 @@ class FootPlayerService {
         { $match: filterConditions }]);
       }
       data = new FootPlayerSearchListResponseMapper().map(data);
+    
       return { total: data.length, records: data };
     } catch (e) {
       console.log("Error in getPlayerList() of FootPlayerService", e);
