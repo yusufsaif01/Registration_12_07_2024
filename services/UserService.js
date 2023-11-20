@@ -77,7 +77,7 @@ class UserService extends BaseService {
             filterConditions = this._prepareFilterCondition(requestedData.filterConditions, member_type)
             if (filterConditions) {
                 conditions.$and = filterConditions.$and
-            }
+            } 
 
             if (member_type === MEMBER.PLAYER) {
                 response = await this.getPlayerList(conditions, options, member_type);
@@ -94,7 +94,8 @@ class UserService extends BaseService {
     async getPlayerList(conditions, options, member_type) {
         try {
             let totalRecords = 0, amateur_count = 0, professional_count = 0, grassroot_count = 0;
-
+            console.log("conditions is ====>")
+            console.log(conditions)
             totalRecords = await this.playerUtilityInst.countList(conditions);
             amateur_count = await this.playerUtilityInst.countList({ ...conditions, player_type: PLAYER.AMATEUR })
             professional_count = await this.playerUtilityInst.countList({ ...conditions, player_type: PLAYER.PROFESSIONAL })
@@ -103,7 +104,7 @@ class UserService extends BaseService {
             let baseOptions = {
                 conditions: conditions,
                 options: options,
-                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1, user_id: 1 }
+                projection: { first_name: 1, last_name: 1, player_type: 1, email: 1, position: 1, user_id: 1, avatar_url:1 }
             };
 
             let toBePopulatedOptions = {

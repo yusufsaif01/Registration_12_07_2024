@@ -20,6 +20,11 @@ class BaseUtility {
 			conditions.deleted_at = { $exists: false };
 
 			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
+		
+			console.log("options are")
+			console.log(options)
+			console.log("projections are")
+			console.log(projection)
 			let result = await this.model.findOne(conditions, projection, options).lean();
 			return result;
 		} catch (e) {
@@ -41,9 +46,11 @@ class BaseUtility {
 
 			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
 			
-		//	console.log(this.model)
-			return await this.model.find(conditions,projection);
-			//return result;
+			console.log("Request come in find")
+		
+			const result= await this.model.find(conditions,projection);
+			console.log(result)
+			return result;
 		} catch (e) {
 			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
 			throw e;
@@ -144,10 +151,18 @@ class BaseUtility {
 		try {
 			baseOptions.projection = (!_.isEmpty(baseOptions.projection)) ? baseOptions.projection : { "_id": 0, "__v": 0 };
 			toBePopulatedOptions.projection = (!_.isEmpty(toBePopulatedOptions.projection)) ? toBePopulatedOptions.projection : { "_id": 0, "__v": 0 };
-
+			console.log("conditon")
+			console.log(baseOptions.conditions)
+			console.log("projections")
+			console.log(baseOptions.projection)
+			console.log("options")
+			console.log(baseOptions.options)
+			console.log("match")
+			console.log(toBePopulatedOptions.condition )
 			const data = await this.model.find(baseOptions.conditions || {}, baseOptions.projection || null, baseOptions.options || {})
 				.populate({ "path": toBePopulatedOptions.path, match: toBePopulatedOptions.condition || {}, select: toBePopulatedOptions.projection || null })
 				.exec();
+				//console.log(data)
 			return data;
 		} catch (e) {
 			console.log(`Error in populate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
@@ -159,6 +174,8 @@ class BaseUtility {
 			if (_.isEmpty(this.model)) {
 				await this.getModel();
 			}
+			console.log("Aggregation are --->")
+			console.log(aggregations)
 			const data = await this.model.aggregate(aggregations)
 			return data;
 		} catch (e) {

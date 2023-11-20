@@ -12,7 +12,8 @@ class UserListResponseMapper {
                     "status": "-",
                     "account_status": "-",
                     "is_email_verified": "false",
-                    "user_id": user.user_id
+                    "user_id": user.user_id,
+                    "avatar_url":user.avatar_url
                 };
 
                 data.name = String(data.name).trim().length > 0 ? String(data.name).trim() : "-";

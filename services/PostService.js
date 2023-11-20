@@ -110,9 +110,14 @@ class PostService {
             let skipCount = (paginationOptions.page_no - 1) * paginationOptions.limit;
             let options = { limit: paginationOptions.limit, skip: skipCount };
             let connection = await this.connectionUtilityInst.findOne({ user_id: requestedData.user_id }, { followings: 1 });
+
+            console.log("Request post ids are --->")
+            console.log(requestedData.user_id )
             let user_id_array_for_post = [requestedData.user_id];
             if (connection && connection.followings) {
                 user_id_array_for_post = user_id_array_for_post.concat(connection.followings);
+                console.log("request after concatination")
+                console.log(user_id_array_for_post)
             }
 
             const matchCriteria = {

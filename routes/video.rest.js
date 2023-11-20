@@ -359,7 +359,7 @@ module.exports = (router) => {
         limit:
           req.query && req.query.page_size ? Number(req.query.page_size) : 12,
       };
-
+     // let connection = this.connectionUtilityInst.findOne({ user_id: requestedData.user_id }, { followings: 1 });
       let query = {
         post_type: type,
         attribute: req.query.attribute ? req.query.attribute : null,

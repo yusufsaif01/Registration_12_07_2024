@@ -16,7 +16,7 @@ const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const PostType = require("../constants/PostType");
 const FootPlayerStatus = require("../constants/FootPlayerStatus");
 const _ = require("lodash");
-
+const ConnectionUtility = require('../db/utilities/ConnectionUtility');
 const abilityInst = new AbilityUtility();
 const attributeInst = new AttributeUtility();
 const postInst = new PostUtility();
@@ -26,6 +26,7 @@ const footPlayerInst = new FootPlayerUtility();
 module.exports = class VideoService {
   constructor() {
     this.videoQueueService = new VideoQueueService();
+    this.connectionUtilityInst = new ConnectionUtility();
   }
 
   async uploadVideo(authUser, type, { tags, media, others }) {
@@ -311,11 +312,21 @@ return count
     try {
       const skipCount = (pagination.page_no - 1) * pagination.limit;
       const options = { limit: pagination.limit, skip: skipCount };
+      let connection = await this.connectionUtilityInst.findOne({ user_id: query.user_id }, { followings: 1 });
+      console.log("connection lists inside getVideosList")
+      console.log(connection)
 
-      const $where = await this.listMatchCriteria(query);
+      let user_id_array = [query.user_id];
+      if (connection && connection.followings) {
+          user_id_array = user_id_array.concat(connection.followings);
+          console.log("request after concatination")
+          console.log(user_id_array)
+      }
+
+      const $where = await this.listMatchCriteria(query,user_id_array);
 
       $where["is_deleted"] = false;
-      
+
       if (query.attribute) {
         const attribute = query.attribute.split(",");
         $where["meta.abilities.attributes.attribute_name"] = {
@@ -345,7 +356,7 @@ return count
       let posts = await postInst.aggregate(pipelines);
 
       if (query.others) {
-        const $whereOthers = await this.listMatchCriteria(query);
+        const $whereOthers = await this.listMatchCriteria(query,id);
 
         $whereOthers["is_deleted"] = false;
         const others = query.others.split(",");
@@ -384,15 +395,18 @@ return count
         {
           total: totalCount,
           records: VideoResponseMapper.map(posts),
-          posted_by: await loginInst.findOne(
+          
+          posted_by: await loginInst.find(
             {
-              user_id: query.user_id,
+            //  posted_by: { $in: user_id_array_for_post },
+              user_id: {$in:user_id_array},
               is_deleted: false,
             },
             { member_type: 1, user_id: 1, _id: 0 }
           ),
         },
-        query
+        query,
+        user_id_array,
       );
     } catch (error) {
       console.log("Error in getVideosList() of VideoService", error);
@@ -400,13 +414,14 @@ return count
     }
   }
 
-  async processVideoListResponse(data, query) {
+  async processVideoListResponse(data, query,id) {
     if (
-      [ROLE.CLUB, ROLE.ACADEMY].includes(data.posted_by.member_type) &&
+      [ROLE.CLUB, ROLE.ACADEMY, ROLE.PLAYER].includes(data.posted_by.member_type) &&
       query.authUser.user_id != query.user_id
     ) {
-      const ifExists = await footPlayerInst.findOne({
-        sent_by: query.user_id,
+      const ifExists = await footPlayerInst.find({
+       // posted_by: { $in: user_id_array_for_post },
+        sent_by: {$in:id},
         "send_to.user_id": query.authUser.user_id,
         status: FootPlayerStatus.ADDED,
       });
@@ -416,10 +431,10 @@ return count
     return data;
   }
 
-  async listMatchCriteria(query) {
+  async listMatchCriteria(query,id) {
     try {
       const defaults = {
-        posted_by: query.user_id,
+        posted_by: {$in: id},
         post_type: query.post_type,
         "media.media_type": query.media_type,
       };
