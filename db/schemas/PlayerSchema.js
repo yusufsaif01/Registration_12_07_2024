@@ -23,6 +23,9 @@ module.exports = {
         nationality: {
             type: String
         },
+        country_code: {
+            type:String
+        },
         deleted_at: {
             type: Date
         },

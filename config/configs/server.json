@@ -9,7 +9,7 @@
     "port": {
         "doc": "server port",
         "format": "Number",
-        "default": 3000,
+        "default": 2001,
         "env": "SERVER_PORT",
         "arg": "SERVER_PORT"
     }

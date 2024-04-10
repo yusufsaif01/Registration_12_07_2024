@@ -6,8 +6,10 @@ class ResponseHandler {
             "message": "Successfully done"
         };
         if (data) {
+            
             response.data = data;
         }
+      
         return Promise.resolve(response);
     }
 
@@ -23,9 +25,9 @@ function handler(req, res, promise) {
             res.json(data);
         })
         .catch((data) => {
-            console.log("-------getting error ------", data);
+            
             if (data.httpCode) {
-                console.log("inside the if of response !!!!!!!!!!");
+                
                 return res.status(data.httpCode).json(data);
             } else {
                 console.log("inside the else of response !!!!!!!!!!");

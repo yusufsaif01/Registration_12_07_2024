@@ -14,17 +14,18 @@ const vimeo = require('./configs/vimeo.json');
 
 // Define a schema
 var config = convict({
-	app,
-	mailer,
-	azureMailer,
-	logger,
-	db,
-	server,
-	helper,
-	jwt,
-	storage,
-	state_district_storage,
-	vimeo
+  app,
+  mailer,
+  azureMailer,
+  logger,
+  db,
+  server,
+  helper,
+  jwt,
+  storage,
+  state_district_storage,
+  vimeo,
+  
 });
 
 // Perform validation

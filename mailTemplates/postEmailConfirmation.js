@@ -107,7 +107,7 @@ module.exports = ({ email, name }) => {
                width: 90%;
                ">
                     Hey ${
-                      name.charAt(0).toUpperCase() + name.slice(1)
+                      name
                     }, welcome to YFTChain!
                     We are glad to have you onboard. All you
                     have to do is verify your identity

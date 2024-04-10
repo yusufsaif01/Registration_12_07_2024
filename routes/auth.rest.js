@@ -39,9 +39,10 @@ module.exports = (router) => {
 	 *     }
 	 *
 	 */
-	router.post('/register', userValidator.createAPIValidation, function (req, res) {
-		console.log("register api hits")
+	router.post('/register', function (req, res) {
+		console.log("register api hits inside registration middleware")
 		const serviceInst = new UserRegistrationService();
+		console.log("in new middleware")
 		responseHandler(req, res, serviceInst.memberRegistration(req.body));
 	});
 	/**
@@ -68,7 +69,7 @@ module.exports = (router) => {
 	 *                "avatar_url": "/uploads/avatar/user-avatar.png",
      *                "token": "emlhdCI6MTU4NjM1MTgzOZQXcVhb7e8xD9EaImqZwaErrhK7s"
      *}
-	 *     }
+	 *}
 	 *
 	 *
 	 * @apiErrorExample {json} INTERNAL_SERVER_ERROR:
@@ -84,6 +85,7 @@ module.exports = (router) => {
 		console.log("loggeddddd");
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.login(req.body.email, req.body.password));
+		
 	});
 	/**
 * @api {put} /activate email verification
@@ -117,7 +119,8 @@ module.exports = (router) => {
 *     }
 * 
 */
-	router.put('/activate', checkTokenForAccountActivation, function (req, res, next) {
+	router.put('/activateemail', checkTokenForAccountActivation, function (req, res, next) {
+		console.log("inside registration activate")
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.emailVerification(req.authUser));
 	})
@@ -171,9 +174,10 @@ module.exports = (router) => {
 	*     }
 	*  
 	*/
-	router.post('/create-password', checkTokenForAccountActivation, function (req, res) {
+	router.post('/create-password', function (req, res) {
 		const authServiceInst = new AuthService();
-		responseHandler(req, res, authServiceInst.createPassword(req.authUser, req.body.password, req.body.confirmPassword));
+		responseHandler(req, res, authServiceInst.createPassword(req.body.authUser, req.body.body.password, req.body.body.confirmPassword));
+		
 	});
 	/**
 	* @api {post} /reset-password reset password 

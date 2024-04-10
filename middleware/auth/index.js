@@ -7,17 +7,21 @@ var _checkRole = (req, roles) => {
     }
     return roles.includes(req.authUser.role);
 };
-
+ 
 const _checkToken = async (req, isCheckStatus, isCheckForgotPassToken) => {
     try {
+        
         const token = req.headers.authorization || req.body.token;
+    
         if (token) {
+            
             const authUtilityInst = new AuthUtility();
+            
             const user = await authUtilityInst.getUserByToken(token, isCheckStatus, isCheckForgotPassToken);
+          
             return user;
         }
         throw new errors.Unauthorized();
-
     } catch (err) {
         console.log(err);
         return Promise.reject(err);
@@ -71,8 +75,11 @@ module.exports = {
 
     async checkTokenForAccountActivation(req, res, next) {
         try {
+    
             const user = await _checkToken(req, false, true);
+            
             req.authUser = user;
+          
             return next();
         } catch (err) {
             console.log(err);

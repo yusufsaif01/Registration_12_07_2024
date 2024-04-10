@@ -1,207 +1,660 @@
 const _ = require("lodash");
 const Model = require("../model");
 const errors = require("../../errors");
-
+var crypto = require("crypto");
+const fs = require("fs");
+var path = require("path");
 class BaseUtility {
+  constructor(schemaObj) {
+    this.schemaObj = schemaObj;
+  }
 
-	constructor(schemaObj) {
-		this.schemaObj = schemaObj;
-	}
+  async getModel() {
+    this.model = await Model.getModel(this.schemaObj);
+  }
 
-	async getModel() {
-		this.model = await Model.getModel(this.schemaObj);
-	}
+  async findOneInMongo(conditions = {}, projection = [], options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+  
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      let result = await this.model
+        .findOne(conditions, projection, options);
+    
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
 
-	async findOne(conditions = {}, projection = [], options = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
+  async findOne(conditions = {}, projection = [], options = {}) {
+    var mysql = require("mysql2/promise");
 
-			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
-		
-			console.log("options are")
-			console.log(options)
-			console.log("projections are")
-			console.log(projection)
-			let result = await this.model.findOne(conditions, projection, options).lean();
-			return result;
-		} catch (e) {
-			console.log(`Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+  var con = await mysql.createConnection({
+    host: "yftregistration.mysql.database.azure.com",
+    user: "yftregistration",
+    password: "Dyt799@#mysqlServer",
+    database: "yft_registration_in",
+    port: 3306,
+    ssl: {
+      ca: fs.readFileSync(
+        path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+      ),
+    },
+  });
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      //conditions.deleted_at = { $exists: false };
 
-	async find(conditions = {}, projection = {}, options = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      const modelnameis = await this.model.modelName;
 
-			if (options && (!options.sort || !Object.keys(options.sort).length)) {
-				options.sort = { createdAt: -1 };
-			}
+      function processValue(value) {
+        if (!isNaN(value)) {
+          return value;
+        }
+        if (typeof value === "string") {
+          return `"${mysql.escape(value)}"`;
+        }
+        throw new Error("Unsupported value type!");
+      }
 
-			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
-			
-			console.log("Request come in find")
-		
-			const result= await this.model.find(conditions,projection);
-			console.log(result)
-			return result;
-		} catch (e) {
-			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+      function where(conditions) {
+        return Object.entries(conditions)
+          .reduce(function (statement, [key, value]) {
+            return statement.concat(["AND", key, "=", processValue(value)]);
+          }, [])
+          .slice(1)
+          .join(" ");
+      }
 
-	async countList(conditions = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
+      const sql = `Select * FROM ${modelnameis} where ?`;
+   
+      const [result, fields] = await con.query(sql, where(conditions));
+      const data = await this.model
+        .findOne(conditions, projection, options)
+        .lean();
 
-			let count = await this.model.countDocuments(conditions);
-			return count;
-		} catch (e) {
-			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+      return data;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+  async findOneForProfileFetch(conditions = {}, projection = [], options = {}) {
+    var mysql = require("mysql2/promise");
 
-	async insert(record = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			let result = await this.model.create(record);
-			return result;
-		} catch (e) {
-			console.log(`Error in insert() while inserting data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+   var con = await mysql.createConnection({
+     host: "yftregistration.mysql.database.azure.com",
+     user: "yftregistration",
+     password: "Dyt799@#mysqlServer",
+     database: "yft_registration_in",
+     port: 3306,
+     ssl: {
+       ca: fs.readFileSync(
+         path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+       ),
+     },
+   });
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      //conditions.deleted_at = { $exists: false };
 
-	async insertMany(recordsToInsert = []) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			let result = await this.model.insertMany(recordsToInsert);
-			return result;
-		} catch (e) {
-			if (e.code === 11000) {
-				return Promise.reject(new errors.Conflict(e.errmsg));
-			}
-			console.log(`Error in insertMany() while inserting data for ${this.schemaObj.schemaName} :: ${e}`);
-			return Promise.reject(new errors.DBError(e.errmsg));
-		}
-	}
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      const modelnameis = await this.model.modelName;
+    
+      const sql = `Select * FROM ${modelnameis} where ?`;
+      const [result, fields] = await con.query(sql, conditions);
+      // const data = await this.model
+      //   .findOne(conditions, projection, options)
+      //   .lean();
 
-	async updateMany(conditions = {}, updatedDoc = {}, options = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
-			
-			let result = await this.model.updateMany(conditions, updatedDoc, options);
-			return result;
-		} catch (e) {
-			console.log(`Error in updateMany() while updating data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+      const res = Object.assign({}, ...result);
 
-	async updateOne(conditions = {}, updatedDoc = {}, options = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
+      return res;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
 
-			let result = await this.model.updateOne(conditions, updatedDoc, options);
-			console.log(result)
-			return result;
-		} catch (e) {
-			console.log(`Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+  async findOneGetPublicProfileDetails(
+    conditions = {},
+    projection = [],
+    options = {}
+  ) {
+    var mysql = require("mysql2/promise");
+    
+ var con = await mysql.createConnection({
+   host: "yftregistration.mysql.database.azure.com",
+   user: "yftregistration",
+   password: "Dyt799@#mysqlServer",
+   database: "yft_registration_in",
+   port: 3306,
+   ssl: {
+     ca: fs.readFileSync(
+       path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+     ),
+   },
+ });
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      //conditions.deleted_at = { $exists: false };
+    
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      const modelnameis = await this.model.modelName;
+   
+      const sql = `Select * FROM ${modelnameis} where ?`;
+      const [result, fields] = await con.query(sql, conditions);
+      
+      // const data = await this.model
+      //   .findOne(conditions, projection, options)
+      //   .lean();
+  
+      const res = Object.assign({}, ...result);
+ 
+      return res;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
 
-	async findOneAndUpdate(conditions = {}, updatedDoc = {}, options = {}) {
-		try {
-			let entity = await this.findOne(conditions, null, options)
-			if (!entity) {
-				return Promise.reject(new errors.NotFound());
-			}
-			conditions.deleted_at = { $exists: false };
-			options.new = true;
-			return this.model.findOneAndUpdate(conditions, updatedDoc, options);
-		} catch (e) {
-			console.log(`Error in findOneAndUpdate() while updating data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+  async findOnePlayer(conditions = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      //conditions.deleted_at = { $exists: false };
 
-	async populate(baseOptions = {}, toBePopulatedOptions = {}) {
-		try {
-			baseOptions.projection = (!_.isEmpty(baseOptions.projection)) ? baseOptions.projection : { "_id": 0, "__v": 0 };
-			toBePopulatedOptions.projection = (!_.isEmpty(toBePopulatedOptions.projection)) ? toBePopulatedOptions.projection : { "_id": 0, "__v": 0 };
-			console.log("conditon")
-			console.log(baseOptions.conditions)
-			console.log("projections")
-			console.log(baseOptions.projection)
-			console.log("options")
-			console.log(baseOptions.options)
-			console.log("match")
-			console.log(toBePopulatedOptions.condition )
-			const data = await this.model.find(baseOptions.conditions || {}, baseOptions.projection || null, baseOptions.options || {})
-				.populate({ "path": toBePopulatedOptions.path, match: toBePopulatedOptions.condition || {}, select: toBePopulatedOptions.projection || null })
-				.exec();
-				//console.log(data)
-			return data;
-		} catch (e) {
-			console.log(`Error in populate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
-	async aggregate(aggregations = []) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			console.log("Aggregation are --->")
-			console.log(aggregations)
-			const data = await this.model.aggregate(aggregations)
-			return data;
-		} catch (e) {
-			console.log(`Error in aggregate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+      const modelnameis = await this.model.modelName;
 
-	async cursor (conditions = {}, projection = {}, options = {}) {
-		try {
-			if (_.isEmpty(this.model)) {
-				await this.getModel();
-			}
-			conditions.deleted_at = { $exists: false };
+      var mysql = require("mysql2/promise");
 
-			if (options && (!options.sort || !Object.keys(options.sort).length)) {
-				options.sort = { createdAt: -1 };
-			}
-			console.log("request also come in cursor function");
-			projection = (!_.isEmpty(projection)) ? projection : { "_id": 0, "__v": 0 };
-			return this.model.find(conditions, projection, options).cursor();
-		} catch (e) {
-			console.log(`Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`);
-			throw e;
-		}
-	}
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
+    
+      const returnData = con.connect(function (err) {
+        if (err) throw err;
+
+        const sql = `Select * FROM ${modelnameis} where ?`;
+
+        con.query(sql, conditions, function (err, result) {
+          if (err) throw err;
+
+          return result;
+        });
+      });
+
+      //let result = await this.model.findOne(conditions, projection, options).lean();
+      //return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async findOneAnother(conditions = {}, projection = [], options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      //conditions.deleted_at = { $exists: false };
+
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+
+      const modelnameis = await this.model.modelName;
+      var emptydata = [];
+      var mysql = require("mysql2/promise");
+      var con = await mysql.createConnection({
+       host: "yftregistration.mysql.database.azure.com",
+       user: "yftregistration",
+       password: "Dyt799@#mysqlServer",
+       database: "yft_registration_in",
+       port: 3306,
+       ssl: {
+         ca: fs.readFileSync(
+           path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+         ),
+       },
+     });
+
+       const sql = `Select * FROM ${modelnameis} where ?`;
+       const [result, fields] = await con.query(sql, conditions);
+
+       // const data = await this.model
+       //   .findOne(conditions, projection, options)
+       //   .lean();
+
+      const result1 = Object.assign({}, ...result);
+      console.log(result1)
+       return result1;
+      //let result = await this.model.findOne(conditions, projection, options).lean();
+     
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async find(conditions = {}, projection = {}, options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      if (options && (!options.sort || !Object.keys(options.sort).length)) {
+        options.sort = { createdAt: -1 };
+      }
+
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+
+      const result = await this.model.find(conditions, projection);
+
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async countList(conditions = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      let count = await this.model.countDocuments(conditions);
+      return count;
+    } catch (e) {
+      console.log(
+        `Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
+  var mysql = require("mysql2/promise");
+  
+var con = await mysql.createConnection({
+  host: "yftregistration.mysql.database.azure.com",
+  user: "yftregistration",
+  password: "Dyt799@#mysqlServer",
+  database: "yft_registration_in",
+  port: 3306,
+  ssl: {
+    ca: fs.readFileSync(path.join(__dirname,"./certificate/DigiCertGlobalRootCA.crt.pem")),
+  },
+});
+
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      const modelnameis = await this.model.modelName;
+
+      //MySql Database
+      const data = record_for_mysql;
+      const sql = `INSERT INTO ${modelnameis} SET ?`;
+
+      const [result, fields] = await con.query(sql, data, true);
+      console.log(sql, data);
+      if (result) {
+        const iim = await this.model.create(record_for_mongoDb);
+      }
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in insert() while inserting data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async insertMany(recordsToInsert = []) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      let result = await this.model.insertMany(recordsToInsert);
+      return result;
+    } catch (e) {
+      if (e.code === 11000) {
+        return Promise.reject(new errors.Conflict(e.errmsg));
+      }
+      console.log(
+        `Error in insertMany() while inserting data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      return Promise.reject(new errors.DBError(e.errmsg));
+    }
+  }
+
+  async updateMany(conditions = {}, updatedDoc = {}, options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      let result = await this.model.updateMany(conditions, updatedDoc, options);
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in updateMany() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async updateOneInMongo(conditions = {}, updatedDoc = {}, options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      let result = await this.model.updateOne(conditions, updatedDoc, options);
+
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async updateOne(conditions = {}, updatedDoc = {}, options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+      conditions.deleted_at = { $exists: false };
+
+      const results = await this.model.updateOne(
+        conditions,
+        updatedDoc,
+        options
+      );
+
+      const modelnameis = await this.model.modelName;
+
+      var mysql = require("mysql2/promise");
+ var con = await mysql.createConnection({
+   host: "yftregistration.mysql.database.azure.com",
+   user: "yftregistration",
+   password: "Dyt799@#mysqlServer",
+   database: "yft_registration_in",
+   port: 3306,
+   ssl: {
+     ca: fs.readFileSync(
+       path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+     ),
+   },
+ });
+
+      const sql = `UPDATE login_details SET is_email_varified= 'true', status= 'active' where user_id = '${conditions.user_id}'`;
+      const [result, fields] = await con.execute(sql);
+      console.log("account activate is result")
+      console.log(result)
+      return result;
+
+      //	let result = await this.model.updateOne(conditions, updatedDoc, options);
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async updateOneProfile(
+    conditions = {},
+    data = {},
+    updatedDoc = {},
+    options = {}
+  ) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+      conditions.deleted_at = { $exists: false };
+
+      // const results = await this.model.updateOne(
+      // conditions,
+      //updatedDoc,
+      // options
+      //);
+
+      const modelnameis = await this.model.modelName;
+
+      var mysql = require("mysql2/promise");
+      var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
+
+      var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
+      var key = "password";
+      var cipher_for_fisrt_name = crypto.createCipher(algorithm, key);
+      var cipher_for_last_name = crypto.createCipher(algorithm, key);
+      var cipher_for_phone = crypto.createCipher(algorithm, key);
+      var cipher_for_gender = crypto.createCipher(algorithm, key);
+      var cipher_for_dob = crypto.createCipher(algorithm, key);
+      var cipher_for_height_feet = crypto.createCipher(algorithm, key);
+      var cipher_for_height_inches = crypto.createCipher(algorithm, key);
+      var cipher_for_weight = crypto.createCipher(algorithm, key);
+      var cipher_for_school = crypto.createCipher(algorithm, key);
+      var cipher_for_country_name = crypto.createCipher(algorithm, key);
+      var cipher_for_state_name = crypto.createCipher(algorithm, key);
+      var cipher_for_district_name = crypto.createCipher(algorithm, key);
+      var cipher_for_enc_bio = crypto.createCipher(algorithm, key);
+      var cipher_for_institute_school = crypto.createCipher(algorithm, key);
+      var cipher_for_institute_college = crypto.createCipher(algorithm, key);
+      var cipher_for_institute_university = crypto.createCipher(algorithm, key);
+      var cipher_for_height_feet = crypto.createCipher(algorithm, key);
+      var cipher_for_height_inches = crypto.createCipher(algorithm, key);
+
+      var enc_first_name =
+        cipher_for_fisrt_name.update(data.first_name, "utf8", "hex") +
+        cipher_for_fisrt_name.final("hex");
+
+      var enc_phone =
+        cipher_for_phone.update(data.phone, "utf8", "hex") +
+        cipher_for_phone.final("hex");
+
+      var enc_lastname =
+        cipher_for_last_name.update(data.last_name, "utf8", "hex") +
+        cipher_for_last_name.final("hex");
+
+      var enc_gender =
+        cipher_for_gender.update(data.gender, "utf8", "hex") +
+        cipher_for_gender.final("hex");
+
+      var enc_dob =
+        cipher_for_dob.update(data.dob, "utf8", "hex") +
+        cipher_for_dob.final("hex");
+
+      var enc_weight =
+        cipher_for_weight.update(data.weight, "utf8", "hex") +
+        cipher_for_weight.final("hex");
+
+      var enc_school =
+        cipher_for_school.update(data.school, "utf8", "hex") +
+        cipher_for_school.final("hex");
+
+      var enc_country_name =
+        cipher_for_country_name.update(data.country.name, "utf8", "hex") +
+        cipher_for_country_name.final("hex");
+
+      var enc_state_name =
+        cipher_for_state_name.update(data.state.name, "utf8", "hex") +
+        cipher_for_state_name.final("hex");
+
+      var enc_height_feet =
+        cipher_for_height_feet.update(data.height_feet, "utf8", "hex") +
+        cipher_for_height_feet.final("hex");
+
+      var enc_height_inches =
+        cipher_for_height_inches.update(data.height_inches, "utf8", "hex") +
+        cipher_for_height_inches.final("hex");
+
+      var enc_district_name =
+        cipher_for_district_name.update(data.district.name, "utf8", "hex") +
+        cipher_for_district_name.final("hex");
+
+      var enc_bio =
+        cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
+        cipher_for_enc_bio.final("hex");
+
+      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${enc_dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',institute_school='${data.institute.school}',country_name='${enc_country_name}',country_id='${data.country_id}',state_id='${data.state_id}',state_name='${enc_state_name}',district_id='${data.district_id}',district_name='${enc_district_name}',bio='${enc_bio}',player_type='${data.player_type}',institute_school='${data.institute.school}',institute_college='${data.institute.college}',institute_university='${data.institute.university}'
+      where user_id = '${conditions.user_id}'`;
+    
+      const [result, fields] = await con.execute(sql);
+
+      return result;
+
+      //	let result = await this.model.updateOne(conditions, updatedDoc, options);
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async findOneAndUpdate(conditions = {}, updatedDoc = {}, options = {}) {
+    try {
+      let entity = await this.findOne(conditions, null, options);
+      if (!entity) {
+        return Promise.reject(new errors.NotFound());
+      }
+      conditions.deleted_at = { $exists: false };
+      options.new = true;
+      return this.model.findOneAndUpdate(conditions, updatedDoc, options);
+    } catch (e) {
+      console.log(
+        `Error in findOneAndUpdate() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async populate(baseOptions = {}, toBePopulatedOptions = {}) {
+    try {
+      baseOptions.projection = !_.isEmpty(baseOptions.projection)
+        ? baseOptions.projection
+        : { _id: 0, __v: 0 };
+      toBePopulatedOptions.projection = !_.isEmpty(
+        toBePopulatedOptions.projection
+      )
+        ? toBePopulatedOptions.projection
+        : { _id: 0, __v: 0 };
+
+      const data = await this.model
+        .find(
+          baseOptions.conditions || {},
+          baseOptions.projection || null,
+          baseOptions.options || {}
+        )
+        .populate({
+          path: toBePopulatedOptions.path,
+          match: toBePopulatedOptions.condition || {},
+          select: toBePopulatedOptions.projection || null,
+        })
+        .exec();
+      //console.log(data)
+      return data;
+    } catch (e) {
+      console.log(
+        `Error in populate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+  async aggregate(aggregations = []) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+
+      const data = await this.model.aggregate(aggregations);
+      return data;
+    } catch (e) {
+      console.log(
+        `Error in aggregate() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async cursor(conditions = {}, projection = {}, options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      if (options && (!options.sort || !Object.keys(options.sort).length)) {
+        options.sort = { createdAt: -1 };
+      }
+
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      return this.model.find(conditions, projection, options).cursor();
+    } catch (e) {
+      console.log(
+        `Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
 }
 
 module.exports = BaseUtility;

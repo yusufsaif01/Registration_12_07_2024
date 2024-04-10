@@ -6,7 +6,6 @@
         "env": "JWT_SECRET",
         "arg": "jwt_secret"
     },
-
     "expiry_in" : {
         "doc": "expiry time for signed token",
         "format": "String",

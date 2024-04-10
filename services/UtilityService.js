@@ -16,7 +16,10 @@ module.exports = class UtilityService {
     );
   }
   async getPlayerDetails(userID, projection = {}) {
-    return await this.playerUtilityInst.findOne(
+    console.log("inside getplayerdetails====");
+
+    console.log(userID);
+    return await this.playerUtilityInst.findOnePlayer(
       {
         user_id: userID,
       },
