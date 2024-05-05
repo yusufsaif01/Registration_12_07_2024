@@ -71,6 +71,10 @@ class UserProfileService {
       requestedData.member_type,
       requestedData.updateValues
     );
+    console.log("profile data isssss=>")
+    console.log('====================================');
+    console.log(profileData);
+    console.log('====================================');
     if (requestedData.updateValues._category === PROFILE_DETAIL.DOCUMENT) {
       profileData = await this.manageDocuments(
         profileData,
@@ -80,13 +84,13 @@ class UserProfileService {
     }
     console.log("before ifffffffff")
     if (requestedData.member_type == MEMBER.PLAYER) {
-     
+     console.log("inside profile member")
       await this.playerUtilityInst.updateOneProfile(
         { user_id: requestedData.id },
         profileData
       );
     } else {
-      await this.clubAcademyUtilityInst.updateOneProfile(
+      await this.clubAcademyUtilityInst.updateOneProfileClub(
         { user_id: requestedData.id },
         profileData
       );
@@ -335,6 +339,8 @@ class UserProfileService {
         }
       }
     }
+
+
     if (data._category === PROFILE_DETAIL.PERSONAL) {
       let social_profiles = {};
 

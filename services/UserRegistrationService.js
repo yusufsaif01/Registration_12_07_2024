@@ -2,6 +2,7 @@ const Promise = require("bluebird");
 const errors = require("../errors");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
+const CoacheUtility = require("../db/utilities/CoacheUtility");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const UserService = require("./UserService");
 const uuid = require("uuid/v4");
@@ -21,6 +22,8 @@ const FOOTPLAYER_STATUS = require("../constants/FootPlayerStatus");
 const moment = require("moment");
 const PLAYER_TYPE = require("../constants/PlayerType");
 var crypto = require("crypto");
+const fs = require("fs");
+var path = require("path");
 const {
   EmailClient,
   KnownEmailSendStatus,
@@ -39,6 +42,7 @@ class UserRegistrationService extends UserService {
   constructor() {
     super();
     this.playerUtilityInst = new PlayerUtility();
+    this.coacheUtilityInst = new CoacheUtility();
     this.clubAcademyUtilityInst = new ClubAcademyUtility();
     this.loginUtilityInst = new LoginUtility();
     this.authUtilityInst = new AuthUtility();
@@ -79,30 +83,26 @@ class UserRegistrationService extends UserService {
       }
     }
 
-    var mysql = require("mysql");
+    var mysql = require("mysql2/promise");
 
-    var con = mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "Secret@1",
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
       database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
     });
 
-    const user = con.connect(function (err) {
-      if (err) throw err;
-      con.query(
-        "SELECT * FROM login_details WHERE username = 'abc0@gmail.com'",
-        function (err, result) {
-          if (err) throw err;
-          if (!_.isEmpty(result)) {
-            return Promise.reject(
-              new errors.Conflict(RESPONSE_MESSAGE.EMAIL_ALREADY_REGISTERED)
-            );
-          }
-        }
-      );
-    });
+  const sql = "SELECT * FROM login_details WHERE username = 'abc0@gmail.com'";
 
+  const [result, fields] = await con.query(sql);
+
+   
     //const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
 
     return Promise.resolve(registerUser);
@@ -117,7 +117,7 @@ class UserRegistrationService extends UserService {
    */
   async memberRegistration(userData) {
     try {
-      await this.validateMemberRegistration(userData);
+     // await this.validateMemberRegistration(userData);
 
       userData.user_id = uuid();
       userData.avatar_url = config.app.default_avatar_url; // default user icon
@@ -135,6 +135,7 @@ class UserRegistrationService extends UserService {
       var cipher_for_last_name = crypto.createCipher(algorithm, key);
       var cipher_for_email = crypto.createCipher(algorithm, key);
       var cipher_for_phone = crypto.createCipher(algorithm, key);
+      console.log("befire insert")
       let loginDetails = await this.loginUtilityInst.insert(
         {
           user_id: userData.user_id,
@@ -153,10 +154,13 @@ class UserRegistrationService extends UserService {
           forgot_password_token: tokenForAccountActivation,
         }
       );
-
+console.log("after insert");
       userData.login_details = loginDetails._id;
     var dataObj = {};
-      if (userData.member_type == MEMBER.PLAYER) {
+      if (
+        userData.member_type == MEMBER.PLAYER ||
+        userData.member_type == MEMBER.COACHE
+      ) {
         var enc_first_name =
           cipher_for_fisrt_name.update(userData.first_name, "utf8", "hex") +
           cipher_for_fisrt_name.final("hex");
@@ -164,16 +168,15 @@ class UserRegistrationService extends UserService {
         var enc_last_name =
           cipher_for_last_name.update(userData.last_name, "utf8", "hex") +
           cipher_for_last_name.final("hex");
-        
-         dataObj.first_name = enc_first_name;
+
+        dataObj.first_name = enc_first_name;
         dataObj.last_name = enc_last_name;
         dataObj.dob = userData.dob;
         dataObj.player_type = userData.player_type;
-      }
-      else {
-         var enc_name =
-           cipher_for_name.update(userData.name, "utf8", "hex") +
-           cipher_for_name.final("hex");
+      } else {
+        var enc_name =
+          cipher_for_name.update(userData.name, "utf8", "hex") +
+          cipher_for_name.final("hex");
       }
         var enc_email =
           cipher_for_email.update(userData.email, "utf8", "hex") +
@@ -204,15 +207,19 @@ class UserRegistrationService extends UserService {
         dataObjForMongo.member_type = userData.member_type;
         dataObjForMongo.user_id = userData.user_id;
         dataObjForMongo.avatar_url = userData.avatar_url;
-      if (userData.member_type == MEMBER.PLAYER) {
+      if (userData.member_type == MEMBER.PLAYER)
+      {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
         userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
         await this.playerUtilityInst.insert(dataObj, dataObjForMongo);
+      }  else if (userData.member_type == MEMBER.COACHE) {
+       userData.dob = moment(userData.dob).format("YYYY-MM-DD");
+       userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
+       await this.coacheUtilityInst.insert(dataObj, dataObjForMongo);
       } else {
-        dataObj.name = enc_name;
-        await this.clubAcademyUtilityInst.insert(dataObj, dataObjForMongo);
+         dataObj.name = enc_name;
+         await this.clubAcademyUtilityInst.insert(dataObj, dataObjForMongo);
       }
-
       await this.updateFootPlayerCollection({
         member_type: userData.member_type,
         email: userData.email,

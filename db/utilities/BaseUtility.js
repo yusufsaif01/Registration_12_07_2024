@@ -19,11 +19,10 @@ class BaseUtility {
         await this.getModel();
       }
       conditions.deleted_at = { $exists: false };
-  
+
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
-      let result = await this.model
-        .findOne(conditions, projection, options);
-    
+      let result = await this.model.findOne(conditions, projection, options);
+
       return result;
     } catch (e) {
       console.log(
@@ -36,18 +35,18 @@ class BaseUtility {
   async findOne(conditions = {}, projection = [], options = {}) {
     var mysql = require("mysql2/promise");
 
-  var con = await mysql.createConnection({
-    host: "yftregistration.mysql.database.azure.com",
-    user: "yftregistration",
-    password: "Dyt799@#mysqlServer",
-    database: "yft_registration_in",
-    port: 3306,
-    ssl: {
-      ca: fs.readFileSync(
-        path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-      ),
-    },
-  });
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
     try {
       if (_.isEmpty(this.model)) {
         await this.getModel();
@@ -77,7 +76,7 @@ class BaseUtility {
       }
 
       const sql = `Select * FROM ${modelnameis} where ?`;
-   
+
       const [result, fields] = await con.query(sql, where(conditions));
       const data = await this.model
         .findOne(conditions, projection, options)
@@ -94,18 +93,18 @@ class BaseUtility {
   async findOneForProfileFetch(conditions = {}, projection = [], options = {}) {
     var mysql = require("mysql2/promise");
 
-   var con = await mysql.createConnection({
-     host: "yftregistration.mysql.database.azure.com",
-     user: "yftregistration",
-     password: "Dyt799@#mysqlServer",
-     database: "yft_registration_in",
-     port: 3306,
-     ssl: {
-       ca: fs.readFileSync(
-         path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-       ),
-     },
-   });
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
     try {
       if (_.isEmpty(this.model)) {
         await this.getModel();
@@ -114,7 +113,7 @@ class BaseUtility {
 
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
       const modelnameis = await this.model.modelName;
-    
+
       const sql = `Select * FROM ${modelnameis} where ?`;
       const [result, fields] = await con.query(sql, conditions);
       // const data = await this.model
@@ -122,7 +121,8 @@ class BaseUtility {
       //   .lean();
 
       const res = Object.assign({}, ...result);
-
+      console.log("return data in mysql is=====>");
+      console.log(res);
       return res;
     } catch (e) {
       console.log(
@@ -138,37 +138,37 @@ class BaseUtility {
     options = {}
   ) {
     var mysql = require("mysql2/promise");
-    
- var con = await mysql.createConnection({
-   host: "yftregistration.mysql.database.azure.com",
-   user: "yftregistration",
-   password: "Dyt799@#mysqlServer",
-   database: "yft_registration_in",
-   port: 3306,
-   ssl: {
-     ca: fs.readFileSync(
-       path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-     ),
-   },
- });
+
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
     try {
       if (_.isEmpty(this.model)) {
         await this.getModel();
       }
       //conditions.deleted_at = { $exists: false };
-    
+
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
       const modelnameis = await this.model.modelName;
-   
+
       const sql = `Select * FROM ${modelnameis} where ?`;
       const [result, fields] = await con.query(sql, conditions);
-      
+
       // const data = await this.model
       //   .findOne(conditions, projection, options)
       //   .lean();
-  
+
       const res = Object.assign({}, ...result);
- 
+
       return res;
     } catch (e) {
       console.log(
@@ -189,19 +189,19 @@ class BaseUtility {
 
       var mysql = require("mysql2/promise");
 
-    var con = await mysql.createConnection({
-      host: "yftregistration.mysql.database.azure.com",
-      user: "yftregistration",
-      password: "Dyt799@#mysqlServer",
-      database: "yft_registration_in",
-      port: 3306,
-      ssl: {
-        ca: fs.readFileSync(
-          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-        ),
-      },
-    });
-    
+      var con = await mysql.createConnection({
+        host: "yftregistration.mysql.database.azure.com",
+        user: "yftregistration",
+        password: "Dyt799@#mysqlServer",
+        database: "yft_registration_in",
+        port: 3306,
+        ssl: {
+          ca: fs.readFileSync(
+            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+          ),
+        },
+      });
+
       const returnData = con.connect(function (err) {
         if (err) throw err;
 
@@ -237,30 +237,29 @@ class BaseUtility {
       var emptydata = [];
       var mysql = require("mysql2/promise");
       var con = await mysql.createConnection({
-       host: "yftregistration.mysql.database.azure.com",
-       user: "yftregistration",
-       password: "Dyt799@#mysqlServer",
-       database: "yft_registration_in",
-       port: 3306,
-       ssl: {
-         ca: fs.readFileSync(
-           path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-         ),
-       },
-     });
+        host: "yftregistration.mysql.database.azure.com",
+        user: "yftregistration",
+        password: "Dyt799@#mysqlServer",
+        database: "yft_registration_in",
+        port: 3306,
+        ssl: {
+          ca: fs.readFileSync(
+            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+          ),
+        },
+      });
 
-       const sql = `Select * FROM ${modelnameis} where ?`;
-       const [result, fields] = await con.query(sql, conditions);
+      const sql = `Select * FROM ${modelnameis} where ?`;
+      const [result, fields] = await con.query(sql, conditions);
 
-       // const data = await this.model
-       //   .findOne(conditions, projection, options)
-       //   .lean();
+      // const data = await this.model
+      //   .findOne(conditions, projection, options)
+      //   .lean();
 
       const result1 = Object.assign({}, ...result);
-      console.log(result1)
-       return result1;
+      console.log(result1);
+      return result1;
       //let result = await this.model.findOne(conditions, projection, options).lean();
-     
     } catch (e) {
       console.log(
         `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
@@ -311,25 +310,28 @@ class BaseUtility {
   }
 
   async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
-  var mysql = require("mysql2/promise");
-  
-var con = await mysql.createConnection({
-  host: "yftregistration.mysql.database.azure.com",
-  user: "yftregistration",
-  password: "Dyt799@#mysqlServer",
-  database: "yft_registration_in",
-  port: 3306,
-  ssl: {
-    ca: fs.readFileSync(path.join(__dirname,"./certificate/DigiCertGlobalRootCA.crt.pem")),
-  },
-});
+    console.log("for mongo", record_for_mongoDb);
+    var mysql = require("mysql2/promise");
+
+    var con = await mysql.createConnection({
+      host: "yftregistration.mysql.database.azure.com",
+      user: "yftregistration",
+      password: "Dyt799@#mysqlServer",
+      database: "yft_registration_in",
+      port: 3306,
+      ssl: {
+        ca: fs.readFileSync(
+          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+        ),
+      },
+    });
 
     try {
       if (_.isEmpty(this.model)) {
         await this.getModel();
       }
       const modelnameis = await this.model.modelName;
-
+      delete record_for_mysql.opening_days;
       //MySql Database
       const data = record_for_mysql;
       const sql = `INSERT INTO ${modelnameis} SET ?`;
@@ -337,7 +339,7 @@ var con = await mysql.createConnection({
       const [result, fields] = await con.query(sql, data, true);
       console.log(sql, data);
       if (result) {
-        const iim = await this.model.create(record_for_mongoDb);
+        await this.model.create(record_for_mongoDb);
       }
       return result;
     } catch (e) {
@@ -418,23 +420,23 @@ var con = await mysql.createConnection({
       const modelnameis = await this.model.modelName;
 
       var mysql = require("mysql2/promise");
- var con = await mysql.createConnection({
-   host: "yftregistration.mysql.database.azure.com",
-   user: "yftregistration",
-   password: "Dyt799@#mysqlServer",
-   database: "yft_registration_in",
-   port: 3306,
-   ssl: {
-     ca: fs.readFileSync(
-       path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-     ),
-   },
- });
+      var con = await mysql.createConnection({
+        host: "yftregistration.mysql.database.azure.com",
+        user: "yftregistration",
+        password: "Dyt799@#mysqlServer",
+        database: "yft_registration_in",
+        port: 3306,
+        ssl: {
+          ca: fs.readFileSync(
+            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+          ),
+        },
+      });
 
       const sql = `UPDATE login_details SET is_email_varified= 'true', status= 'active' where user_id = '${conditions.user_id}'`;
       const [result, fields] = await con.execute(sql);
-      console.log("account activate is result")
-      console.log(result)
+      console.log("account activate is result");
+      console.log(result);
       return result;
 
       //	let result = await this.model.updateOne(conditions, updatedDoc, options);
@@ -469,18 +471,19 @@ var con = await mysql.createConnection({
 
       var mysql = require("mysql2/promise");
       var con = await mysql.createConnection({
-      host: "yftregistration.mysql.database.azure.com",
-      user: "yftregistration",
-      password: "Dyt799@#mysqlServer",
-      database: "yft_registration_in",
-      port: 3306,
-      ssl: {
-        ca: fs.readFileSync(
-          path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-        ),
-      },
-    });
-
+        host: "yftregistration.mysql.database.azure.com",
+        user: "yftregistration",
+        password: "Dyt799@#mysqlServer",
+        database: "yft_registration_in",
+        port: 3306,
+        ssl: {
+          ca: fs.readFileSync(
+            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+          ),
+        },
+      });
+      console.log("data isssssss");
+      console.log(data);
       var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
       var key = "password";
       var cipher_for_fisrt_name = crypto.createCipher(algorithm, key);
@@ -556,9 +559,12 @@ var con = await mysql.createConnection({
 
       const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${enc_dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',institute_school='${data.institute.school}',country_name='${enc_country_name}',country_id='${data.country_id}',state_id='${data.state_id}',state_name='${enc_state_name}',district_id='${data.district_id}',district_name='${enc_district_name}',bio='${enc_bio}',player_type='${data.player_type}',institute_school='${data.institute.school}',institute_college='${data.institute.college}',institute_university='${data.institute.university}'
       where user_id = '${conditions.user_id}'`;
-    
-      const [result, fields] = await con.execute(sql);
 
+      const [result, fields] = await con.execute(sql);
+      console.log("sql condition is========>");
+      console.log(sql);
+      console.log("result issss");
+      console.log(result);
       return result;
 
       //	let result = await this.model.updateOne(conditions, updatedDoc, options);
@@ -569,7 +575,128 @@ var con = await mysql.createConnection({
       throw e;
     }
   }
+ 
+  async  updateOneProfileClub(
+    conditions = {},
+    data = {},
+    updatedDoc = {},
+    options = {}
+  ) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+      conditions.deleted_at = { $exists: false };
 
+      // const results = await this.model.updateOne(
+      // conditions,
+      //updatedDoc,
+      // options
+      //);
+
+      const modelnameis = await this.model.modelName;
+
+      var mysql = require("mysql2/promise");
+      var con = await mysql.createConnection({
+        host: "yftregistration.mysql.database.azure.com",
+        user: "yftregistration",
+        password: "Dyt799@#mysqlServer",
+        database: "yft_registration_in",
+        port: 3306,
+        ssl: {
+          ca: fs.readFileSync(
+            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+          ),
+        },
+      });
+      console.log("data isssssss");
+      console.log(data);
+      if (data._category !== 'professional_details') {
+        var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
+        var key = "password";
+        var cipher_for_name = crypto.createCipher(algorithm, key);
+        var cipher_for_phone = crypto.createCipher(algorithm, key);
+        var cipher_for_short_name = crypto.createCipher(algorithm, key);
+        var cipher_for_country_name = crypto.createCipher(algorithm, key);
+        var cipher_for_state_name = crypto.createCipher(algorithm, key);
+        var cipher_for_district_name = crypto.createCipher(algorithm, key);
+        var cipher_for_enc_bio = crypto.createCipher(algorithm, key);
+        var cipher_for_mobile_number = crypto.createCipher(algorithm, key);
+        var cipher_for_pincode = crypto.createCipher(algorithm, key);
+        var cipher_for_stadium_name = crypto.createCipher(algorithm, key);
+    
+
+        var enc_name =
+          cipher_for_name.update(data.name, "utf8", "hex") +
+          cipher_for_name.final("hex");
+
+        var enc_phone =
+          cipher_for_phone.update(data.phone, "utf8", "hex") +
+          cipher_for_phone.final("hex");
+
+    
+
+        var enc_short_name =
+          cipher_for_short_name.update(data.short_name, "utf8", "hex") +
+          cipher_for_short_name.final("hex");
+
+        var enc_mobile_number =
+          cipher_for_mobile_number.update(data.mobile_number, "utf8", "hex") +
+          cipher_for_mobile_number.final("hex");
+
+        var enc_pincode =
+          cipher_for_pincode.update(data.pincode, "utf8", "hex") +
+          cipher_for_pincode.final("hex");
+
+  
+
+        var enc_country_name =
+          cipher_for_country_name.update(data.country.name, "utf8", "hex") +
+          cipher_for_country_name.final("hex");
+
+        var enc_state_name =
+          cipher_for_state_name.update(data.state.name, "utf8", "hex") +
+          cipher_for_state_name.final("hex");
+
+
+        var enc_district_name =
+          cipher_for_district_name.update(data.district.name, "utf8", "hex") +
+          cipher_for_district_name.final("hex");
+
+        var enc_bio =
+          cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
+          cipher_for_enc_bio.final("hex");
+
+        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',name='${enc_name}',short_name='${data.short_name}',mobile_number='${data.mobile_number}',address_pincode='${data.pincode}',stadium_name='${data.stadium_name}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${enc_state_name}',district_id='${data.district.id}',district_name='${enc_district_name}',bio='${enc_bio}'
+      where user_id = '${conditions.user_id}'`;
+
+        const [result, fields] = await con.execute(sql);
+        console.log("sql condition is========>");
+        console.log(sql);
+        console.log("result issss");
+        console.log(result);
+        return result;
+      }
+      else {
+             const sql = `UPDATE ${modelnameis} SET association='${data.association}',league='${data.league}',top_signings_name='${data.top_signings.name}',contact_persion_designation='${data.contact_person.designation}',contact_persion_name='${data.contact_person.name}',contact_persion_email='${data.contact_person.email}',contact_persion_mobile_number='${data.contact_person.mobile_number}'
+      where user_id = '${conditions.user_id}'`;
+
+             const [result, fields] = await con.execute(sql);
+             console.log("sql condition is========>");
+             console.log(sql);
+             console.log("result issss");
+             console.log(result);
+             return result;
+      }
+      //	let result = await this.model.updateOne(conditions, updatedDoc, options);
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
   async findOneAndUpdate(conditions = {}, updatedDoc = {}, options = {}) {
     try {
       let entity = await this.findOne(conditions, null, options);

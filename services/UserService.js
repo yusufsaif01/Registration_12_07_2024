@@ -1,6 +1,7 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
+const CoacheUtility = require("../db/utilities/CoacheUtility");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const AuthUtility = require("../db/utilities/AuthUtility");
 const LoginUtility = require("../db/utilities/LoginUtility");
@@ -27,6 +28,7 @@ class UserService extends BaseService {
   constructor() {
     super();
     this.playerUtilityInst = new PlayerUtility();
+    this.coacheUtilityInst = new CoacheUtility();
     this.clubAcademyUtilityInst = new ClubAcademyUtility();
     this.achievementUtilityInst = new AchievementUtility();
     this.connectionUtilityInst = new ConnectionUtility();
@@ -362,9 +364,13 @@ class UserService extends BaseService {
             { user_id: user },
             projection
           );
-        
+        }
+        else if (loginDetails.member_type == MEMBER.COACHE) {
+            data = await this.coacheUtilityInst.findOneForProfileFetch(
+              { user_id: user },
+              projection
+            );
         } else {
-        
           data = await this.clubAcademyUtilityInst.findOneForProfileFetch(
             { user_id: user },
             projection
@@ -393,9 +399,6 @@ class UserService extends BaseService {
           var email =
             decipher_for_email.update(data.email, "hex", "utf8") +
             decipher_for_email.final("utf8");
-         
-          
-       
          
          // if (data.institute_school != null)
        //   {
@@ -435,18 +438,20 @@ class UserService extends BaseService {
             data.bio=bio
             }
          
-          if (data.member_type == "player") {
+          if (data.member_type == "player" || data.member_type == "coache") {
             var first_name =
               decipher_for_first_name.update(data.first_name, "hex", "utf8") +
               decipher_for_first_name.final("utf8");
             var last_name =
               decipher_for_last_name.update(data.last_name, "hex", "utf8") +
               decipher_for_last_name.final("utf8");
+           
+            
             if (data.gender != null) {
               var gender =
                 decipher_for_gender.update(data.gender, "hex", "utf8") +
                 decipher_for_gender.final("utf8");
-              data.gender=gender
+              data.gender = gender;
             }
             data.first_name = first_name;
             data.last_name = last_name;
@@ -462,7 +467,8 @@ class UserService extends BaseService {
           data.email = email;
         
           data.phone = phone;
-        
+          console.log("return data isssssssss")
+          console.log(data)
         
           return data;
         } else {

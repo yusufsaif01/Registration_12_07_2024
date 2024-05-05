@@ -3,7 +3,7 @@ const UserRegistrationService = require('../services/UserRegistrationService');
 const { checkAuthToken, checkTokenForAccountActivation, removeAuthToken } = require('../middleware/auth');
 const responseHandler = require('../ResponseHandler');
 const AuthService = require('../services/AuthService');
-
+const CreateTraningCenterService = require("../services/CreateTraningCenterService");
 module.exports = (router) => {
     /**
 	 * @api {post} /register register 
@@ -45,6 +45,13 @@ module.exports = (router) => {
 		console.log("in new middleware")
 		responseHandler(req, res, serviceInst.memberRegistration(req.body));
 	});
+
+	// create traning center
+
+	  router.post("/create_traning_center", function (req, res) {
+      const serviceInst = new CreateTraningCenterService();
+      responseHandler(req, res, serviceInst.createTraningCenter(req.body));
+    });
 	/**
 	 * @api {post} /login login
 	 * @apiName Login
