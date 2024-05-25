@@ -1,7 +1,7 @@
 const Promise = require("bluebird");
 const errors = require("../errors");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
-const CoacheUtility = require("../db/utilities/CoacheUtility");
+const coacheUtility = require("../db/utilities/CoacheUtility");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const AuthUtility = require("../db/utilities/AuthUtility");
 const LoginUtility = require("../db/utilities/LoginUtility");
@@ -28,7 +28,7 @@ class UserService extends BaseService {
   constructor() {
     super();
     this.playerUtilityInst = new PlayerUtility();
-    this.coacheUtilityInst = new CoacheUtility();
+    this.coacheUtilityInst = new coacheUtility();
     this.clubAcademyUtilityInst = new ClubAcademyUtility();
     this.achievementUtilityInst = new AchievementUtility();
     this.connectionUtilityInst = new ConnectionUtility();
@@ -337,15 +337,13 @@ class UserService extends BaseService {
 
   async getDetails(requestedData = {}) {
     try {
-    
       let user = requestedData.user;
-     
+
       let loginDetails = await this.loginUtilityInst.findOneForProfileFetch({
         user_id: user,
       });
-     
+
       if (loginDetails) {
-      
         if (loginDetails.is_email_varified !== "true") {
           return responseHandler(
             req,
@@ -358,30 +356,38 @@ class UserService extends BaseService {
         let data = {},
           projection = {};
         projection = await this.getProfileProjection(requestedData._category);
-     
+
         if (loginDetails.member_type == MEMBER.PLAYER) {
           data = await this.playerUtilityInst.findOneForProfileFetch(
             { user_id: user },
             projection
           );
-        }
-        else if (loginDetails.member_type == MEMBER.COACHE) {
-            data = await this.coacheUtilityInst.findOneForProfileFetch(
-              { user_id: user },
-              projection
-            );
-        } else {
-          data = await this.clubAcademyUtilityInst.findOneForProfileFetch(
+        } else if (loginDetails.member_type == MEMBER.coache) {
+          data = await this.coacheUtilityInst.findOneForProfileFetch(
             { user_id: user },
             projection
           );
+        } else {
+          if (requestedData._category === PROFILE_DETAIL.PROFESSIONAL) {
+            console.log(user);
+            data = await this.clubAcademyUtilityInst.findOneProfessionalInMongo(
+              { user_id: user },
+              projection
+            );
+            console.log("return data in else from mongoDb is", data);
+            return data;
+          } else {
+            data = await this.clubAcademyUtilityInst.findOneForProfileFetch(
+              { user_id: user },
+              projection
+            );
+          }
         }
         if (!_.isEmpty(data)) {
+          console.log("data value inside !_.isEmpty function are=>", data);
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
-          console.log("return data is");
-          console.log(data);
-          console.log(data.member_type);
+
           var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
           var key = "password";
           var decipher_for_email = crypto.createDecipher(algorithm, key);
@@ -392,52 +398,51 @@ class UserService extends BaseService {
           var decipher_for_bio = crypto.createDecipher(algorithm, key);
           var decipher_for_gender = crypto.createDecipher(algorithm, key);
           var decipher_for_country = crypto.createDecipher(algorithm, key);
-          var decipher_for_state = crypto.createDecipher(algorithm, key);
-          var decipher_for_district = crypto.createDecipher(algorithm, key);
+          // var decipher_for_state = crypto.createDecipher(algorithm, key);
+          // var decipher_for_district = crypto.createDecipher(algorithm, key);
+
           var decipher_for_school = crypto.createDecipher(algorithm, key);
           var decipher_for_dob = crypto.createDecipher(algorithm, key);
           var email =
             decipher_for_email.update(data.email, "hex", "utf8") +
             decipher_for_email.final("utf8");
-         
-         // if (data.institute_school != null)
-       //   {
-         //     var school =
-         //       decipher_for_school.update(data.institute_school, "hex", "utf8") +
-         //       decipher_for_school.final("utf8");
-        //      data.institute_school = school;
-       //     }
-            if (data.country_name != null) {
-              var country =
-                decipher_for_country.update(data.country_name, "hex", "utf8") +
-                decipher_for_country.final("utf8");
-              data.country = country;
-            }
-           
-          if (data.state != null) {
-            var state =
-              decipher_for_state.update(data.state_name, "hex", "utf8") +
-              decipher_for_state.final("utf8");
-            data.state= state;
+
+          // if (data.institute_school != null)
+          //   {
+          //     var school =
+          //       decipher_for_school.update(data.institute_school, "hex", "utf8") +
+          //       decipher_for_school.final("utf8");
+          //      data.institute_school = school;
+          //     }
+          if (data.country_name != null) {
+            var country =
+              decipher_for_country.update(data.country_name, "hex", "utf8") +
+              decipher_for_country.final("utf8");
+            data.country_name = country;
           }
-          if (data.district_name != null) {
-            
-            var district =
-              decipher_for_district.update(data.district_name, "hex", "utf8") +
-              decipher_for_district.final("utf8");
-            data.district=district
-          }
+
+          // if (data.state_name != null) {
+          //   var state =
+          //     decipher_for_state.update(data.state_name, "hex", "utf8") +
+          //     decipher_for_state.final("utf8");
+          //   data.state_name = state;
+          //  }
+          //  if (data.district_name != null) {
+          //    var district =
+          //     decipher_for_district.update(data.district_name, "hex", "utf8") +
+          //      decipher_for_district.final("utf8");
+          //    data.district_name = district;
+          //  }
           var phone =
             decipher_for_phone.update(data.phone, "hex", "utf8") +
             decipher_for_phone.final("utf8");
-          if (data.bio != null)
-          {
-             var bio =
-               decipher_for_bio.update(data.bio, "hex", "utf8") +
-               decipher_for_bio.final("utf8");
-            data.bio=bio
-            }
-         
+          if (data.bio != null) {
+            var bio =
+              decipher_for_bio.update(data.bio, "hex", "utf8") +
+              decipher_for_bio.final("utf8");
+            data.bio = bio;
+          }
+
           if (data.member_type == "player" || data.member_type == "coache") {
             var first_name =
               decipher_for_first_name.update(data.first_name, "hex", "utf8") +
@@ -445,17 +450,19 @@ class UserService extends BaseService {
             var last_name =
               decipher_for_last_name.update(data.last_name, "hex", "utf8") +
               decipher_for_last_name.final("utf8");
-           
-            
+
             if (data.gender != null) {
               var gender =
                 decipher_for_gender.update(data.gender, "hex", "utf8") +
                 decipher_for_gender.final("utf8");
               data.gender = gender;
             }
+            var dob =
+              decipher_for_dob.update(data.dob, "hex", "utf8") +
+              decipher_for_dob.final("utf8");
             data.first_name = first_name;
             data.last_name = last_name;
-            
+            data.dob = dob;
           } else {
             console.log("inside else block");
             var name =
@@ -465,11 +472,10 @@ class UserService extends BaseService {
           }
 
           data.email = email;
-        
+
           data.phone = phone;
-          console.log("return data isssssssss")
-          console.log(data)
-        
+          console.log("data while fetching in getProfile api", data);
+
           return data;
         } else {
           return Promise.reject(
@@ -547,14 +553,13 @@ class UserService extends BaseService {
     }
   }
 
-  async getPublicProfileDetails(user_id , sent_by) {
+  async getPublicProfileDetails(user_id, sent_by) {
     try {
-    
-      let loginDetails = await this.loginUtilityInst.findOneGetPublicProfileDetails(
-        { user_id: user_id }
-      );
+      let loginDetails =
+        await this.loginUtilityInst.findOneGetPublicProfileDetails({
+          user_id: user_id,
+        });
       if (loginDetails) {
-        
         let data = {},
           projection = {};
         projection = this.getPublicProfileProjection();
@@ -571,21 +576,111 @@ class UserService extends BaseService {
             );
         }
         if (!_.isEmpty(data)) {
-          
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
-         data.is_followed = await this.isFollowed({
-        sent_by: user_id,
-        send_to: sent_by,
-          });
-        if (loginDetails.member_type === MEMBER.PLAYER)
-            data.footmate_status = await this.isFootMate({
-             sent_by: user_id,
+          data.is_followed = await this.isFollowed({
+            sent_by: user_id,
             send_to: sent_by,
-            });
-          console.log("result is 8888888")
-          console.log(data)
-          return Promise.resolve(data);
+          });
+          console.log("inside get public profile !._Empty=>", data);
+          data.member_type = loginDetails.member_type;
+          data.profile_status = loginDetails.profile_status;
+
+          var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
+          var key = "password";
+          var decipher_for_email = crypto.createDecipher(algorithm, key);
+          var decipher_for_first_name = crypto.createDecipher(algorithm, key);
+          var decipher_for_name = crypto.createDecipher(algorithm, key);
+          var decipher_for_last_name = crypto.createDecipher(algorithm, key);
+          var decipher_for_phone = crypto.createDecipher(algorithm, key);
+          var decipher_for_bio = crypto.createDecipher(algorithm, key);
+          var decipher_for_gender = crypto.createDecipher(algorithm, key);
+          var decipher_for_country = crypto.createDecipher(algorithm, key);
+          // var decipher_for_state = crypto.createDecipher(algorithm, key);
+          // var decipher_for_district = crypto.createDecipher(algorithm, key);
+
+          var decipher_for_school = crypto.createDecipher(algorithm, key);
+          var decipher_for_dob = crypto.createDecipher(algorithm, key);
+          var email =
+            decipher_for_email.update(data.email, "hex", "utf8") +
+            decipher_for_email.final("utf8");
+
+          // if (data.institute_school != null)
+          //   {
+          //     var school =
+          //       decipher_for_school.update(data.institute_school, "hex", "utf8") +
+          //       decipher_for_school.final("utf8");
+          //      data.institute_school = school;
+          //     }
+          if (data.country_name != null) {
+            var country =
+              decipher_for_country.update(data.country_name, "hex", "utf8") +
+              decipher_for_country.final("utf8");
+            data.country_name = country;
+          }
+
+          // if (data.state_name != null) {
+          //   var state =
+          //     decipher_for_state.update(data.state_name, "hex", "utf8") +
+          //     decipher_for_state.final("utf8");
+          //   data.state_name = state;
+          //  }
+          //  if (data.district_name != null) {
+          //    var district =
+          //     decipher_for_district.update(data.district_name, "hex", "utf8") +
+          //      decipher_for_district.final("utf8");
+          //    data.district_name = district;
+          //  }
+          var phone =
+            decipher_for_phone.update(data.phone, "hex", "utf8") +
+            decipher_for_phone.final("utf8");
+          if (data.bio != null) {
+            var bio =
+              decipher_for_bio.update(data.bio, "hex", "utf8") +
+              decipher_for_bio.final("utf8");
+            data.bio = bio;
+          }
+ data.footmate_status = await this.isFootMate({
+   sent_by: user_id,
+   send_to: sent_by,
+ });
+          if (
+            data.member_type == "player" ||
+            data.member_type == "coache" 
+          
+          ) {
+           
+            var first_name =
+              decipher_for_first_name.update(data.first_name, "hex", "utf8") +
+              decipher_for_first_name.final("utf8");
+            var last_name =
+              decipher_for_last_name.update(data.last_name, "hex", "utf8") +
+              decipher_for_last_name.final("utf8");
+
+            if (data.gender != null) {
+              var gender =
+                decipher_for_gender.update(data.gender, "hex", "utf8") +
+                decipher_for_gender.final("utf8");
+              data.gender = gender;
+            }
+         
+            data.first_name = first_name;
+            data.last_name = last_name;
+           
+          } else {
+            console.log("inside else block");
+            var name =
+              decipher_for_name.update(data.name, "hex", "utf8") +
+              decipher_for_name.final("utf8");
+            data.name = name;
+          }
+
+          data.email = email;
+
+          data.phone = phone;
+          console.log("inside public profile call===>", data);
+
+          return data;
         } else {
           return Promise.reject(
             new errors.NotFound(RESPONSE_MESSAGE.MEMBER_NOT_FOUND)
@@ -600,14 +695,13 @@ class UserService extends BaseService {
   }
 
   async isFollowed(requestedData = {}) {
-    let following =
-      await this.connectionUtilityInst.findOneInMongo(
-        {
-          user_id: requestedData.sent_by,
-          followings: requestedData.send_to,
-        },
-        { followings: 1, _id: 0 }
-      );
+    let following = await this.connectionUtilityInst.findOneInMongo(
+      {
+        user_id: requestedData.sent_by,
+        followings: requestedData.send_to,
+      },
+      { followings: 1, _id: 0 }
+    );
 
     if (_.isEmpty(following)) {
       return false;

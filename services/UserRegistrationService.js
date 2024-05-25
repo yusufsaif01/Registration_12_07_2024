@@ -2,7 +2,7 @@ const Promise = require("bluebird");
 const errors = require("../errors");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
-const CoacheUtility = require("../db/utilities/CoacheUtility");
+const coacheUtility = require("../db/utilities/CoacheUtility");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const UserService = require("./UserService");
 const uuid = require("uuid/v4");
@@ -19,6 +19,7 @@ const RESPONSE_MESSAGE = require("../constants/ResponseMessage");
 const redisServiceInst = require("../redis/RedisService");
 const FootPlayerUtility = require("../db/utilities/FootPlayerUtility");
 const FOOTPLAYER_STATUS = require("../constants/FootPlayerStatus");
+const OtpService = require("./OtpService");
 const moment = require("moment");
 const PLAYER_TYPE = require("../constants/PlayerType");
 var crypto = require("crypto");
@@ -42,7 +43,7 @@ class UserRegistrationService extends UserService {
   constructor() {
     super();
     this.playerUtilityInst = new PlayerUtility();
-    this.coacheUtilityInst = new CoacheUtility();
+    this.coacheUtilityInst = new coacheUtility();
     this.clubAcademyUtilityInst = new ClubAcademyUtility();
     this.loginUtilityInst = new LoginUtility();
     this.authUtilityInst = new AuthUtility();
@@ -98,11 +99,10 @@ class UserRegistrationService extends UserService {
       },
     });
 
-  const sql = "SELECT * FROM login_details WHERE username = 'abc0@gmail.com'";
+    const sql = "SELECT * FROM login_details WHERE username = 'abc0@gmail.com'";
 
-  const [result, fields] = await con.query(sql);
+    const [result, fields] = await con.query(sql);
 
-   
     //const user = await this.loginUtilityInst.findOne({ "username": registerUser.email });
 
     return Promise.resolve(registerUser);
@@ -117,7 +117,7 @@ class UserRegistrationService extends UserService {
    */
   async memberRegistration(userData) {
     try {
-     // await this.validateMemberRegistration(userData);
+      // await this.validateMemberRegistration(userData);
 
       userData.user_id = uuid();
       userData.avatar_url = config.app.default_avatar_url; // default user icon
@@ -130,12 +130,12 @@ class UserRegistrationService extends UserService {
       //Encryption of Data
       var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
       var key = "password";
-      var cipher_for_name = crypto.createCipher(algorithm,key)
+      var cipher_for_name = crypto.createCipher(algorithm, key);
       var cipher_for_fisrt_name = crypto.createCipher(algorithm, key);
       var cipher_for_last_name = crypto.createCipher(algorithm, key);
       var cipher_for_email = crypto.createCipher(algorithm, key);
       var cipher_for_phone = crypto.createCipher(algorithm, key);
-      console.log("befire insert")
+      console.log("befire insert");
       let loginDetails = await this.loginUtilityInst.insert(
         {
           user_id: userData.user_id,
@@ -154,12 +154,12 @@ class UserRegistrationService extends UserService {
           forgot_password_token: tokenForAccountActivation,
         }
       );
-console.log("after insert");
+      console.log("after insert");
       userData.login_details = loginDetails._id;
-    var dataObj = {};
+      var dataObj = {};
       if (
         userData.member_type == MEMBER.PLAYER ||
-        userData.member_type == MEMBER.COACHE
+        userData.member_type == MEMBER.coache
       ) {
         var enc_first_name =
           cipher_for_fisrt_name.update(userData.first_name, "utf8", "hex") +
@@ -178,47 +178,46 @@ console.log("after insert");
           cipher_for_name.update(userData.name, "utf8", "hex") +
           cipher_for_name.final("hex");
       }
-        var enc_email =
-          cipher_for_email.update(userData.email, "utf8", "hex") +
-          cipher_for_email.final("hex");
+      var enc_email =
+        cipher_for_email.update(userData.email, "utf8", "hex") +
+        cipher_for_email.final("hex");
 
-        var enc_phone =
-          cipher_for_phone.update(userData.phone, "utf8", "hex") +
-          cipher_for_phone.final("hex");
+      var enc_phone =
+        cipher_for_phone.update(userData.phone, "utf8", "hex") +
+        cipher_for_phone.final("hex");
 
-        dataObj.email = enc_email;
-        dataObj.country_code = userData.country_code;
-       
-        dataObj.termsAccepted = userData.termsAccepted;
-        dataObj.member_type = userData.member_type;
-        dataObj.user_id = userData.user_id;
-        dataObj.avatar_url = userData.avatar_url;
-        
-        dataObj.phone = enc_phone;
+      dataObj.email = enc_email;
+      dataObj.country_code = userData.country_code;
 
-        var dataObjForMongo = {};
+      dataObj.termsAccepted = userData.termsAccepted;
+      dataObj.member_type = userData.member_type;
+      dataObj.user_id = userData.user_id;
+      dataObj.avatar_url = userData.avatar_url;
 
-        dataObjForMongo.email = userData.email;
+      dataObj.phone = enc_phone;
+
+      var dataObjForMongo = {};
+
+      dataObjForMongo.email = userData.email;
       dataObjForMongo.first_name = userData.first_name;
       dataObjForMongo.last_name = userData.last_name;
       dataObjForMongo.country_code = userData.country_code;
       dataObjForMongo.name = userData.name;
-        dataObjForMongo.termsAccepted = userData.termsAccepted;
-        dataObjForMongo.member_type = userData.member_type;
-        dataObjForMongo.user_id = userData.user_id;
-        dataObjForMongo.avatar_url = userData.avatar_url;
-      if (userData.member_type == MEMBER.PLAYER)
-      {
+      dataObjForMongo.termsAccepted = userData.termsAccepted;
+      dataObjForMongo.member_type = userData.member_type;
+      dataObjForMongo.user_id = userData.user_id;
+      dataObjForMongo.avatar_url = userData.avatar_url;
+      if (userData.member_type == MEMBER.PLAYER) {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
         userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
         await this.playerUtilityInst.insert(dataObj, dataObjForMongo);
-      }  else if (userData.member_type == MEMBER.COACHE) {
-       userData.dob = moment(userData.dob).format("YYYY-MM-DD");
-       userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
-       await this.coacheUtilityInst.insert(dataObj, dataObjForMongo);
+      } else if (userData.member_type == MEMBER.coache) {
+        userData.dob = moment(userData.dob).format("YYYY-MM-DD");
+        userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
+        await this.coacheUtilityInst.insert(dataObj, dataObjForMongo);
       } else {
-         dataObj.name = enc_name;
-         await this.clubAcademyUtilityInst.insert(dataObj, dataObjForMongo);
+        dataObj.name = enc_name;
+        await this.clubAcademyUtilityInst.insert(dataObj, dataObjForMongo);
       }
       await this.updateFootPlayerCollection({
         member_type: userData.member_type,
@@ -245,12 +244,32 @@ console.log("after insert");
         "create-password?token=" +
         tokenForAccountActivation;
 
-      this.emailService.emailVerification(
+      //  this.emailService.emailVerification(
+      //  userData.email,
+      //accountActivationURL,
+      // userData.first_name || userData.name
+      //);
+
+      // Function to generate OTP
+      const serviceInst = new OtpService();
+      const OTP = await serviceInst.otp_generate(
         userData.email,
         accountActivationURL,
         userData.first_name || userData.name
       );
 
+      console.log("otp isssssssss", OTP);
+      //  this.emailService.emailVerification(
+      //  userData.email,
+      //accountActivationURL,
+      // userData.first_name || userData.name,
+      // OTP
+      //);
+      let response = {
+        email: userData.email,
+        name: userData.first_name || userData.name,
+      };
+      return response;
       return Promise.resolve();
     } catch (e) {
       console.log(e);

@@ -2,7 +2,7 @@ class Role {
   static get ADMIN() {
     return "admin";
   }
-  static get COACHE() {
+  static get coache() {
     return "coache";
   }
   static get PLAYER() {
@@ -16,4 +16,4 @@ class Role {
   }
 }
 
-module.exports = Role
+module.exports = Role;

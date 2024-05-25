@@ -33,11 +33,13 @@ class AuthService {
   async emailVerification(data) {
     try {
       let loginDetails = await this.loginUtilityInst.findOneAnother({
-        user_id: data.user_id,
+        username: data,
       });
-     
+      console.log(data)
+      console.log("before logineajs")
+       console.log(loginDetails);
       if (loginDetails) {
-       
+       console.log("logindetails are",loginDetails)
         const user_id = loginDetails.user_id;
        
         await this.loginUtilityInst.updateOne(
@@ -385,7 +387,7 @@ class AuthService {
     return Promise.resolve();
   }
 
-  async createPassword(tokenData, new_password, confirmPassword) {
+  async createPassword(email, new_password, confirmPassword) {
     var mysql = require("mysql2/promise");
 
     // Create the connection to database
@@ -402,15 +404,17 @@ class AuthService {
    },
  });
     try {
+      console.log("inside connection email=>", email)
+      console.log("inside connection new=>", email);
       await this.validateCreatePassword(
-        tokenData,
+       // tokenData,
         new_password,
         confirmPassword
       );
       let loginDetails = await this.loginUtilityInst.findOneInMongo({
-        user_id: tokenData.user_id,
+        username: email,
       });
-      var text = tokenData.user_id;
+      var text = email;
       var condition = `'${text}'`;
       const [results1, fields] = await connection.execute(
         `SELECT * FROM login_details WHERE user_id = ${condition}`
@@ -418,7 +422,7 @@ class AuthService {
       if (results1) {
         const playerRole = results1.map((data) => data.role).toString();
         const user_id = results1.map((data) => data.user_id).toString();
-        const email = results1.map((data) => data.username).toString();
+        const email1 = results1.map((data) => data.username).toString();
         var condition = `'${user_id}'`;
         const password = await this.authUtilityInst.bcryptToken(new_password);
 
@@ -433,9 +437,9 @@ class AuthService {
         
         const query = `UPDATE login_details SET password='${password}', forgot_password_token= "", profile_status= '${ProfileStatus.VERIFIED}' where user_id = ${condition}`;
         const [results2, fields] = await connection.query(query);
-        await redisServiceInst.deleteByKey(
-          `keyForForgotPassword${tokenData.forgot_password_token}`
-        );
+      //  await redisServiceInst.deleteByKey(
+       //   `keyForForgotPassword${tokenData.forgot_password_token}`
+      //  );
         let playerName = "";
         if (playerRole == ROLE.PLAYER) {
           const [results3, fields] = await connection.execute(
@@ -513,12 +517,12 @@ class AuthService {
     }
   }
 
-  validateCreatePassword(token, password, confirmPassword) {
-    if (!token) {
-      return Promise.reject(
-        new errors.ValidationFailed(RESPONSE_MESSAGE.TOKEN_REQUIRED)
-      );
-    }
+  validateCreatePassword( password, confirmPassword) {
+   // if (!token) {
+    //  return Promise.reject(
+    //    new errors.ValidationFailed(RESPONSE_MESSAGE.TOKEN_REQUIRED)
+    //  );
+   // }
 
     if (!password) {
       return Promise.reject(

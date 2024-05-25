@@ -121,8 +121,7 @@ class BaseUtility {
       //   .lean();
 
       const res = Object.assign({}, ...result);
-      console.log("return data in mysql is=====>");
-      console.log(res);
+     console.log("insideeeeeeeeee finddddddddd oneeeeeeeeee",res)
       return res;
     } catch (e) {
       console.log(
@@ -292,6 +291,27 @@ class BaseUtility {
     }
   }
 
+  async otpVerify(conditions = {}) {
+    try {
+      console.log("inside otpVerify");
+      const projection = {};
+      const options = {};
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+
+      console.log("condition issssss");
+      const result = await this.model.findOne(conditions);
+      console.log("result is", result);
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in find() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
   async countList(conditions = {}) {
     try {
       if (_.isEmpty(this.model)) {
@@ -341,6 +361,21 @@ class BaseUtility {
       if (result) {
         await this.model.create(record_for_mongoDb);
       }
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in insert() while inserting data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async insertOtp(requestData = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      const result = await this.model.create(requestData);
       return result;
     } catch (e) {
       console.log(
@@ -403,6 +438,22 @@ class BaseUtility {
     }
   }
 
+  async insertOneInCoach(conditions = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      console.log("inside updateOneInCoach 000=>", conditions);
+      const results = await this.model.create(conditions);
+      return results;
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
   async updateOne(conditions = {}, updatedDoc = {}, options = {}) {
     try {
       if (_.isEmpty(this.model)) {
@@ -447,6 +498,29 @@ class BaseUtility {
       throw e;
     }
   }
+  async updateOneCoachProfessional(
+    conditions = {},
+    data = {},
+    updatedDoc = {},
+    options = {}
+  ) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      const results = await this.model.updateOne(conditions, data, options);
+      console.log("result after insert is", results);
+
+      return results;
+    } catch (e) {
+      console.log(
+        `Error in updateOne() while updating data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
 
   async updateOneProfile(
     conditions = {},
@@ -459,13 +533,10 @@ class BaseUtility {
         await this.getModel();
       }
       conditions.deleted_at = { $exists: false };
-      conditions.deleted_at = { $exists: false };
 
-      // const results = await this.model.updateOne(
-      // conditions,
-      //updatedDoc,
-      // options
-      //);
+      console.log("updateOneProfile Data is=====>", data);
+      console.log("updateOneProfile Condition is=====>", conditions);
+      const results = await this.model.updateOne(conditions, data, options);
 
       const modelnameis = await this.model.modelName;
 
@@ -482,7 +553,7 @@ class BaseUtility {
           ),
         },
       });
-      console.log("data isssssss");
+      console.log("data isssssss insideeeeeeee Updateeeeeeeeee");
       console.log(data);
       var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
       var key = "password";
@@ -529,17 +600,17 @@ class BaseUtility {
         cipher_for_weight.update(data.weight, "utf8", "hex") +
         cipher_for_weight.final("hex");
 
-      var enc_school =
-        cipher_for_school.update(data.school, "utf8", "hex") +
-        cipher_for_school.final("hex");
+      //  var enc_school =
+      //   cipher_for_school.update(data.school, "utf8", "hex") +
+      //   cipher_for_school.final("hex");
 
       var enc_country_name =
         cipher_for_country_name.update(data.country.name, "utf8", "hex") +
         cipher_for_country_name.final("hex");
 
-      var enc_state_name =
-        cipher_for_state_name.update(data.state.name, "utf8", "hex") +
-        cipher_for_state_name.final("hex");
+     // var enc_state_name =
+      //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
+      //  cipher_for_state_name.final("hex");
 
       var enc_height_feet =
         cipher_for_height_feet.update(data.height_feet, "utf8", "hex") +
@@ -549,15 +620,15 @@ class BaseUtility {
         cipher_for_height_inches.update(data.height_inches, "utf8", "hex") +
         cipher_for_height_inches.final("hex");
 
-      var enc_district_name =
-        cipher_for_district_name.update(data.district.name, "utf8", "hex") +
-        cipher_for_district_name.final("hex");
+     // var enc_district_name =
+     //   cipher_for_district_name.update(data.district.name, "utf8", "hex") +
+      //  cipher_for_district_name.final("hex");
 
       var enc_bio =
         cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
         cipher_for_enc_bio.final("hex");
 
-      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${enc_dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',institute_school='${data.institute.school}',country_name='${enc_country_name}',country_id='${data.country_id}',state_id='${data.state_id}',state_name='${enc_state_name}',district_id='${data.district_id}',district_name='${enc_district_name}',bio='${enc_bio}',player_type='${data.player_type}',institute_school='${data.institute.school}',institute_college='${data.institute.college}',institute_university='${data.institute.university}'
+      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${enc_dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='${data.player_type}'
       where user_id = '${conditions.user_id}'`;
 
       const [result, fields] = await con.execute(sql);
@@ -575,8 +646,31 @@ class BaseUtility {
       throw e;
     }
   }
- 
-  async  updateOneProfileClub(
+  async findOneProfessionalInMongo(
+    conditions = {},
+    projection = [],
+    options = {}
+  ) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      let result = await this.model
+        .findOne(conditions, projection, options)
+        .lean();
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
+  async updateOneProfileClub(
     conditions = {},
     data = {},
     updatedDoc = {},
@@ -586,7 +680,6 @@ class BaseUtility {
       if (_.isEmpty(this.model)) {
         await this.getModel();
       }
-      conditions.deleted_at = { $exists: false };
       conditions.deleted_at = { $exists: false };
 
       // const results = await this.model.updateOne(
@@ -610,9 +703,8 @@ class BaseUtility {
           ),
         },
       });
-      console.log("data isssssss");
-      console.log(data);
-      if (data._category !== 'professional_details') {
+
+      if (data._category !== "professional_details") {
         var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
         var key = "password";
         var cipher_for_name = crypto.createCipher(algorithm, key);
@@ -625,7 +717,6 @@ class BaseUtility {
         var cipher_for_mobile_number = crypto.createCipher(algorithm, key);
         var cipher_for_pincode = crypto.createCipher(algorithm, key);
         var cipher_for_stadium_name = crypto.createCipher(algorithm, key);
-    
 
         var enc_name =
           cipher_for_name.update(data.name, "utf8", "hex") +
@@ -634,8 +725,6 @@ class BaseUtility {
         var enc_phone =
           cipher_for_phone.update(data.phone, "utf8", "hex") +
           cipher_for_phone.final("hex");
-
-    
 
         var enc_short_name =
           cipher_for_short_name.update(data.short_name, "utf8", "hex") +
@@ -649,8 +738,6 @@ class BaseUtility {
           cipher_for_pincode.update(data.pincode, "utf8", "hex") +
           cipher_for_pincode.final("hex");
 
-  
-
         var enc_country_name =
           cipher_for_country_name.update(data.country.name, "utf8", "hex") +
           cipher_for_country_name.final("hex");
@@ -658,7 +745,6 @@ class BaseUtility {
         var enc_state_name =
           cipher_for_state_name.update(data.state.name, "utf8", "hex") +
           cipher_for_state_name.final("hex");
-
 
         var enc_district_name =
           cipher_for_district_name.update(data.district.name, "utf8", "hex") +
@@ -677,17 +763,35 @@ class BaseUtility {
         console.log("result issss");
         console.log(result);
         return result;
-      }
-      else {
-             const sql = `UPDATE ${modelnameis} SET association='${data.association}',league='${data.league}',top_signings_name='${data.top_signings.name}',contact_persion_designation='${data.contact_person.designation}',contact_persion_name='${data.contact_person.name}',contact_persion_email='${data.contact_person.email}',contact_persion_mobile_number='${data.contact_person.mobile_number}'
+      } else {
+        console.log("condition is", conditions);
+        console.log("updateedDocs is", updatedDoc);
+        console.log("options is", options);
+        console.log("data is", data);
+        let mongoInsert = await this.model.updateOne(conditions, data, options);
+        console.log("mongo Insert is", mongoInsert);
+        const top_sing = data.top_signings.map((item) => item.name).toString();
+        const contact_person_name = data.contact_person
+          .map((item) => item.name)
+          .toString();
+        const contact_person_email = data.contact_person
+          .map((item) => item.email)
+          .toString();
+        const contact_persion_designation = data.contact_person
+          .map((item) => item.designation)
+          .toString();
+        const contact_person_mobile = data.contact_person
+          .map((item) => item.mobile_number)
+          .toString();
+        const sql = `UPDATE ${modelnameis} SET association='${data.association}',league='${data.league}',top_signings_name='${top_sing}',contact_persion_designation='${contact_persion_designation}',contact_persion_name='${contact_person_name}',contact_persion_email='${contact_person_email}',contact_persion_mobile_number='${contact_person_mobile}'
       where user_id = '${conditions.user_id}'`;
 
-             const [result, fields] = await con.execute(sql);
-             console.log("sql condition is========>");
-             console.log(sql);
-             console.log("result issss");
-             console.log(result);
-             return result;
+        const [result, fields] = await con.execute(sql);
+        console.log("sql condition is========>");
+        console.log(sql);
+        console.log("result issss");
+        console.log(result);
+        return result;
       }
       //	let result = await this.model.updateOne(conditions, updatedDoc, options);
     } catch (e) {

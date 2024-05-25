@@ -2,6 +2,7 @@ const config = require("../config");
 const AuthUtility = require("../db/utilities/AuthUtility");
 const UserUtility = require("../db/utilities/UserUtility");
 const PlayerUtility = require("../db/utilities/PlayerUtility");
+const CoacheUtility = require("../db/utilities/CoacheUtility");
 const LoginUtility = require("../db/utilities/LoginUtility");
 const ClubAcademyUtility = require("../db/utilities/ClubAcademyUtility");
 const errors = require("../errors");
@@ -19,6 +20,9 @@ const CountryUtility = require("../db/utilities/CountryUtility");
 const StateUtility = require("../db/utilities/StateUtility");
 const DistrictUtility = require("../db/utilities/DistrictUtility");
 const PositionUtility = require("../db/utilities/PositionUtility");
+const CoachRoleUtility = require("../db/utilities/CoachRoleUtility");
+const CoachTraningStyleUtility = require("../db/utilities/CoachTraningStyleUtility");
+const CoachSpecilisationUtility = require("../db/utilities/CoachSpecilisationUtility");
 const PLAYER = require("../constants/PlayerType");
 const DOCUMENT_STATUS = require("../constants/DocumentStatus");
 const CONTRACT_STATUS = require("../constants/ContractStatus");
@@ -38,6 +42,10 @@ class UserProfileService {
    * @memberof UserProfileService
    */
   constructor() {
+    this.coacheUtility = new CoacheUtility();
+    this.coachRoleUtilityInst = new CoachRoleUtility();
+    this.coachTraningStyleUtilityInst = new CoachTraningStyleUtility();
+    this.coachSpecilisationUtilityInst = new CoachSpecilisationUtility();
     this.authUtilityInst = new AuthUtility();
     this.userUtilityInst = new UserUtility();
     this.playerUtilityInst = new PlayerUtility();
@@ -59,22 +67,18 @@ class UserProfileService {
    */
 
   async updateProfileDetails(requestedData = {}) {
-    console.log("data inside updateProfileDetails is ===>")
-    console.log(requestedData)
- //   await this.updateProfileDetailsValidation(
-  //    requestedData.updateValues,
-   //   requestedData.member_type,
-   //   requestedData.id
-   // );
-    console.log("first")
+  
+       await this.updateProfileDetailsValidation(
+       requestedData.updateValues,
+       requestedData.member_type,
+       requestedData.id
+     );
+ 
     let profileData = await this.prepareProfileData(
       requestedData.member_type,
       requestedData.updateValues
     );
-    console.log("profile data isssss=>")
-    console.log('====================================');
-    console.log(profileData);
-    console.log('====================================');
+
     if (requestedData.updateValues._category === PROFILE_DETAIL.DOCUMENT) {
       profileData = await this.manageDocuments(
         profileData,
@@ -82,13 +86,53 @@ class UserProfileService {
         requestedData.id
       );
     }
-    console.log("before ifffffffff")
+ 
     if (requestedData.member_type == MEMBER.PLAYER) {
-     console.log("inside profile member")
+      console.log("inside profile member");
       await this.playerUtilityInst.updateOneProfile(
         { user_id: requestedData.id },
         profileData
       );
+    }
+    else if (requestedData.member_type == MEMBER.coache) {
+      if (profileData._category === "professional_details") {
+        console.log("inside coache update profesional");
+        console.log("profile data inside coach profile is=>", profileData)
+        if (profileData.current_role === "other")
+        {
+          const obj = {}
+          obj.name = profileData.other_current_role;
+          obj.value = profileData.other_current_role;
+           await this.coachRoleUtilityInst.insertOneInCoach(
+            obj
+           );
+        }
+        if (profileData.area_of_spec === "other") {
+           const obj = {};
+           obj.name = profileData.other_specilisation;
+           obj.value = profileData.other_specilisation;
+           await this.coachSpecilisationUtilityInst.insertOneInCoach(obj);
+         }
+     
+        if (profileData.traning_style === "other") {
+          const obj = {};
+          obj.name = profileData.other_traning_style;
+          obj.value = profileData.other_traning_style;
+          await this.coachTraningStyleUtilityInst.insertOneInCoach(obj);
+        }
+          await this.coacheUtility.updateOneCoachProfessional(
+            { user_id: requestedData.id },
+            profileData
+          );
+      }
+      else {
+        console.log("inside coache update personal");
+        await this.coacheUtility.updateOneProfile(
+          { user_id: requestedData.id },
+          profileData
+        );
+      }
+      
     } else {
       await this.clubAcademyUtilityInst.updateOneProfileClub(
         { user_id: requestedData.id },
@@ -284,15 +328,19 @@ class UserProfileService {
   }
 
   async prepareProfileData(member_type, data) {
-    console.log("inside prepare profiledata")
-    console.log(member_type)
-    console.log(data)
+    console.log("inside prepare profiledata");
+    console.log(member_type);
+    console.log(data);
     if (data._category === PROFILE_DETAIL.PROFESSIONAL) {
       if (member_type === MEMBER.PLAYER) {
         let club_academy_details = {
-          head_coach_name: data.head_coach_name ? data.head_coach_name : "",
-          head_coach_phone: data.head_coach_phone ? data.head_coach_phone : "",
-          head_coach_email: data.head_coach_email ? data.head_coach_email : "",
+          head_coache_name: data.head_coache_name ? data.head_coache_name : "",
+          head_coache_phone: data.head_coache_phone
+            ? data.head_coache_phone
+            : "",
+          head_coache_email: data.head_coache_email
+            ? data.head_coache_email
+            : "",
         };
         if (!_.isEmpty(club_academy_details))
           data.club_academy_details = club_academy_details;
@@ -307,8 +355,8 @@ class UserProfileService {
             }
             if (element.id) {
               let positionUtilityInst = new PositionUtility();
-              console.log("before findone")
-              console.log(element.id)
+              console.log("before findone");
+              console.log(element.id);
               const foundPosition = await positionUtilityInst.findOne(
                 { id: element.id },
                 { name: 1 }
@@ -340,7 +388,6 @@ class UserProfileService {
       }
     }
 
-
     if (data._category === PROFILE_DETAIL.PERSONAL) {
       let social_profiles = {};
 
@@ -353,8 +400,8 @@ class UserProfileService {
       if (!_.isEmpty(social_profiles)) data.social_profiles = social_profiles;
       if (data.country && data.state && data.district) {
         let { country, state, district } = data;
-        console.log("before country findone")
-        console.log(country)
+        console.log("before country findone");
+        console.log(country);
         let foundCountry = await this.countryUtilityInst.findOne(
           { id: country },
           { name: 1 }
@@ -463,10 +510,11 @@ class UserProfileService {
   }
 
   async updateProfileDetailsValidation(data, member_type, user_id) {
+    console.log("inside updateProfileDetails Validation")
     const { founded_in, trophies, contact_person, top_signings, _category } =
       data;
     if (founded_in) {
-      console.log("inside updateProfileDetailsValidation =====")
+      console.log("inside updateProfileDetailsValidation =====");
       let msg = null;
       let d = new Date();
       let currentYear = d.getFullYear();
@@ -513,22 +561,22 @@ class UserProfileService {
     if (top_signings) {
       await userValidator.topSigningsValidation({ top_signings: top_signings });
     }
-    if (
-      data.profileStatus &&
-      member_type === MEMBER.PLAYER &&
-      _category === PROFILE_DETAIL.PERSONAL
-    ) {
-      if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
-        return Promise.reject(
-          new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED)
-        );
-      }
-      if (data.profileStatus != PROFILE_STATUS.VERIFIED && !data.dob) {
-        return Promise.reject(
-          new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_REQUIRED)
-        );
-      }
-    }
+   // if (
+   //   data.profileStatus &&
+   //   member_type === MEMBER.PLAYER &&
+   //   _category === PROFILE_DETAIL.PERSONAL
+   // ) {
+    //  if (data.profileStatus === PROFILE_STATUS.VERIFIED && data.dob) {
+    //    return Promise.reject(
+    //      new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_CANNOT_BE_EDITED)
+    //    );
+    //  }
+    //  if (data.profileStatus != PROFILE_STATUS.VERIFIED && !data.dob) {
+    //    return Promise.reject(
+    //      new errors.ValidationFailed(RESPONSE_MESSAGE.DOB_REQUIRED)
+    //    );
+    //  }
+   // }
     return Promise.resolve();
   }
 

@@ -4,6 +4,7 @@ const { checkAuthToken, checkTokenForAccountActivation, removeAuthToken } = requ
 const responseHandler = require('../ResponseHandler');
 const AuthService = require('../services/AuthService');
 const CreateTraningCenterService = require("../services/CreateTraningCenterService");
+const OtpService = require("../services/OtpService");
 module.exports = (router) => {
     /**
 	 * @api {post} /register register 
@@ -46,6 +47,16 @@ module.exports = (router) => {
 		responseHandler(req, res, serviceInst.memberRegistration(req.body));
 	});
 
+
+	//otp verify
+
+	  router.post("/otp/verify", function (req, res) {
+      console.log(req.body.otp);
+	  console.log(req.body.email);
+		  
+    const serviceInst = new OtpService()
+    responseHandler(req, res, serviceInst.otpVerify(req.body));
+    });
 	// create traning center
 
 	  router.post("/create_traning_center", function (req, res) {
@@ -126,11 +137,13 @@ module.exports = (router) => {
 *     }
 * 
 */
-	router.put('/activateemail', checkTokenForAccountActivation, function (req, res, next) {
+	router.put('/activateemail', function (req, res, next) {
 		console.log("inside registration activate")
+		console.log(req.body.email)
 		const authServiceInst = new AuthService();
-		responseHandler(req, res, authServiceInst.emailVerification(req.authUser));
+		responseHandler(req, res, authServiceInst.emailVerification(req.body.email));
 	})
+	
 	/**
 	* @api {post} /create-password create password 
 	* @apiName Create password
@@ -183,7 +196,7 @@ module.exports = (router) => {
 	*/
 	router.post('/create-password', function (req, res) {
 		const authServiceInst = new AuthService();
-		responseHandler(req, res, authServiceInst.createPassword(req.body.authUser, req.body.body.password, req.body.body.confirmPassword));
+		responseHandler(req, res, authServiceInst.createPassword(req.body.body.email, req.body.body.password, req.body.body.confirmPassword));
 		
 	});
 	/**

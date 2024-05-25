@@ -16,14 +16,20 @@ class EmailService {
     });
   }
 
-  async emailVerification(email, activation_link, name) {
-    await this.sendMail("emailVerification", {
+ // async emailVerification(email, activation_link, name) {
+   // await this.sendMail("emailVerification", {
+     // email: email,
+      //activation_link: activation_link,
+      //name: name,
+   // });
+ // }
+  
+  async emailVerification(email,otp) {
+    await this.sendMail("sendOtpEmail", {
       email: email,
-      activation_link: activation_link,
-      name: name,
+      otp:otp
     });
   }
-
   async welcome(email) {
     await this.sendMail("welcome", { email: email });
   }
