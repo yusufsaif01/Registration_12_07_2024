@@ -342,7 +342,7 @@ class UserService extends BaseService {
       let loginDetails = await this.loginUtilityInst.findOneForProfileFetch({
         user_id: user,
       });
-
+console.log("loginDetails areeeeeeeee",loginDetails)
       if (loginDetails) {
         if (loginDetails.is_email_varified !== "true") {
           return responseHandler(
@@ -457,12 +457,12 @@ class UserService extends BaseService {
                 decipher_for_gender.final("utf8");
               data.gender = gender;
             }
-            var dob =
-              decipher_for_dob.update(data.dob, "hex", "utf8") +
-              decipher_for_dob.final("utf8");
+          //  var dob =
+           //   decipher_for_dob.update(data.dob, "hex", "utf8") +
+           //   decipher_for_dob.final("utf8");
             data.first_name = first_name;
             data.last_name = last_name;
-            data.dob = dob;
+           // data.dob = dob;
           } else {
             console.log("inside else block");
             var name =
@@ -472,7 +472,7 @@ class UserService extends BaseService {
           }
 
           data.email = email;
-
+          data.profile_status='verified'
           data.phone = phone;
           console.log("data while fetching in getProfile api", data);
 

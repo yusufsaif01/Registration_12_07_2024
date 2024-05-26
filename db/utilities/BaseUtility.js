@@ -121,7 +121,7 @@ class BaseUtility {
       //   .lean();
 
       const res = Object.assign({}, ...result);
-     console.log("insideeeeeeeeee finddddddddd oneeeeeeeeee",res)
+     // console.log("insideeeeeeeeee finddddddddd oneeeeeeeeee", res);
       return res;
     } catch (e) {
       console.log(
@@ -332,7 +332,7 @@ class BaseUtility {
   async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
     console.log("for mongo", record_for_mongoDb);
     var mysql = require("mysql2/promise");
-
+    console.log("data for mysql is===>",record_for_mysql)
     var con = await mysql.createConnection({
       host: "yftregistration.mysql.database.azure.com",
       user: "yftregistration",
@@ -592,10 +592,6 @@ class BaseUtility {
         cipher_for_gender.update(data.gender, "utf8", "hex") +
         cipher_for_gender.final("hex");
 
-      var enc_dob =
-        cipher_for_dob.update(data.dob, "utf8", "hex") +
-        cipher_for_dob.final("hex");
-
       var enc_weight =
         cipher_for_weight.update(data.weight, "utf8", "hex") +
         cipher_for_weight.final("hex");
@@ -608,7 +604,7 @@ class BaseUtility {
         cipher_for_country_name.update(data.country.name, "utf8", "hex") +
         cipher_for_country_name.final("hex");
 
-     // var enc_state_name =
+      // var enc_state_name =
       //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
       //  cipher_for_state_name.final("hex");
 
@@ -620,15 +616,15 @@ class BaseUtility {
         cipher_for_height_inches.update(data.height_inches, "utf8", "hex") +
         cipher_for_height_inches.final("hex");
 
-     // var enc_district_name =
-     //   cipher_for_district_name.update(data.district.name, "utf8", "hex") +
+      // var enc_district_name =
+      //   cipher_for_district_name.update(data.district.name, "utf8", "hex") +
       //  cipher_for_district_name.final("hex");
 
       var enc_bio =
         cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
         cipher_for_enc_bio.final("hex");
 
-      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${enc_dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='${data.player_type}'
+      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${data.dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='amateur'
       where user_id = '${conditions.user_id}'`;
 
       const [result, fields] = await con.execute(sql);
@@ -742,9 +738,9 @@ class BaseUtility {
           cipher_for_country_name.update(data.country.name, "utf8", "hex") +
           cipher_for_country_name.final("hex");
 
-        var enc_state_name =
-          cipher_for_state_name.update(data.state.name, "utf8", "hex") +
-          cipher_for_state_name.final("hex");
+      //  var enc_state_name =
+        //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
+       //   cipher_for_state_name.final("hex");
 
         var enc_district_name =
           cipher_for_district_name.update(data.district.name, "utf8", "hex") +
@@ -754,7 +750,7 @@ class BaseUtility {
           cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
           cipher_for_enc_bio.final("hex");
 
-        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',name='${enc_name}',short_name='${data.short_name}',mobile_number='${data.mobile_number}',address_pincode='${data.pincode}',stadium_name='${data.stadium_name}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${enc_state_name}',district_id='${data.district.id}',district_name='${enc_district_name}',bio='${enc_bio}'
+        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',name='${enc_name}',short_name='${data.short_name}',mobile_number='${data.mobile_number}',address_pincode='${data.pincode}',stadium_name='${data.stadium_name}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}'
       where user_id = '${conditions.user_id}'`;
 
         const [result, fields] = await con.execute(sql);
