@@ -330,9 +330,9 @@ class BaseUtility {
   }
 
   async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
-    console.log("for mongo", record_for_mongoDb);
+   // console.log("for mongo", record_for_mongoDb);
     var mysql = require("mysql2/promise");
-    console.log("data for mysql is===>",record_for_mysql)
+    
     var con = await mysql.createConnection({
       host: "yftregistration.mysql.database.azure.com",
       user: "yftregistration",
@@ -351,16 +351,17 @@ class BaseUtility {
         await this.getModel();
       }
       const modelnameis = await this.model.modelName;
-      delete record_for_mysql.opening_days;
+     delete record_for_mysql.opening_days;
       //MySql Database
-      const data = record_for_mysql;
-      const sql = `INSERT INTO ${modelnameis} SET ?`;
+    const data = record_for_mysql;
+    const sql = `INSERT INTO ${modelnameis} SET ?`;
 
-      const [result, fields] = await con.query(sql, data, true);
-      console.log(sql, data);
-      if (result) {
+     const [result, fields] = await con.query(sql, data, true);
+  
+        console.log("data before insert is", record_for_mongoDb);
         await this.model.create(record_for_mongoDb);
-      }
+        console.log("data after insert is",data)
+      
       return result;
     } catch (e) {
       console.log(

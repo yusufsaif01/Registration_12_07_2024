@@ -48,14 +48,11 @@ module.exports = (router) => {
 	});
 
 
-	//otp verify
-
-	  router.post("/otp/verify", function (req, res) {
+	router.post("/otp/verify", function (req, res) {
       console.log(req.body.otp);
-	  console.log(req.body.email);
-		  
-    const serviceInst = new OtpService()
-    responseHandler(req, res, serviceInst.otpVerify(req.body));
+	  console.log(req.body.email);	  
+      const serviceInst = new OtpService()
+      responseHandler(req, res, serviceInst.otpVerify(req.body));
     });
 	// create traning center
 
