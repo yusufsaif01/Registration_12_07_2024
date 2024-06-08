@@ -342,7 +342,7 @@ class UserService extends BaseService {
       let loginDetails = await this.loginUtilityInst.findOneForProfileFetch({
         user_id: user,
       });
-console.log("loginDetails areeeeeeeee",loginDetails)
+
       if (loginDetails) {
         if (loginDetails.is_email_varified !== "true") {
           return responseHandler(
@@ -374,7 +374,7 @@ console.log("loginDetails areeeeeeeee",loginDetails)
               { user_id: user },
               projection
             );
-            console.log("return data in else from mongoDb is", data);
+           
             return data;
           } else {
             data = await this.clubAcademyUtilityInst.findOneForProfileFetch(
@@ -474,8 +474,6 @@ console.log("loginDetails areeeeeeeee",loginDetails)
           data.email = email;
           data.profile_status='verified'
           data.phone = phone;
-          console.log("data while fetching in getProfile api", data);
-
           return data;
         } else {
           return Promise.reject(

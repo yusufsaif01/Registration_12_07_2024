@@ -96,8 +96,7 @@ class UserProfileService {
     }
     else if (requestedData.member_type == MEMBER.coache) {
       if (profileData._category === "professional_details") {
-        console.log("inside coache update profesional");
-        console.log("profile data inside coach profile is=>", profileData)
+  
         if (profileData.current_role === "other")
         {
           const obj = {}
@@ -357,7 +356,7 @@ class UserProfileService {
               let positionUtilityInst = new PositionUtility();
               console.log("before findone");
               console.log(element.id);
-              const foundPosition = await positionUtilityInst.findOne(
+              const foundPosition = await positionUtilityInst.findOnePosition(
                 { id: element.id },
                 { name: 1 }
               );

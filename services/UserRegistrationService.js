@@ -209,11 +209,15 @@ class UserRegistrationService extends UserService {
       dataObjForMongo.avatar_url = userData.avatar_url;
       if (userData.member_type == MEMBER.PLAYER) {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
-        userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
+        const player_type = await this.getPlayerTypeFromDOB(userData.dob);
+        dataObj.player_type = player_type;
+        dataObjForMongo.player_type = player_type
         await this.playerUtilityInst.insert(dataObj, dataObjForMongo);
       } else if (userData.member_type == MEMBER.coache) {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
-        userData.player_type = await this.getPlayerTypeFromDOB(userData.dob);
+         const player_type = await this.getPlayerTypeFromDOB(userData.dob);
+         dataObj.player_type = player_type;
+         dataObjForMongo.player_type = player_type;
         await this.coacheUtilityInst.insert(dataObj, dataObjForMongo);
       } else {
         dataObj.name = enc_name;

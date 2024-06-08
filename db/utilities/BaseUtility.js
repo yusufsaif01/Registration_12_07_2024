@@ -32,6 +32,26 @@ class BaseUtility {
     }
   }
 
+  async findOnePosition(conditions = {}, projection = [], options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      console.log("inside finddddddddddddddd", conditions);
+      conditions.deleted_at = { $exists: false };
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      let result = await this.model.findOne(conditions, projection, options);
+
+      console.log("result isssss", result);
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
+
   async findOne(conditions = {}, projection = [], options = {}) {
     var mysql = require("mysql2/promise");
 
@@ -78,10 +98,13 @@ class BaseUtility {
       const sql = `Select * FROM ${modelnameis} where ?`;
 
       const [result, fields] = await con.query(sql, where(conditions));
+      console.log("condition of resulttttt is", conditions);
+      console.log("result of result is=>", result);
+      console.log("result of field is=>", fields);
       const data = await this.model
         .findOne(conditions, projection, options)
         .lean();
-
+      console.log("final result is==>", data);
       return data;
     } catch (e) {
       console.log(
@@ -90,6 +113,7 @@ class BaseUtility {
       throw e;
     }
   }
+
   async findOneForProfileFetch(conditions = {}, projection = [], options = {}) {
     var mysql = require("mysql2/promise");
 
@@ -116,12 +140,13 @@ class BaseUtility {
 
       const sql = `Select * FROM ${modelnameis} where ?`;
       const [result, fields] = await con.query(sql, conditions);
-      // const data = await this.model
-      //   .findOne(conditions, projection, options)
-      //   .lean();
-
+      const data = await this.model
+        .findOne(conditions, projection, options)
+        .lean();
+      console.log("return from mongoDb=>", data);
       const res = Object.assign({}, ...result);
-     // console.log("insideeeeeeeeee finddddddddd oneeeeeeeeee", res);
+      res.avatar_url = data.avatar_url;
+      //console.log("inside find one", res)
       return res;
     } catch (e) {
       console.log(
@@ -330,9 +355,9 @@ class BaseUtility {
   }
 
   async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
-   // console.log("for mongo", record_for_mongoDb);
+    console.log("for mongo", record_for_mongoDb);
     var mysql = require("mysql2/promise");
-    
+
     var con = await mysql.createConnection({
       host: "yftregistration.mysql.database.azure.com",
       user: "yftregistration",
@@ -350,18 +375,19 @@ class BaseUtility {
       if (_.isEmpty(this.model)) {
         await this.getModel();
       }
+      await this.model.create(record_for_mongoDb);
       const modelnameis = await this.model.modelName;
-     delete record_for_mysql.opening_days;
+      delete record_for_mysql.opening_days;
       //MySql Database
-    const data = record_for_mysql;
-    const sql = `INSERT INTO ${modelnameis} SET ?`;
+      const data = record_for_mysql;
+      const sql = `INSERT INTO ${modelnameis} SET ?`;
 
-     const [result, fields] = await con.query(sql, data, true);
-  
-        console.log("data before insert is", record_for_mongoDb);
-        await this.model.create(record_for_mongoDb);
-        console.log("data after insert is",data)
+      const [result, fields] = await con.query(sql, data, true);
+
+      console.log("data before insert is", record_for_mongoDb);
       
+      console.log("data after insert is", data);
+
       return result;
     } catch (e) {
       console.log(
@@ -537,104 +563,108 @@ class BaseUtility {
 
       console.log("updateOneProfile Data is=====>", data);
       console.log("updateOneProfile Condition is=====>", conditions);
-      const results = await this.model.updateOne(conditions, data, options);
+      if (data._category === "professional_details") {
+        const results = await this.model.updateOne(conditions, data, options);
+        return results;
+      }
+      
+      else {
+        const modelnameis = await this.model.modelName;
 
-      const modelnameis = await this.model.modelName;
+        var mysql = require("mysql2/promise");
+        var con = await mysql.createConnection({
+          host: "yftregistration.mysql.database.azure.com",
+          user: "yftregistration",
+          password: "Dyt799@#mysqlServer",
+          database: "yft_registration_in",
+          port: 3306,
+          ssl: {
+            ca: fs.readFileSync(
+              path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
+            ),
+          },
+        });
+        console.log("data isssssss insideeeeeeee Updateeeeeeeeee");
+        console.log(data);
+        var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
+        var key = "password";
+        var cipher_for_fisrt_name = crypto.createCipher(algorithm, key);
+        var cipher_for_last_name = crypto.createCipher(algorithm, key);
+        var cipher_for_phone = crypto.createCipher(algorithm, key);
+        var cipher_for_gender = crypto.createCipher(algorithm, key);
+        var cipher_for_dob = crypto.createCipher(algorithm, key);
+        var cipher_for_height_feet = crypto.createCipher(algorithm, key);
+        var cipher_for_height_inches = crypto.createCipher(algorithm, key);
+        var cipher_for_weight = crypto.createCipher(algorithm, key);
+        var cipher_for_school = crypto.createCipher(algorithm, key);
+        var cipher_for_country_name = crypto.createCipher(algorithm, key);
+        var cipher_for_state_name = crypto.createCipher(algorithm, key);
+        var cipher_for_district_name = crypto.createCipher(algorithm, key);
+        var cipher_for_enc_bio = crypto.createCipher(algorithm, key);
+        var cipher_for_institute_school = crypto.createCipher(algorithm, key);
+        var cipher_for_institute_college = crypto.createCipher(algorithm, key);
+        var cipher_for_institute_university = crypto.createCipher(algorithm, key);
+        var cipher_for_height_feet = crypto.createCipher(algorithm, key);
+        var cipher_for_height_inches = crypto.createCipher(algorithm, key);
 
-      var mysql = require("mysql2/promise");
-      var con = await mysql.createConnection({
-        host: "yftregistration.mysql.database.azure.com",
-        user: "yftregistration",
-        password: "Dyt799@#mysqlServer",
-        database: "yft_registration_in",
-        port: 3306,
-        ssl: {
-          ca: fs.readFileSync(
-            path.join(__dirname, "./certificate/DigiCertGlobalRootCA.crt.pem")
-          ),
-        },
-      });
-      console.log("data isssssss insideeeeeeee Updateeeeeeeeee");
-      console.log(data);
-      var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
-      var key = "password";
-      var cipher_for_fisrt_name = crypto.createCipher(algorithm, key);
-      var cipher_for_last_name = crypto.createCipher(algorithm, key);
-      var cipher_for_phone = crypto.createCipher(algorithm, key);
-      var cipher_for_gender = crypto.createCipher(algorithm, key);
-      var cipher_for_dob = crypto.createCipher(algorithm, key);
-      var cipher_for_height_feet = crypto.createCipher(algorithm, key);
-      var cipher_for_height_inches = crypto.createCipher(algorithm, key);
-      var cipher_for_weight = crypto.createCipher(algorithm, key);
-      var cipher_for_school = crypto.createCipher(algorithm, key);
-      var cipher_for_country_name = crypto.createCipher(algorithm, key);
-      var cipher_for_state_name = crypto.createCipher(algorithm, key);
-      var cipher_for_district_name = crypto.createCipher(algorithm, key);
-      var cipher_for_enc_bio = crypto.createCipher(algorithm, key);
-      var cipher_for_institute_school = crypto.createCipher(algorithm, key);
-      var cipher_for_institute_college = crypto.createCipher(algorithm, key);
-      var cipher_for_institute_university = crypto.createCipher(algorithm, key);
-      var cipher_for_height_feet = crypto.createCipher(algorithm, key);
-      var cipher_for_height_inches = crypto.createCipher(algorithm, key);
+        var enc_first_name =
+          cipher_for_fisrt_name.update(data.first_name, "utf8", "hex") +
+          cipher_for_fisrt_name.final("hex");
 
-      var enc_first_name =
-        cipher_for_fisrt_name.update(data.first_name, "utf8", "hex") +
-        cipher_for_fisrt_name.final("hex");
+        var enc_phone =
+          cipher_for_phone.update(data.phone, "utf8", "hex") +
+          cipher_for_phone.final("hex");
 
-      var enc_phone =
-        cipher_for_phone.update(data.phone, "utf8", "hex") +
-        cipher_for_phone.final("hex");
+        var enc_lastname =
+          cipher_for_last_name.update(data.last_name, "utf8", "hex") +
+          cipher_for_last_name.final("hex");
 
-      var enc_lastname =
-        cipher_for_last_name.update(data.last_name, "utf8", "hex") +
-        cipher_for_last_name.final("hex");
+        var enc_gender =
+          cipher_for_gender.update(data.gender, "utf8", "hex") +
+          cipher_for_gender.final("hex");
 
-      var enc_gender =
-        cipher_for_gender.update(data.gender, "utf8", "hex") +
-        cipher_for_gender.final("hex");
+        var enc_weight =
+          cipher_for_weight.update(data.weight, "utf8", "hex") +
+          cipher_for_weight.final("hex");
 
-      var enc_weight =
-        cipher_for_weight.update(data.weight, "utf8", "hex") +
-        cipher_for_weight.final("hex");
+        //  var enc_school =
+        //   cipher_for_school.update(data.school, "utf8", "hex") +
+        //   cipher_for_school.final("hex");
 
-      //  var enc_school =
-      //   cipher_for_school.update(data.school, "utf8", "hex") +
-      //   cipher_for_school.final("hex");
+        var enc_country_name =
+          cipher_for_country_name.update(data.country.name, "utf8", "hex") +
+          cipher_for_country_name.final("hex");
 
-      var enc_country_name =
-        cipher_for_country_name.update(data.country.name, "utf8", "hex") +
-        cipher_for_country_name.final("hex");
+        // var enc_state_name =
+        //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
+        //  cipher_for_state_name.final("hex");
 
-      // var enc_state_name =
-      //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
-      //  cipher_for_state_name.final("hex");
+        var enc_height_feet =
+          cipher_for_height_feet.update(data.height_feet, "utf8", "hex") +
+          cipher_for_height_feet.final("hex");
 
-      var enc_height_feet =
-        cipher_for_height_feet.update(data.height_feet, "utf8", "hex") +
-        cipher_for_height_feet.final("hex");
+        var enc_height_inches =
+          cipher_for_height_inches.update(data.height_inches, "utf8", "hex") +
+          cipher_for_height_inches.final("hex");
 
-      var enc_height_inches =
-        cipher_for_height_inches.update(data.height_inches, "utf8", "hex") +
-        cipher_for_height_inches.final("hex");
+        // var enc_district_name =
+        //   cipher_for_district_name.update(data.district.name, "utf8", "hex") +
+        //  cipher_for_district_name.final("hex");
 
-      // var enc_district_name =
-      //   cipher_for_district_name.update(data.district.name, "utf8", "hex") +
-      //  cipher_for_district_name.final("hex");
+        var enc_bio =
+          cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
+          cipher_for_enc_bio.final("hex");
 
-      var enc_bio =
-        cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
-        cipher_for_enc_bio.final("hex");
-
-      const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${data.dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='amateur'
+        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${data.dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='amateur'
       where user_id = '${conditions.user_id}'`;
 
-      const [result, fields] = await con.execute(sql);
-      console.log("sql condition is========>");
-      console.log(sql);
-      console.log("result issss");
-      console.log(result);
-      return result;
-
+        const [result, fields] = await con.execute(sql);
+        console.log("sql condition is========>");
+        console.log(sql);
+        console.log("result issss");
+        console.log(result);
+        return result;
+      }
       //	let result = await this.model.updateOne(conditions, updatedDoc, options);
     } catch (e) {
       console.log(
@@ -739,9 +769,9 @@ class BaseUtility {
           cipher_for_country_name.update(data.country.name, "utf8", "hex") +
           cipher_for_country_name.final("hex");
 
-      //  var enc_state_name =
+        //  var enc_state_name =
         //  cipher_for_state_name.update(data.state.name, "utf8", "hex") +
-       //   cipher_for_state_name.final("hex");
+        //   cipher_for_state_name.final("hex");
 
         var enc_district_name =
           cipher_for_district_name.update(data.district.name, "utf8", "hex") +
