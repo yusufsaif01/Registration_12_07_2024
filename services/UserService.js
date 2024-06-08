@@ -362,6 +362,7 @@ class UserService extends BaseService {
             { user_id: user },
             projection
           );
+        console.log("in personal details",data)
         } else if (loginDetails.member_type == MEMBER.coache) {
           data = await this.coacheUtilityInst.findOneForProfileFetch(
             { user_id: user },
@@ -384,8 +385,9 @@ class UserService extends BaseService {
           }
         }
         if (!_.isEmpty(data)) {
-          console.log("data value inside !_.isEmpty function are=>", data);
+         console.log("final data is",data)
           data.member_type = loginDetails.member_type;
+         // data.member_type = data.member_type;
           data.profile_status = loginDetails.profile_status;
 
           var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
@@ -540,6 +542,7 @@ class UserService extends BaseService {
         league_other: 1,
         association: 1,
         association_other: 1,
+        member_type:1,
         _id: 0,
       };
     }

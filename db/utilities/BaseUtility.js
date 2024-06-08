@@ -143,7 +143,7 @@ class BaseUtility {
       const data = await this.model
         .findOne(conditions, projection, options)
         .lean();
-      console.log("return from mongoDb=>", data);
+    
       const res = Object.assign({}, ...result);
       res.avatar_url = data.avatar_url;
       //console.log("inside find one", res)
