@@ -208,6 +208,9 @@ module.exports = {
     other_traning_style: {
       type: String,
     },
+    traning_style: {
+      type: String,
+    },
 
     language: {
       type: String,

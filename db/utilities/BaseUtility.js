@@ -145,8 +145,12 @@ class BaseUtility {
         .lean();
     
       const res = Object.assign({}, ...result);
-      res.avatar_url = data.avatar_url;
-      //console.log("inside find one", res)
+      if (data !== null)
+      {
+        res.avatar_url = data.avatar_url;
+        }
+     
+      console.log("inside find one", res)
       return res;
     } catch (e) {
       console.log(
@@ -187,12 +191,18 @@ class BaseUtility {
       const sql = `Select * FROM ${modelnameis} where ?`;
       const [result, fields] = await con.query(sql, conditions);
 
-      // const data = await this.model
-      //   .findOne(conditions, projection, options)
-      //   .lean();
+      const data = await this.model
+         .findOne(conditions, projection, options)
+        .lean();
 
       const res = Object.assign({}, ...result);
-
+      res.avatar_url = data.avatar_url;
+      res.strong_foot = data.strong_foot;
+      res.association = data.association;
+      res.weak_foot = data.weak_foot;
+      res.former_club_academy = data.former_club_academy;
+      res.associated_clud_academy = data.associated_club_academy;
+      res.position = data.position;
       return res;
     } catch (e) {
       console.log(
@@ -536,7 +546,8 @@ class BaseUtility {
         await this.getModel();
       }
       conditions.deleted_at = { $exists: false };
-
+      console.log("before insert in condition is=>", conditions)
+      console.log("before insert in data is=>", data);
       const results = await this.model.updateOne(conditions, data, options);
       console.log("result after insert is", results);
 
@@ -623,9 +634,9 @@ class BaseUtility {
           cipher_for_gender.update(data.gender, "utf8", "hex") +
           cipher_for_gender.final("hex");
 
-        var enc_weight =
-          cipher_for_weight.update(data.weight, "utf8", "hex") +
-          cipher_for_weight.final("hex");
+      //  var enc_weight =
+      //    cipher_for_weight.update(data.weight, "utf8", "hex") +
+       //   cipher_for_weight.final("hex");
 
         //  var enc_school =
         //   cipher_for_school.update(data.school, "utf8", "hex") +
@@ -654,9 +665,15 @@ class BaseUtility {
         var enc_bio =
           cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
           cipher_for_enc_bio.final("hex");
-
-        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${data.dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${data.weight}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='amateur'
-      where user_id = '${conditions.user_id}'`;
+        
+        console.log("player type is===>", data.player_type)
+        const weightis = data.weight ? data.weight : "";
+        const collegeis = data.college ? data.college : "";
+        const schoolis = data.school ? data.school : "";
+        const universityis = data.university ? data.university : "";
+        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',first_name='${enc_first_name}',last_name='${enc_lastname}',gender='${enc_gender}',dob='${data.dob}',height_feet='${data.height_feet}',height_inches='${data.height_inches}',weight='${weightis}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}',player_type='${data.player_type}',institute_college='${collegeis}',institute_university='${universityis}',institute_school='${schoolis}'
+     
+        where user_id = '${conditions.user_id}'`;
 
         const [result, fields] = await con.execute(sql);
         console.log("sql condition is========>");
@@ -744,7 +761,7 @@ class BaseUtility {
         var cipher_for_mobile_number = crypto.createCipher(algorithm, key);
         var cipher_for_pincode = crypto.createCipher(algorithm, key);
         var cipher_for_stadium_name = crypto.createCipher(algorithm, key);
-
+        console.log("data in reg",data)
         var enc_name =
           cipher_for_name.update(data.name, "utf8", "hex") +
           cipher_for_name.final("hex");
@@ -761,9 +778,9 @@ class BaseUtility {
           cipher_for_mobile_number.update(data.mobile_number, "utf8", "hex") +
           cipher_for_mobile_number.final("hex");
 
-        var enc_pincode =
-          cipher_for_pincode.update(data.pincode, "utf8", "hex") +
-          cipher_for_pincode.final("hex");
+       // var enc_pincode =
+       //   cipher_for_pincode.update(data.pincode, "utf8", "hex") +
+        //  cipher_for_pincode.final("hex");
 
         var enc_country_name =
           cipher_for_country_name.update(data.country.name, "utf8", "hex") +
@@ -780,8 +797,9 @@ class BaseUtility {
         var enc_bio =
           cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
           cipher_for_enc_bio.final("hex");
-
-        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',name='${enc_name}',short_name='${data.short_name}',mobile_number='${data.mobile_number}',address_pincode='${data.pincode}',stadium_name='${data.stadium_name}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',bio='${enc_bio}'
+        const stadium_name = data.stadium_name ? data.stadium_name : "";
+        const pincode = data.pincode ? data.pincode : "";
+        const sql = `UPDATE ${modelnameis} SET phone='${enc_phone}',name='${enc_name}',short_name='${data.short_name}',mobile_number='${data.mobile_number}',address_pincode='${pincode}',stadium_name='${stadium_name}',country_name='${enc_country_name}',country_id='${data.country.id}',state_id='${data.state.id}',state_name='${data.state.name}',district_id='${data.district.id}',district_name='${data.district.name}',address_fulladdress='${data.address.full_address}',founded_in='${data.founded_in}',bio='${enc_bio}'
       where user_id = '${conditions.user_id}'`;
 
         const [result, fields] = await con.execute(sql);

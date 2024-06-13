@@ -400,6 +400,7 @@ class UserService extends BaseService {
           var decipher_for_bio = crypto.createDecipher(algorithm, key);
           var decipher_for_gender = crypto.createDecipher(algorithm, key);
           var decipher_for_country = crypto.createDecipher(algorithm, key);
+          var decipher_for_address = crypto.createDecipher(algorithm, key);
           // var decipher_for_state = crypto.createDecipher(algorithm, key);
           // var decipher_for_district = crypto.createDecipher(algorithm, key);
 
@@ -471,6 +472,14 @@ class UserService extends BaseService {
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
             data.name = name;
+
+          // var address =
+          //   decipher_for_address.update(
+          //     data.address_fulladdress,
+           //    "hex",
+           //    "utf8"
+           //  ) + decipher_for_address.final("utf8");
+          //  data.address_fulladdress = address;
           }
 
           data.email = email;
@@ -577,13 +586,14 @@ class UserService extends BaseService {
             );
         }
         if (!_.isEmpty(data)) {
+          console.log("!_.isEmpty public profile data is=>",data)
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
           data.is_followed = await this.isFollowed({
             sent_by: user_id,
             send_to: sent_by,
           });
-          console.log("inside get public profile !._Empty=>", data);
+         
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
 
@@ -597,6 +607,7 @@ class UserService extends BaseService {
           var decipher_for_bio = crypto.createDecipher(algorithm, key);
           var decipher_for_gender = crypto.createDecipher(algorithm, key);
           var decipher_for_country = crypto.createDecipher(algorithm, key);
+          var decipher_for_fullAddress = crypto.createDecipher(algorithm, key);
           // var decipher_for_state = crypto.createDecipher(algorithm, key);
           // var decipher_for_district = crypto.createDecipher(algorithm, key);
 
@@ -674,12 +685,22 @@ class UserService extends BaseService {
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
             data.name = name;
+
+          //  var address_fulladdress =
+          //    decipher_for_fullAddress.update(
+           //     data.address_fulladdress,
+           //     "hex",
+           //     "utf8"
+           //   ) + decipher_for_fullAddress.final("utf8");
+              
+           //   data.address_fulladdress = address_fulladdress;
           }
 
           data.email = email;
 
           data.phone = phone;
-          console.log("inside public profile call===>", data);
+          data.profile_status='verified'
+         
 
           return data;
         } else {
