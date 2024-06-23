@@ -94,7 +94,7 @@ class UserProfileService {
         profileData
       );
     }
-    else if (requestedData.member_type == MEMBER.coache) {
+    else if (requestedData.member_type == MEMBER.coach) {
       if (profileData._category === "professional_details") {
   
         if (profileData.current_role === "other")

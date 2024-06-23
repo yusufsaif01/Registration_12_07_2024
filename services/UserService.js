@@ -363,7 +363,7 @@ class UserService extends BaseService {
             projection
           );
         console.log("in personal details",data)
-        } else if (loginDetails.member_type == MEMBER.coache) {
+        } else if (loginDetails.member_type == MEMBER.coach) {
           data = await this.coacheUtilityInst.findOneForProfileFetch(
             { user_id: user },
             projection
@@ -446,7 +446,7 @@ class UserService extends BaseService {
             data.bio = bio;
           }
 
-          if (data.member_type == "player" || data.member_type == "coache") {
+          if (data.member_type == "player" || data.member_type == "coach") {
             var first_name =
               decipher_for_first_name.update(data.first_name, "hex", "utf8") +
               decipher_for_first_name.final("utf8");
@@ -485,6 +485,8 @@ class UserService extends BaseService {
           data.email = email;
           data.profile_status='verified'
           data.phone = phone;
+          console.log("*******************")
+          console.log(data)
           return data;
         } else {
           return Promise.reject(
@@ -578,6 +580,14 @@ class UserService extends BaseService {
             { user_id: user_id },
             projection
           );
+        }
+        else if (loginDetails.member_type === MEMBER.coach) {
+        
+            data = await this.coacheUtilityInst.findOneGetPublicProfileDetails(
+              { user_id: user_id },
+              projection
+            );
+          
         } else {
           data =
             await this.clubAcademyUtilityInst.findOneGetPublicProfileDetails(
@@ -658,7 +668,7 @@ class UserService extends BaseService {
  });
           if (
             data.member_type == "player" ||
-            data.member_type == "coache" 
+            data.member_type == "coach" 
           
           ) {
            
