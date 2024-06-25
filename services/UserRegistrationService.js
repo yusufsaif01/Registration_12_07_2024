@@ -135,7 +135,7 @@ class UserRegistrationService extends UserService {
       var cipher_for_last_name = crypto.createCipher(algorithm, key);
       var cipher_for_email = crypto.createCipher(algorithm, key);
       var cipher_for_phone = crypto.createCipher(algorithm, key);
-      console.log("befire insert");
+     
       let loginDetails = await this.loginUtilityInst.insert(
         {
           user_id: userData.user_id,
@@ -154,7 +154,7 @@ class UserRegistrationService extends UserService {
           forgot_password_token: tokenForAccountActivation,
         }
       );
-      console.log("after insert");
+      
       userData.login_details = loginDetails._id;
       var dataObj = {};
       if (
@@ -211,7 +211,7 @@ class UserRegistrationService extends UserService {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
         const player_type = await this.getPlayerTypeFromDOB(userData.dob);
         dataObj.player_type = player_type;
-        dataObjForMongo.player_type = player_type
+        dataObjForMongo.player_type = player_type;
         await this.playerUtilityInst.insert(dataObj, dataObjForMongo);
       } else if (userData.member_type == MEMBER.coach) {
         userData.dob = moment(userData.dob).format("YYYY-MM-DD");
@@ -223,6 +223,7 @@ class UserRegistrationService extends UserService {
         dataObj.name = enc_name;
         await this.clubAcademyUtilityInst.insert(dataObj, dataObjForMongo);
       }
+      console.log("before updateFootplayerCollection===>")
       await this.updateFootPlayerCollection({
         member_type: userData.member_type,
         email: userData.email,
@@ -290,19 +291,29 @@ class UserRegistrationService extends UserService {
    */
   async updateFootPlayerCollection(requestedData = {}) {
     try {
-      console.log("before findone query");
-      let footplayerInvite = await this.footPlayerUtilityInst.findOne({
-        send_to_email: requestedData.email,
-        status: FOOTPLAYER_STATUS.INVITED,
-      });
-      console.log("after find one query");
+      console.log("before findone query in update FootPlayerColletction");
+      console.log(requestedData)
+      let footplayerInvite =
+        await this.footPlayerUtilityInst.findOneFootRequest({
+          "send_to.email": requestedData.email,
+          status: FOOTPLAYER_STATUS.INVITED,
+        });
+      
+      
+       if (_.isEmpty(footplayerInvite)) {
+         return Promise.resolve();
+       }
+      console.log("after find one query in FootPlayerCollection");
+      console.log("footplayerInvite data is",footplayerInvite)
       if (_.isEmpty(footplayerInvite)) {
+        console.log("inside _.isEmpty==>")
         return Promise.resolve();
       }
       let updatedDoc = {};
       if (requestedData.member_type != MEMBER.PLAYER) {
         updatedDoc = { status: FOOTPLAYER_STATUS.REJECTED };
       } else {
+        console.log("updateedDoc inside else block")
         updatedDoc = {
           "send_to.user_id": requestedData.user_id,
           "send_to.name": `${requestedData.first_name} ${requestedData.last_name}`,
@@ -310,6 +321,8 @@ class UserRegistrationService extends UserService {
           status: FOOTPLAYER_STATUS.PENDING,
         };
       }
+      console.log("Before Update DOc in UpdateMany Footplayer")
+      console.log("update doc is",updatedDoc)
       await this.footPlayerUtilityInst.updateMany(
         {
           "send_to.email": requestedData.email,

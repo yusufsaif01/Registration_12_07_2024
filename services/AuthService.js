@@ -35,11 +35,9 @@ class AuthService {
       let loginDetails = await this.loginUtilityInst.findOneAnother({
         username: data,
       });
-      console.log(data)
-      console.log("before logineajs")
-       console.log(loginDetails);
+    
       if (loginDetails) {
-       console.log("logindetails are",loginDetails)
+       
         const user_id = loginDetails.user_id;
        
         await this.loginUtilityInst.updateOne(

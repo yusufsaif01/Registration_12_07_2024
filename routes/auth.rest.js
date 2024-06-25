@@ -135,8 +135,7 @@ module.exports = (router) => {
 * 
 */
 	router.put('/activateemail', function (req, res, next) {
-		console.log("inside registration activate")
-		console.log(req.body.email)
+		
 		const authServiceInst = new AuthService();
 		responseHandler(req, res, authServiceInst.emailVerification(req.body.email));
 	})

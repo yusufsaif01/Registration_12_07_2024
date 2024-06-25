@@ -34,8 +34,7 @@ class OtpService {
       };
       const returnData = await this.otpUtilityInst.insertOtp(requetData);
       this.emailService.emailVerification(email, OTP);
-      console.log("data insert in otp schema");
-      console.log(returnData);
+    
       return OTP;
     } catch (e) {
       console.log(e);

@@ -51,7 +51,26 @@ class BaseUtility {
       throw e;
     }
   }
+  async findOneFootRequest(conditions = {}, projection = [], options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
 
+      conditions.deleted_at = { $exists: false };
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+       
+      let result = await this.model.findOne(conditions, projection, options);
+
+      console.log("result isssss", result);
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
   async findOne(conditions = {}, projection = [], options = {}) {
     var mysql = require("mysql2/promise");
 
@@ -98,9 +117,7 @@ class BaseUtility {
       const sql = `Select * FROM ${modelnameis} where ?`;
 
       const [result, fields] = await con.query(sql, where(conditions));
-      console.log("condition of resulttttt is", conditions);
-      console.log("result of result is=>", result);
-      console.log("result of field is=>", fields);
+
       const data = await this.model
         .findOne(conditions, projection, options)
         .lean();
@@ -143,14 +160,12 @@ class BaseUtility {
       const data = await this.model
         .findOne(conditions, projection, options)
         .lean();
-    
+
       const res = Object.assign({}, ...result);
-      if (data !== null)
-      {
+      if (data !== null) {
         res.avatar_url = data.avatar_url;
-        }
-     
-      console.log("inside find one", res)
+      }
+
       return res;
     } catch (e) {
       console.log(
@@ -192,7 +207,7 @@ class BaseUtility {
       const [result, fields] = await con.query(sql, conditions);
 
       const data = await this.model
-         .findOne(conditions, projection, options)
+        .findOne(conditions, projection, options)
         .lean();
 
       const res = Object.assign({}, ...result);
@@ -365,7 +380,6 @@ class BaseUtility {
   }
 
   async insert(record_for_mysql = {}, record_for_mongoDb = {}) {
-    console.log("for mongo", record_for_mongoDb);
     var mysql = require("mysql2/promise");
 
     var con = await mysql.createConnection({
@@ -395,7 +409,7 @@ class BaseUtility {
       const [result, fields] = await con.query(sql, data, true);
 
       console.log("data before insert is", record_for_mongoDb);
-      
+
       console.log("data after insert is", data);
 
       return result;
@@ -446,8 +460,9 @@ class BaseUtility {
         await this.getModel();
       }
       conditions.deleted_at = { $exists: false };
-
+      console.log("just befor updateMany Footplayer");
       let result = await this.model.updateMany(conditions, updatedDoc, options);
+      console.log(result);
       return result;
     } catch (e) {
       console.log(
@@ -523,8 +538,7 @@ class BaseUtility {
 
       const sql = `UPDATE login_details SET is_email_varified= 'true', status= 'active' where user_id = '${conditions.user_id}'`;
       const [result, fields] = await con.execute(sql);
-      console.log("account activate is result");
-      console.log(result);
+
       return result;
 
       //	let result = await this.model.updateOne(conditions, updatedDoc, options);
@@ -546,7 +560,7 @@ class BaseUtility {
         await this.getModel();
       }
       conditions.deleted_at = { $exists: false };
-      console.log("before insert in condition is=>", conditions)
+      console.log("before insert in condition is=>", conditions);
       console.log("before insert in data is=>", data);
       const results = await this.model.updateOne(conditions, data, options);
       console.log("result after insert is", results);
@@ -577,9 +591,7 @@ class BaseUtility {
       if (data._category === "professional_details") {
         const results = await this.model.updateOne(conditions, data, options);
         return results;
-      }
-      
-      else {
+      } else {
         const modelnameis = await this.model.modelName;
 
         var mysql = require("mysql2/promise");
@@ -614,7 +626,10 @@ class BaseUtility {
         var cipher_for_enc_bio = crypto.createCipher(algorithm, key);
         var cipher_for_institute_school = crypto.createCipher(algorithm, key);
         var cipher_for_institute_college = crypto.createCipher(algorithm, key);
-        var cipher_for_institute_university = crypto.createCipher(algorithm, key);
+        var cipher_for_institute_university = crypto.createCipher(
+          algorithm,
+          key
+        );
         var cipher_for_height_feet = crypto.createCipher(algorithm, key);
         var cipher_for_height_inches = crypto.createCipher(algorithm, key);
 
@@ -634,9 +649,9 @@ class BaseUtility {
           cipher_for_gender.update(data.gender, "utf8", "hex") +
           cipher_for_gender.final("hex");
 
-      //  var enc_weight =
-      //    cipher_for_weight.update(data.weight, "utf8", "hex") +
-       //   cipher_for_weight.final("hex");
+        //  var enc_weight =
+        //    cipher_for_weight.update(data.weight, "utf8", "hex") +
+        //   cipher_for_weight.final("hex");
 
         //  var enc_school =
         //   cipher_for_school.update(data.school, "utf8", "hex") +
@@ -665,8 +680,8 @@ class BaseUtility {
         var enc_bio =
           cipher_for_enc_bio.update(data.bio, "utf8", "hex") +
           cipher_for_enc_bio.final("hex");
-        
-        console.log("player type is===>", data.player_type)
+
+        console.log("player type is===>", data.player_type);
         const weightis = data.weight ? data.weight : "";
         const collegeis = data.college ? data.college : "";
         const schoolis = data.school ? data.school : "";
@@ -761,7 +776,7 @@ class BaseUtility {
         var cipher_for_mobile_number = crypto.createCipher(algorithm, key);
         var cipher_for_pincode = crypto.createCipher(algorithm, key);
         var cipher_for_stadium_name = crypto.createCipher(algorithm, key);
-        console.log("data in reg",data)
+        console.log("data in reg", data);
         var enc_name =
           cipher_for_name.update(data.name, "utf8", "hex") +
           cipher_for_name.final("hex");
@@ -778,8 +793,8 @@ class BaseUtility {
           cipher_for_mobile_number.update(data.mobile_number, "utf8", "hex") +
           cipher_for_mobile_number.final("hex");
 
-       // var enc_pincode =
-       //   cipher_for_pincode.update(data.pincode, "utf8", "hex") +
+        // var enc_pincode =
+        //   cipher_for_pincode.update(data.pincode, "utf8", "hex") +
         //  cipher_for_pincode.final("hex");
 
         var enc_country_name =

@@ -385,7 +385,7 @@ class UserService extends BaseService {
           }
         }
         if (!_.isEmpty(data)) {
-         console.log("final data is",data)
+         
           data.member_type = loginDetails.member_type;
          // data.member_type = data.member_type;
           data.profile_status = loginDetails.profile_status;
@@ -467,7 +467,7 @@ class UserService extends BaseService {
             data.last_name = last_name;
            // data.dob = dob;
           } else {
-            console.log("inside else block");
+           
             var name =
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
@@ -485,8 +485,7 @@ class UserService extends BaseService {
           data.email = email;
           data.profile_status='verified'
           data.phone = phone;
-          console.log("*******************")
-          console.log(data)
+         
           return data;
         } else {
           return Promise.reject(
@@ -690,7 +689,7 @@ class UserService extends BaseService {
             data.last_name = last_name;
            
           } else {
-            console.log("inside else block");
+            
             var name =
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
