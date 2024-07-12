@@ -362,7 +362,6 @@ class UserService extends BaseService {
             { user_id: user },
             projection
           );
-        console.log("in personal details",data)
         } else if (loginDetails.member_type == MEMBER.coach) {
           data = await this.coacheUtilityInst.findOneForProfileFetch(
             { user_id: user },
@@ -375,7 +374,7 @@ class UserService extends BaseService {
               { user_id: user },
               projection
             );
-           
+
             return data;
           } else {
             data = await this.clubAcademyUtilityInst.findOneForProfileFetch(
@@ -385,9 +384,8 @@ class UserService extends BaseService {
           }
         }
         if (!_.isEmpty(data)) {
-         
           data.member_type = loginDetails.member_type;
-         // data.member_type = data.member_type;
+          // data.member_type = data.member_type;
           data.profile_status = loginDetails.profile_status;
 
           var algorithm = "aes256"; // or any other algorithm supported by OpenSSL
@@ -460,32 +458,31 @@ class UserService extends BaseService {
                 decipher_for_gender.final("utf8");
               data.gender = gender;
             }
-          //  var dob =
-           //   decipher_for_dob.update(data.dob, "hex", "utf8") +
-           //   decipher_for_dob.final("utf8");
+            //  var dob =
+            //   decipher_for_dob.update(data.dob, "hex", "utf8") +
+            //   decipher_for_dob.final("utf8");
             data.first_name = first_name;
             data.last_name = last_name;
-           // data.dob = dob;
+            // data.dob = dob;
           } else {
-           
             var name =
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
             data.name = name;
 
-          // var address =
-          //   decipher_for_address.update(
-          //     data.address_fulladdress,
-           //    "hex",
-           //    "utf8"
-           //  ) + decipher_for_address.final("utf8");
-          //  data.address_fulladdress = address;
+            // var address =
+            //   decipher_for_address.update(
+            //     data.address_fulladdress,
+            //    "hex",
+            //    "utf8"
+            //  ) + decipher_for_address.final("utf8");
+            //  data.address_fulladdress = address;
           }
 
           data.email = email;
-          data.profile_status='verified'
+          data.profile_status = "verified";
           data.phone = phone;
-         
+
           return data;
         } else {
           return Promise.reject(
@@ -552,7 +549,7 @@ class UserService extends BaseService {
         league_other: 1,
         association: 1,
         association_other: 1,
-        member_type:1,
+        member_type: 1,
         _id: 0,
       };
     }
@@ -579,14 +576,11 @@ class UserService extends BaseService {
             { user_id: user_id },
             projection
           );
-        }
-        else if (loginDetails.member_type === MEMBER.coach) {
-        
-            data = await this.coacheUtilityInst.findOneGetPublicProfileDetails(
-              { user_id: user_id },
-              projection
-            );
-          
+        } else if (loginDetails.member_type === MEMBER.coach) {
+          data = await this.coacheUtilityInst.findOneGetPublicProfileDetails(
+            { user_id: user_id },
+            projection
+          );
         } else {
           data =
             await this.clubAcademyUtilityInst.findOneGetPublicProfileDetails(
@@ -595,14 +589,13 @@ class UserService extends BaseService {
             );
         }
         if (!_.isEmpty(data)) {
-          console.log("!_.isEmpty public profile data is=>",data)
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
           data.is_followed = await this.isFollowed({
             sent_by: user_id,
             send_to: sent_by,
           });
-         
+
           data.member_type = loginDetails.member_type;
           data.profile_status = loginDetails.profile_status;
 
@@ -661,16 +654,11 @@ class UserService extends BaseService {
               decipher_for_bio.final("utf8");
             data.bio = bio;
           }
- data.footmate_status = await this.isFootMate({
-   sent_by: user_id,
-   send_to: sent_by,
- });
-          if (
-            data.member_type == "player" ||
-            data.member_type == "coach" 
-          
-          ) {
-           
+          data.footmate_status = await this.isFootMate({
+            sent_by: sent_by,
+            send_to: user_id,
+          });
+          if (data.member_type == "player" || data.member_type == "coach") {
             var first_name =
               decipher_for_first_name.update(data.first_name, "hex", "utf8") +
               decipher_for_first_name.final("utf8");
@@ -684,32 +672,29 @@ class UserService extends BaseService {
                 decipher_for_gender.final("utf8");
               data.gender = gender;
             }
-         
+
             data.first_name = first_name;
             data.last_name = last_name;
-           
           } else {
-            
             var name =
               decipher_for_name.update(data.name, "hex", "utf8") +
               decipher_for_name.final("utf8");
             data.name = name;
 
-          //  var address_fulladdress =
-          //    decipher_for_fullAddress.update(
-           //     data.address_fulladdress,
-           //     "hex",
-           //     "utf8"
-           //   ) + decipher_for_fullAddress.final("utf8");
-              
-           //   data.address_fulladdress = address_fulladdress;
+            //  var address_fulladdress =
+            //    decipher_for_fullAddress.update(
+            //     data.address_fulladdress,
+            //     "hex",
+            //     "utf8"
+            //   ) + decipher_for_fullAddress.final("utf8");
+
+            //   data.address_fulladdress = address_fulladdress;
           }
 
           data.email = email;
 
           data.phone = phone;
-          data.profile_status='verified'
-         
+          data.profile_status = "verified";
 
           return data;
         } else {
@@ -726,30 +711,32 @@ class UserService extends BaseService {
   }
 
   async isFollowed(requestedData = {}) {
-    let following = await this.connectionUtilityInst.findOneInMongo(
+    let following = await this.connectionUtilityInst.findOneLean(
       {
         user_id: requestedData.sent_by,
-        followings: requestedData.send_to,
+        followers: requestedData.send_to,
       },
-      { followings: 1, _id: 0 }
+      { followers: 1, _id: 0 }
     );
-
+    console.log("requested data is isFollowed is=>", requestedData);
+    console.log("inside isFollowed=>", following);
     if (_.isEmpty(following)) {
+      console.log("inside _isEmpty of isFollowed");
       return false;
     }
     return true;
   }
 
   async isFootMate(requestedData = {}) {
-    let footMateRequest =
-      await this.connectionRequestUtilityInst.findOneInMongo({
-        sent_by: requestedData.sent_by,
-        send_to: requestedData.send_to,
-      });
+    let footMateRequest = await this.connectionRequestUtilityInst.findOneLean({
+      sent_by: requestedData.sent_by,
+      send_to: requestedData.send_to,
+    });
+    console.log("footMateRequest is",footMateRequest);
     if (!_.isEmpty(footMateRequest)) {
       return CONNECTION_REQUEST.PENDING;
     }
-    let connection = await this.connectionUtilityInst.findOneInMongo(
+    let connection = await this.connectionUtilityInst.findOneLean(
       {
         user_id: requestedData.sent_by,
         footmates: requestedData.send_to,

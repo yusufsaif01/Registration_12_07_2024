@@ -375,9 +375,7 @@ class UserProfileService {
             }
             positionArray.push(positionObj);
           }
-          if (msg) {
-            return Promise.reject(new errors.ValidationFailed(msg));
-          }
+          
           data.position = positionArray;
         }
       } else {

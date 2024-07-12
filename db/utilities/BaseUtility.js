@@ -22,7 +22,7 @@ class BaseUtility {
 
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
       let result = await this.model.findOne(conditions, projection, options);
-
+      console.log("result is", result);
       return result;
     } catch (e) {
       console.log(
@@ -32,17 +32,35 @@ class BaseUtility {
     }
   }
 
+  async findOneLean(conditions = {}, projection = [], options = {}) {
+    try {
+      if (_.isEmpty(this.model)) {
+        await this.getModel();
+      }
+      conditions.deleted_at = { $exists: false };
+console.log("conditions issss",conditions)
+      projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
+      let result = await this.model
+        .findOne(conditions, projection, options)
+        .lean();
+      return result;
+    } catch (e) {
+      console.log(
+        `Error in findOne() while fetching data for ${this.schemaObj.schemaName} :: ${e}`
+      );
+      throw e;
+    }
+  }
   async findOnePosition(conditions = {}, projection = [], options = {}) {
     try {
       if (_.isEmpty(this.model)) {
         await this.getModel();
       }
-      console.log("inside finddddddddddddddd", conditions);
+
       conditions.deleted_at = { $exists: false };
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
       let result = await this.model.findOne(conditions, projection, options);
 
-      console.log("result isssss", result);
       return result;
     } catch (e) {
       console.log(
@@ -59,10 +77,9 @@ class BaseUtility {
 
       conditions.deleted_at = { $exists: false };
       projection = !_.isEmpty(projection) ? projection : { _id: 0, __v: 0 };
-       
+
       let result = await this.model.findOne(conditions, projection, options);
 
-      console.log("result isssss", result);
       return result;
     } catch (e) {
       console.log(
